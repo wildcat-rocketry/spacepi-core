@@ -23,6 +23,18 @@
 #define FALSE 0
 #endif
 
+/* Useful macros */
+
+#ifndef STR
+#define _STR(x) # x
+#define STR(x) _STR(x)
+#endif
+
+#ifndef CONCAT
+#define _CONCAT(a, b) a ## b
+#define CONCAT(a, b) _CONCAT(a, b)
+#endif
+
 /* Pub/sub framework */
 
 typedef enum {
@@ -52,5 +64,12 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
 int spacepi_wait_token(spacepi_token_t token, time_t timeout);
 int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscription_callback callback);
 int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callback);
+
+/* Random functions */
+
+extern const char const base_62[63];
+
+int random_reseed(void);
+int randomize_string(const void *alphabet, size_t word_size, size_t alphabet_size, void *buffer, size_t num_words);
 
 #endif
