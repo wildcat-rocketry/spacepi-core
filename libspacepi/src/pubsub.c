@@ -84,10 +84,15 @@ const signed char trie_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
+#define TRIE_WILDCARD_ALL 64
+#define TRIE_WILDCARD_SINGLE 63
+#define TRIE_WILDCARD_END 62
 
 void spacepi_pubsub_free_trie(subscription_callback_trie_t *trie);
 void spacepi_pubsub_callback_connection_lost(void *context, char *cause);
 int spacepi_pubsub_callback_message_arrived(void *context, char *channel, int channel_len, MQTTClient_message *message);
+void spacepi_pubsub_callback_message_arrived_recursive(const char *channel, char *channel_it, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain);
+void spacepi_pubsub_callback_message_arrived_call(const char *channel, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain);
 void spacepi_pubsub_callback_delivery_complete(void *context, MQTTClient_deliveryToken token);
 void spacepi_pubsub_callback_disconnected(void *context, MQTTProperties *properties, enum MQTTReasonCodes reason);
 void spacepi_pubsub_callback_published(void *context, int token, int packet_type, MQTTProperties *properties, enum MQTTReasonCodes reason);
@@ -402,25 +407,44 @@ void spacepi_pubsub_callback_connection_lost(void *context, char *cause) {
 }
 
 int spacepi_pubsub_callback_message_arrived(void *context, char *channel, int channel_len, MQTTClient_message *message) {
-    // TODO Check for # and +
-    const unsigned char *channel_it = (const unsigned char *) channel;
-    subscription_callback_trie_t *trie_it = subscription_callbacks;
+    spacepi_pubsub_callback_message_arrived_recursive(channel, channel, subscription_callbacks, message->payload, message->payloadlen, message->qos, message->retained);
+    MQTTClient_freeMessage(&message);
+    MQTTClient_free(channel);
+    return TRUE;
+}
+
+void spacepi_pubsub_callback_message_arrived_recursive(const char *channel, char *channel_it, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain) {
     while (*channel_it && trie_it) {
+        if (trie_it->children[TRIE_WILDCARD_ALL]) {
+            spacepi_pubsub_callback_message_arrived_call(channel, trie_it->children[TRIE_WILDCARD_ALL], data, data_len, qos, retain);
+        }
+        if (trie_it->children[TRIE_WILDCARD_SINGLE]) {
+            char *it = channel_it;
+            while (*it && *it != '/') {
+                ++it;
+            }
+            if (*it) {
+                spacepi_pubsub_callback_message_arrived_recursive(channel, it + 1, trie_it->children[TRIE_WILDCARD_SINGLE], data, data_len, qos, retain);
+            } else {
+                spacepi_pubsub_callback_message_arrived_call(channel, trie_it->children[TRIE_WILDCARD_ALL], data, data_len, qos, retain);
+            }
+        }
         int c = trie_table[*channel_it++];
         if (c < 0) {
-            return FALSE;
+            return;
         }
         trie_it = trie_it->children[c];
     }
     if (*channel_it) {
-        return FALSE;
+        return;
     }
+    spacepi_pubsub_callback_message_arrived_call(channel, trie_it, data, data_len, qos, retain);
+}
+
+void spacepi_pubsub_callback_message_arrived_call(const char *channel, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain) {
     for (subscription_callback_list_t *it = trie_it->subscriptions; it; it = it->next) {
-        it->callback(it->context, channel, message->payload, message->payloadlen, message->qos, message->retained);
+        it->callback(it->context, channel, data, data_len, qos, retain);
     }
-    MQTTClient_freeMessage(&message);
-    MQTTClient_free(channel);
-    return TRUE;
 }
 
 void spacepi_pubsub_callback_delivery_complete(void *context, MQTTClient_deliveryToken token) {
