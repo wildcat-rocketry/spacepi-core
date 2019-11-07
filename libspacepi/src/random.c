@@ -8,6 +8,7 @@ int random_reseed(void) {
     time_t t;
     time(&t);
     srand((unsigned int) t);
+    return 0;
 }
 
 int randomize_string(const void *alphabet, size_t word_size, size_t alphabet_size, void *buffer, size_t num_words) {
@@ -15,4 +16,5 @@ int randomize_string(const void *alphabet, size_t word_size, size_t alphabet_siz
         memcpy(buffer, alphabet + word_size * (rand() % alphabet_size), word_size);
         buffer += alphabet_size;
     }
+    return 0;
 }

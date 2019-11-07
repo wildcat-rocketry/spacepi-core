@@ -62,7 +62,7 @@ struct _subscription_callback_trie {
 
 static MQTTClient client;
 static int initialized = 0;
-static spacepi_pubsub_connection connection_state;
+static spacepi_pubsub_connection_t connection_state;
 static connection_callback_list_t *connection_callbacks;
 static publish_callback_list_t *publish_callbacks[1 << PUBLISH_CALLBACK_TABLE_BITS];
 static subscription_callback_trie_t *subscription_callbacks;
@@ -178,7 +178,7 @@ int spacepi_pubsub_cleanup(void) {
     return e;
 }
 
-spacepi_pubsub_connection spacepi_pubsub_connected(void) {
+spacepi_pubsub_connection_t spacepi_pubsub_connected(void) {
     return connection_state;
 }
 
