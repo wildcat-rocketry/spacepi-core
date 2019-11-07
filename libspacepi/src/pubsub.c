@@ -56,7 +56,7 @@ typedef struct _subscription_callback_trie subscription_callback_trie_t;
 struct _subscription_callback_trie {
     subscription_callback_list_t *subscriptions;
     spacepi_qos_t qos;
-    subscription_callback_trie_t *children[65]; // a-z A-Z 0-9 / + #
+    subscription_callback_trie_t *children[40]; // a-z 0-9 / + # -
     subscription_callback_trie_t *parent;
 };
 
@@ -67,13 +67,13 @@ static connection_callback_list_t *connection_callbacks;
 static publish_callback_list_t *publish_callbacks[1 << PUBLISH_CALLBACK_TABLE_BITS];
 static subscription_callback_trie_t *subscription_callbacks;
 
-const static signed char trie_table[256] = {
+const static signed char const trie_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, 64, -1, -1, -1, -1, -1, -1, -1, 63, -1, -1, -1, 62,
-    52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
-    -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-    41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
+    -1, -1, -1, 38, -1, -1, -1, -1, -1, -1, -1, 37, -1, 39, -1, 36,
+    26, 27, 28, 29, 30, 31, 32, 33, 34, 35, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
     15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -85,9 +85,9 @@ const static signed char trie_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
-#define TRIE_WILDCARD_ALL 64
-#define TRIE_WILDCARD_SINGLE 63
-#define TRIE_WILDCARD_END 62
+#define TRIE_WILDCARD_ALL 38
+#define TRIE_WILDCARD_SINGLE 37
+#define TRIE_WILDCARD_END 36
 
 static void free_trie(subscription_callback_trie_t *trie);
 static void callback_connection_lost(void *context, char *cause);
@@ -282,7 +282,7 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
             return ~(errno = ENOBUFS);
         }
         (*trie_it)->subscriptions = NULL;
-        for (int i = 64; i >= 0; --i) {
+        for (int i = 39; i >= 0; --i) {
             (*trie_it)->children[i] = NULL;
         }
         (*trie_it)->parent = tmp;
@@ -363,7 +363,7 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
             break;
         }
         int remove = 1;
-        for (int i = 64; i >= 0; --i) {
+        for (int i = 39; i >= 0; --i) {
             if (trie_it->children[i]) {
                 remove = 0;
                 break;
@@ -385,7 +385,7 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
 }
 
 static void free_trie(subscription_callback_trie_t *trie) {
-    for (int i = 64; i >= 0; ++i) {
+    for (int i = 39; i >= 0; ++i) {
         if (trie->children[i]) {
             free_trie(trie->children[i]);
         }
