@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <MQTTClient.h>
 #include <spacepi.h>
 
@@ -400,10 +401,27 @@ void spacepi_pubsub_free_trie(subscription_callback_trie_t *trie) {
 
 void spacepi_pubsub_callback_connection_lost(void *context, char *cause) {
     connection_state = disconnected;
-    // TODO start reconnecting
     for (connection_callback_list_t *it = connection_callbacks; it; it = it->next) {
         it->callback(it->context, connection_state);
     }
+    MQTTClient_connectOptions conn_opts = {
+        .keepAliveInterval = MQTT_KEEP_ALIVE,
+        .cleansession = FALSE,
+        .will = NULL,
+        .username = NULL,
+        .password = NULL,
+        .connectTimeout = MQTT_CONNECT_TIMEOUT,
+        .retryInterval = 0,
+        .ssl = NULL,
+        .serverURIcount = 0,
+        .MQTTVersion = MQTTVERSION_DEFAULT
+    };
+    int e;
+    while ((e = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
+        fprintf(stderr, "Unable to reconnect to MQTT server: %s...\n", MQTTClient_strerror(e));
+        sleep(1);
+    }
+    connection_state = connected;
 }
 
 int spacepi_pubsub_callback_message_arrived(void *context, char *channel, int channel_len, MQTTClient_message *message) {
