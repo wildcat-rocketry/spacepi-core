@@ -14,7 +14,7 @@ int random_reseed(void) {
 int randomize_string(const void *alphabet, size_t word_size, size_t alphabet_size, void *buffer, size_t num_words) {
     for (; num_words > 0; --num_words) {
         memcpy(buffer, alphabet + word_size * (rand() % alphabet_size), word_size);
-        buffer += alphabet_size;
+        buffer += word_size;
     }
     return 0;
 }

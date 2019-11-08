@@ -9,8 +9,10 @@
 
 #define PUBLISH_CALLBACK_TABLE_BITS 4
 
-#ifndef MQTT_HOST
-#define MQTT_HOST tcp://localhost:1883
+#ifdef MQTT_HOST
+#define MQTT_HOST_STR STR(MQTT_HOST)
+#else
+#define MQTT_HOST_STR "tcp://localhost:1883"
 #endif
 #ifndef MQTT_KEEP_ALIVE
 #define MQTT_KEEP_ALIVE 2
@@ -104,15 +106,19 @@ int spacepi_pubsub_init(void) {
     }
     char client_id[23];
     strcpy(client_id, "spacepi");
+    random_reseed();
     randomize_string(base_62, 1, 62, client_id + 7, 23 - 7);
     client_id[22] = 0;
     int e;
-    if ((e = MQTTClient_create(&client, STR(MQTT_HOST), client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, NULL)) != MQTTCLIENT_SUCCESS) {
-        return ~(errno = e);
+    if ((e = MQTTClient_create(&client, MQTT_HOST_STR, client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, NULL)) != MQTTCLIENT_SUCCESS) {
+        return -(errno = -e);
     }
     MQTTClient_connectOptions conn_opts = {
+        .struct_id = { 'M', 'Q', 'T', 'C' },
+        .struct_version = 6,
         .keepAliveInterval = MQTT_KEEP_ALIVE,
         .cleansession = TRUE,
+        .reliable = FALSE,
         .will = NULL,
         .username = NULL,
         .password = NULL,
@@ -120,23 +126,35 @@ int spacepi_pubsub_init(void) {
         .retryInterval = 0,
         .ssl = NULL,
         .serverURIcount = 0,
-        .MQTTVersion = MQTTVERSION_DEFAULT
+        .serverURIs = NULL,
+        .MQTTVersion = MQTTVERSION_DEFAULT,
+        .returned = {
+            .serverURI = NULL,
+            .MQTTVersion = 0,
+            .sessionPresent = 0
+        },
+        .binarypwd = {
+            .len = 0,
+            .data = NULL,
+        },
+        .maxInflightMessages = -1,
+        .cleanstart = 0
     };
     if ((e = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
         spacepi_pubsub_cleanup();
-        return ~(errno = e);
+        return -(errno = -e);
     }
     if ((e = MQTTClient_setCallbacks(client, NULL, callback_connection_lost, callback_message_arrived, callback_delivery_complete)) != MQTTCLIENT_SUCCESS) {
         spacepi_pubsub_cleanup();
-        return ~(errno = e);
+        return -(errno = -e);
     }
     if ((e = MQTTClient_setDisconnected(client, NULL, callback_disconnected)) != MQTTCLIENT_SUCCESS) {
         spacepi_pubsub_cleanup();
-        return ~(errno = e);
+        return -(errno = -e);
     }
     if ((e = MQTTClient_setPublished(client, NULL, callback_published)) != MQTTCLIENT_SUCCESS) {
         spacepi_pubsub_cleanup();
-        return ~(errno = e);
+        return -(errno = -e);
     }
     initialized = 1;
     connection_state = connected;
@@ -155,9 +173,6 @@ int spacepi_pubsub_cleanup(void) {
         e = 0;
     }
     MQTTClient_destroy(&client);
-    if (e) {
-        errno = ~e;
-    }
     while (connection_callbacks) {
         connection_callback_list_t *tmp = connection_callbacks->next;
         free(connection_callbacks);
@@ -175,7 +190,10 @@ int spacepi_pubsub_cleanup(void) {
     if (subscription_callbacks) {
         free_trie(subscription_callbacks);
     }
-    return e;
+    if (e) {
+        return -(errno = -e);
+    }
+    return 0;
 }
 
 spacepi_pubsub_connection_t spacepi_pubsub_connected(void) {
@@ -197,7 +215,7 @@ int spacepi_pubsub_connection_handler(spacepi_connection_callback callback, void
 int spacepi_publish(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain) {
     int e;
     if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, NULL)) != MQTTCLIENT_SUCCESS) {
-        return ~(errno = e);
+        return -(errno = -e);
     }
     return 0;
 }
@@ -205,7 +223,7 @@ int spacepi_publish(const char *channel, const void *data, size_t data_len, spac
 int spacepi_publish_token(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain, spacepi_token_t *token) {
     int e;
     if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, token)) != MQTTCLIENT_SUCCESS) {
-        return ~(errno = e);
+        return -(errno = -e);
     }
     return 0;
 }
@@ -240,7 +258,7 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
     node->retain = retain;
     int e;
     if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, &node->token)) != MQTTCLIENT_SUCCESS) {
-        return ~(errno = e);
+        return -(errno = -e);
     }
     int fanout = (node->token & (-1 ^ (-1 << PUBLISH_CALLBACK_TABLE_BITS)));
     node->next = publish_callbacks[fanout];
@@ -251,19 +269,21 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
 int spacepi_wait_token(spacepi_token_t token, unsigned long timeout) {
     int e;
     if ((e = MQTTClient_waitForCompletion(client, token, timeout)) != MQTTCLIENT_SUCCESS) {
-        return ~(errno = e);
+        return -(errno = -e);
     }
     return 0;
 }
 
 int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscription_callback callback, void *context) {
     const unsigned char *channel_it = (const unsigned char *) channel;
+    subscription_callback_trie_t *trie_last = NULL;
     subscription_callback_trie_t **trie_it = &subscription_callbacks;
     while (*channel_it && *trie_it) {
         int c = trie_table[*channel_it++];
         if (c < 0) {
             return ~(errno = EINVAL);
         }
+        trie_last = *trie_it;
         trie_it = &(*trie_it)->children[c];
     }
     subscription_callback_trie_t **alloc_start = *channel_it ? trie_it : NULL;
@@ -272,7 +292,6 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         if (c < 0) {
             return ~(errno = EINVAL);
         }
-        subscription_callback_trie_t *tmp = *trie_it;
         *trie_it = (subscription_callback_trie_t *) malloc(sizeof(subscription_callback_trie_t));
         if (!*trie_it) {
             if (*alloc_start) {
@@ -285,8 +304,24 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         for (int i = 39; i >= 0; --i) {
             (*trie_it)->children[i] = NULL;
         }
-        (*trie_it)->parent = tmp;
+        (*trie_it)->parent = trie_last;
+        trie_last = *trie_it;
         trie_it = &(*trie_it)->children[c];
+    }
+    if (!*trie_it) {
+        *trie_it = (subscription_callback_trie_t *) malloc(sizeof(subscription_callback_trie_t));
+        if (!*trie_it) {
+            if (*alloc_start) {
+                free_trie(*alloc_start);
+                *alloc_start = NULL;
+            }
+            return ~(errno = ENOBUFS);
+        }
+        (*trie_it)->subscriptions = NULL;
+        for (int i = 39; i >= 0; --i) {
+            (*trie_it)->children[i] = NULL;
+        }
+        (*trie_it)->parent = trie_last;
     }
     subscription_callback_list_t *node = (subscription_callback_list_t *) malloc(sizeof(subscription_callback_list_t));
     if (!node) {
@@ -313,7 +348,7 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
                 }
             }
             free(node);
-            return ~(errno = e);
+            return -(errno = -e);
         }
         (*trie_it)->qos = qos;
     } else if ((*trie_it)->qos != qos && (*trie_it)->qos != exactly_once) {
@@ -321,7 +356,7 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         if ((e = MQTTClient_subscribe(client, channel, exactly_once)) != MQTTCLIENT_SUCCESS) {
             (*trie_it)->subscriptions = node->next;
             free(node);
-            return ~(errno = e);
+            return -(errno = -e);
         }
         (*trie_it)->qos = exactly_once;
     }
@@ -346,9 +381,11 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
     subscription_callback_list_t *list_it = &list;
     while (list_it->next) {
         if ((callback == NULL || list_it->next->callback == callback) && (context == NULL || list_it->next->context == context)) {
-            subscription_callback_list_t *tmp = list_it;
+            subscription_callback_list_t *tmp = list_it->next;
             list_it->next = list_it->next->next;
             free(tmp);
+        } else {
+            list_it = list_it->next;
         }
     }
     trie_it->subscriptions = list.next;
@@ -358,34 +395,53 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
             e = 0;
         }
     }
+    subscription_callback_trie_t *last_trie = NULL;
     while (trie_it) {
         if (trie_it->subscriptions) {
+            if (last_trie) {
+                for (int i = 39; i >= 0; --i) {
+                    if (trie_it->children[i] == last_trie) {
+                        trie_it->children[i] = NULL;
+                    }
+                }
+            }
             break;
         }
         int remove = 1;
         for (int i = 39; i >= 0; --i) {
-            if (trie_it->children[i]) {
+            if (trie_it->children[i] == last_trie) {
+                trie_it->children[i] = NULL;
+                if (!remove) {
+                    break;
+                }
+            } else if (trie_it->children[i]) {
                 remove = 0;
-                break;
+                if (!last_trie) {
+                    break;
+                }
             }
         }
         if (remove) {
-            subscription_callback_trie_t *tmp = trie_it;
+            last_trie = trie_it;
             trie_it = trie_it->parent;
-            free(tmp);
+            free(last_trie);
+            if (last_trie == subscription_callbacks) {
+                subscription_callbacks = NULL;
+                break;
+            }
         } else {
             break;
         }
     }
     if (e) {
-        return ~(errno = e);
+        return -(errno = -e);
     } else {
         return 0;
     }
 }
 
 static void free_trie(subscription_callback_trie_t *trie) {
-    for (int i = 39; i >= 0; ++i) {
+    for (int i = 39; i >= 0; --i) {
         if (trie->children[i]) {
             free_trie(trie->children[i]);
         }
@@ -405,8 +461,11 @@ static void callback_connection_lost(void *context, char *cause) {
         it->callback(it->context, connection_state);
     }
     MQTTClient_connectOptions conn_opts = {
+        .struct_id = { 'M', 'Q', 'T', 'C' },
+        .struct_version = 6,
         .keepAliveInterval = MQTT_KEEP_ALIVE,
         .cleansession = FALSE,
+        .reliable = FALSE,
         .will = NULL,
         .username = NULL,
         .password = NULL,
@@ -414,7 +473,19 @@ static void callback_connection_lost(void *context, char *cause) {
         .retryInterval = 0,
         .ssl = NULL,
         .serverURIcount = 0,
-        .MQTTVersion = MQTTVERSION_DEFAULT
+        .serverURIs = NULL,
+        .MQTTVersion = MQTTVERSION_DEFAULT,
+        .returned = {
+            .serverURI = NULL,
+            .MQTTVersion = 0,
+            .sessionPresent = 0
+        },
+        .binarypwd = {
+            .len = 0,
+            .data = NULL,
+        },
+        .maxInflightMessages = -1,
+        .cleanstart = 0
     };
     int e;
     while ((e = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
