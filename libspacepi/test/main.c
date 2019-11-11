@@ -14,7 +14,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_pubsub_init");
         }
-        return ~e;
+        return e;
     }
     if ((e = spacepi_pubsub_cleanup())) {
         if (e > sys_nerr) {
@@ -22,7 +22,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_pubsub_cleanup");
         }
-        return ~e;
+        return e;
     }
     if ((e = spacepi_pubsub_init())) {
         if (e > sys_nerr) {
@@ -30,8 +30,9 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_pubsub_init");
         }
-        return ~e;
+        return e;
     }
+    sleep(1);
     puts("Connected.");
     char a = 'A', b = 'B';
     if ((e = spacepi_subscribe("/abc/123", exactly_once, callback_1, &a))) {
@@ -40,7 +41,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_subscribe");
         }
-        return ~e;
+        return e;
     }
     if ((e = spacepi_subscribe("/abc/123", exactly_once, callback_1, &b))) {
         if (e > sys_nerr) {
@@ -48,7 +49,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_subscribe");
         }
-        return ~e;
+        return e;
     }
     if ((e = spacepi_subscribe("/abc/123", exactly_once, callback_2, &a))) {
         if (e > sys_nerr) {
@@ -56,7 +57,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_subscribe");
         }
-        return ~e;
+        return e;
     }
     if ((e = spacepi_subscribe("/abc/123", exactly_once, callback_2, &b))) {
         if (e > sys_nerr) {
@@ -64,7 +65,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_subscribe");
         }
-        return ~e;
+        return e;
     }
     puts("Testing multiple subscriptions (expected 1A, 1B, 2A, 2B)");
     if ((e = spacepi_publish("/abc/123", NULL, 0, exactly_once, FALSE))) {
@@ -73,7 +74,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_publish");
         }
-        return ~e;
+        return e;
     }
     sleep(1);
     puts("Ubsubscribing based on function...");
@@ -83,7 +84,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_unsubscribe");
         }
-        return ~e;
+        return e;
     }
     puts("Testing unsubscription and republish (expected 2A, 2B)");
     if ((e = spacepi_publish("/abc/123", NULL, 0, exactly_once, FALSE))) {
@@ -92,7 +93,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_publish");
         }
-        return ~e;
+        return e;
     }
     sleep(1);
     puts("Unsubscribing based on context...");
@@ -102,7 +103,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_unsubscribe");
         }
-        return ~e;
+        return e;
     }
     puts("Testing unsubscription and republish (expected 2B)");
     if ((e = spacepi_publish("/abc/123", NULL, 0, exactly_once, FALSE))) {
@@ -111,7 +112,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_publish");
         }
-        return ~e;
+        return e;
     }
     sleep(1);
     puts("Unsubscribing all...");
@@ -121,7 +122,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_unsubscribe");
         }
-        return ~e;
+        return e;
     }
     puts("Testing unsubscription and republish (expected none)");
     if ((e = spacepi_publish("/abc/123", NULL, 0, exactly_once, FALSE))) {
@@ -130,7 +131,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_publish");
         }
-        return ~e;
+        return e;
     }
     sleep(1);
     puts("Testing complete.");
@@ -140,7 +141,7 @@ int main(int argc, const char **argv) {
         } else {
             perror("spacepi_pubsub_cleanup");
         }
-        return ~e;
+        return e;
     }
     return EXIT_SUCCESS;
 }

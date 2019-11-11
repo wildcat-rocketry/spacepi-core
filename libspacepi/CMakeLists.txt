@@ -10,6 +10,6 @@ add_library(spacepi
 target_include_directories(spacepi PUBLIC
     "${PROJECT_SOURCE_DIR}/include"
 )
-target_link_libraries(spacepi paho-mqtt3c)
+target_link_libraries(spacepi paho-mqtt3a paho-mqtt3c)
 
 add_subdirectory(test)

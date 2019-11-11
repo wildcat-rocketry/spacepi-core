@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <MQTTClient.h>
+#include <MQTTAsync.h>
 #include <spacepi.h>
 
 #define PUBLISH_CALLBACK_TABLE_BITS 4
@@ -22,6 +22,15 @@
 #endif
 #ifndef MQTT_DISCONNECT_TIMEOUT
 #define MQTT_DISCONNECT_TIMEOUT 2000
+#endif
+#ifdef MQTT_PERSISTENCE_DIR
+#define MQTT_PERSISTENCE_DIR /tmp
+#endif
+#ifndef MQTT_RETRY_INTERVAL_MIN
+#define MQTT_RETRY_INTERVAL_MIN 1
+#endif
+#ifndef MQTT_RETRY_INTERVAL_MAX
+#define MQTT_RETRY_INTERVAL_MAX 64
 #endif
 
 struct _connection_callback_list;
@@ -62,7 +71,8 @@ struct _subscription_callback_trie {
     subscription_callback_trie_t *parent;
 };
 
-static MQTTClient client;
+static MQTTAsync client;
+static int globally_initialized = 0;
 static int initialized = 0;
 static spacepi_pubsub_connection_t connection_state;
 static connection_callback_list_t *connection_callbacks;
@@ -93,14 +103,21 @@ const static signed char const trie_table[256] = {
 
 static void free_trie(subscription_callback_trie_t *trie);
 static void callback_connection_lost(void *context, char *cause);
-static int callback_message_arrived(void *context, char *channel, int channel_len, MQTTClient_message *message);
+static int callback_message_arrived(void *context, char *channel, int channel_len, MQTTAsync_message *message);
 static void callback_message_arrived_recursive(const char *channel, char *channel_it, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain);
 static void callback_message_arrived_call(const char *channel, subscription_callback_trie_t *trie_it, const void *data, size_t data_len, spacepi_qos_t qos, int retain);
-static void callback_delivery_complete(void *context, MQTTClient_deliveryToken token);
+static void callback_delivery_complete(void *context, MQTTAsync_token token);
 static void callback_disconnected(void *context, MQTTProperties *properties, enum MQTTReasonCodes reason);
-static void callback_published(void *context, int token, int packet_type, MQTTProperties *properties, enum MQTTReasonCodes reason);
 
 int spacepi_pubsub_init(void) {
+    if (!globally_initialized) {
+        MQTTAsync_init_options opts = {
+            .struct_id = { 'M', 'Q', 'T', 'G' },
+            .struct_version = 0,
+            .do_openssl_init = FALSE
+        };
+        MQTTAsync_global_init(&opts);
+    }
     if (initialized) {
         return ~(errno = EISCONN);
     }
@@ -110,52 +127,53 @@ int spacepi_pubsub_init(void) {
     randomize_string(base_62, 1, 62, client_id + 7, 23 - 7);
     client_id[22] = 0;
     int e;
-    if ((e = MQTTClient_create(&client, MQTT_HOST_STR, client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, NULL)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_create(&client, MQTT_HOST_STR, client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, STR(MQTT_PERSISTENCE_DIR))) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
     }
-    MQTTClient_connectOptions conn_opts = {
+    MQTTAsync_connectOptions conn_opts = {
         .struct_id = { 'M', 'Q', 'T', 'C' },
         .struct_version = 6,
         .keepAliveInterval = MQTT_KEEP_ALIVE,
         .cleansession = TRUE,
-        .reliable = FALSE,
+        .maxInflight = -1,
         .will = NULL,
         .username = NULL,
         .password = NULL,
         .connectTimeout = MQTT_CONNECT_TIMEOUT,
         .retryInterval = 0,
         .ssl = NULL,
+        .onSuccess = NULL, // TODO
+        .onFailure = NULL, // TODO
+        .context = NULL,
         .serverURIcount = 0,
         .serverURIs = NULL,
         .MQTTVersion = MQTTVERSION_DEFAULT,
-        .returned = {
-            .serverURI = NULL,
-            .MQTTVersion = 0,
-            .sessionPresent = 0
-        },
+        .automaticReconnect = TRUE,
+        .minRetryInterval = MQTT_RETRY_INTERVAL_MIN,
+        .maxRetryInterval = MQTT_RETRY_INTERVAL_MAX,
         .binarypwd = {
             .len = 0,
-            .data = NULL,
+            .data = NULL
         },
-        .maxInflightMessages = -1,
-        .cleanstart = 0
+        .cleanstart = FALSE, // MQTTv5 only
+        .connectProperties = NULL,
+        .willProperties = NULL,
+        .onSuccess5 = NULL, // TODO
+        .onFailure5 = NULL // TODO
     };
-    if ((e = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
         spacepi_pubsub_cleanup();
         return -(errno = -e);
     }
-    if ((e = MQTTClient_setCallbacks(client, NULL, callback_connection_lost, callback_message_arrived, callback_delivery_complete)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_setCallbacks(client, NULL, callback_connection_lost, callback_message_arrived, callback_delivery_complete)) != MQTTASYNC_SUCCESS) {
         spacepi_pubsub_cleanup();
         return -(errno = -e);
     }
-    if ((e = MQTTClient_setDisconnected(client, NULL, callback_disconnected)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_setDisconnected(client, NULL, callback_disconnected)) != MQTTASYNC_SUCCESS) {
         spacepi_pubsub_cleanup();
         return -(errno = -e);
     }
-    if ((e = MQTTClient_setPublished(client, NULL, callback_published)) != MQTTCLIENT_SUCCESS) {
-        spacepi_pubsub_cleanup();
-        return -(errno = -e);
-    }
+    // TODO MQTTAsync_setConnected
     initialized = 1;
     connection_state = connected;
     connection_callbacks = NULL;
@@ -164,15 +182,36 @@ int spacepi_pubsub_init(void) {
     }
     subscription_callbacks = NULL;
     return 0;
+    // TODO Allow functions to queue up when disconnected
 }
 
 int spacepi_pubsub_cleanup(void) {
     initialized = 0;
     int e;
-    if ((e = MQTTClient_disconnect(client, MQTT_DISCONNECT_TIMEOUT)) == MQTTCLIENT_SUCCESS) {
+    MQTTAsync_disconnectOptions opts = {
+        .struct_id = { 'M', 'Q', 'T', 'D' },
+        .struct_version = 1,
+        .timeout = MQTT_DISCONNECT_TIMEOUT,
+        .onSuccess = NULL,
+        .onFailure = NULL,
+        .context = NULL,
+        .properties = {
+            .count = 0,
+            .max_count = 0,
+            .length = 0,
+            .array = NULL
+        },
+        .reasonCode = MQTTREASONCODE_NORMAL_DISCONNECTION,
+        .onSuccess5 = NULL,
+        .onFailure5 = NULL
+    };
+    if ((e = MQTTAsync_disconnect(client, &opts)) == MQTTASYNC_SUCCESS) {
         e = 0;
     }
-    MQTTClient_destroy(&client);
+    if (e == MQTTASYNC_DISCONNECTED) {
+        e = 0;
+    }
+    MQTTAsync_destroy(&client); // TODO after disconnect
     while (connection_callbacks) {
         connection_callback_list_t *tmp = connection_callbacks->next;
         free(connection_callbacks);
@@ -214,7 +253,7 @@ int spacepi_pubsub_connection_handler(spacepi_connection_callback callback, void
 
 int spacepi_publish(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain) {
     int e;
-    if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, NULL)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, NULL)) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
     }
     return 0;
@@ -222,13 +261,40 @@ int spacepi_publish(const char *channel, const void *data, size_t data_len, spac
 
 int spacepi_publish_token(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain, spacepi_token_t *token) {
     int e;
-    if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, token)) != MQTTCLIENT_SUCCESS) {
+    MQTTAsync_responseOptions opts = {
+        .struct_id = { 'M', 'Q', 'T', 'R' },
+        .struct_version = 1,
+        .onSuccess = NULL,
+        .onFailure = NULL,
+        .context = NULL,
+        .token = 0,
+        .onSuccess5 = NULL,
+        .onFailure5 = NULL,
+        .properties = {
+            .count = 0,
+            .max_count = 0,
+            .length = 0,
+            .array = NULL
+        },
+        .subscribeOptions = {
+            .struct_id = { 'M', 'Q', 'T', 'O' },
+            .struct_version = 0,
+            .noLocal = 0,
+            .retainAsPublished = 0,
+            .retainHandling = 0
+        },
+        .subscribeOptionsCount = 0,
+        .subscribeOptionsList = NULL
+    };
+    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, &opts)) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
     }
+    *token = opts.token;
     return 0;
 }
 
 int spacepi_publish_callback(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain, spacepi_published_callback callback, void *context) {
+    // TODO Implement through MQTT context, not lookup table
     publish_callback_list_t *node = (publish_callback_list_t *) malloc(sizeof(publish_callback_list_t));
     if (!node) {
         return ~(errno = ENOBUFS);
@@ -257,9 +323,35 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
     node->qos = qos;
     node->retain = retain;
     int e;
-    if ((e = MQTTClient_publish(client, channel, data_len, data, qos, retain, &node->token)) != MQTTCLIENT_SUCCESS) {
+    MQTTAsync_responseOptions opts = {
+        .struct_id = { 'M', 'Q', 'T', 'R' },
+        .struct_version = 1,
+        .onSuccess = NULL,
+        .onFailure = NULL,
+        .context = NULL,
+        .token = 0,
+        .onSuccess5 = NULL,
+        .onFailure5 = NULL,
+        .properties = {
+            .count = 0,
+            .max_count = 0,
+            .length = 0,
+            .array = NULL
+        },
+        .subscribeOptions = {
+            .struct_id = { 'M', 'Q', 'T', 'O' },
+            .struct_version = 0,
+            .noLocal = 0,
+            .retainAsPublished = 0,
+            .retainHandling = 0
+        },
+        .subscribeOptionsCount = 0,
+        .subscribeOptionsList = NULL
+    };
+    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, &opts)) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
     }
+    node->token = opts.token;
     int fanout = (node->token & (-1 ^ (-1 << PUBLISH_CALLBACK_TABLE_BITS)));
     node->next = publish_callbacks[fanout];
     publish_callbacks[fanout] = node;
@@ -268,7 +360,7 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
 
 int spacepi_wait_token(spacepi_token_t token, unsigned long timeout) {
     int e;
-    if ((e = MQTTClient_waitForCompletion(client, token, timeout)) != MQTTCLIENT_SUCCESS) {
+    if ((e = MQTTAsync_waitForCompletion(client, token, timeout)) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
     }
     return 0;
@@ -337,9 +429,34 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
     node->context = context;
     node->next = (*trie_it)->subscriptions;
     (*trie_it)->subscriptions = node;
+    MQTTAsync_responseOptions opts = {
+        .struct_id = { 'M', 'Q', 'T', 'R' },
+        .struct_version = 1,
+        .onSuccess = NULL, // TODO
+        .onFailure = NULL, // TODO
+        .context = NULL,
+        .token = 0,
+        .onSuccess5 = NULL, // TODO
+        .onFailure5 = NULL, // TODO
+        .properties = {
+            .count = 0,
+            .max_count = 0,
+            .length = 0,
+            .array = NULL
+        },
+        .subscribeOptions = {
+            .struct_id = { 'M', 'Q', 'T', 'O' },
+            .struct_version = 0,
+            .noLocal = 0,
+            .retainAsPublished = 0,
+            .retainHandling = 0
+        },
+        .subscribeOptionsCount = 0,
+        .subscribeOptionsList = NULL
+    };
     if (!node->next) {
         int e;
-        if ((e = MQTTClient_subscribe(client, channel, qos)) != MQTTCLIENT_SUCCESS) {
+        if ((e = MQTTAsync_subscribe(client, channel, qos, &opts)) != MQTTASYNC_SUCCESS) {
             (*trie_it)->subscriptions = NULL;
             if (alloc_start) {
                 if (*alloc_start) {
@@ -353,7 +470,7 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         (*trie_it)->qos = qos;
     } else if ((*trie_it)->qos != qos && (*trie_it)->qos != exactly_once) {
         int e;
-        if ((e = MQTTClient_subscribe(client, channel, exactly_once)) != MQTTCLIENT_SUCCESS) {
+        if ((e = MQTTAsync_subscribe(client, channel, exactly_once, &opts)) != MQTTASYNC_SUCCESS) {
             (*trie_it)->subscriptions = node->next;
             free(node);
             return -(errno = -e);
@@ -391,7 +508,32 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
     trie_it->subscriptions = list.next;
     int e = 0;
     if (!trie_it->subscriptions) {
-        if ((e = MQTTClient_unsubscribe(client, channel)) == MQTTCLIENT_SUCCESS) {
+        MQTTAsync_responseOptions opts = {
+            .struct_id = { 'M', 'Q', 'T', 'R' },
+            .struct_version = 1,
+            .onSuccess = NULL, // TODO
+            .onFailure = NULL, // TODO
+            .context = NULL,
+            .token = 0,
+            .onSuccess5 = NULL, // TODO
+            .onFailure5 = NULL, // TODO
+            .properties = {
+                .count = 0,
+                .max_count = 0,
+                .length = 0,
+                .array = NULL
+            },
+            .subscribeOptions = {
+                .struct_id = { 'M', 'Q', 'T', 'O' },
+                .struct_version = 0,
+                .noLocal = 0,
+                .retainAsPublished = 0,
+                .retainHandling = 0
+            },
+            .subscribeOptionsCount = 0,
+            .subscribeOptionsList = NULL
+        };
+        if ((e = MQTTAsync_unsubscribe(client, channel, &opts)) == MQTTASYNC_SUCCESS) {
             e = 0;
         }
     }
@@ -456,49 +598,23 @@ static void free_trie(subscription_callback_trie_t *trie) {
 }
 
 static void callback_connection_lost(void *context, char *cause) {
-    connection_state = disconnected;
-    for (connection_callback_list_t *it = connection_callbacks; it; it = it->next) {
-        it->callback(it->context, connection_state);
+    if (connection_state == connected) {
+        connection_state = disconnected;
+        for (connection_callback_list_t *it = connection_callbacks; it; it = it->next) {
+            it->callback(it->context, connection_state);
+        }
+        if (cause) {
+            fprintf(stderr, "Lost connection from MQTT Server: %s\n", cause);
+        } else {
+            fputs("Lost connection from MQTT server.\n", stderr);
+        }
     }
-    MQTTClient_connectOptions conn_opts = {
-        .struct_id = { 'M', 'Q', 'T', 'C' },
-        .struct_version = 6,
-        .keepAliveInterval = MQTT_KEEP_ALIVE,
-        .cleansession = FALSE,
-        .reliable = FALSE,
-        .will = NULL,
-        .username = NULL,
-        .password = NULL,
-        .connectTimeout = MQTT_CONNECT_TIMEOUT,
-        .retryInterval = 0,
-        .ssl = NULL,
-        .serverURIcount = 0,
-        .serverURIs = NULL,
-        .MQTTVersion = MQTTVERSION_DEFAULT,
-        .returned = {
-            .serverURI = NULL,
-            .MQTTVersion = 0,
-            .sessionPresent = 0
-        },
-        .binarypwd = {
-            .len = 0,
-            .data = NULL,
-        },
-        .maxInflightMessages = -1,
-        .cleanstart = 0
-    };
-    int e;
-    while ((e = MQTTClient_connect(client, &conn_opts)) != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "Unable to reconnect to MQTT server: %s...\n", MQTTClient_strerror(e));
-        sleep(1);
-    }
-    connection_state = connected;
 }
 
-static int callback_message_arrived(void *context, char *channel, int channel_len, MQTTClient_message *message) {
+static int callback_message_arrived(void *context, char *channel, int channel_len, MQTTAsync_message *message) {
     callback_message_arrived_recursive(channel, channel, subscription_callbacks, message->payload, message->payloadlen, message->qos, message->retained);
-    MQTTClient_freeMessage(&message);
-    MQTTClient_free(channel);
+    MQTTAsync_freeMessage(&message);
+    MQTTAsync_free(channel);
     return TRUE;
 }
 
@@ -536,7 +652,7 @@ static void callback_message_arrived_call(const char *channel, subscription_call
     }
 }
 
-static void callback_delivery_complete(void *context, MQTTClient_deliveryToken token) {
+static void callback_delivery_complete(void *context, MQTTAsync_token token) {
     int fanout = (token & (-1 ^ (-1 << PUBLISH_CALLBACK_TABLE_BITS)));
     publish_callback_list_t list;
     list.next = publish_callbacks[fanout];
@@ -555,9 +671,6 @@ static void callback_delivery_complete(void *context, MQTTClient_deliveryToken t
 }
 
 static void callback_disconnected(void *context, MQTTProperties *properties, enum MQTTReasonCodes reason) {
-    MQTTClient_disconnect(client, 1);
-}
-
-static void callback_published(void *context, int token, int packet_type, MQTTProperties *properties, enum MQTTReasonCodes reason) {
-    callback_delivery_complete(context, token);
+    MQTTAsync_disconnect(client, NULL);
+    callback_connection_lost(NULL, NULL); // TODO use reason code
 }
