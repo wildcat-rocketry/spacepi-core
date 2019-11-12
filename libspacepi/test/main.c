@@ -24,6 +24,7 @@ int main(int argc, const char **argv) {
         }
         return e;
     }
+    sleep(1);
     if ((e = spacepi_pubsub_init())) {
         if (e > sys_nerr) {
             fprintf(stderr, "spacepi_pubsub_init: %d\n", ~e);
