@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+#include <time.h>
 #include <unistd.h>
 #include <MQTTAsync.h>
 #include <spacepi.h>
@@ -66,12 +68,47 @@ typedef struct {
     int retain;
 } destroy_context_t;
 
+struct _delayed_call;
+typedef struct _delayed_call delayed_call_t;
+struct _delayed_call {
+    enum {
+        send,
+        subscribe,
+        unsubscribe
+    } type;
+    char *channel;
+    MQTTAsync_responseOptions response;
+    MQTTAsync_responseOptions *response_ptr;
+    union {
+        struct {
+            int payloadlen;
+            void *payload;
+            int qos;
+            int retained;
+            spacepi_token_t *token;
+        } send;
+        struct {
+            int qos;
+        } subscribe;
+        struct {
+        } unsubscribe;
+    } arguments;
+    delayed_call_t *next;
+};
+
+typedef struct {
+    MQTTAsync client;
+    pthread_cond_t condition;
+    pthread_mutex_t mutex;
+} cleanup_context_t;
+
 static MQTTAsync client;
 static int globally_initialized = 0;
 static int initialized = 0;
 static spacepi_pubsub_connection_t connection_state;
 static connection_callback_list_t *connection_callbacks;
 static subscription_callback_trie_t *subscription_callbacks;
+static delayed_call_t *delayed_calls;
 
 const static signed char const trie_table[256] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -110,6 +147,9 @@ static void destroy_after_disconnect_f(void *context, MQTTAsync_failureData *res
 static void destroy_after_disconnect_f5(void *context, MQTTAsync_failureData5 *res);
 static void publish_complete_callback(void *context, MQTTAsync_successData *res);
 static void publish_complete_callback5(void *context, MQTTAsync_successData5 *res);
+static void safe_mqtt_send(const char *destinationName, int payloadlen, const void *payload, int qos, int retained, MQTTAsync_responseOptions *response, spacepi_token_t *token);
+static void safe_mqtt_subscribe(const char *topic, int qos, MQTTAsync_responseOptions *response);
+static void safe_mqtt_unsubscribe(const char *topic, MQTTAsync_responseOptions *response);
 
 int spacepi_pubsub_init(void) {
     if (!globally_initialized) {
@@ -187,20 +227,29 @@ int spacepi_pubsub_init(void) {
     initialized = TRUE;
     connection_callbacks = NULL;
     subscription_callbacks = NULL;
+    delayed_calls = NULL;
     return 0;
-    // TODO Allow functions to queue up when disconnected
 }
 
 int spacepi_pubsub_cleanup(void) {
     initialized = FALSE;
     int e;
+    cleanup_context_t context = {
+        .client = client
+    };
+    if (pthread_cond_init(&context.condition, NULL)) {
+        perror("pthread_cond_init");
+    }
+    if (pthread_mutex_init(&context.mutex, NULL)) {
+        perror("pthread_mutex_init");
+    }
     MQTTAsync_disconnectOptions opts = {
         .struct_id = { 'M', 'Q', 'T', 'D' },
         .struct_version = 1,
         .timeout = MQTT_DISCONNECT_TIMEOUT,
         .onSuccess = destroy_after_disconnect_s,
         .onFailure = destroy_after_disconnect_f,
-        .context = client,
+        .context = &context,
         .properties = {
             .count = 0,
             .max_count = 0,
@@ -213,9 +262,8 @@ int spacepi_pubsub_cleanup(void) {
     };
     if ((e = MQTTAsync_disconnect(client, &opts)) == MQTTASYNC_SUCCESS) {
         e = 0;
-    }
-    if (e == MQTTASYNC_DISCONNECTED) {
-        e = 0;
+    } else if (e != MQTTASYNC_DISCONNECTED) {
+        fprintf(stderr, "Failed to disconnect: %s (%d)\n", MQTTAsync_strerror(e), e);
     }
     client = NULL;
     while (connection_callbacks) {
@@ -226,6 +274,16 @@ int spacepi_pubsub_cleanup(void) {
     if (subscription_callbacks) {
         free_trie(subscription_callbacks);
     }
+    if (e == MQTTASYNC_DISCONNECTED) {
+        e = 0;
+    } else {
+        pthread_mutex_lock(&context.mutex);
+        pthread_cond_wait(&context.condition, &context.mutex);
+        pthread_mutex_unlock(&context.mutex);
+    }
+    MQTTAsync_destroy(&client);
+    pthread_mutex_destroy(&context.mutex);
+    pthread_cond_destroy(&context.condition);
     if (e) {
         return -(errno = -e);
     }
@@ -249,7 +307,6 @@ int spacepi_pubsub_connection_handler(spacepi_connection_callback callback, void
 }
 
 int spacepi_publish(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain) {
-    int e;
     destroy_context_t des = {
         .message = "Failed to publish message.",
         .data = NULL
@@ -279,14 +336,11 @@ int spacepi_publish(const char *channel, const void *data, size_t data_len, spac
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, NULL)) != MQTTASYNC_SUCCESS) {
-        return -(errno = -e);
-    }
+    safe_mqtt_send(channel, data_len, data, qos, retain, NULL, NULL);
     return 0;
 }
 
 int spacepi_publish_token(const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain, spacepi_token_t *token) {
-    int e;
     destroy_context_t des = {
         .message = "Failed to publish message.",
         .data = NULL
@@ -316,10 +370,7 @@ int spacepi_publish_token(const char *channel, const void *data, size_t data_len
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, &opts)) != MQTTASYNC_SUCCESS) {
-        return -(errno = -e);
-    }
-    *token = opts.token;
+    safe_mqtt_send(channel, data_len, data, qos, retain, &opts, token);
     return 0;
 }
 
@@ -329,7 +380,6 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
         return ~(errno = ENOBUFS);
     }
     memcpy(data_clone, data, data_len);
-    int e;
     destroy_context_t des = {
         .message = "Failed to publish message.",
         .callback = callback,
@@ -365,13 +415,14 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    if ((e = MQTTAsync_send(client, channel, data_len, data, qos, retain, &opts)) != MQTTASYNC_SUCCESS) {
-        return -(errno = -e);
-    }
+    safe_mqtt_send(channel, data_len, data, qos, retain, &opts, NULL);
     return 0;
 }
 
 int spacepi_wait_token(spacepi_token_t token, unsigned long timeout) {
+    if (connection_state != connected) {
+        return ~(errno = EINVAL);
+    }
     int e;
     if ((e = MQTTAsync_waitForCompletion(client, token, timeout)) != MQTTASYNC_SUCCESS) {
         return -(errno = -e);
@@ -472,26 +523,10 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         .subscribeOptionsList = NULL
     };
     if (!node->next) {
-        int e;
-        if ((e = MQTTAsync_subscribe(client, channel, qos, &opts)) != MQTTASYNC_SUCCESS) {
-            (*trie_it)->subscriptions = NULL;
-            if (alloc_start) {
-                if (*alloc_start) {
-                    free_trie(*alloc_start);
-                    *alloc_start = NULL;
-                }
-            }
-            free(node);
-            return -(errno = -e);
-        }
+        safe_mqtt_subscribe(channel, qos, &opts);
         (*trie_it)->qos = qos;
     } else if ((*trie_it)->qos != qos && (*trie_it)->qos != exactly_once) {
-        int e;
-        if ((e = MQTTAsync_subscribe(client, channel, exactly_once, &opts)) != MQTTASYNC_SUCCESS) {
-            (*trie_it)->subscriptions = node->next;
-            free(node);
-            return -(errno = -e);
-        }
+        safe_mqtt_subscribe(channel, exactly_once, &opts);
         (*trie_it)->qos = exactly_once;
     }
     return 0;
@@ -523,7 +558,6 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
         }
     }
     trie_it->subscriptions = list.next;
-    int e = 0;
     if (!trie_it->subscriptions) {
         destroy_context_t des = {
             .message = "Failed to unsubscribe from channel.",
@@ -554,9 +588,7 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
             .subscribeOptionsCount = 0,
             .subscribeOptionsList = NULL
         };
-        if ((e = MQTTAsync_unsubscribe(client, channel, &opts)) == MQTTASYNC_SUCCESS) {
-            e = 0;
-        }
+        safe_mqtt_unsubscribe(channel, &opts);
     }
     subscription_callback_trie_t *last_trie = NULL;
     while (trie_it) {
@@ -596,11 +628,7 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
             break;
         }
     }
-    if (e) {
-        return -(errno = -e);
-    } else {
-        return 0;
-    }
+    return 0;
 }
 
 static void free_trie(subscription_callback_trie_t *trie) {
@@ -692,10 +720,44 @@ static void failure_printing_callback5(void *context, MQTTAsync_failureData5 *re
 
 static void callback_connected(void *context, char *cause) {
     connection_state = connected;
+    while (delayed_calls) {
+        delayed_call_t *node = delayed_calls;
+        delayed_calls = node->next;
+        int e;
+        const char *type_name;
+        switch (node->type) {
+            case send:
+                e = MQTTAsync_send(client, node->channel, node->arguments.send.payloadlen, node->arguments.send.payload, node->arguments.send.qos, node->arguments.send.retained, node->response_ptr);
+                if (node->arguments.send.token) {
+                    *node->arguments.send.token = node->response.token;
+                }
+                free(node->arguments.send.payload);
+                type_name = "send";
+                break;
+            case subscribe:
+                e = MQTTAsync_subscribe(client, node->channel, node->arguments.subscribe.qos, node->response_ptr);
+                type_name = "subscribe";
+                break;
+            case unsubscribe:
+                e = MQTTAsync_unsubscribe(client, node->channel, node->response_ptr);
+                type_name = "unsubscribe";
+                break;
+            default:
+                fprintf(stderr, "Delayed MQTT call does not have a consumer in callback_connected (type=%d)!\n", node->type);
+                e = MQTTASYNC_SUCCESS;
+                break;
+        }
+        if (e != MQTTASYNC_SUCCESS) {
+            fprintf(stderr, "MQTT %s failed: %s (%d)\n", type_name, MQTTAsync_strerror(e), e);
+        }
+        free(node->channel);
+        free(node);
+    }
 }
 
 static void destroy_after_disconnect_s(void *context, MQTTAsync_successData *res) {
-    MQTTAsync_destroy((MQTTAsync *) context);
+    cleanup_context_t *c = (cleanup_context_t *) context;
+    pthread_cond_signal(&c->condition);
 }
 
 static void destroy_after_disconnect_s5(void *context, MQTTAsync_successData5 *res) {
@@ -719,4 +781,131 @@ static void publish_complete_callback(void *context, MQTTAsync_successData *res)
 
 static void publish_complete_callback5(void *context, MQTTAsync_successData5 *res) {
     publish_complete_callback(context, NULL);
+}
+
+static void safe_mqtt_send(const char *destinationName, int payloadlen, const void *payload, int qos, int retained, MQTTAsync_responseOptions *response, spacepi_token_t *token) {
+    if (connection_state == connected) {
+        int e;
+        switch ((e = MQTTAsync_send(client, destinationName, payloadlen, payload, qos, retained, response))) {
+            case MQTTASYNC_SUCCESS:
+                return;
+            case MQTTASYNC_DISCONNECTED:
+                break;
+            default:
+                fprintf(stderr, "MQTT send failed: %s (%d)\n", MQTTAsync_strerror(e), e);
+                return;
+        }
+    }
+    delayed_call_t *node = (delayed_call_t *) malloc(sizeof(delayed_call_t));
+    if (!node) {
+        fputs("MQTT send failed: out of memory.\n", stderr);
+        return;
+    }
+    node->type = send;
+    int destinationName_len = strlen(destinationName);
+    node->channel = (char *) malloc(destinationName_len);
+    if (!node->channel) {
+        free(node);
+        fputs("MQTT send failed: out of memory.\n", stderr);
+        return;
+    }
+    strcpy(node->channel, destinationName);
+    if (response) {
+        node->response = *response;
+        node->response_ptr = &node->response;
+    } else {
+        node->response_ptr = NULL;
+    }
+    node->arguments.send.payloadlen = payloadlen;
+    node->arguments.send.payload = malloc(payloadlen);
+    if (!node->arguments.send.payload) {
+        free(node->channel);
+        free(node);
+        fputs("MQTT send failed: out of memory.\n", stderr);
+        return;
+    }
+    memcpy(node->arguments.send.payload, payload, payloadlen);
+    node->arguments.send.qos = qos;
+    node->arguments.send.retained = retained;
+    node->arguments.send.token = token;
+    if (token) {
+        *token = 0;
+    }
+    node->next = delayed_calls;
+    delayed_calls = node;
+}
+
+static void safe_mqtt_subscribe(const char *topic, int qos, MQTTAsync_responseOptions *response) {
+    if (connection_state == connected) {
+        int e;
+        switch ((e = MQTTAsync_subscribe(client, topic, qos, response))) {
+            case MQTTASYNC_SUCCESS:
+                return;
+            case MQTTASYNC_DISCONNECTED:
+                break;
+            default:
+                fprintf(stderr, "MQTT subscribe failed: %s (%d)\n", MQTTAsync_strerror(e), e);
+                return;
+        }
+    }
+    delayed_call_t *node = (delayed_call_t *) malloc(sizeof(delayed_call_t));
+    if (!node) {
+        fputs("MQTT subscribe failed: out of memory.\n", stderr);
+        return;
+    }
+    node->type = subscribe;
+    int topic_len = strlen(topic);
+    node->channel = (char *) malloc(topic_len);
+    if (!node->channel) {
+        free(node);
+        fputs("MQTT subscribe failed: out of memory.\n", stderr);
+        return;
+    }
+    strcpy(node->channel, topic);
+    if (response) {
+        node->response = *response;
+        node->response_ptr = &node->response;
+    } else {
+        node->response_ptr = NULL;
+    }
+    node->arguments.subscribe.qos = qos;
+    node->next = delayed_calls;
+    delayed_calls = node;
+}
+
+static void safe_mqtt_unsubscribe(const char *topic, MQTTAsync_responseOptions *response) {
+    if (connection_state == connected) {
+        int e;
+        switch ((e = MQTTAsync_unsubscribe(client, topic, response))) {
+            case MQTTASYNC_SUCCESS:
+                return;
+            case MQTTASYNC_DISCONNECTED:
+                break;
+            default:
+                fprintf(stderr, "MQTT unsubscribe failed: %s (%d)\n", MQTTAsync_strerror(e), e);
+                return;
+        }
+    }
+    delayed_call_t *node = (delayed_call_t *) malloc(sizeof(delayed_call_t));
+    if (!node) {
+        fputs("MQTT unsubscribe failed: out of memory.\n", stderr);
+        return;
+    }
+    node->type = unsubscribe;
+    int topic_len = strlen(topic);
+    node->channel = (char *) malloc(topic_len);
+    if (!node->channel) {
+        free(node);
+        fputs("MQTT unsubscribe failed: out of memory.\n", stderr);
+        return;
+    }
+    strcpy(node->channel, topic);
+    if (response) {
+        node->response = *response;
+        node->response_ptr = &node->response;
+    } else {
+        node->response_ptr = NULL;
+    }
+    node->next = delayed_calls;
+    delayed_calls = node;
 }

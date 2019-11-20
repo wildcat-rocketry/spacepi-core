@@ -16,6 +16,7 @@ int main(int argc, const char **argv) {
         }
         return e;
     }
+    sleep(1);
     if ((e = spacepi_pubsub_cleanup())) {
         if (e > sys_nerr) {
             fprintf(stderr, "spacepi_pubsub_cleanup: %d\n", ~e);
@@ -24,7 +25,6 @@ int main(int argc, const char **argv) {
         }
         return e;
     }
-    sleep(1);
     if ((e = spacepi_pubsub_init())) {
         if (e > sys_nerr) {
             fprintf(stderr, "spacepi_pubsub_init: %d\n", ~e);
@@ -33,7 +33,6 @@ int main(int argc, const char **argv) {
         }
         return e;
     }
-    sleep(1);
     puts("Connected.");
     char a = 'A', b = 'B';
     if ((e = spacepi_subscribe("/abc/123", exactly_once, callback_1, &a))) {
