@@ -17,6 +17,8 @@ typedef struct {
 static void on_success(void *context, MQTTAsync_successData *response);
 static void on_failure(void *context, MQTTAsync_failureData *response);
 
+DEFINE_THREAD_ENQUEUE_7(call_published_callback, void *, const char *, const void *, size_t, spacepi_qos_t, int, int);
+
 #define PUBLISH_HEAD() do { \
         if (!pubsub_state) { \
             RETURN_ERROR_SPACEPI(LIB_NOT_INIT); \
@@ -160,7 +162,7 @@ int spacepi_wait_token(spacepi_token_t token, unsigned long timeout) {
 
 static void on_success(void *context, MQTTAsync_successData *response) {
     publish_context_t *ctx = (publish_context_t *) context;
-    ctx->callback(ctx->context, ctx->channel, ctx->data, ctx->data_len, ctx->qos, ctx->retain, FALSE);
+    call_published_callback(ctx->callback, ctx->context, ctx->channel, ctx->data, ctx->data_len, ctx->qos, ctx->retain, FALSE);
     free((char *) ctx->channel);
     free((void *) ctx->data);
     free(ctx);
@@ -174,7 +176,7 @@ static void on_failure(void *context, MQTTAsync_failureData *response) {
     } else {
         fprintf(stderr, "Failed to send message: %d\n", response->code);
     }
-    ctx->callback(ctx->context, ctx->channel, ctx->data, ctx->data_len, ctx->qos, ctx->retain, TRUE);
+    call_published_callback(ctx->callback, ctx->context, ctx->channel, ctx->data, ctx->data_len, ctx->qos, ctx->retain, TRUE);
     free((char *) ctx->channel);
     free((void *) ctx->data);
     free(ctx);

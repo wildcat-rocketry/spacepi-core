@@ -11,6 +11,8 @@ static void balance(pubsub_subscription_tree_t **tree);
 static void stat_tree(pubsub_subscription_tree_t *tree);
 static void on_failure(void *context, MQTTAsync_failureData *response);
 
+DEFINE_THREAD_ENQUEUE_6(call_subscription_callback, void *, const char *, const void *, size_t, spacepi_qos_t, int);
+
 int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscription_callback callback, void *context) {
     if (!pubsub_state) {
         RETURN_ERROR_SPACEPI(LIB_NOT_INIT);
@@ -202,7 +204,7 @@ static void message_arrived(pubsub_subscription_tree_t *tree, const char *logica
     pubsub_subscription_tree_t *node = find(tree, logical_channel);
     if (node) {
         for (pubsub_subscription_list_t *it = node->list; it; it = it->next) {
-            it->callback(it->context, channel, data, data_len, qos, retain);
+            call_subscription_callback(it->callback, it->context, channel, data, data_len, qos, retain);
         }
     }
 }

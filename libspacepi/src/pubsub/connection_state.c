@@ -3,6 +3,9 @@
 #include <pthread.h>
 #include <spacepi-private.h>
 
+DEFINE_THREAD_ENQUEUE_2(call_connection_handler, void *, spacepi_pubsub_connection_t);
+DEFINE_THREAD_ENQUEUE_1(call_server_down_handler, void *);
+
 spacepi_pubsub_connection_t spacepi_pubsub_connected(void) {
     if (!pubsub_state) {
         RETURN_ERROR_SPACEPI(LIB_NOT_INIT);
@@ -42,6 +45,11 @@ void spacepi_private_pubsub_connection_lost(void *context, char *cause) {
     }
     if (ctx->conn != disconnected) {
         ctx->conn = disconnected;
+        for (pubsub_connection_handler_list_t *it = ctx->connection_handlers; it; it = it->next) {
+            CHECK_ERROR_JUMP(after, call_connection_handler, it->callback, it->context, ctx->conn);
+            after:
+            1;
+        }
         CHECK_ERROR_JUMP(conn_err, spacepi_private_pubsub_connect, ctx, FALSE);
         return;
     }
@@ -50,8 +58,9 @@ void spacepi_private_pubsub_connection_lost(void *context, char *cause) {
     fflush(stdout);
     fputs("Unable to reestablish connection.\n", stderr);
     if (pubsub_state->server_down_callback) {
-        pubsub_state->server_down_callback(pubsub_state->server_down_context);
+        CHECK_ERROR_JUMP(do_exit, call_server_down_handler, pubsub_state->server_down_callback, pubsub_state->server_down_context);
     } else {
+        do_exit:
         exit(EXIT_FAILURE);
     }
 }

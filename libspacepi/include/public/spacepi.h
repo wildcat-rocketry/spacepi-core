@@ -384,9 +384,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1), arg1 a1) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         return thread_enqueue(CONCAT(func_name, __spacepi_trampoline), ctx); \
@@ -401,9 +402,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2), arg1 a1, arg2 a2) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -420,9 +422,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3), arg1 a1, arg2 a2, arg3 a3) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -441,9 +444,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3, ctx->a4); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3, arg4), arg1 a1, arg2 a2, arg3 a3, arg4 a4) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -464,9 +468,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3, ctx->a4, ctx->a5); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3, arg4, arg5), arg1 a1, arg2 a2, arg3 a3, arg4 a4, arg5 a5) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -489,9 +494,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3, ctx->a4, ctx->a5, ctx->a6); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3, arg4, arg5, arg6), arg1 a1, arg2 a2, arg3 a3, arg4 a4, arg5 a5, arg6 a6) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -516,9 +522,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3, ctx->a4, ctx->a5, ctx->a6, ctx->a7); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7), arg1 a1, arg2 a2, arg3 a3, arg4 a4, arg5 a5, arg6 a6, arg7 a7) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
@@ -545,9 +552,10 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
     static void CONCAT(func_name, __spacepi_trampoline)(void *context) { \
         CONCAT(func_name, __spacepi_trampoline_ctx) *ctx = (CONCAT(func_name, __spacepi_trampoline_ctx) *) context; \
         ctx->func(ctx->a1, ctx->a2, ctx->a3, ctx->a4, ctx->a5, ctx->a6, ctx->a7, ctx->a8); \
+        free(ctx); \
     } \
     static int func_name(void (*func)(arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8), arg1 a1, arg2 a2, arg3 a3, arg4 a4, arg5 a5, arg6 a6, arg7 a7, arg8 a8) { \
-        CHECK_ALLOC_DEF(CONCAT(func_name, __spacepi_trampoline_ctx), ctx); \
+        CHECK_ALLOC_DEF(ctx, CONCAT(func_name, __spacepi_trampoline_ctx)); \
         ctx->func = func; \
         ctx->a1 = a1; \
         ctx->a2 = a2; \
