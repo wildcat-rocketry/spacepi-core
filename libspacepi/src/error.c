@@ -11,7 +11,8 @@ static const char *const spacepi_errors[] = {
     "Cascaded error",
     "Already connected",
     "Library not initialized",
-    "Unknown error"
+    "Unknown error",
+    "Invalid pin"
 };
 static int n_spacepi_errors = sizeof(spacepi_errors) / sizeof(spacepi_errors[0]);
 

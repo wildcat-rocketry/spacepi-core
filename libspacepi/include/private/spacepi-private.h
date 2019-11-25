@@ -61,4 +61,34 @@ int spacepi_private_pubsub_connect(pubsub_state_t *state, int clean);
 void spacepi_private_pubsub_connection_lost(void *context, char *cause);
 int spacepi_private_pubsub_message_arrived(void *context, char *topic_name, int topic_len, MQTTAsync_message *message);
 
+/* IO Functions */
+
+typedef struct _spacepi_io_driver_instance spacepi_io_driver_instance_t;
+
+typedef struct {
+    const char *name;
+    int (*init_device)(unsigned address, void **context);
+    int (*validate_pin)(void *context, unsigned address, unsigned pinno);
+    int (*mode)(void *context, unsigned address, unsigned pinno, pin_mode_t mode);
+    int (*write)(void *context, unsigned address, unsigned pinno, int value);
+    int (*read)(void *context, unsigned address, unsigned pinno);
+    int (*attach_isr)(void *context, unsigned address, unsigned pinno, edge_t edge, void (*callback)(void *context), void *callback_context);
+    spacepi_io_driver_instance_t *instances;
+} spacepi_io_driver_t;
+
+struct _spacepi_io_driver_instance {
+    spacepi_io_driver_t *driver;
+    unsigned address;
+    void *context;
+    spacepi_io_driver_instance_t *next;
+};
+
+extern spacepi_io_driver_t io_driver_gpio;
+#ifdef GENERATE_DRIVER_LIST
+static spacepi_io_driver_t *io_drivers[] = {
+    &io_driver_gpio,
+    NULL
+};
+#endif
+
 #endif

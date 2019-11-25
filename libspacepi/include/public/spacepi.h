@@ -68,7 +68,8 @@ typedef enum {
     SPACEPI_ERROR_CASCADE,
     ALREADY_CONNECTED,
     LIB_NOT_INIT,
-    UNKNOWN_ERROR
+    UNKNOWN_ERROR,
+    INVALID_PIN
 } spacepi_errors_t;
 
 const char *spacepi_strerror(spacepi_error_t spacepi_errno);
@@ -567,5 +568,96 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
         ctx->a8 = a8; \
         return thread_enqueue(CONCAT(func_name, __spacepi_trampoline), ctx); \
     }
+
+/* IO Functions */
+
+#ifdef LOW
+#if LOW != 0
+#error LOW != 0
+#endif
+#else
+#define LOW 0
+#endif
+#ifdef HIGH
+#if HIGH != 1
+#error HIGH != 1
+#endif
+#else
+#define HIGH 1
+#endif
+
+typedef struct {
+    const char *controller;
+    unsigned address;
+    unsigned pin;
+    void *driver;
+} pin_t;
+
+typedef enum {
+    output = 0,
+    input_hi_z = 1,
+    input_pullup = 3,
+    input_pulldown = 5
+} pin_mode_t;
+
+typedef enum {
+    none = 0,
+    rising = 1,
+    falling = 2,
+    both = 3
+} edge_t;
+
+/*
+ * get_pin gets a pin instance from its name.  The name should be in the form of
+ * <bus><pin>, <bus>:<pin>, or <bus>@<address>:<pin>
+ * 
+ * Parameters:
+ *  - name: The name of the pin
+ *  - pin: The variable to store the pin in
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int get_pin(const char *name, pin_t *pin);
+/*
+ * pin_mode sets the mode of a pin
+ * 
+ * Parameters:
+ *  - pin: The pin to set
+ *  - mode: The mode to set the pin to
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int pin_mode(pin_t *pin, pin_mode_t mode);
+/*
+ * digital_write writes a value to a pin
+ * 
+ * Parameters:
+ *  - pin: The pin to write to
+ *  - value: The value the pin should be
+ *
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int digital_write(pin_t *pin, int value);
+/*
+ * digital_read reads a value from a pin
+ * 
+ * Parameters:
+ *  - pin: The pin to write to
+ * 
+ * Return: HIGH or LOW, or a negative number with errno set on error
+ */
+int digital_read(pin_t *pin);
+/*
+ * attach_interrupt registers an interrupt handler for a pin to be called every time it changes value
+ * 
+ * Parameters:
+ *  - pin: The pin to register the interrupt on
+ *  - edge: The edge that should trigger an interrupt
+ *  - callback: The function to call when an interrupt is received
+ *  - context: A context object to give to the callback
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int attach_interrupt(pin_t *pin, edge_t edge, void (*callback)(void *context), void *context);
 
 #endif

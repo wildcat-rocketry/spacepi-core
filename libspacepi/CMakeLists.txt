@@ -4,6 +4,8 @@ project(spacepi VERSION 1.0)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 add_library(spacepi
+    src/io/gpio.c
+    src/io/io.c
     src/pubsub/allocation.c
     src/pubsub/cleanup.c
     src/pubsub/connect.c
@@ -20,6 +22,6 @@ target_include_directories(spacepi PUBLIC
 target_include_directories(spacepi PRIVATE
     "${PROJECT_SOURCE_DIR}/include/private"
 )
-target_link_libraries(spacepi paho-mqtt3a paho-mqtt3c)
+target_link_libraries(spacepi paho-mqtt3a paho-mqtt3c wiringPi)
 
 add_subdirectory(test)
