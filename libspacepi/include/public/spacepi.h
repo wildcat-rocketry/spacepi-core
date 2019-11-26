@@ -29,11 +29,36 @@
 
 /* Useful macros */
 
+/*
+ * STR converts literal text to a string.  For example, STR(abc) is replace with "abc" during preprocessing.  Note: if
+ * you use this with a variable name, it will create a string that contains the name of the variable.
+ * 
+ * Parameters: Literal text
+ * 
+ * Returns: The text as a C string
+ */
 #ifndef STR
 #define _STR(x) # x
 #define STR(x) _STR(x)
 #endif
 
+/*
+ * CONCAT concatenates two sections of literal text and forms a new literal (can be used for identifiers).  Note: if you
+ * use this with two variable names, it will concatenate the variable names instead of the values of the variables.
+ * 
+ * Example:
+ * 
+ * const char *a = "This is string a.";
+ * const char *b = "This is string b.";
+ * const char *ab = "This a different string.";
+ * puts(CONCAT(a, b)); // Will print "This is a different string."
+ * 
+ * Parameters:
+ *  - a: The left side of the concatenation
+ *  - b: The right side of the concatenation
+ * 
+ * Returns: The concatenated literal
+ */
 #ifndef CONCAT
 #define _CONCAT(a, b) a ## b
 #define CONCAT(a, b) _CONCAT(a, b)
@@ -41,9 +66,22 @@
 
 /* Error handling framework */
 
+/*
+ * spacepi_error_t represents an error code formatted by the spacepi library
+ */
 typedef union {
+    /*
+     * error_code is an integer form of the error code that can safely be set to errno (in theory).  It can then later
+     * be deconstructed from errno back into this structure.
+     */
     int error_code;
+    /*
+     * data represents the actual data fields inside the union that are equivalent to the error_code.
+     */
     struct {
+        /*
+         * code is the specific error code for this error.
+         */
 #if INT_MAX == 127
         unsigned code:6;
 #elif INT_MAX == 32767
@@ -55,60 +93,333 @@ typedef union {
 #else
 #error Invalid int size.
 #endif
+        /*
+         * type is the type of error (the source of error)
+         */
         enum {
-            system_err = 0,
-            spacepi = 1,
-            mqtt = 2
+            system_err = 0, // It is a system error (defined in errno.h)
+            spacepi = 1, // It is a spacepi error (defiend in spacepi_errors_t)
+            mqtt = 2 // It is a MQTT error (defined in MQTTAsync.h)
         } type:2;
     } data;
 } spacepi_error_t;
 
+/*
+ * spacepi_errors_t contains all of the errors that occur in the SpacePi library
+ */
 typedef enum {
-    LIB_ALREADY_INIT = 0,
-    SPACEPI_ERROR_CASCADE,
-    ALREADY_CONNECTED,
-    LIB_NOT_INIT,
-    UNKNOWN_ERROR,
-    INVALID_PIN
+    LIB_ALREADY_INIT = 0, // Library already initialized
+    /*
+     * SPACEPI_ERROR_CASCADE is not returned anywhere except when printing a stacktrace.  If you get one of these errors
+     * returned out of a function, it is best just to call spacepi_perror() and then return the same error back again.
+     * This way, the library can properly print the full stacktrace for the error.
+     */
+    SPACEPI_ERROR_CASCADE, // Cascaded error
+    ALREADY_CONNECTED, // Already connected
+    LIB_NOT_INIT, // Library not initialized
+    UNKNOWN_ERROR, // Unknown error
+    INVALID_PIN // Invalid pin
 } spacepi_errors_t;
 
+/*
+ * spacepi_strerror converts an error structure into a string representation of the error.
+ * 
+ * Parameters:
+ *  - spacepi_errno: The error to convert to a string
+ * 
+ * Returns: A string form of the error.  Do not modify the return value.  Subsequent calls to this function may change
+ *          the returned value.
+ */
 const char *spacepi_strerror(spacepi_error_t spacepi_errno);
+/*
+ * spacepi_perror prints an error message to the console.  This function is also used with SPACEPI_ERROR_CASCADE to
+ * print stack traces for crashes.  Normally instead of calling this directly, one would use the error checking macros
+ * (see below).
+ * 
+ * Parameters:
+ *  - func: The name of the function that returned the error (the function that was called)
+ *  - file: The name of the file that the error occurred in (see __FILE__)
+ *  - line: The line number that the error occurred in (see __LINE__)
+ */
 void spacepi_perror(const char *func, const char *file, int line);
+/*
+ * spacepi_trace prints a tracing message that can help debugging.  In general it is best not to leave any calls to this
+ * function in the completed code.  Use TRACE() instead of directly calling this function.
+ * 
+ * Parameters:
+ *  - file: The name of the file that is calling spacepi_trace (see __FILE__)
+ *  - line: The line number which is calling spacepi_trace (see __LINE__)
+ */
 void spacepi_trace(const char *file, int line);
 
+/*
+ * The following are the error-handling macros and some quick documentation (more complete documentation is available
+ * below):
+ * 
+ * Tracing:
+ *   TRACE() - debug tracing
+ * 
+ * Error setting functions:
+ *   Function                      | Error Type | Behavior
+ *   ------------------------------+------------+----------
+ *   SET_ERROR(type, val)          | Any        | None
+ *   SET_ERROR_SYSTEM(val)         | errno.h    | None
+ *   RETURN_ERROR(type, val)       | Any        | Return
+ *   RETURN_ERROR_SYSTEM(val)      | errno.h    | Return
+ *   JUMP_ERROR(label, type, var)  | Any        | Jump
+ *   JUMP_ERROR_SYSTEM(label, val) | errno.h    | Jump
+ *   RETURN_REPORTED_ERROR()       | Last       | Return
+ * 
+ *   Any = any type of error can be set
+ *   errno.h = only errors defined in errno.h can be set
+ *   Last = the last error that occurred
+ *   None = control continues as normal
+ *   Return = the current function returns and the calling function gets the error code
+ *   Jump = the current function jumps to cleanup code that should call RETURN_REPORTED_ERROR() when done
+ * 
+ * Calling functions and checking errors:
+ *   CHECK_ERROR(func, ...) - calls a function and returns if there was an error
+ *   CHECK_ERROR_JUMP(label, func, ...) - calls a function and jumps to cleanup code if there was an error
+ * 
+ * Allocating memory:
+ *   Function                                            | Definition | Type   | Behavior
+ *   ----------------------------------------------------+------------+--------+----------
+ *   CHECK_ALLOC(var, type)                              | Predefined | Scalar | Return
+ *   CHECK_ALLOC_DEF(var, type)                          | Included   | Scalar | Return
+ *   CHECK_ALLOC_ARRAY(var, type, count)                 | Predefined | Array  | Return
+ *   CHECK_ALLOC_ARRAY_DEF(var, type, count)             | Included   | Array  | Return
+ *   CHECK_ALLOC_JUMP(label, var, type)                  | Predefined | Scalar | Jump
+ *   CHECK_ALLOC_DEF_JUMP(label, var, type)              | Included   | Scalar | Jump
+ *   CHECK_ALLOC_ARRAY_JUMP(label, var, type, count)     | Predefined | Array  | Jump
+ *   CHECK_ALLOC_ARRAY_DEF_JUMP(label, var, type, count) | Included   | Array  | Jump
+ * 
+ *   Predefined = variable must be declared before using the macro
+ *   Incldued = variable definition is inside macro
+ *   Scalar = single instance of object is allocated
+ *   Array = multipe instances of object is allocated
+ *   Return = If an error occurs, control returns out of this function
+ *   Jump = If an error occurs, control jumps to cleanup code, which should call RETURN_REPORTED_ERROR() when done
+ */
+
+/*
+ * TRACE prints a tracing message that can help debugging.  In general it is best not to leave any calls to this macro
+ * in the completed code.
+ */
 #define TRACE() do { spacepi_trace(__FILE__, __LINE__); } while (0)
+/*
+ * SET_ERROR sets the current error that is occuring on the current thread to a specific value
+ * 
+ * Parameters:
+ *  - type: The type (source system) of the error (see spacepi_error_t.data.type)
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define SET_ERROR(type, val) do { errno = ((spacepi_error_t) { .data = { CONCAT(.ty, pe) = type, .code = val }}).error_code; } while (0)
+/*
+ * SET_ERROR_SYSTEM sets the current error that is occuring on the current thread to a specific value defined in errno.h
+ * 
+ * Parameters:
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define SET_ERROR_SYSTEM(val) SET_ERROR(system_err, val)
+/*
+ * RETURN_ERROR sets the current error and then returns it (a call to this macro causes the current function to return).
+ * 
+ * Parameters:
+ *  - type: The type (source system) of the error (see spacepi_error_t.data.type)
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define RETURN_ERROR(type, val) do { SET_ERROR(type, val); return -1; } while (0)
+/*
+ * RETURN_ERROR_SYSTEM sets the current error to a specific value defined in errno.h and then returns it (a call to this
+ * macro causes the current function to return).
+ * 
+ * Parameters:
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define RETURN_ERROR_SYSTEM(val) RETURN_ERROR(system_err, val)
+/*
+ * RETURN_REPORTED_ERROR returns an error that was already captured with CHECK_ERROR, CHECK_ALLOC, CHECK_ALLOC_DEF,
+ * CHECK_ALLOC_ARRAY, CHECK_ALLOC_ARRAY_DEF, CHECK_ERROR_JUMP, CHECK_ALLOC_JUMP, CHECK_ALLOC_DEF_JUMP,
+ * CHECK_ALLOC_ARRAY_JUMP, CHECK_ALLOC_ARRAY_DEF_JUMP and prints the stacktrace (incrementally).  At the end of any
+ * cleanup code run by any of those _JUMP functions, this should be called to return the error to the parent function.
+ */
 #define RETURN_REPORTED_ERROR() do { SET_ERROR(spacepi, SPACEPI_ERROR_CASCADE); return -1; } while (0)
+/*
+ * CHECK_ERROR runs a function call and checks it for any errors that may have occurred.  If an error did occur, it
+ * prints the stacktrace and returns from the current function with an error code.
+ * 
+ * Parameters:
+ *  - func: The name of a function that implements SpacePi's error handling convention
+ *  - ...: The rest of the arguments are the arguments to the function
+ */
 #define CHECK_ERROR(func, ...) do { if (func(__VA_ARGS__) < 0) { spacepi_perror(STR(func), __FILE__, __LINE__); RETURN_REPORTED_ERROR(); } } while (0)
+/*
+ * CHECK_ALLOC allocates dynamic memory and ensures that there was space to allocate it.  If there was not space left to
+ * allocate the memory, an error message is printed along with the stack trace, and the current function returns the
+ * error.
+ * 
+ * Parameters:
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ */
 #define CHECK_ALLOC(var, type) do { var = (type *) malloc(sizeof(type)); if (!var) { fflush(stdout); fputs("malloc: No buffer space available (" __FILE__ ":" STR(__LINE__) ")\n", stderr); RETURN_ERROR_SYSTEM(ENOBUFS); } } while (0)
+/*
+ * CHECK_ALLOC_DEF defines a variable and allocates dynamic memory for it, while ensuring that there was space to
+ * allocate it.  If there was not space left to allocate the memory, an error message is printed along with the stack
+ * trace, and the current function returns the error.
+ * 
+ * Parameters:
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ */
 #define CHECK_ALLOC_DEF(var, type) type *var; CHECK_ALLOC(var, type)
+/*
+ * CHECK_ALLOC_ARRAY allocates dynamic memory for an array and ensures that there was space to allocate it.  If there
+ * was not space left to allocate the memory, an error message is printed along with the stack trace, and the current
+ * function returns the error.
+ * 
+ * Parameters:
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ *  - count: The number of elements in the array to be allocated
+ */
 #define CHECK_ALLOC_ARRAY(var, type, count) do { var = (type *) malloc(sizeof(type) * (count)); if (!var) { fflush(stdout); fputs("malloc: No buffer space available (" __FILE__ ":" STR(__LINE__) ")\n", stderr); RETURN_ERROR_SYSTEM(ENOBUFS); } } while (0)
+/*
+ * CHECK_ALLOC_ARRAY_DEF defines a variable and allocates dynamic memory for an array, while ensuring that there was
+ * space to allocate it.  If there was not space left to allocate the memory, an error message is printed along with the
+ * stack trace, and the current function returns the error.
+ * 
+ * Parameters:
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ *  - count: The number of elements in the array to be allocated
+ */
 #define CHECK_ALLOC_ARRAY_DEF(var, type, count) var *type; CHECK_ALLOC_ARRAY(var, type, count)
+/*
+ * JUMP_ERROR sets the current error that is occuring on the current thread to a specific value, then jumps to some
+ * error handling code.  After error handling is complete, the function should call RETURN_REPORTED_ERROR() to notify
+ * the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - type: The type (source system) of the error (see spacepi_error_t.data.type)
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define JUMP_ERROR(label, type, val) do { SET_ERROR(type, val); goto label; } while (0)
+/*
+ * JUMP_ERROR_SYSTEM sets the current error that is occuring on the current thread to a specific value defined in
+ * errno.h, then jumps to some error handling code.  After error handling is complete, the function should call
+ * RETURN_REPORTED_ERROR() to notify the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - val: The specific error code (see spacepi_error_t.data.code)
+ */
 #define JUMP_ERROR_SYSTEM(label, val) JUMP_ERROR(label, system_err, val)
+/*
+ * CHECK_ERROR_JUMP runs a function call and checks it for any errors that may have occurred.  If an error did occur, it
+ * prints the stacktrace and jumps to some error handling code.  After error handling is complete, the function should
+ * call RETURN_REPORTED_ERROR() to notify the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - func: The name of a function that implements SpacePi's error handling convention
+ *  - ...: The rest of the arguments are the arguments to the function
+ */
 #define CHECK_ERROR_JUMP(label, func, ...) do { if (func(__VA_ARGS__) < 0) { spacepi_perror(STR(func), __FILE__, __LINE__); goto label; } } while (0)
+/*
+ * CHECK_ALLOC_JUMP allocates dynamic memory and ensures that there was space to allocate it.  If there was not space
+ * left to allocate the memory, an error message is printed along with the stack trace, and it jumps to some error
+ * handling code.  After error handling is complete, the function should call RETURN_REPORTED_ERROR() to notify the
+ * calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ */
 #define CHECK_ALLOC_JUMP(label, var, type) do { var = (type *) malloc(sizeof(type)); if (!var) { fflush(stdout); fputs("malloc: No buffer space available (" __FILE__ ":" STR(__LINE__) ")\n", stderr); JUMP_ERROR_SYSTEM(label, ENOBUFS); } } while (0)
+/*
+ * CHECK_ALLOC_DEF defines a variable and allocates dynamic memory for it, while ensuring that there was space to
+ * allocate it.  If there was not space left to allocate the memory, an error message is printed along with the stack
+ * trace, and it jumps to some error handling code.  After error handling is complete, the function should call
+ * RETURN_REPORTED_ERROR() to notify the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ */
 #define CHECK_ALLOC_DEF_JUMP(label, var, type) type *var; CHECK_ALLOC_JUMP(label, var, type)
+/*
+ * CHECK_ALLOC_ARRAY_JUMP allocates dynamic memory for an array and ensures that there was space to allocate it.  If
+ * there was not space left to allocate the memory, an error message is printed along with the stack trace, and it jumps
+ * to some error handling code.  After error handling is complete, the function should call RETURN_REPORTED_ERROR() to
+ * notify the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ *  - count: The number of elements in the array to be allocated
+ */
 #define CHECK_ALLOC_ARRAY_JUMP(label, var, type, count) do { var = (type *) malloc(sizeof(type) * count); if (!var) { fflush(stdout); fputs("malloc: No buffer space available (" __FILE__ ":" STR(__LINE__) ")\n", stderr); JUMP_ERROR_SYSTEM(label, ENOBUFS); } } while (0)
+/*
+ * CHECK_ALLOC_ARRAY_DEF_JUMP defines a variable and allocates dynamic memory for an array, while ensuring that there
+ * was space to allocate it.  If there was not space left to allocate the memory, an error message is printed along with
+ * the stack trace, and it jumps to some error handling code.  After error handling is complete, the function should
+ * call RETURN_REPORTED_ERROR() to notify the calling functions that the stack trace needs to be printed.
+ * 
+ * Parameters:
+ *  - label: The label to jump to in order to clean up local resources
+ *  - var: The name of the variable to allocate
+ *  - type: The type of variable that should be allocated (var should be a pointer to this type)
+ *  - count: The number of elements in the array to be allocated
+ */
 #define CHECK_ALLOC_ARRAY_DEF_JUMP(label, var, type, count) type *var; CHECK_ALLOC_ARRAY_JUMP(label, var, type, count)
 
 /* Pub/sub framework */
 
+/*
+ * spacepi_qos_t denotes the importance of information contained in the packet.
+ */
 typedef enum {
+    /*
+     * at_most_once sends it once and if it doesn't arrive it won't be resent.  This is useful for messages coming from
+     * sensors that update so fast that resending a packet would only result in old data being received.  This mode is
+     * the least computationally expensive.
+     */
     at_most_once = 0,
+    /*
+     * at_least_once sends it as many times as it must to make sure that it is received at least once time.  This is
+     * useful for messages that can be duplicated without having any effect on the system, but must be delivered at
+     * least one time, like a message that says a specific pyro charge should light.  If the pyro charge was lit twice,
+     * there would be no ill effects, but the message does need to arrive at least once.
+     */
     at_least_once = 1,
+    /*
+     * exactly_once makes sure that it is received exactly once time.  This is useful for messages that much be
+     * delivered and duplicate messages cause problems.  An example of this would be a command to move a stepper,
+     * because it must be delivered at least once to get it to move, and if using relative offsets, delivering the
+     * message multiple times would cause the stepper to move too much.  This mode is the most computationally
+     * expensive.
+     */
     exactly_once = 2
 } spacepi_qos_t;
 
+/*
+ * spacepi_pubsub_connection_t represents the current connection state to the MQTT server
+ */
 typedef enum {
-    disconnected = 0,
-    connected = 1,
-    connecting = 2
+    disconnected = 0, // This program is not connected to the server
+    connected = 1, // This program is connected to the server
+    connecting = 2 // This program is currently trying to connect to the server
 } spacepi_pubsub_connection_t;
 
+/*
+ * spacepi_token_t represents a token that represents some task.  This token can then be given to spacepi_wait_token to
+ * block until the task this token represents finishes.
+ */
 typedef int spacepi_token_t;
 
 /*
@@ -338,6 +649,7 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
  * 
  * void my_callback(int a, int b);
  * 
+ * // Define a new function, `add_fund`, that adds a function that takes two ints to the thread pool
  * DEFINE_THREAD_ENQUEUE_2(add_func, int, int);
  * 
  * int main() {
@@ -359,8 +671,9 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
  * // Prints out "a = 2, b = 4"
  * 
  * Macro Parameters:
- *  - The name of the function to write
- *  - The argument types for the function
+ *  - n: The number of arguments
+ *  - func_name: The name of the function to write
+ *  - ...: The argument types for the function
  * 
  * Function Parameters:
  *  - The callback function
@@ -586,25 +899,46 @@ int thread_enqueue(void (*trampoline)(void *context), void *context);
 #define HIGH 1
 #endif
 
+/*
+ * pin_t represents a pin that is connected to the computer
+ */
 typedef struct {
+    /*
+     * controller is the name of the driver that controls this pin
+     */
     const char *controller;
+    /*
+     * address is the address of the hardware that controls this pin
+     */
     unsigned address;
+    /*
+     * pin is the pin number on the controlling device
+     */
     unsigned pin;
+    /*
+     * driver is a pointer to custom driver data that should not be used by users of this library
+     */
     void *driver;
 } pin_t;
 
+/*
+ * pin_mode_t represents the different modes a pin can be in
+ */
 typedef enum {
-    output = 0,
-    input_hi_z = 1,
-    input_pullup = 3,
-    input_pulldown = 5
+    output = 0, // The pin is an output pin
+    input_hi_z = 1, // The pin is an input pin with no pull ups or pull downs
+    input_pullup = 3, // The pin is an input pin with a pullup resistor enabled
+    input_pulldown = 5 // The pin is an input pin with a pulldown resistor enabled
 } pin_mode_t;
 
+/*
+ * edge_t represents the edge of a waveform
+ */
 typedef enum {
-    none = 0,
-    rising = 1,
-    falling = 2,
-    both = 3
+    none = 0, // No edge
+    rising = 1, // The rising edge (transition from LOW to HIGH)
+    falling = 2, // The falling edge (transition from HIGH to LOW)
+    both = 3 // Either edge (any transition between LOW and HIGH)
 } edge_t;
 
 /*
