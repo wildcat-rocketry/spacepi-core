@@ -6,6 +6,7 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 add_library(spacepi
     src/io/gpio.c
     src/io/io.c
+    src/io/PCA9571.c
     src/pubsub/allocation.c
     src/pubsub/cleanup.c
     src/pubsub/connect.c
