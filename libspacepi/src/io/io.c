@@ -6,41 +6,40 @@
 int get_pin(const char *name, pin_t *pin) {
     const char *bus_end;
     for (bus_end = name; *bus_end && *bus_end != '@' && *bus_end != ':' && (*bus_end < '0' || *bus_end > '9'); ++bus_end);
-    if (!*bus_end) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
-    }
-    const char *addr = bus_end + 1;
-    const char *addr_end = addr;
-    const char *pinnos;
     unsigned address = 0;
-    if (*bus_end == '@') {
-        for (; *addr_end && *addr_end != ':'; ++addr_end) {
-            address <<= 4;
-            if (*addr_end >= '0' && *addr_end <= '9') {
-                address += *addr_end - '0';
-            } else if (*addr_end >= 'A' && *addr_end <= 'F') {
-                address += *addr_end - 'A' + 10;
-            } else if (*addr_end >= 'a' && *addr_end <= 'f') {
-                address += *addr_end - 'a' + 10;
+    unsigned pinno = 0;
+    if (*bus_end) {
+        const char *addr = bus_end + 1;
+        const char *addr_end = addr;
+        const char *pinnos;
+        if (*bus_end == '@') {
+            for (; *addr_end && *addr_end != ':'; ++addr_end) {
+                address <<= 4;
+                if (*addr_end >= '0' && *addr_end <= '9') {
+                    address += *addr_end - '0';
+                } else if (*addr_end >= 'A' && *addr_end <= 'F') {
+                    address += *addr_end - 'A' + 10;
+                } else if (*addr_end >= 'a' && *addr_end <= 'f') {
+                    address += *addr_end - 'a' + 10;
+                } else {
+                    RETURN_ERROR_SPACEPI(INVALID_PIN);
+                }
+            }
+            if (!*addr_end) {
+                RETURN_ERROR_SPACEPI(INVALID_PIN);
+            }
+            pinnos = addr_end + 1;
+        } else if (*bus_end == ':') {
+            pinnos = bus_end + 1;
+        } else {
+            pinnos = bus_end;
+        }
+        for (const char *it = pinnos; *it; ++it) {
+            if (*it >= '0' && *it <= '9') {
+                pinno = (pinno * 10) + (*it - '0');
             } else {
                 RETURN_ERROR_SPACEPI(INVALID_PIN);
             }
-        }
-        if (!*addr_end) {
-            RETURN_ERROR_SPACEPI(INVALID_PIN);
-        }
-        pinnos = addr_end + 1;
-    } else if (*bus_end == ':') {
-        pinnos = bus_end + 1;
-    } else {
-        pinnos = bus_end;
-    }
-    unsigned pinno;
-    for (const char *it = pinnos; *it; ++it) {
-        if (*it >= '0' && *it <= '9') {
-            pinno = (pinno * 10) + (*it - '0');
-        } else {
-            RETURN_ERROR_SPACEPI(INVALID_PIN);
         }
     }
     spacepi_io_driver_t **driver;
