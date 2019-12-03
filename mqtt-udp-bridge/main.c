@@ -11,6 +11,7 @@
 
 // args: udp_address udp_port mqtt_server_address mqtt_server_port
 
+int udp_fd;
 struct sockaddr_in udp_addr;
 
 // callback for pubsub system
@@ -18,6 +19,10 @@ void conn_callback() {
 	
 	// TODO implement this
 	
+}
+
+void subscription_cb(void * context, const char * channel, const void * data, size_t data_len, spacepi_qos_t qos, int retain) {
+	sendto(udp_fd, 
 }
 
 // callback for SIGINT
@@ -48,6 +53,14 @@ int main(int argc, char ** argv, char ** envp) {
 		fprintf(stderr, "Failed to init pubsub library: %d\n", errno);
 		exit(1);
 	}
+	
+	// create UDP socket
+	
+	
+	// subscribe to everything
+	spacepi_subscribe("#", at_most_once, subscription_cb, NULL);
+	
+	
 	
 	return 0;
 	
