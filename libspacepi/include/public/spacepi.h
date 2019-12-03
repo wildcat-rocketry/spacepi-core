@@ -294,7 +294,7 @@ void spacepi_trace(const char *file, int line);
  *  - type: The type of variable that should be allocated (var should be a pointer to this type)
  *  - count: The number of elements in the array to be allocated
  */
-#define CHECK_ALLOC_ARRAY_DEF(var, type, count) var *type; CHECK_ALLOC_ARRAY(var, type, count)
+#define CHECK_ALLOC_ARRAY_DEF(var, type, count) type *var; CHECK_ALLOC_ARRAY(var, type, count)
 /*
  * JUMP_ERROR sets the current error that is occuring on the current thread to a specific value, then jumps to some
  * error handling code.  After error handling is complete, the function should call RETURN_REPORTED_ERROR() to notify

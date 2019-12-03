@@ -1,4 +1,8 @@
+#include <fcntl.h>
+#include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 #include <spacepi-private.h>
 
 #define FILENAME_ROOT "/dev/i2c-"
@@ -27,7 +31,7 @@ static int io_write(void *context, unsigned address, unsigned pinno, int value);
 static int io_read(void *context, unsigned address, unsigned pinno);
 static int io_attach_isr(void *context, unsigned address, unsigned pinno, edge_t edge, void (*callback)(void *context), void *callback_context);
 
-spacepi_io_driver_t io_driver_gpio = {
+spacepi_io_driver_t io_driver_pca9571 = {
     .name = "PCA9571",
     .init_device = io_init_device,
     .validate_pin = io_validate_pin,
@@ -88,10 +92,10 @@ static int io_init_device(unsigned address, void **context) {
         .msgs = msgs,
         .nmsgs = 2
     };
-    CHECK_ERROR_JUMP(close_fd, ioctl, I2C_RDWR, &msgset);
+    CHECK_ERROR_JUMP(close_fd, ioctl, fd, I2C_RDWR, &msgset);
     device_id_t *dev_id = (device_id_t *) buf;
     printf("Connected to %s by %s (rev %d)\n", part_id_string(dev_id->part_id), manufacturer_string(dev_id->manufacturer), dev_id->revision);
-    *context = (void *) fd;
+    *((int *) context) = fd;
     return 0;
     close_fd:
     close(fd);
@@ -116,7 +120,7 @@ static int io_write(void *context, unsigned address, unsigned pinno, int value) 
     if (pinno >= 8) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
-    int fd = (int) context;
+    int fd = *((int *) &context);
     unsigned char port;
     CHECK_ERROR(read, fd, &port, 1);
     if (value) {
@@ -132,7 +136,7 @@ static int io_read(void *context, unsigned address, unsigned pinno) {
     if (pinno >= 8) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
-    int fd = (int) context;
+    int fd = *((int *) &context);
     unsigned char port;
     CHECK_ERROR(read, fd, &port, 1);
     return (port >> pinno) & 1;
