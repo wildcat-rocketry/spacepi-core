@@ -31,7 +31,6 @@ int spacepi_pubsub_init(void) {
     CHECK_ERROR_JUMP(free_pubsub_state, pthread_mutex_init, &pubsub_state->mutex, NULL);
     char client_id[23];
     strcpy(client_id, "spacepi");
-    CHECK_ERROR_JUMP(destroy_mutex, random_reseed);
     CHECK_ERROR_JUMP(destroy_mutex, randomize_string, base_62, 1, 62, client_id + 7, 23 - 7);
     client_id[22] = 0;
     CHECK_ERROR_JUMP_MQTT(destroy_mutex, MQTTAsync_create, &pubsub_state->mqtt, MQTT_HOST_STR, client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, STR(MQTT_PERSISTENCE_DIR));

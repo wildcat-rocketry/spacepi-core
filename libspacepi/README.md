@@ -315,9 +315,13 @@ The `:` character may be used to denote any number of characters between two `/`
 
 ## Random Number Generation
 
-### random_reseed()
+### random_bytes()
 
-Reseeds the random number generator.
+Fills a buffer with random bytes.
+
+### random_byte
+
+Gets one random byte (value [0, 256)).
 
 ### randomize_string()
 

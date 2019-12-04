@@ -84,10 +84,12 @@ struct _spacepi_io_driver_instance {
 };
 
 extern spacepi_io_driver_t io_driver_gpio;
+extern spacepi_io_driver_t io_driver_nc;
 extern spacepi_io_driver_t io_driver_pca9571;
 #ifdef GENERATE_DRIVER_LIST
 static spacepi_io_driver_t *io_drivers[] = {
     &io_driver_gpio,
+    &io_driver_nc,
     &io_driver_pca9571,
     NULL
 };

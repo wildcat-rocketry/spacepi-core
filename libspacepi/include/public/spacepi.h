@@ -118,7 +118,8 @@ typedef enum {
     ALREADY_CONNECTED, // Already connected
     LIB_NOT_INIT, // Library not initialized
     UNKNOWN_ERROR, // Unknown error
-    INVALID_PIN // Invalid pin
+    INVALID_PIN, // Invalid pin
+    NO_RANDOM_DATA // Random data not available
 } spacepi_errors_t;
 
 /*
@@ -597,11 +598,23 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
 extern const char const base_62[63];
 
 /*
- * random_reseed reseeds the random number generator with the current system time
+ * random_bytes fills a buffer with random bytes
+ * 
+ * Parameters:
+ *  - buffer: The buffer to fill with random data
+ *  - count: The number of bytes to read into the buffer
  * 
  * Return: 0 on success or a negative number with errno set on error
  */
-int random_reseed(void);
+int random_bytes(void *buffer, size_t count);
+
+/*
+ * random_byte returns a random number from [0, 256) and returns it
+ * 
+ * Return: A random number between [0, 256), or a negative number with errno set on error
+ */
+int random_byte(void);
+
 /*
  * randomize_string generates a random string with a given alphabet
  * 
