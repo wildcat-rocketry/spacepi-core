@@ -651,6 +651,24 @@ int thread_pool_init(void);
 int thread_enqueue(void (*trampoline)(void *context), void *context);
 
 /*
+ * thread_block blocks a thread and never returns.  This can be useful for blocking the main thread from exiting after
+ * the rest of the library is initialized.  This works better than a `while(1);` loop because thread_block() does not
+ * create any load on the processor.
+ */
+void thread_block(void);
+
+/*
+ * thread_yield waits up to `millis` milliseconds for a time in which the system load is below 50%.  If the load becomes
+ * lower than 50%, the function returns immediately.  Otherwise, once it gets to `millis` milliseconds, it then returns.
+ * 
+ * Parameters:
+ *  - millis: The number of milliseconds to wait for
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int thread_yield(int millis);
+
+/*
  * DEFINE_THREAD_ENQUEUE_n defines a new function that enqueues a different function that takes n arguments to the
  * thread pool.  The first argument to this macro is the name of the function to write.  The following arguments are the
  * types of the arguments to the function to add the the threading queue.

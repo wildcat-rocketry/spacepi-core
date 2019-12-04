@@ -1,6 +1,9 @@
 #include <errno.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <sys/sysinfo.h>
 #include <time.h>
+#include <unistd.h>
 #include <spacepi.h>
 
 #ifndef WORKER_THREAD_TIMEOUT
@@ -8,6 +11,15 @@
 #endif
 #ifndef WORKER_THREAD_MAX_QUEUE
 #define WORKER_THREAD_MAX_QUEUE 10
+#endif
+#ifndef THREAD_YEILD_THRESHOLD
+#define THREAD_YIELD_THRESHOLD 0.5
+#endif
+#ifndef THREAD_YIELD_MARGIN
+#define THREAD_YIELD_MARGIN 0.1
+#endif
+#ifndef THREAD_YIELD_ADAPTIVENESS
+#define THREAD_YIELD_ADAPTIVENESS 0.01
 #endif
 
 //#define WORKER_THREAD_DEBUG
@@ -112,4 +124,36 @@ static void *worker_thread(void *ctx) {
 #ifdef WORKER_THREAD_DEBUG
     fputs("Helper worker thread died.\n", stderr);
 #endif
+}
+
+void thread_block(void) {
+    while (1) {
+        pause();
+    }
+}
+
+int thread_yield(int millis) {
+    static float fraction = 1;
+    static int proc_count = 0;
+    if (proc_count <= 0) {
+        proc_count = get_nprocs_conf();
+        if (proc_count <= 0) {
+            spacepi_perror("get_nprocs_conf", __FILE__, __LINE__);
+            RETURN_REPORTED_ERROR();
+        }
+    }
+    double loadavg;
+    CHECK_ERROR(getloadavg, &loadavg, 1);
+    loadavg /= proc_count;
+    if (loadavg > THREAD_YIELD_THRESHOLD + THREAD_YIELD_MARGIN) {
+        fraction *= 1 + THREAD_YIELD_ADAPTIVENESS;
+    } else if (loadavg < THREAD_YIELD_THRESHOLD - THREAD_YIELD_MARGIN) {
+        fraction *= 1 - THREAD_YIELD_ADAPTIVENESS;
+    }
+    if (fraction > 1) {
+        fraction = 1;
+    }
+    millis *= fraction;
+    sleep(millis / 1000);
+    usleep(1000 * (millis % 1000));
 }

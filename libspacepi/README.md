@@ -342,6 +342,18 @@ Sets up the thread pool.
 This is the low-level function for adding a new entry to the thread pooling queue.
 Instead of calling this, use the thread enqueueing macros.
 
+### thread_block()
+
+This function blocks the current thread forever so it does not die.
+This never returns once you call it, so do not call it unless you really mean to.
+One example of when you need this is to keep the main thread from dying while other threads are still running.
+
+### thread_yield()
+
+This function blocks for a variable amount of time to help reduce CPU load when polling something.
+It takes one parameter as the maximum amount of time to block for, which makes sure that the data is polled frequently enough.
+Other than that, it will increase the polling frequency if there is low system load, and reduce the frequency if there is high system load.
+
 ### Macros
 
 There are macros defined that write a function to enqueue a new function in the thread pool.
