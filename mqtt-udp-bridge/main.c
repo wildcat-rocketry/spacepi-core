@@ -22,7 +22,7 @@ void conn_callback() {
 }
 
 void subscription_cb(void * context, const char * channel, const void * data, size_t data_len, spacepi_qos_t qos, int retain) {
-	sendto(udp_fd, 
+	//sendto(udp_fd, );
 }
 
 // callback for SIGINT
