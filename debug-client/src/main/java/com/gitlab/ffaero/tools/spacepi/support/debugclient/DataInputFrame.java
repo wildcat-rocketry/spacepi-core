@@ -114,7 +114,7 @@ public class DataInputFrame {
 					case ASCII_STRING_NT: // TODO fix
 						byte[] bufnt = new byte[field.getLength()];
 						byte[] strbytesnt = text.getBytes();
-						System.arraycopy(strbytesnt, 0, bufnt, 0, strbytes.length - 1);
+						System.arraycopy(strbytesnt, 0, bufnt, 0, strbytesnt.length - 1);
 						out.write(bufnt);
 						break;
 					case FLOAT32:
@@ -184,17 +184,19 @@ public class DataInputFrame {
 			Format format = (Format) formatList.getSelectedItem();
 			String[] labelStrings = format.getLabels().toArray(new String[0]);
 			DataType[] dataTypes = format.getDataTypes().toArray(new DataType[0]);
+			Integer[] lengths = format.getLengths().toArray(new Integer[0]);
 			int y = 100;
 			for (int i = 0; i < labelStrings.length; i++) {
 				String labelString = labelStrings[i];
 				DataType dataType = dataTypes[i];
+				int length = lengths[i];
 				JLabel label = new JLabel(labelString + ":");
 				label.setBounds(10, y, 100, 20);
 				frame.add(label);
 				JTextField field = new JTextField();
 				field.setBounds(120, y, 200, 20);
 				frame.add(field);
-				fields.add(new DataField(label, dataType, field));
+				fields.add(new DataField(label, dataType, length, field));
 				y += 30;
 			}
 		});

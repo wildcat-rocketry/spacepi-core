@@ -36,11 +36,17 @@ public class FormatFileReader {
 					formats.add(curFormat);
 					curFormat = null;
 				}
-				curFormat = new Format(linedata[1], new ArrayList<String>(), new ArrayList<DataType>());
+				curFormat = new Format(linedata[1], new ArrayList<String>(), new ArrayList<DataType>(), new ArrayList<Integer>());
 			} else if (curFormat != null) {
 				try {
-					DataType type = DataType.valueOf(linedata[0]);
+					String[] typedata = linedata[0].split("@", 2);
+					DataType type = DataType.valueOf(typedata[0]);
 					curFormat.datatypes.add(type);
+					if (typedata.length > 1) {
+						curFormat.lengths.add(Integer.parseInt(typedata[1]));
+					} else {
+						curFormat.lengths.add(0);
+					}
 				} catch (IllegalArgumentException e) {
 					throw new IllegalStateException("Unknown data type \"" + linedata[0] + "\"");
 				}
@@ -62,11 +68,13 @@ public class FormatFileReader {
 		private String name;
 		private List<String> labels;
 		private List<DataType> datatypes;
+		private List<Integer> lengths;
 
-		public Format(String name, List<String> labels, List<DataType> datatypes) {
+		public Format(String name, List<String> labels, List<DataType> datatypes, List<Integer> lengths) {
 			this.name = name;
 			this.labels = labels;
 			this.datatypes = datatypes;
+			this.lengths = lengths;
 		}
 
 		public String getName() {
@@ -91,6 +99,14 @@ public class FormatFileReader {
 
 		public void setDataTypes(List<DataType> datatypes) {
 			this.datatypes = datatypes;
+		}
+
+		public List<Integer> getLengths() {
+			return lengths;
+		}
+
+		public void setLengths(List<Integer> lengths) {
+			this.lengths = lengths;
 		}
 
 		@Override
