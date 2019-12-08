@@ -402,6 +402,9 @@ Those three can be encoded in any of the following formats:
 1. `<driver>@<address>:<pin>`
 2. `<driver>:<pin>`
 3. `<driver><pin>`
+4. `<driver>`
+
+NOTE: a `!` or `~` character can be prepended to a pin name to make it logically inverted.
 
 The driver name is an ASCII string, the address is encoded in hexadecimal ASCII, and the pin number is encoded in decimal ASCII.
 Programs should not encode or decode these strings, but instead rely on the user to encode them and the SpacePi library to decode them.

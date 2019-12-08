@@ -4,8 +4,13 @@
 #include <spacepi-private.h>
 
 int get_pin(const char *name, pin_t *pin) {
-    const char *bus_end;
-    for (bus_end = name; *bus_end && *bus_end != '@' && *bus_end != ':' && (*bus_end < '0' || *bus_end > '9'); ++bus_end);
+    const char *bus_end = name;
+    int inverted = 0;
+    if (*bus_end == '~' || *bus_end == '!') {
+        inverted = 1;
+        ++bus_end;
+    }
+    for (; *bus_end && *bus_end != '@' && *bus_end != ':' && (*bus_end < '0' || *bus_end > '9'); ++bus_end);
     unsigned address = 0;
     unsigned pinno = 0;
     if (*bus_end) {
@@ -55,6 +60,7 @@ int get_pin(const char *name, pin_t *pin) {
     pin->controller = (*driver)->name;
     pin->address = address;
     pin->pin = pinno;
+    pin->inverted = inverted;
     spacepi_io_driver_instance_t *instance;
     for (instance = (*driver)->instances; instance; instance = instance->next) {
         if (instance->address == address) {
@@ -97,6 +103,9 @@ int digital_write(pin_t *pin, int value) {
     if (pin->controller != driver->driver->name || pin->address != driver->address) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
+    if (pin->inverted) {
+        value = 1 - value;
+    }
     return driver->driver->write(driver->context, pin->address, pin->pin, value);
 }
 
@@ -108,7 +117,11 @@ int digital_read(pin_t *pin) {
     if (pin->controller != driver->driver->name || pin->address != driver->address) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
-    return driver->driver->read(driver->context, pin->address, pin->pin);
+    int value = driver->driver->read(driver->context, pin->address, pin->pin);
+    if (pin->inverted) {
+        value = 1 - value;
+    }
+    return value;
 }
 
 int attach_interrupt(pin_t *pin, edge_t edge, void (*callback)(void *context), void *context) {
@@ -118,6 +131,16 @@ int attach_interrupt(pin_t *pin, edge_t edge, void (*callback)(void *context), v
     }
     if (pin->controller != driver->driver->name || pin->address != driver->address) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
+    }
+    if (pin->inverted) {
+        switch (edge) {
+            case rising:
+                edge = falling;
+                break;
+            case falling:
+                edge = rising;
+                break;
+        }
     }
     return driver->driver->attach_isr(driver->context, pin->address, pin->pin, edge, callback, context);
 }

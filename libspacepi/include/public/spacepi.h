@@ -947,6 +947,10 @@ typedef struct {
      */
     unsigned pin;
     /*
+     * inverted is TRUE if the value actually written to the pin should be flipped
+     */
+    int inverted;
+    /*
      * driver is a pointer to custom driver data that should not be used by users of this library
      */
     void *driver;
