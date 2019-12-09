@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -18,10 +19,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -37,14 +37,16 @@ public class DataInputFrame {
 	private JMenu fileMenu;
 	private JTextField serverURI;
 	private JComboBox<Format> formatList;
+	private JCheckBox useFormatString;
+	private JTextField formatString;
 	private JButton sendButton;
 	private ArrayList<DataField> fields = new ArrayList<DataField>();
 
-	private MqttAsyncClient client;
+	private IMqttClient client;
 
 	public DataInputFrame() {
 		frame = new JFrame("Debug Client");
-		frame.setBounds(10, 10, 350, 500);
+		frame.setBounds(10, 10, 450, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.setLayout(null);
@@ -77,10 +79,17 @@ public class DataInputFrame {
 		connectMenuItem.addActionListener((e) -> {
 			try {
 				MqttConnectOptions options = new MqttConnectOptions();
-				client = new MqttAsyncClient(serverURI.getText(), MqttClient.generateClientId());
-				IMqttToken token = client.connect(options);
-				token.setActionCallback(new InternalMqttActionListener());
+				options.setAutomaticReconnect(true);
+				options.setCleanSession(true);
+				options.setConnectionTimeout(10);
+				client = new MqttClient(serverURI.getText(), MqttClient.generateClientId());
+				client.connect(options);
+				serverURI.setEnabled(false);
+				sendButton.setEnabled(true);
+				frame.repaint();
+				JOptionPane.showMessageDialog(frame, "Connected!");
 				client.subscribe("#", 0);
+				// token.setActionCallback(new InternalMqttActionListener());
 			} catch (MqttException ex) {
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(frame, "Failed to connect to MQTT server: " + ex.getMessage());
@@ -92,12 +101,12 @@ public class DataInputFrame {
 		fileMenu.add(connectMenuItem);
 
 		createLabel("Server URI:", 10, 10, 100);
-		serverURI = new JTextField("localhost");
-		serverURI.setBounds(120, 10, 200, 20);
+		serverURI = new JTextField("tcp://localhost:1883");
+		serverURI.setBounds(120, 10, 300, 20);
 		frame.add(serverURI);
 
 		sendButton = new JButton("Publish Message");
-		sendButton.setBounds(10, 40, 310, 20);
+		sendButton.setBounds(10, 40, 410, 20);
 		sendButton.addActionListener((e) -> {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream out = new DataOutputStream(baos);
@@ -108,14 +117,21 @@ public class DataInputFrame {
 					case ASCII_STRING:
 						byte[] buf = new byte[field.getLength()];
 						byte[] strbytes = text.getBytes();
+						if (strbytes.length > field.getLength()) {
+							throw new IllegalArgumentException(
+									"String is longer than max length of " + field.getLength() + " bytes");
+						}
 						System.arraycopy(strbytes, 0, buf, 0, strbytes.length);
 						out.write(buf);
 						break;
-					case ASCII_STRING_NT: // TODO fix
-						byte[] bufnt = new byte[field.getLength()];
+					case ASCII_STRING_NT:
 						byte[] strbytesnt = text.getBytes();
-						System.arraycopy(strbytesnt, 0, bufnt, 0, strbytesnt.length - 1);
-						out.write(bufnt);
+						if (strbytesnt.length > field.getLength() - 1) {
+							throw new IllegalArgumentException(
+									"String is longer than max length of " + field.getLength() + " bytes");
+						}
+						out.write(strbytesnt);
+						out.writeByte(0); // write null terminator
 						break;
 					case FLOAT32:
 						out.writeFloat(Float.parseFloat(text));
@@ -155,7 +171,7 @@ public class DataInputFrame {
 					ex.printStackTrace();
 					JOptionPane.showMessageDialog(frame,
 							"Failed to write to ByteArrayOutputStream: " + ex.getMessage());
-				} catch (NumberFormatException ex) {
+				} catch (IllegalArgumentException ex) {
 					ex.printStackTrace();
 					JOptionPane.showMessageDialog(frame, "Failed to parse input for field \""
 							+ field.getLabel().getText() + "\": " + ex.getMessage());
@@ -163,17 +179,27 @@ public class DataInputFrame {
 			}
 			MqttMessage message = new MqttMessage(baos.toByteArray());
 			try {
-				client.publish(((Format) formatList.getSelectedItem()).getName(), message);
+				if (formatList.getSelectedItem() == null) {
+					JOptionPane.showMessageDialog(frame, "Please select a format to use.");
+				} else {
+					if (useFormatString.isSelected()) {
+						client.publish(String.format(((Format) formatList.getSelectedItem()).getName(),
+								formatString.getText()), message);
+					} else {
+						client.publish(((Format) formatList.getSelectedItem()).getName(), message);
+					}
+				}
 			} catch (MqttException ex) {
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(frame, "Failed to publish message: " + ex.getMessage());
 			}
 		});
+		sendButton.setEnabled(false);
 		frame.add(sendButton);
 
 		createLabel("Topic:", 10, 70, 100);
 		formatList = new JComboBox<Format>();
-		formatList.setBounds(120, 100, 200, 20);
+		formatList.setBounds(120, 70, 300, 20);
 		formatList.addActionListener((e) -> {
 			for (DataField f : fields) {
 				frame.remove(f.getLabel());
@@ -185,22 +211,31 @@ public class DataInputFrame {
 			String[] labelStrings = format.getLabels().toArray(new String[0]);
 			DataType[] dataTypes = format.getDataTypes().toArray(new DataType[0]);
 			Integer[] lengths = format.getLengths().toArray(new Integer[0]);
-			int y = 100;
+			int y = 130;
 			for (int i = 0; i < labelStrings.length; i++) {
 				String labelString = labelStrings[i];
 				DataType dataType = dataTypes[i];
 				int length = lengths[i];
 				JLabel label = new JLabel(labelString + ":");
-				label.setBounds(10, y, 100, 20);
+				label.setBounds(10, y, 200, 20);
 				frame.add(label);
 				JTextField field = new JTextField();
-				field.setBounds(120, y, 200, 20);
+				field.setBounds(220, y, 200, 20);
 				frame.add(field);
 				fields.add(new DataField(label, dataType, length, field));
 				y += 30;
 			}
+			frame.repaint();
 		});
 		frame.add(formatList);
+
+		useFormatString = new JCheckBox("%s = ");
+		useFormatString.setBounds(10, 100, 100, 20);
+		frame.add(useFormatString);
+
+		formatString = new JTextField();
+		formatString.setBounds(120, 100, 300, 20);
+		frame.add(formatString);
 
 		frame.setVisible(true);
 
@@ -210,44 +245,6 @@ public class DataInputFrame {
 		JLabel label = new JLabel(text);
 		label.setBounds(x, y, width, 20);
 		frame.add(label);
-	}
-
-	private final class InternalMqttActionListener implements IMqttActionListener {
-
-		@Override
-		public void onSuccess(IMqttToken asyncActionToken) {
-			serverURI.setEnabled(false);
-			sendButton.setEnabled(true);
-			JOptionPane.showMessageDialog(frame, "Connected!");
-		}
-
-		@Override
-		public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-			JOptionPane.showMessageDialog(frame, "Failed to connect: " + exception.getMessage());
-		}
-
-	}
-
-	private final class InternalMqttCallback implements MqttCallback {
-
-		@Override
-		public void connectionLost(Throwable cause) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void messageArrived(String topic, MqttMessage message) throws Exception {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void deliveryComplete(IMqttDeliveryToken token) {
-			// TODO Auto-generated method stub
-
-		}
-
 	}
 
 	public static final class DataField {

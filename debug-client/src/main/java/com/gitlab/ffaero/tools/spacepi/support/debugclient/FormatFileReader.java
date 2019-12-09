@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class FormatFileReader {
 	private BufferedReader reader;
 
 	public FormatFileReader(File file) throws IOException {
-		this(new BufferedReader(new FileReader(file)));
+		this(new BufferedReader(new FileReader(file, Charset.availableCharsets().get("UTF-8"))));
 	}
 
 	public FormatFileReader(BufferedReader reader) throws IOException {
