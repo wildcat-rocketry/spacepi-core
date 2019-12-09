@@ -34,7 +34,7 @@ int random_bytes(void *buffer, size_t count) {
 }
 
 int random_byte(void) {
-    char c;
+    unsigned char c;
     int r = random_bytes(&c, 1);
     if (r < 0) {
         return r;
