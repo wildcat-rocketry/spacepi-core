@@ -51,8 +51,17 @@ public class JFormatPanel extends JPanel {
 			try {
 				switch (field.getDataType()) {
 				case ASCII_STRING:
+					byte[] buf = new byte[field.getLength()];
+					in.read(buf);
+					field.getTextField().setText(new String(buf));
 					break;
 				case ASCII_STRING_NT:
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					byte b;
+					while ((b = in.readByte()) != 0) {
+						baos.write(b);
+					}
+					field.getTextField().setText(new String(baos.toByteArray()));
 					break;
 				case FLOAT32:
 					field.getTextField().setText(Float.toString(in.readFloat()));
@@ -73,12 +82,16 @@ public class JFormatPanel extends JPanel {
 					field.getTextField().setText(Byte.toString(in.readByte()));
 					break;
 				case UINT16:
+					field.getTextField().setText(Long.toUnsignedString(Short.toUnsignedLong(in.readShort())));
 					break;
 				case UINT32:
+					field.getTextField().setText(Long.toUnsignedString(Integer.toUnsignedLong(in.readInt())));
 					break;
 				case UINT64:
+					field.getTextField().setText(Long.toUnsignedString(in.readLong()));
 					break;
 				case UINT8:
+					field.getTextField().setText(Long.toUnsignedString(Byte.toUnsignedLong(in.readByte())));
 					break;
 				default:
 					break;
@@ -109,10 +122,6 @@ public class JFormatPanel extends JPanel {
 					break;
 				case ASCII_STRING_NT:
 					byte[] strbytesnt = text.getBytes();
-					if (strbytesnt.length > field.getLength() - 1) {
-						throw new IllegalArgumentException(
-								"String is longer than max length of " + field.getLength() + " bytes");
-					}
 					out.write(strbytesnt);
 					out.writeByte(0); // write null terminator
 					break;
