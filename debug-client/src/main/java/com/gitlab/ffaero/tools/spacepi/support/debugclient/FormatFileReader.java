@@ -24,7 +24,7 @@ public class FormatFileReader {
 		Format curFormat = null;
 		while (reader.ready()) {
 			String line = reader.readLine();
-			if (line.stripLeading().startsWith("//") || line.isBlank()) {
+			if (line.trim().startsWith("//") || line.length() == 0) {
 				continue;
 			}
 			String[] linedata = line.split(":", 2);
