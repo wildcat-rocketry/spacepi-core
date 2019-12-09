@@ -1,10 +1,7 @@
 package com.gitlab.ffaero.tools.spacepi.support.debugclient;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -16,12 +13,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -30,7 +26,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.gitlab.ffaero.tools.spacepi.support.debugclient.FormatFileReader.Format;
 
-public class DataInputFrame {
+public class PublishFrame {
 
 	private JFrame frame;
 	private JMenuBar menuBar;
@@ -40,13 +36,14 @@ public class DataInputFrame {
 	private JCheckBox useFormatString;
 	private JTextField formatString;
 	private JButton sendButton;
-	private ArrayList<DataField> fields = new ArrayList<DataField>();
+	private JFormatPanel formatPanel;
+	private List<Format> formats;
 
 	private IMqttClient client;
 
-	public DataInputFrame() {
+	public PublishFrame() {
 		frame = new JFrame("Debug Client");
-		frame.setBounds(10, 10, 500, 800);
+		frame.setBounds(10, 10, 495, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.setLayout(null);
@@ -62,7 +59,7 @@ public class DataInputFrame {
 				chooser.setCurrentDirectory(new File("."));
 				if (chooser.showOpenDialog(frame) == JFileChooser.APPROVE_OPTION) {
 					FormatFileReader reader = new FormatFileReader(chooser.getSelectedFile());
-					for (Format format : reader.read()) {
+					for (Format format : formats = reader.read()) {
 						formatList.addItem(format);
 					}
 				}
@@ -89,6 +86,7 @@ public class DataInputFrame {
 				frame.repaint();
 				JOptionPane.showMessageDialog(frame, "Connected!");
 				client.subscribe("#", 0);
+				client.setCallback(new InternalMqttCallback());
 				// token.setActionCallback(new InternalMqttActionListener());
 			} catch (MqttException ex) {
 				ex.printStackTrace();
@@ -108,76 +106,8 @@ public class DataInputFrame {
 		sendButton = new JButton("Publish Message");
 		sendButton.setBounds(10, 40, 460, 20);
 		sendButton.addActionListener((e) -> {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream out = new DataOutputStream(baos);
-			for (DataField field : fields) {
-				try {
-					String text = field.getTextField().getText();
-					switch (field.getDataType()) {
-					case ASCII_STRING:
-						byte[] buf = new byte[field.getLength()];
-						byte[] strbytes = text.getBytes();
-						if (strbytes.length > field.getLength()) {
-							throw new IllegalArgumentException(
-									"String is longer than max length of " + field.getLength() + " bytes");
-						}
-						System.arraycopy(strbytes, 0, buf, 0, strbytes.length);
-						out.write(buf);
-						break;
-					case ASCII_STRING_NT:
-						byte[] strbytesnt = text.getBytes();
-						if (strbytesnt.length > field.getLength() - 1) {
-							throw new IllegalArgumentException(
-									"String is longer than max length of " + field.getLength() + " bytes");
-						}
-						out.write(strbytesnt);
-						out.writeByte(0); // write null terminator
-						break;
-					case FLOAT32:
-						out.writeFloat(Float.parseFloat(text));
-						break;
-					case FLOAT64:
-						out.writeDouble(Double.parseDouble(text));
-						break;
-					case INT16:
-						out.writeShort(Short.parseShort(text));
-						break;
-					case INT32:
-						out.writeInt(Integer.parseInt(text));
-						break;
-					case INT64:
-						out.writeLong(Long.parseLong(text));
-						break;
-					case INT8:
-						out.writeByte(Byte.parseByte(text));
-						break;
-					case UINT16:
-						out.writeShort(Integer.parseInt(text) & 0xFFFF);
-						break;
-					case UINT32:
-						out.writeInt((int) (Long.parseLong(text) & 0xFFFFFFFF));
-						break;
-					case UINT64:
-						out.writeLong(Long.parseUnsignedLong(text));
-						break;
-					case UINT8:
-						out.writeByte(Short.parseShort(text) & 0xFF);
-						break;
-					default:
-						break;
-
-					}
-				} catch (IOException ex) {
-					ex.printStackTrace();
-					JOptionPane.showMessageDialog(frame,
-							"Failed to write to ByteArrayOutputStream: " + ex.getMessage());
-				} catch (IllegalArgumentException ex) {
-					ex.printStackTrace();
-					JOptionPane.showMessageDialog(frame, "Failed to parse input for field \""
-							+ field.getLabel().getText() + "\": " + ex.getMessage());
-				}
-			}
-			MqttMessage message = new MqttMessage(baos.toByteArray());
+			// get mqtt message
+			MqttMessage message = formatPanel.getMqttMessage();
 			try {
 				if (formatList.getSelectedItem() == null) {
 					JOptionPane.showMessageDialog(frame, "Please select a format to use.");
@@ -201,30 +131,8 @@ public class DataInputFrame {
 		formatList = new JComboBox<Format>();
 		formatList.setBounds(120, 70, 350, 20);
 		formatList.addActionListener((e) -> {
-			for (DataField f : fields) {
-				frame.remove(f.getLabel());
-				frame.remove(f.getTextField());
-			}
-			fields.clear();
-
-			Format format = (Format) formatList.getSelectedItem();
-			String[] labelStrings = format.getLabels().toArray(new String[0]);
-			DataType[] dataTypes = format.getDataTypes().toArray(new DataType[0]);
-			Integer[] lengths = format.getLengths().toArray(new Integer[0]);
-			int y = 130;
-			for (int i = 0; i < labelStrings.length; i++) {
-				String labelString = labelStrings[i];
-				DataType dataType = dataTypes[i];
-				int length = lengths[i];
-				JLabel label = new JLabel("[" + dataType.name() + "] " + labelString + ":");
-				label.setBounds(10, y, 250, 20);
-				frame.add(label);
-				JTextField field = new JTextField();
-				field.setBounds(270, y, 200, 20);
-				frame.add(field);
-				fields.add(new DataField(label, dataType, length, field));
-				y += 30;
-			}
+			// set fields
+			formatPanel.setFormat((Format) formatList.getSelectedItem());
 			frame.repaint();
 		});
 		frame.add(formatList);
@@ -236,6 +144,11 @@ public class DataInputFrame {
 		formatString = new JTextField();
 		formatString.setBounds(120, 100, 350, 20);
 		frame.add(formatString);
+
+		formatPanel = new JFormatPanel(null);
+		JScrollPane pane = new JScrollPane(formatPanel);
+		pane.setBounds(10, 130, 460, 500);
+		frame.add(pane);
 
 		frame.setVisible(true);
 
@@ -292,6 +205,27 @@ public class DataInputFrame {
 
 		public void setTextField(JTextField field) {
 			this.textField = field;
+		}
+
+	}
+
+	private final class InternalMqttCallback implements MqttCallback {
+
+		@Override
+		public void connectionLost(Throwable cause) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void messageArrived(String topic, MqttMessage message) throws Exception {
+			SubscribeFrame frame = new SubscribeFrame(formats, topic, message);
+		}
+
+		@Override
+		public void deliveryComplete(IMqttDeliveryToken token) {
+			// TODO Auto-generated method stub
+
 		}
 
 	}
