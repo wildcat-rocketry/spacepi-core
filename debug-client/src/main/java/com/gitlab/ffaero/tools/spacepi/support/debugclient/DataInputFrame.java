@@ -46,7 +46,7 @@ public class DataInputFrame {
 
 	public DataInputFrame() {
 		frame = new JFrame("Debug Client");
-		frame.setBounds(10, 10, 450, 800);
+		frame.setBounds(10, 10, 500, 800);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.setLayout(null);
@@ -102,11 +102,11 @@ public class DataInputFrame {
 
 		createLabel("Server URI:", 10, 10, 100);
 		serverURI = new JTextField("tcp://localhost:1883");
-		serverURI.setBounds(120, 10, 300, 20);
+		serverURI.setBounds(120, 10, 350, 20);
 		frame.add(serverURI);
 
 		sendButton = new JButton("Publish Message");
-		sendButton.setBounds(10, 40, 410, 20);
+		sendButton.setBounds(10, 40, 460, 20);
 		sendButton.addActionListener((e) -> {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream out = new DataOutputStream(baos);
@@ -199,7 +199,7 @@ public class DataInputFrame {
 
 		createLabel("Topic:", 10, 70, 100);
 		formatList = new JComboBox<Format>();
-		formatList.setBounds(120, 70, 300, 20);
+		formatList.setBounds(120, 70, 350, 20);
 		formatList.addActionListener((e) -> {
 			for (DataField f : fields) {
 				frame.remove(f.getLabel());
@@ -216,11 +216,11 @@ public class DataInputFrame {
 				String labelString = labelStrings[i];
 				DataType dataType = dataTypes[i];
 				int length = lengths[i];
-				JLabel label = new JLabel(labelString + ":");
-				label.setBounds(10, y, 200, 20);
+				JLabel label = new JLabel("[" + dataType.name() + "] " + labelString + ":");
+				label.setBounds(10, y, 250, 20);
 				frame.add(label);
 				JTextField field = new JTextField();
-				field.setBounds(220, y, 200, 20);
+				field.setBounds(270, y, 200, 20);
 				frame.add(field);
 				fields.add(new DataField(label, dataType, length, field));
 				y += 30;
@@ -234,7 +234,7 @@ public class DataInputFrame {
 		frame.add(useFormatString);
 
 		formatString = new JTextField();
-		formatString.setBounds(120, 100, 300, 20);
+		formatString.setBounds(120, 100, 350, 20);
 		frame.add(formatString);
 
 		frame.setVisible(true);
