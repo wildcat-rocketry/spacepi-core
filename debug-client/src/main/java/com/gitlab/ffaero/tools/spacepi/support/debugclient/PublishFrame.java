@@ -31,6 +31,7 @@ public class PublishFrame {
 	private JFrame frame;
 	private JMenuBar menuBar;
 	private JMenu fileMenu;
+	private JMenu windowMenu;
 	private JTextField serverURI;
 	private JComboBox<Format> formatList;
 	private JCheckBox useFormatString;
@@ -39,6 +40,7 @@ public class PublishFrame {
 	private JFormatPanel formatPanel;
 	private List<Format> formats;
 
+	private SubscribeFrame subscribeFrame;
 	private IMqttClient client;
 
 	public PublishFrame() {
@@ -63,6 +65,7 @@ public class PublishFrame {
 						formatList.addItem(format);
 					}
 				}
+				subscribeFrame.setFormats(formats);
 			} catch (Exception ex) {
 				ex.printStackTrace();
 				JOptionPane.showMessageDialog(frame, "Failed to open format file: " + ex.getMessage());
@@ -71,6 +74,14 @@ public class PublishFrame {
 			frame.repaint();
 		});
 		fileMenu.add(openFormatMenuItem);
+
+		windowMenu = new JMenu("Window");
+		menuBar.add(windowMenu);
+		JMenuItem viewSubscribeWindowMenuItem = new JMenuItem("Topic Feed");
+		viewSubscribeWindowMenuItem.addActionListener((e) -> {
+			subscribeFrame.show();
+		});
+		windowMenu.add(viewSubscribeWindowMenuItem);
 
 		JMenuItem connectMenuItem = new JMenuItem("Connect");
 		connectMenuItem.addActionListener((e) -> {
@@ -108,20 +119,22 @@ public class PublishFrame {
 		sendButton.addActionListener((e) -> {
 			// get mqtt message
 			MqttMessage message = formatPanel.getMqttMessage();
-			try {
-				if (formatList.getSelectedItem() == null) {
-					JOptionPane.showMessageDialog(frame, "Please select a format to use.");
-				} else {
-					if (useFormatString.isSelected()) {
-						client.publish(String.format(((Format) formatList.getSelectedItem()).getName(),
-								formatString.getText()), message);
+			if (message != null) {
+				try {
+					if (formatList.getSelectedItem() == null) {
+						JOptionPane.showMessageDialog(frame, "Please select a format to use.");
 					} else {
-						client.publish(((Format) formatList.getSelectedItem()).getName(), message);
+						if (useFormatString.isSelected()) {
+							client.publish(String.format(((Format) formatList.getSelectedItem()).getName(),
+									formatString.getText()), message);
+						} else {
+							client.publish(((Format) formatList.getSelectedItem()).getName(), message);
+						}
 					}
+				} catch (MqttException ex) {
+					ex.printStackTrace();
+					JOptionPane.showMessageDialog(frame, "Failed to publish message: " + ex.getMessage());
 				}
-			} catch (MqttException ex) {
-				ex.printStackTrace();
-				JOptionPane.showMessageDialog(frame, "Failed to publish message: " + ex.getMessage());
 			}
 		});
 		sendButton.setEnabled(false);
@@ -133,6 +146,7 @@ public class PublishFrame {
 		formatList.addActionListener((e) -> {
 			// set fields
 			formatPanel.setFormat((Format) formatList.getSelectedItem());
+			formatPanel.setTopic(((Format) formatList.getSelectedItem()).getName());
 			frame.repaint();
 		});
 		frame.add(formatList);
@@ -151,6 +165,8 @@ public class PublishFrame {
 		frame.add(pane);
 
 		frame.setVisible(true);
+
+		subscribeFrame = new SubscribeFrame(formats);
 
 	}
 
@@ -219,7 +235,11 @@ public class PublishFrame {
 
 		@Override
 		public void messageArrived(String topic, MqttMessage message) throws Exception {
-			SubscribeFrame frame = new SubscribeFrame(formats, topic, message);
+			try {
+				subscribeFrame.handleMessage(topic, message);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
 		}
 
 		@Override
