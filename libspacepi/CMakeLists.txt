@@ -24,6 +24,6 @@ target_include_directories(spacepi PUBLIC
 target_include_directories(spacepi PRIVATE
     "${PROJECT_SOURCE_DIR}/include/private"
 )
-target_link_libraries(spacepi paho-mqtt3a paho-mqtt3c wiringPi)
+target_link_libraries(spacepi paho-mqtt3a paho-mqtt3c)
 
 add_subdirectory(test)

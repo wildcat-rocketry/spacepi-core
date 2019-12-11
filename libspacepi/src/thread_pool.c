@@ -97,7 +97,10 @@ static void *worker_thread(void *ctx) {
     }
 #endif
     while (1) {
-        pthread_mutex_lock(&queue_mutex);
+        if (pthread_mutex_lock(&queue_mutex) < 0) {
+            spacepi_perror("pthread_mutex_lock", __FILE__, __LINE__);
+            break;
+        }
         if (head) {
             queue_entry_t *node = (queue_entry_t *) head;
             if (head == tail) {
@@ -106,19 +109,41 @@ static void *worker_thread(void *ctx) {
                 head = head->next;
             }
             --queue_count;
-            pthread_mutex_unlock(&queue_mutex);
-            node->trampoline(node->context);
-        } else {
-            pthread_mutex_unlock(&queue_mutex);
-            struct timespec tm = {
-                .tv_sec = WORKER_THREAD_TIMEOUT / 1000,
-                .tv_nsec = (WORKER_THREAD_TIMEOUT % 1000) * 1000000
-            };
-            int e = pthread_mutex_timedlock(&worker_mutex, &tm);
-            if (e == ETIMEDOUT) {
+            if (pthread_mutex_unlock(&queue_mutex) < 0) {
+                spacepi_perror("pthread_mutex_unlock", __FILE__, __LINE__);
                 break;
             }
-            pthread_cond_timedwait(&worker_cond, &worker_mutex, &tm);
+            node->trampoline(node->context);
+        } else {
+            if (pthread_mutex_unlock(&queue_mutex) < 0) {
+                spacepi_perror("pthread_mutex_unlock", __FILE__, __LINE__);
+                break;
+            }
+            struct timespec tm;
+            if (clock_gettime(CLOCK_REALTIME, &tm) < 0) {
+                spacepi_perror("clock_gettime", __FILE__, __LINE__);
+                break;
+            }
+            const long nsec_diff = (WORKER_THREAD_TIMEOUT % 1000) * 1000000;
+            if (tm.tv_nsec + nsec_diff >= 1000000000L || tm.tv_nsec + nsec_diff < tm.tv_nsec || tm.tv_nsec + nsec_diff < nsec_diff) {
+                tm.tv_nsec += nsec_diff - 1000000000L;
+                ++tm.tv_sec;
+            } else {
+                tm.tv_nsec += nsec_diff;
+            }
+            tm.tv_sec += WORKER_THREAD_TIMEOUT / 1000;
+            if (pthread_mutex_timedlock(&worker_mutex, &tm) < 0) {
+                if (errno != ETIMEDOUT) {
+                    spacepi_perror("pthread_mutex_timedlock", __FILE__, __LINE__);
+                }
+                break;
+            }
+            if (pthread_cond_timedwait(&worker_cond, &worker_mutex, &tm) < 0) {
+                if (errno != ETIMEDOUT) {
+                    spacepi_perror("pthread_cond_timedwait", __FILE__, __LINE__);
+                }
+                break;
+            }
             pthread_mutex_unlock(&worker_mutex);
         }
     }
