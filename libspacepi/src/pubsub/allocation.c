@@ -28,6 +28,7 @@ int spacepi_pubsub_init(void) {
     }
     CHECK_ERROR(thread_pool_init);
     CHECK_ALLOC(pubsub_state, pubsub_state_t);
+    memset(pubsub_state, 0, sizeof(pubsub_state_t));
     CHECK_ERROR_JUMP(free_pubsub_state, pthread_mutex_init, &pubsub_state->mutex, NULL);
     char client_id[23];
     strcpy(client_id, "spacepi");

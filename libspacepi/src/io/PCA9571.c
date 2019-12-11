@@ -72,7 +72,7 @@ static int io_init_device(unsigned address, void **context) {
         RETURN_REPORTED_ERROR();
     }
     free(filename);
-    CHECK_ERROR_JUMP(close_fd, ioctl, I2C_SLAVE, DEVICE_ID_ADDR);
+    CHECK_ERROR_JUMP(close_fd, ioctl, fd, I2C_SLAVE, DEVICE_ID_ADDR);
     unsigned char buf[3] = { (unsigned char) address };
     struct i2c_msg msgs[] = {
         {
@@ -95,6 +95,7 @@ static int io_init_device(unsigned address, void **context) {
     CHECK_ERROR_JUMP(close_fd, ioctl, fd, I2C_RDWR, &msgset);
     device_id_t *dev_id = (device_id_t *) buf;
     printf("Connected to %s by %s (rev %d)\n", part_id_string(dev_id->part_id), manufacturer_string(dev_id->manufacturer), dev_id->revision);
+    CHECK_ERROR_JUMP(close_fd, ioctl, fd, I2C_SLAVE, address);
     *((int *) context) = fd;
     return 0;
     close_fd:

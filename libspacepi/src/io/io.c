@@ -9,8 +9,9 @@ int get_pin(const char *name, pin_t *pin) {
     if (*bus_end == '~' || *bus_end == '!') {
         inverted = 1;
         ++bus_end;
+        ++name;
     }
-    for (; *bus_end && *bus_end != '@' && *bus_end != ':' && (*bus_end < '0' || *bus_end > '9'); ++bus_end);
+    for (; *bus_end && *bus_end != '@' && *bus_end != ':'; ++bus_end);
     unsigned address = 0;
     unsigned pinno = 0;
     if (*bus_end) {
