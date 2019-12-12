@@ -1,6 +1,8 @@
+#define _DEFAULT_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <poll.h>
 #include <pthread.h>
@@ -79,7 +81,7 @@ static int open_device_tree(const char *alias, const char *field) {
         spacepi_perror("read", __FILE__, __LINE__);
         RETURN_REPORTED_ERROR();
     }
-    it += r;
+    it += r - 1;
     len -= r;
     CHECK_ERROR(close, fd);
     strncpy(it, field, len);
@@ -101,6 +103,8 @@ static int io_init_device(unsigned address, void **context) {
         }
         uint32_t ranges[2]; // range[0] is the physical offset, range[1] is the virtual offset
         CHECK_ERROR(read, fd, ranges, 8);
+        ranges[0] = ntohl(ranges[0]);
+        ranges[1] = ntohl(ranges[1]);
         CHECK_ERROR(close, fd);
         fd = open_device_tree("gpio", "/reg");
         if (fd < 0) {
@@ -109,10 +113,12 @@ static int io_init_device(unsigned address, void **context) {
         }
         uint32_t reg[2]; // reg[0] is the physical offset, reg[1] is the length
         CHECK_ERROR(read, fd, reg, 8);
+        reg[0] = ntohl(reg[0]);
+        reg[1] = ntohl(reg[1]);
         CHECK_ERROR(close, fd);
-        if (reg[1] != sizeof(bcm2835_regs_t)) {
+        if (reg[1] < sizeof(bcm2835_regs_t)) {
             fflush(stdout);
-            fprintf(stderr, "Register length is %d, but should be %d.\n", reg[1], sizeof(bcm2835_regs_t));
+            fprintf(stderr, "Register length is %u, but should be %u.\n", reg[1], sizeof(bcm2835_regs_t));
             RETURN_REPORTED_ERROR();
         }
         fd = open("/dev/mem", O_RDWR | O_SYNC);
@@ -120,7 +126,8 @@ static int io_init_device(unsigned address, void **context) {
             spacepi_perror("open", __FILE__, __LINE__);
             RETURN_REPORTED_ERROR();
         }
-        bcm2835 = (bcm2835_regs_t *) mmap(NULL, sizeof(bcm2835_regs_t), PROT_READ | PROT_WRITE, MAP_SHARED, fd, reg[0] - ranges[0] + ranges[1]);
+        __off_t addr = reg[0] - ranges[0] + ranges[1];
+        bcm2835 = (volatile bcm2835_regs_t *) mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, addr);
         if (bcm2835 == MAP_FAILED) {
             spacepi_perror("mmap", __FILE__, __LINE__);
             CHECK_ERROR(close, fd);
@@ -152,8 +159,9 @@ static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t m
     if (pinno >= NUM_PINS) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
+    volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPFSEL[pinno / 10];
+    *reg &= ~(7 << ((pinno % 10) * 3));
     if (mode & input_hi_z) {
-        bcm2835->GPFSEL[pinno / 10] &= (7 << ((pinno % 10) * 3));
         switch (mode) {
             case input_hi_z:
                 bcm2835->GPPUD = 0;
@@ -177,7 +185,7 @@ static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t m
         bcm2835->GPPUDCLK[0] = 0;
         bcm2835->GPPUDCLK[1] = 0;
     } else {
-        bcm2835->GPFSEL[pinno / 10] = ((bcm2835->GPFSEL[pinno / 10] & (7 << ((pinno % 10) * 3))) | (1 << ((pinno % 10) * 3)));
+        *reg |= (1 << ((pinno % 10) * 3));
     }
     return 0;
 }
@@ -187,9 +195,11 @@ static int io_write(void *context, unsigned address, unsigned pinno, int value) 
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
     if (value) {
-        bcm2835->GPSET[0] = (1 << pinno);
+        volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPSET[0];
+        *reg = (1 << pinno);
     } else {
-        bcm2835->GPCLR[0] = (1 << pinno);
+        volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPCLR[0];
+        *reg = (1 << pinno);
     }
     return 0;
 }
