@@ -40,7 +40,7 @@ public class SubscribeFrame {
 
 		frame.setVisible(true);
 	}
-	
+
 	public void show() {
 		frame.setVisible(true);
 	}
@@ -49,20 +49,37 @@ public class SubscribeFrame {
 		this.formatList = formatList;
 	}
 
+	private boolean topicMatchesFormat(Format format, String topic) {
+		if (!topic.startsWith("/")) {
+			topic = "/" + topic;
+		}
+		
+		String[] formatArray = format.getName().split("/");
+		String[] topicArray = topic.split("/");
+		if (formatArray.length == topicArray.length) {
+			return topicMatchesFormat(0, formatArray, topicArray);
+		}
+		return false;
+	}
+
+	private boolean topicMatchesFormat(int index, String[] format, String[] topic) {
+		if (index == format.length) {
+			return true;
+		}
+
+		if (index == 0 || format[index].equals("%s") || format[index].equals(topic[index])) {
+			return topicMatchesFormat(index + 1, format, topic);
+		}
+
+		return false;
+	}
+
 	public void handleMessage(String topic, MqttMessage message) {
 		Format format = null;
 		for (Format f : formatList) {
-			String[] parsedFormat = f.getName().split("\\%s");
-			if (parsedFormat.length == 1) {
-				if (topic.startsWith(parsedFormat[0])) {
-					format = f;
-					break;
-				}
-			} else if (parsedFormat.length == 2) {
-				if (topic.startsWith(parsedFormat[0]) && topic.endsWith(parsedFormat[1])) {
-					format = f;
-					break;
-				}
+			if (topicMatchesFormat(f, topic)) {
+				format = f;
+				break;
 			}
 		}
 
