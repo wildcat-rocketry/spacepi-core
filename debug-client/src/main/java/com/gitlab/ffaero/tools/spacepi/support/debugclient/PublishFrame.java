@@ -1,6 +1,7 @@
 package com.gitlab.ffaero.tools.spacepi.support.debugclient;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -125,10 +126,9 @@ public class PublishFrame {
 						JOptionPane.showMessageDialog(frame, "Please select a format to use.");
 					} else {
 						if (useFormatString.isSelected()) {
-							client.publish(String.format(((Format) formatList.getSelectedItem()).getName(),
-									formatString.getText()), message);
+							client.publish(String.format(((Format) formatList.getSelectedItem()).getName().substring(1), formatString.getText()), message); // removes some weird zero-width space
 						} else {
-							client.publish(((Format) formatList.getSelectedItem()).getName(), message);
+							client.publish(((Format) formatList.getSelectedItem()).getName().substring(1), message);// removes some weird zero-width space
 						}
 					}
 				} catch (MqttException ex) {
