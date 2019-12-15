@@ -152,16 +152,16 @@ static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t m
     if (pinno >= NUM_PINS) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
-    if (mode & input_hi_z) {
-        bcm2835->GPFSEL[pinno / 10] &= (7 << ((pinno % 10) * 3));
+    if (mode & sm_input_hi_z) {
+        bcm2835->GPFSEL[pinno / 10] &= ~(7 << ((pinno % 10) * 3));
         switch (mode) {
-            case input_hi_z:
+            case sm_input_hi_z:
                 bcm2835->GPPUD = 0;
                 break;
-            case input_pullup:
+            case sm_input_pullup:
                 bcm2835->GPPUD = 2;
                 break;
-            case input_pulldown:
+            case sm_input_pulldown:
                 bcm2835->GPPUD = 1;
                 break;
         }
@@ -177,7 +177,7 @@ static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t m
         bcm2835->GPPUDCLK[0] = 0;
         bcm2835->GPPUDCLK[1] = 0;
     } else {
-        bcm2835->GPFSEL[pinno / 10] = ((bcm2835->GPFSEL[pinno / 10] & (7 << ((pinno % 10) * 3))) | (1 << ((pinno % 10) * 3)));
+        bcm2835->GPFSEL[pinno / 10] = ((bcm2835->GPFSEL[pinno / 10] & ~(7 << ((pinno % 10) * 3))) | (1 << ((pinno % 10) * 3)));
     }
     return 0;
 }
@@ -214,7 +214,7 @@ static int io_attach_isr(void *context, unsigned address, unsigned pinno, edge_t
     irqs[pinno].callback = callback;
     irqs[pinno].context = callback_context;
     switch (edge) {
-        case none:
+        case si_none:
             bcm2835->GPREN[0] &= ~(1 << pinno);
             bcm2835->GPFEN[0] &= ~(1 << pinno);
             if (irqs[pinno].fd >= 0) {
@@ -223,15 +223,15 @@ static int io_attach_isr(void *context, unsigned address, unsigned pinno, edge_t
                 CHECK_ERROR_JUMP(unlock_mutex, close, fd);
             }
             goto end;
-        case rising:
+        case si_rising:
             bcm2835->GPREN[0] |= (1 << pinno);
             bcm2835->GPLEN[0] &= ~(1 << pinno);
             break;
-        case falling:
+        case si_falling:
             bcm2835->GPREN[0] &= ~(1 << pinno);
             bcm2835->GPLEN[0] |= (1 << pinno);
             break;
-        case both:
+        case si_both:
             bcm2835->GPREN[0] |= (1 << pinno);
             bcm2835->GPLEN[0] |= (1 << pinno);
             break;

@@ -7,13 +7,13 @@
 
 /* Error handling framework */
 
-#define SET_ERROR_SPACEPI(val) SET_ERROR(spacepi, val)
-#define RETURN_ERROR_SPACEPI(val) RETURN_ERROR(spacepi, val)
-#define JUMP_ERROR_SPACEPI(label, val) JUMP_ERROR(label, spacepi, val)
-#define SET_ERROR_MQTT(val) SET_ERROR(mqtt, ~val)
-#define RETURN_ERROR_MQTT(val) RETURN_ERROR(mqtt, val)
+#define SET_ERROR_SPACEPI(val) SET_ERROR(st_spacepi, val)
+#define RETURN_ERROR_SPACEPI(val) RETURN_ERROR(st_spacepi, val)
+#define JUMP_ERROR_SPACEPI(label, val) JUMP_ERROR(label, st_spacepi, val)
+#define SET_ERROR_MQTT(val) SET_ERROR(st_mqtt, ~val)
+#define RETURN_ERROR_MQTT(val) RETURN_ERROR(st_mqtt, val)
 #define CHECK_ERROR_MQTT(func, ...) do { int __err = func(__VA_ARGS__); if (__err != MQTTASYNC_SUCCESS) { SET_ERROR_MQTT(__err); spacepi_perror(STR(func), __FILE__, __LINE__); RETURN_REPORTED_ERROR(); } } while (0)
-#define JUMP_ERROR_MQTT(label, val) JUMP_ERROR(label, mqtt, val)
+#define JUMP_ERROR_MQTT(label, val) JUMP_ERROR(label, st_mqtt, val)
 #define CHECK_ERROR_JUMP_MQTT(label, func, ...) do { int __err = func(__VA_ARGS__); if (__err != MQTTASYNC_SUCCESS) { SET_ERROR_MQTT(__err); spacepi_perror(STR(func), __FILE__, __LINE__); goto label; } } while (0)
 
 /* Pub/sub framework */

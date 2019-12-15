@@ -97,9 +97,9 @@ typedef union {
          * type is the type of error (the source of error)
          */
         enum {
-            system_err = 0, // It is a system error (defined in errno.h)
-            spacepi = 1, // It is a spacepi error (defiend in spacepi_errors_t)
-            mqtt = 2 // It is a MQTT error (defined in MQTTAsync.h)
+            st_system_err = 0, // It is a system error (defined in errno.h)
+            st_spacepi = 1, // It is a spacepi error (defiend in spacepi_errors_t)
+            st_mqtt = 2 // It is a MQTT error (defined in MQTTAsync.h)
         } type:2;
     } data;
 } spacepi_error_t;
@@ -221,7 +221,7 @@ void spacepi_trace(const char *file, int line);
  * Parameters:
  *  - val: The specific error code (see spacepi_error_t.data.code)
  */
-#define SET_ERROR_SYSTEM(val) SET_ERROR(system_err, val)
+#define SET_ERROR_SYSTEM(val) SET_ERROR(st_system_err, val)
 /*
  * RETURN_ERROR sets the current error and then returns it (a call to this macro causes the current function to return).
  * 
@@ -237,14 +237,14 @@ void spacepi_trace(const char *file, int line);
  * Parameters:
  *  - val: The specific error code (see spacepi_error_t.data.code)
  */
-#define RETURN_ERROR_SYSTEM(val) RETURN_ERROR(system_err, val)
+#define RETURN_ERROR_SYSTEM(val) RETURN_ERROR(st_system_err, val)
 /*
  * RETURN_REPORTED_ERROR returns an error that was already captured with CHECK_ERROR, CHECK_ALLOC, CHECK_ALLOC_DEF,
  * CHECK_ALLOC_ARRAY, CHECK_ALLOC_ARRAY_DEF, CHECK_ERROR_JUMP, CHECK_ALLOC_JUMP, CHECK_ALLOC_DEF_JUMP,
  * CHECK_ALLOC_ARRAY_JUMP, CHECK_ALLOC_ARRAY_DEF_JUMP and prints the stacktrace (incrementally).  At the end of any
  * cleanup code run by any of those _JUMP functions, this should be called to return the error to the parent function.
  */
-#define RETURN_REPORTED_ERROR() do { SET_ERROR(spacepi, SPACEPI_ERROR_CASCADE); return -1; } while (0)
+#define RETURN_REPORTED_ERROR() do { SET_ERROR(st_spacepi, SPACEPI_ERROR_CASCADE); return -1; } while (0)
 /*
  * CHECK_ERROR runs a function call and checks it for any errors that may have occurred.  If an error did occur, it
  * prints the stacktrace and returns from the current function with an error code.
@@ -316,7 +316,7 @@ void spacepi_trace(const char *file, int line);
  *  - label: The label to jump to in order to clean up local resources
  *  - val: The specific error code (see spacepi_error_t.data.code)
  */
-#define JUMP_ERROR_SYSTEM(label, val) JUMP_ERROR(label, system_err, val)
+#define JUMP_ERROR_SYSTEM(label, val) JUMP_ERROR(label, st_system_err, val)
 /*
  * CHECK_ERROR_JUMP runs a function call and checks it for any errors that may have occurred.  If an error did occur, it
  * prints the stacktrace and jumps to some error handling code.  After error handling is complete, the function should
@@ -390,14 +390,14 @@ typedef enum {
      * sensors that update so fast that resending a packet would only result in old data being received.  This mode is
      * the least computationally expensive.
      */
-    at_most_once = 0,
+    sq_at_most_once = 0,
     /*
      * at_least_once sends it as many times as it must to make sure that it is received at least once time.  This is
      * useful for messages that can be duplicated without having any effect on the system, but must be delivered at
      * least one time, like a message that says a specific pyro charge should light.  If the pyro charge was lit twice,
      * there would be no ill effects, but the message does need to arrive at least once.
      */
-    at_least_once = 1,
+    sq_at_least_once = 1,
     /*
      * exactly_once makes sure that it is received exactly once time.  This is useful for messages that much be
      * delivered and duplicate messages cause problems.  An example of this would be a command to move a stepper,
@@ -405,16 +405,16 @@ typedef enum {
      * message multiple times would cause the stepper to move too much.  This mode is the most computationally
      * expensive.
      */
-    exactly_once = 2
+    sq_exactly_once = 2
 } spacepi_qos_t;
 
 /*
  * spacepi_pubsub_connection_t represents the current connection state to the MQTT server
  */
 typedef enum {
-    disconnected = 0, // This program is not connected to the server
-    connected = 1, // This program is connected to the server
-    connecting = 2 // This program is currently trying to connect to the server
+    sc_disconnected = 0, // This program is not connected to the server
+    sc_connected = 1, // This program is connected to the server
+    sc_connecting = 2 // This program is currently trying to connect to the server
 } spacepi_pubsub_connection_t;
 
 /*
@@ -960,20 +960,20 @@ typedef struct {
  * pin_mode_t represents the different modes a pin can be in
  */
 typedef enum {
-    output = 0, // The pin is an output pin
-    input_hi_z = 1, // The pin is an input pin with no pull ups or pull downs
-    input_pullup = 3, // The pin is an input pin with a pullup resistor enabled
-    input_pulldown = 5 // The pin is an input pin with a pulldown resistor enabled
+    sm_output = 0, // The pin is an output pin
+    sm_input_hi_z = 1, // The pin is an input pin with no pull ups or pull downs
+    sm_input_pullup = 3, // The pin is an input pin with a pullup resistor enabled
+    sm_input_pulldown = 5 // The pin is an input pin with a pulldown resistor enabled
 } pin_mode_t;
 
 /*
  * edge_t represents the edge of a waveform
  */
 typedef enum {
-    none = 0, // No edge
-    rising = 1, // The rising edge (transition from LOW to HIGH)
-    falling = 2, // The falling edge (transition from HIGH to LOW)
-    both = 3 // Either edge (any transition between LOW and HIGH)
+    si_none = 0, // No edge
+    si_rising = 1, // The rising edge (transition from LOW to HIGH)
+    si_falling = 2, // The falling edge (transition from HIGH to LOW)
+    si_both = 3 // Either edge (any transition between LOW and HIGH)
 } edge_t;
 
 /*
