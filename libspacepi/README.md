@@ -168,15 +168,15 @@ _Jump_ = If an error occurs, control jumps to cleanup code, which should call `R
 ```c
 /* Examples of backing functions */
 
-SET_ERROR(spacepi, LIB_ALREADY_INIT);
+SET_ERROR(st_spacepi, LIB_ALREADY_INIT);
 const char *str = spacepi_strerror(errno);
 puts(str); // Library already initialized
 
-SET_ERROR(spacepi, LIB_ALREADY_INIT);
+SET_ERROR(st_spacepi, LIB_ALREADY_INIT);
 spacepi_perror("my_func", __FILE__, __LINE__);
 // my_func: Library already initialized (0x40000000)
 //   at main.c:123
-SET_ERROR(spacepi, SPACEPI_ERROR_CASCADE);
+SET_ERROR(st_spacepi, SPACEPI_ERROR_CASCADE);
 spacepi_perror("my_other_func", __FILE__, __LINE__);
 //   at main.c:456
 
@@ -416,7 +416,7 @@ It also populates a `pin_t` structure that all of the other calls use as an argu
 
 ### pin_mode()
 
-This sets up the pin to be either an `output` pin, or an input with no pull resistors (`input_hi_z`), pull down resistors (`input_pulldown`), or pull up resistors (`input_pullup`).
+This sets up the pin to be either an `sm_output` pin, or an input with no pull resistors (`sm_input_hi_z`), pull down resistors (`sm_input_pulldown`), or pull up resistors (`sm_input_pullup`).
 Some drivers or hardware may not implement this function.
 
 ### digital_write(), digital_read()
@@ -426,5 +426,5 @@ Some drivers or hardware may not implement these functions.
 
 ### attach_interrupt()
 
-This attaches an interrupt handler that is called on either the `rising` edge, the `falling` edge, or `both`.
+This attaches an interrupt handler that is called on either the `si_rising` edge, the `si_falling` edge, or `si_both`.
 Some drivers or hardware may not implement this function.

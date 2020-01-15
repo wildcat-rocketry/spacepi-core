@@ -59,9 +59,9 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         insert(&pubsub_state->subscriptions, tree);
         stat_tree(pubsub_state->subscriptions);
         balance(&pubsub_state->subscriptions);
-    } else if (tree->qos != qos && tree->qos != exactly_once) {
-        CHECK_ERROR_JUMP_MQTT(unlock_mutex, MQTTAsync_subscribe, pubsub_state->mqtt, channel, exactly_once, &opts);
-        tree->qos = exactly_once;
+    } else if (tree->qos != qos && tree->qos != sq_exactly_once) {
+        CHECK_ERROR_JUMP_MQTT(unlock_mutex, MQTTAsync_subscribe, pubsub_state->mqtt, channel, sq_exactly_once, &opts);
+        tree->qos = sq_exactly_once;
     }
     node->callback = callback;
     node->context = context;
