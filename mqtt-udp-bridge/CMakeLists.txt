@@ -6,3 +6,4 @@ add_executable(mqtt-udp-bridge
 )
 
 target_link_libraries(mqtt-udp-bridge PUBLIC spacepi)
+install(TARGETS mqtt-udp-bridge DESTINATION .)
