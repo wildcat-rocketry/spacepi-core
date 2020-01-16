@@ -1,6 +1,4 @@
-add_subdirectory(ad-hoc-wifi)
 add_subdirectory(libspacepi)
-add_subdirectory(mqtt-server)
 add_subdirectory(mqtt-udp-bridge)
 add_subdirectory(os)
 add_subdirectory(service-manager)
