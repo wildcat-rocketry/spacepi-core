@@ -13,7 +13,7 @@ public class FormatFileReader {
 	private BufferedReader reader;
 
 	public FormatFileReader(File file) throws IOException {
-		this(new BufferedReader(new FileReader(file, Charset.availableCharsets().get("UTF-8"))));
+		this(new BufferedReader(new FileReader(file)));
 	}
 
 	public FormatFileReader(BufferedReader reader) throws IOException {
