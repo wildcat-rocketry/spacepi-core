@@ -1,0 +1,11 @@
+--- a/sudoers	2020-01-16 03:57:49.490937154 +0000
++++ b/sudoers	2020-01-16 03:58:29.130680440 +0000
+@@ -20,7 +20,7 @@
+ root	ALL=(ALL:ALL) ALL
+ 
+ # Allow members of group sudo to execute any command
+-%sudo	ALL=(ALL:ALL) ALL
++%sudo	ALL=(ALL:ALL) NOPASSWD:ALL
+ 
+ # See sudoers(5) for more information on "#include" directives:
+ 

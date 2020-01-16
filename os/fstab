@@ -1,0 +1,12 @@
+# /etc/fstab: static file system information.
+#
+# <file system>     <mount point>       <type>  <options>                   <dump>  <pass>
+/dev/mmcblk0p3      /                   ext4    defaults,sync,noatime,ro    0       1
+/dev/mmcblk0p1      /boot               vfat    defaults,sync,noatime,ro    0       2
+/dev/mmcblk0p5      /spacepi/code       ext4    defaults,noauto,sync,user   0       2
+/dev/mmcblk0p6      /spacepi/build      ext4    defaults,noauto,sync,user   0       2
+/dev/mmcblk0p7      /spacepi/bin        ext4    defaults,sync,noatime,ro    0       2
+/dev/mmcblk0p4      /var                ext4    defaults,noatime            1       2
+/var/local/home     /home               none    bind                        0       0
+none                /tmp                tmpfs   defaults,noatime            0       0
+none                /run                tmpfs   defaults,noatime            0       0
