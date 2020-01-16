@@ -1,0 +1,10 @@
+[Unit]
+Description=Wifi Pre-initialization
+Before=NetworkManager.service
+
+[Service]
+ExecStart=/spacepi/wifi.sh preinit
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target
