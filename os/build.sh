@@ -53,7 +53,7 @@ mkdir -p "$1$qemu_path"
 install -o root -g root -m 0755 "$qemu_path/$2" "$1$qemu_path"
 chroot "$1" /debootstrap/debootstrap --second-stage
 
-mkdir -p "$1/boot" "$1/spacepi/code" "$1/spacepi/build" "$1/spacepi/bin" "$1/var/local/home" "$1/lib/modules"
+mkdir -p "$1/boot" "$1/spacepi/code" "$1/spacepi/build" "$1/spacepi/bin" "$1/var/local/home" "$1/lib/modules" "$1/var/log/journal"
 for file in environment fstab hostname resolv.conf; do
     install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/$file" "$1/etc"
 done
