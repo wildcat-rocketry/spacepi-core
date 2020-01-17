@@ -61,6 +61,7 @@ install -o root -g root -m 0600 "@CMAKE_CURRENT_SOURCE_DIR@/ethernet.nmconnectio
 ln -sf bash "$1/bin/sh"
 patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/sudoers.patch"
 patch -d "$1/usr/bin/" < "@CMAKE_CURRENT_SOURCE_DIR@/growpart.patch"
+patch -d "$1/etc/skel/" < "@CMAKE_CURRENT_SOURCE_DIR@/bashrc.patch"
 install -o root -g root -m 0744 "@CMAKE_CURRENT_SOURCE_DIR@/setup.sh" "@CMAKE_CURRENT_SOURCE_DIR@/wifi.sh" "$1/spacepi"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/wifi-preinit.service" "@CMAKE_CURRENT_SOURCE_DIR@/wifi-init.service"  "$1/etc/systemd/system"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/brcmfmac43430-sdio.txt" "$1/lib/firmware/brcm"
