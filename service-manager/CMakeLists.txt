@@ -7,4 +7,5 @@ add_executable(service-manager
 
 target_link_libraries(service-manager PUBLIC spacepi)
 install(TARGETS service-manager DESTINATION .)
-install(TARGETS service-manager DESTINATION /etc/systemd/service.c)
+install(FILES service-manager DESTINATION /etc/systemd/service-manager.service)
+install(CODE execute_process(COMMAND "systemctl enable service-manager.service"))
