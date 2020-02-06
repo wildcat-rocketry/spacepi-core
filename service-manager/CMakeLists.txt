@@ -7,3 +7,4 @@ add_executable(service-manager
 
 target_link_libraries(service-manager PUBLIC spacepi)
 install(TARGETS service-manager DESTINATION .)
+install(TARGETS service-manager DESTINATION /etc/systemd/service.c)
