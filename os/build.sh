@@ -75,7 +75,7 @@ for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
     mkdir -p "$1/home/$user/.ssh"
     tail -n +3 "$user_file" > "$1/home/$user/.ssh/authorized_keys"
     chmod 0644 "$1/home/$user/.ssh/authorized_keys"
-    install -m 0400 "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa" "@CMAKE_CURRENT_SOURCE_DIR@/deploy_key/id_rsa.pub" "$1/home/$user/.ssh"
+    install -m 0400 "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa" "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa.pub" "$1/home/$user/.ssh"
     chroot "$1" su "$user" -c "git config --global user.name \"$(head -n 1 "$user_file")\""
     chroot "$1" su "$user" -c "git config --global user.email \"$(head -n 2 "$user_file" | tail -n 1)\""
     chroot "$1" chown -R "$user:sudo" "/home/$user"
