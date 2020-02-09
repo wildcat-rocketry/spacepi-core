@@ -3,7 +3,7 @@ Description=start service manager on boot
 
 [Service]
 Type=simple
-ExecStart=/spacepi/bin/service-manager/main.c
+ExecStart=/spacepi/bin/service-manager
 
 [Install]
 WantedBy=multi-user.target
