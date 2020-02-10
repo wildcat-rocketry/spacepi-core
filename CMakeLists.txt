@@ -12,4 +12,4 @@ add_executable(blinky-ip
 target_link_libraries(blinky-ip PUBLIC spacepi)
 install(TARGETS blinky-ip DESTINATION .)
 install(FILES blinky-ip.service DESTINATION /etc/systemd/system)
-install(CODE "execute_process(COMMAND \"systemctl enable blinky-ip.service\")")
+install(CODE "execute_process(COMMAND systemctl enable blinky-ip.service)")
