@@ -8,12 +8,18 @@ add_custom_target(os
 )
 
 add_custom_target(os_clean
+    COMMAND rm -rf cache
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS os_reset
+)
+
+add_custom_target(os_reset
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/clean.sh armel
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/clean.sh armhf
     COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/clean.sh arm64
-    COMMAND rm -rf cache
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
 
 set(OS_BASE_PACKAGES build-essential,cloud-utils,cmake,firmware-brcm80211,gcc,git,g++,libgps-dev,make,mosquitto,network-manager,openssh-server,psmisc,rng-tools,sudo,systemd,systemd-sysv,wireless-tools)
 set(OS_DIST_NAME stable)
