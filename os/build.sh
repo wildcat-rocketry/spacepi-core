@@ -57,17 +57,19 @@ mkdir -p "$1/boot" "$1/spacepi/code" "$1/spacepi/build" "$1/spacepi/bin" "$1/var
 for file in environment fstab hostname resolv.conf; do
     install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/$file" "$1/etc"
 done
+install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/spacepi-ld.conf" "$1/etc/ld.so.conf.d"
 install -o root -g root -m 0600 "@CMAKE_CURRENT_SOURCE_DIR@/ethernet.nmconnection" "$1/etc/NetworkManager/system-connections"
 ln -sf bash "$1/bin/sh"
 patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/sudoers.patch"
 patch -d "$1/usr/bin/" < "@CMAKE_CURRENT_SOURCE_DIR@/growpart.patch"
 patch -d "$1/etc/skel/" < "@CMAKE_CURRENT_SOURCE_DIR@/bashrc.patch"
 patch -d "$1/lib/systemd/system" < "@CMAKE_CURRENT_SOURCE_DIR@/getty.patch"
-install -o root -g root -m 0744 "@CMAKE_CURRENT_SOURCE_DIR@/setup.sh" "@CMAKE_CURRENT_SOURCE_DIR@/wifi.sh" "$1/spacepi"
-install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/wifi-preinit.service" "@CMAKE_CURRENT_SOURCE_DIR@/wifi-init.service"  "$1/etc/systemd/system"
+install -o root -g root -m 0744 "@CMAKE_CURRENT_SOURCE_DIR@/setup.sh" "@CMAKE_CURRENT_SOURCE_DIR@/wifi.sh" "@CMAKE_CURRENT_SOURCE_DIR@/ld-setup.sh" "$1/spacepi"
+install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/wifi-preinit.service" "@CMAKE_CURRENT_SOURCE_DIR@/wifi-init.service" "@CMAKE_CURRENT_SOURCE_DIR@/spacepi-ld-setup.service"  "$1/etc/systemd/system"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/brcmfmac43430-sdio.txt" "$1/lib/firmware/brcm"
 chroot "$1" systemctl enable wifi-preinit.service
 chroot "$1" systemctl enable wifi-init.service
+chroot "$1" systemctl enable spacepi-ld-setup.service
 chroot "$1" systemctl mask wpa_supplicant.service
 for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
     user="$(basename "$user_file")"
