@@ -1,2 +1,1 @@
 BLKID_FILE=/var/local/blkid.tab
-LD_LIBRARY_PATH=/spacepi/bin;/usr/local/lib;/usr/lib
