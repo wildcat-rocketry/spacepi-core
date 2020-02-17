@@ -64,7 +64,6 @@ patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/sudoers.patch"
 patch -d "$1/usr/bin/" < "@CMAKE_CURRENT_SOURCE_DIR@/growpart.patch"
 patch -d "$1/etc/skel/" < "@CMAKE_CURRENT_SOURCE_DIR@/bashrc.patch"
 patch -d "$1/lib/systemd/system" < "@CMAKE_CURRENT_SOURCE_DIR@/getty.patch"
-patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/shadow.patch"
 install -o root -g root -m 0744 "@CMAKE_CURRENT_SOURCE_DIR@/setup.sh" "@CMAKE_CURRENT_SOURCE_DIR@/wifi.sh" "@CMAKE_CURRENT_SOURCE_DIR@/ld-setup.sh" "$1/spacepi"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/wifi-preinit.service" "@CMAKE_CURRENT_SOURCE_DIR@/wifi-init.service" "@CMAKE_CURRENT_SOURCE_DIR@/spacepi-ld-setup.service"  "$1/etc/systemd/system"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/brcmfmac43430-sdio.txt" "$1/lib/firmware/brcm"
@@ -83,6 +82,10 @@ for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
     chroot "$1" su "$user" -c "git config --global user.email \"$(head -n 2 "$user_file" | tail -n 1)\""
     chroot "$1" chown -R "$user:sudo" "/home/$user"
 done
+
+# Need to patch after adding users to keep comment in place
+patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/shadow.patch"
+
 rm -f "$1/etc/ssh/"ssh_host_*
 
 if [ -d firmware ]; then
