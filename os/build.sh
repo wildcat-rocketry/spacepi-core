@@ -88,9 +88,6 @@ for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
     chroot "$1" chown -R "$user:sudo" "/home/$user"
 done
 
-# Need to patch after adding users to keep comment in place
-patch -d "$1/etc/" < "@CMAKE_CURRENT_SOURCE_DIR@/shadow.patch"
-
 rm -f "$1/etc/ssh/"ssh_host_*
 
 if [ -d firmware ]; then
