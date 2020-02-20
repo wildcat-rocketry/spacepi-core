@@ -47,7 +47,12 @@ mkdir -p "$1"
 mount /dev/mapper/${dev}p3 "$1"
 
 mkdir -p cache
-debootstrap --foreign --arch="$1" --include=@OS_BASE_PACKAGES@ --components main,contrib,non-free --cache-dir="$(readlink -f cache)" @OS_DIST_NAME@ "$1" @OS_REPO_URL@
+# Sometimes it "fails" to download a package, but running it again fixes the problem
+download_os_arch="$1"
+download_os() {
+    debootstrap --foreign --arch="$download_os_arch" --include=@OS_BASE_PACKAGES@ --components main,contrib,non-free --cache-dir="$(readlink -f cache)" @OS_DIST_NAME@ "$download_os_arch" @OS_REPO_URL@
+}
+download_os || download_os || download_os
 qemu_path="$(dirname "$(which "$2")")"
 mkdir -p "$1$qemu_path"
 install -o root -g root -m 0755 "$qemu_path/$2" "$1$qemu_path"
