@@ -1,0 +1,9 @@
+[Unit]
+Description=Library Path Initial Setup
+
+[Service]
+ExecStart=/spacepi/ld-setup.sh
+Type=oneshot
+
+[Install]
+WantedBy=multi-user.target

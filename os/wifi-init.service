@@ -1,0 +1,10 @@
+[Unit]
+Description=Wifi Initialization
+After=NetworkManager.service network-online.target
+
+[Service]
+ExecStart=/spacepi/wifi.sh init
+Type=oneshot
+
+[Install]
+WantedBy=getty.target

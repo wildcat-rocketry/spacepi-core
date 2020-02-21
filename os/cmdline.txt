@@ -1,0 +1,1 @@
+root=/dev/mmcblk0p3 rootwait fsck.repair=yes ro console=tty0 elevator=deadline init=/spacepi/setup.sh
