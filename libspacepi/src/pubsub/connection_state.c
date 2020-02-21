@@ -43,8 +43,8 @@ void spacepi_private_pubsub_connection_lost(void *context, char *cause) {
     } else {
         fputs("Connection lost.\n", stderr);
     }
-    if (ctx->conn != disconnected) {
-        ctx->conn = disconnected;
+    if (ctx->conn != sc_disconnected) {
+        ctx->conn = sc_disconnected;
         for (pubsub_connection_handler_list_t *it = ctx->connection_handlers; it; it = it->next) {
             CHECK_ERROR_JUMP(after, call_connection_handler, it->callback, it->context, ctx->conn);
             after:

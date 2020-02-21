@@ -110,7 +110,7 @@ int main(int argc, char ** argv, char ** envp) {
 	}
 	
 	// subscribe to everything
-	spacepi_subscribe("#", at_most_once, subscription_cb, NULL);
+	spacepi_subscribe("#", sq_at_most_once, subscription_cb, NULL);
 	
 	pthread_create(&recv_thread, NULL, recv_callback, NULL);
 	

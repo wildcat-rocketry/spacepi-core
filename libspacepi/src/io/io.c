@@ -135,11 +135,11 @@ int attach_interrupt(pin_t *pin, edge_t edge, void (*callback)(void *context), v
     }
     if (pin->inverted) {
         switch (edge) {
-            case rising:
-                edge = falling;
+            case si_rising:
+                edge = si_falling;
                 break;
-            case falling:
-                edge = rising;
+            case si_falling:
+                edge = si_rising;
                 break;
         }
     }

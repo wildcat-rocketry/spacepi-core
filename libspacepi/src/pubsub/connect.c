@@ -24,7 +24,7 @@ static void on_success(void *context, MQTTAsync_successData *response);
 static void on_failure(void *context, MQTTAsync_failureData *response);
 
 int spacepi_private_pubsub_connect(pubsub_state_t *state, int clean) {
-    if (state->conn == connected) {
+    if (state->conn == sc_connected) {
         RETURN_ERROR_SPACEPI(ALREADY_CONNECTED);
     }
     CHECK_ERROR(pthread_mutex_lock, &state->mutex);
@@ -63,13 +63,13 @@ int spacepi_private_pubsub_connect(pubsub_state_t *state, int clean) {
         .onSuccess5 = NULL,
         .onFailure5 = NULL
     };
-    state->conn = connecting;
+    state->conn = sc_connecting;
     CHECK_ERROR_JUMP_MQTT(free_cond, MQTTAsync_connect, state->mqtt, &opts);
-    if (state->conn == connecting) {
+    if (state->conn == sc_connecting) {
         pthread_cond_wait(&ctx->lock, &state->mutex);
     }
     pthread_mutex_unlock(&state->mutex);
-    if (state->conn == connected) {
+    if (state->conn == sc_connected) {
         err = 0;
     }
     free_cond:
@@ -87,7 +87,7 @@ int spacepi_private_pubsub_connect(pubsub_state_t *state, int clean) {
 
 static void on_success(void *context, MQTTAsync_successData *response) {
     connect_context_t *ctx = (connect_context_t *) context;
-    ctx->state->conn = connected;
+    ctx->state->conn = sc_connected;
     puts("Connected to server.");
     pthread_cond_signal(&ctx->lock);
 }

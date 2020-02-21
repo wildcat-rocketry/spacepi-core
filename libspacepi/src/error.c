@@ -29,14 +29,14 @@ static const char *relativize(const char *file);
 const char *spacepi_strerror(spacepi_error_t spacepi_errno) {
     const char *e;
     switch (spacepi_errno.data.type) {
-        case system_err:
+        case st_system_err:
             return strerror(spacepi_errno.data.code);
-        case spacepi:
+        case st_spacepi:
             if (spacepi_errno.data.code < n_spacepi_errors) {
                 return spacepi_errors[spacepi_errno.data.code];
             }
             break;
-        case mqtt:
+        case st_mqtt:
             e = MQTTAsync_strerror(~spacepi_errno.data.code);
             if (e) {
                 return e;
@@ -52,7 +52,7 @@ void spacepi_perror(const char *func, const char *file, int line) {
     fflush(stdout);
     spacepi_error_t error;
     error.error_code = errno;
-    if (error.data.type == spacepi && error.data.code == SPACEPI_ERROR_CASCADE) {
+    if (error.data.type == st_spacepi && error.data.code == SPACEPI_ERROR_CASCADE) {
         fprintf(stderr, "  at %s:%d\n", relativize(file), line);
     } else {
         fprintf(stderr, "%s: %s (0x%0"

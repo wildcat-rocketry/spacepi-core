@@ -32,7 +32,7 @@ static int io_validate_pin(void *context, unsigned address, unsigned pinno) {
 }
 
 static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t mode) {
-    if (mode != output) {
+    if (mode != sm_output) {
         RETURN_ERROR_SYSTEM(ENOTSUP);
     }
     return 0;

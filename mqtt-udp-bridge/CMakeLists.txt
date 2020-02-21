@@ -7,3 +7,4 @@ add_executable(mqtt-udp-bridge
 )
 
 target_link_libraries(mqtt-udp-bridge PUBLIC spacepi ${CMAKE_THREAD_LIBS_INIT})
+install(TARGETS mqtt-udp-bridge DESTINATION .)
