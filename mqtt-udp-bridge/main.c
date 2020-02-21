@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 // number of arguments passed into the program (excluding the program name)
 #define ARG_COUNT 2
@@ -38,7 +39,7 @@ void * recv_callback(void * arg) {
 		memset(&topic_buf, 0, TOPIC_BUFFER_SIZE);
 		udp_recieve(topic_buf, TOPIC_BUFFER_SIZE - 1); // allow space for null character
 		int datalen = udp_recieve(data_buf, DATA_BUFFER_SIZE);
-		spacepi_publish(topic_buf, data_buf, datalen, exactly_once, 0);
+		spacepi_publish(topic_buf, data_buf, datalen, sq_exactly_once, 0);
 	}
 }
 
@@ -91,12 +92,12 @@ int main(int argc, char ** argv, char ** envp) {
 	
 	// create UDP socket
 	memset(&udp_local_addr, 0, sizeof(udp_local_addr));
-	udp_addr.sin_addr.s_addr = INADDR_ANY;
+	udp_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	udp_addr.sin_family = AF_INET;
 	udp_addr.sin_port = 0;
 
 	memset(&udp_addr, 0, sizeof(udp_addr));
-	udp_addr.sin_addr.s_addr = gethostbyname(argv[1]);
+	udp_addr.sin_addr.s_addr = inet_addr(argv[1]);
 	udp_addr.sin_family = AF_INET;
 	udp_addr.sin_port = htons(atoi(argv[2]));
 	udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
