@@ -1,9 +1,18 @@
 package com.gitlab.ffaero.tools.spacepi.support.debugclient;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Paint;
+import java.awt.PaintContext;
+import java.awt.Rectangle;
+import java.awt.RenderingHints;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.ColorModel;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -46,16 +55,24 @@ public class PublishFrame {
 
 	public PublishFrame() {
 		frame = new JFrame("Debug Client");
+		//frame.getContentPane().setBackground(UITheme.FRAME_BG_COLOR);
 		frame.setBounds(10, 10, 495, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.setLayout(null);
 
 		menuBar = new JMenuBar();
+		//menuBar.setBackground(UITheme.MENU_BG_COLOR);
+		//menuBar.setBorder(BorderFactory.createLineBorder(UITheme.MENU_BG_COLOR));
 		frame.setJMenuBar(menuBar);
 		fileMenu = new JMenu("File");
+		//fileMenu.setForeground(UITheme.TEXT_COLOR);
+		//fileMenu.getPopupMenu().setBackground(UITheme.MENU_BG_COLOR);
+		//fileMenu.getPopupMenu().setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
 		menuBar.add(fileMenu);
 		JMenuItem openFormatMenuItem = new JMenuItem("Open Format...");
+		//openFormatMenuItem.setBackground(UITheme.MENU_BG_COLOR);
+		//openFormatMenuItem.setForeground(UITheme.TEXT_COLOR);
 		openFormatMenuItem.addActionListener((e) -> {
 			try {
 				JFileChooser chooser = new JFileChooser();
@@ -77,6 +94,8 @@ public class PublishFrame {
 		fileMenu.add(openFormatMenuItem);
 
 		windowMenu = new JMenu("Window");
+		//windowMenu.setBackground(UITheme.MENU_BG_COLOR);
+		//windowMenu.getPopupMenu().setBackground(UITheme.MENU_BG_COLOR);
 		menuBar.add(windowMenu);
 		JMenuItem viewSubscribeWindowMenuItem = new JMenuItem("Topic Feed");
 		viewSubscribeWindowMenuItem.addActionListener((e) -> {
@@ -85,6 +104,8 @@ public class PublishFrame {
 		windowMenu.add(viewSubscribeWindowMenuItem);
 
 		JMenuItem connectMenuItem = new JMenuItem("Connect");
+		//connectMenuItem.setBackground(UITheme.MENU_BG_COLOR);
+		//connectMenuItem.setForeground(UITheme.TEXT_COLOR);
 		connectMenuItem.addActionListener((e) -> {
 			try {
 				MqttConnectOptions options = new MqttConnectOptions();
@@ -112,10 +133,16 @@ public class PublishFrame {
 
 		createLabel("Server URI:", 10, 10, 100);
 		serverURI = new JTextField("tcp://localhost:1883");
+		//serverURI.setBackground(UITheme.TEXTBOX_BG_COLOR);
+		//serverURI.setForeground(UITheme.TEXT_COLOR);
+		//serverURI.setBorder(null);
 		serverURI.setBounds(120, 10, 350, 20);
 		frame.add(serverURI);
 
 		sendButton = new JButton("Publish Message");
+		//sendButton.setBackground(UITheme.BUTTON_BG_COLOR);
+		//sendButton.setForeground(UITheme.TEXT_COLOR);
+		//sendButton.setBorder(null);
 		sendButton.setBounds(10, 40, 460, 20);
 		sendButton.addActionListener((e) -> {
 			// get mqtt message
@@ -142,6 +169,9 @@ public class PublishFrame {
 
 		createLabel("Topic:", 10, 70, 100);
 		formatList = new JComboBox<Format>();
+		//formatList.setBackground(UITheme.TEXTBOX_BG_COLOR);
+		//formatList.setForeground(UITheme.TEXT_COLOR);
+		//formatList.setBorder(BorderFactory.createLineBorder(UITheme.FRAME_BG_COLOR));
 		formatList.setBounds(120, 70, 350, 20);
 		formatList.addActionListener((e) -> {
 			// set fields
@@ -152,15 +182,22 @@ public class PublishFrame {
 		frame.add(formatList);
 
 		useFormatString = new JCheckBox("%s = ");
+		//useFormatString.setBackground(UITheme.FRAME_BG_COLOR);
+		//useFormatString.setForeground(UITheme.LABEL_COLOR);
 		useFormatString.setBounds(10, 100, 100, 20);
 		frame.add(useFormatString);
 
 		formatString = new JTextField();
+		//formatString.setBackground(UITheme.TEXTBOX_BG_COLOR);
+		//formatString.setForeground(UITheme.TEXT_COLOR);
+		//formatString.setBorder(BorderFactory.createLineBorder(UITheme.FRAME_BG_COLOR));
 		formatString.setBounds(120, 100, 350, 20);
 		frame.add(formatString);
 
 		formatPanel = new JFormatPanel(null);
+		//formatPanel.setBackground(UITheme.FRAME_BG_COLOR);
 		JScrollPane pane = new JScrollPane(formatPanel);
+		//pane.setBorder(BorderFactory.createLineBorder(UITheme.BORDER_COLOR));
 		pane.setBounds(10, 130, 460, 500);
 		frame.add(pane);
 
@@ -172,6 +209,7 @@ public class PublishFrame {
 
 	private void createLabel(String text, int x, int y, int width) {
 		JLabel label = new JLabel(text);
+		//label.setForeground(UITheme.LABEL_COLOR);
 		label.setBounds(x, y, width, 20);
 		frame.add(label);
 	}
