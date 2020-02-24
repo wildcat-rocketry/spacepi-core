@@ -14,6 +14,8 @@ fi
 if [ -d "$1" ]; then
     umount "$1/boot" || true
     umount "$1/mnt" || true
+    umount "$1/proc" || true
+    umount "$1/sys" || true
     umount "$1/spacepi/bin" || true
     umount "$1/spacepi/build" || true
     umount "$1/spacepi/code" || true
@@ -132,6 +134,15 @@ mount -o bind paho.mqtt.c "$1/mnt"
 mount -t tmpfs none "$1/tmp"
 chroot "$1" cmake -S /mnt -B /tmp
 chroot "$1" make -C /tmp install
+if [ "$1" != "armhf" ]; then
+    mount -o bind /sys "$1/sys"
+    mount -o bind /proc "$1/proc"
+    chroot "$1" dpkg --add-architecture armhf
+    chroot "$1" apt update
+    chroot "$1" apt install libstdc++6:armhf
+    umount "$1/proc"
+    umount "$1/sys"
+fi
 umount "$1/tmp"
 umount "$1/mnt"
 umount "$1/var"

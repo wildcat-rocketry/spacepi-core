@@ -14,6 +14,8 @@ fi
 if [ -d "$1" ]; then
     umount "$1/boot" || true
     umount "$1/mnt" || true
+    umount "$1/proc" || true
+    umount "$1/sys" || true
     umount "$1/spacepi/bin" || true
     umount "$1/spacepi/build" || true
     umount "$1/spacepi/code" || true
