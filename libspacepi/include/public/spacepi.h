@@ -1029,4 +1029,45 @@ int digital_read(pin_t *pin);
  */
 int attach_interrupt(pin_t *pin, edge_t edge, void (*callback)(void *context), void *context);
 
+/* Timing Functions */
+
+/*
+ * timer_init initializes a new timer that starts at the current time
+ * 
+ * Parameters:
+ *  - timer: The variable to store the timer in
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int timer_init(struct timespec *timer);
+/*
+ * sleep_until sleeps until a given period after the last sleep from a timer returned.  This can be used to make a loop
+ * that runs at specific intervals because it does not cause integrated jitter.
+ * 
+ * Parameters:
+ *  - timer: The timer for the loop
+ *  - period: The amount of time to wait since the last time the loop started
+ * 
+ * Return: 0 on success or a negative number with errno set on error
+ */
+int sleep_until(struct timespec *timer, struct timespec period);
+/*
+ * time_add adds two times together
+ * 
+ * Parameters:
+ *  - a: The first addend
+ *  - b: The second addend
+ *  - sum: The sum of the two time values
+ */
+void time_add(struct timespec a, struct timespec b, struct timespec *sum);
+/*
+ * time_sub subtracts one time from another time
+ * 
+ * Parameters:
+ *  - a: The minuend
+ *  - b: The subtrahend
+ *  - diff: The difference in time between the minuend and subtrahend
+ */
+void time_sub(struct timespec a, struct timespec b, struct timespec *diff);
+
 #endif

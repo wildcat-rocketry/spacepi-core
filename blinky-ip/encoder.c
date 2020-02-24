@@ -18,11 +18,11 @@ int encode_bit(int bit, struct timespec *timer) {
     struct timespec high_timer = *timer;
     CHECK_ERROR(set_led, 1);
     if (bit) {
-        CHECK_ERROR(sleep_to, &high_timer, encoding_one_high);
+        CHECK_ERROR(sleep_until, &high_timer, encoding_one_high);
     } else {
-        CHECK_ERROR(sleep_to, &high_timer, encoding_zero_high);
+        CHECK_ERROR(sleep_until, &high_timer, encoding_zero_high);
     }
     CHECK_ERROR(set_led, 0);
-    CHECK_ERROR(sleep_to, timer, encoding_period);
+    CHECK_ERROR(sleep_until, timer, encoding_period);
     return 0;
 }

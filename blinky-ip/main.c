@@ -29,9 +29,9 @@ int main_loop(void) {
         while (ips_next(&addr)) {
             CHECK_ERROR(backup_write, addr);
             CHECK_ERROR(encode, addr, &timer);
-            CHECK_ERROR(sleep_to, &timer, delay_between_prints);
+            CHECK_ERROR(sleep_until, &timer, delay_between_prints);
         }
-        CHECK_ERROR(sleep_to, &timer, delay_between_scans);
+        CHECK_ERROR(sleep_until, &timer, delay_between_scans);
     }
 }
 

@@ -17,6 +17,7 @@ add_library(spacepi
     src/error.c
     src/random.c
     src/thread_pool.c
+    src/timing.c
 )
 target_include_directories(spacepi PUBLIC
     "${PROJECT_SOURCE_DIR}/include/public"

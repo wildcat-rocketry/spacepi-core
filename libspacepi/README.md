@@ -10,6 +10,7 @@ Here is a list of subsystems along with their documentation:
  * [Random Number Generation](#random-number-generation)
  * [Thread Pooling Framework](#thread-pooling-framework)
  * [Hardware IO Framework](#hardware-io-framework)
+ * [Timing Framework](#timing-framework)
 
 ## Booleans
 
@@ -428,3 +429,36 @@ Some drivers or hardware may not implement these functions.
 
 This attaches an interrupt handler that is called on either the `si_rising` edge, the `si_falling` edge, or `si_both`.
 Some drivers or hardware may not implement this function.
+
+## Timing Framework
+
+The timing framework provides a way to make timers.
+
+### timer_init()
+
+This creates a new timer variable.
+
+### sleep_until()
+
+This sleeps until a specified offset from the last time the timer was run.
+
+#### Example
+
+```c
+struct timespec timer;
+struct timespec period = {
+    .tv_sec = 1
+};
+CHECK_ERROR(timer_init, &timer);
+while (TRUE) {
+    // Do some task that runs once every {period} (1 second in this case)
+    do_something();
+    // This is at the end of the loop so the task runs right when the program
+    // starts instead of waiting one period before running the first time.
+    CHECK_ERROR(sleep_until, &timer, period);
+}
+```
+
+### time_add(), time_sub()
+
+These functions perform math on times.
