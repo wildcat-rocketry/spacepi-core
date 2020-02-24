@@ -86,6 +86,7 @@ for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
     chroot "$1" su "$user" -c "git config --global user.name \"$(head -n 1 "$user_file")\""
     chroot "$1" su "$user" -c "git config --global user.email \"$(head -n 2 "$user_file" | tail -n 1)\""
     chroot "$1" chown -R "$user:sudo" "/home/$user"
+    chroot "$1" passwd -d "$user"
 done
 
 rm -f "$1/etc/ssh/"ssh_host_*
