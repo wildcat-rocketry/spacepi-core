@@ -19,7 +19,7 @@ int spacepi_pubsub_cleanup(void) {
         RETURN_ERROR_SPACEPI(LIB_NOT_INIT);
     }
     int err = 0;
-    if (pubsub_state->conn == sc_connected) {
+    if (pubsub_state->connected) {
         err = 1;
         disconnect_context_t ctx;
         ctx.state = pubsub_state;
@@ -43,7 +43,7 @@ int spacepi_pubsub_cleanup(void) {
         };
         pthread_mutex_lock(&pubsub_state->mutex);
         CHECK_ERROR_JUMP_MQTT(free_cond, MQTTAsync_disconnect, pubsub_state->mqtt, &opts);
-        if (pubsub_state->conn != sc_disconnected) {
+        if (pubsub_state->connected) {
             pthread_cond_wait(&ctx.lock, &pubsub_state->mutex);
         }
         pthread_mutex_unlock(&pubsub_state->mutex);
@@ -65,12 +65,12 @@ int spacepi_pubsub_cleanup(void) {
 
 static void on_success(void *context, MQTTAsync_successData *response) {
     disconnect_context_t *ctx = (disconnect_context_t *) context;
-    ctx->state->conn = sc_disconnected;
+    ctx->state->connected = 0;
     pthread_cond_signal(&ctx->lock);
 }
 
 static void on_failure(void *context, MQTTAsync_failureData *response) {
     disconnect_context_t *ctx = (disconnect_context_t *) context;
-    ctx->state->conn = sc_disconnected;
+    ctx->state->connected = 0;
     pthread_cond_signal(&ctx->lock);
 }

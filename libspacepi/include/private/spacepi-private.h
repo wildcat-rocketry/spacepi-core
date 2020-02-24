@@ -18,13 +18,6 @@
 
 /* Pub/sub framework */
 
-typedef struct _pubsub_connection_handler_list pubsub_connection_handler_list_t;
-struct _pubsub_connection_handler_list {
-    spacepi_connection_callback callback;
-    void *context;
-    pubsub_connection_handler_list_t *next;
-};
-
 typedef struct _pubsub_subscription_list pubsub_subscription_list_t;
 struct _pubsub_subscription_list {
     spacepi_subscription_callback callback;
@@ -45,20 +38,17 @@ struct _pubsub_subscription_tree {
 
 typedef struct {
     MQTTAsync mqtt;
-    spacepi_pubsub_connection_t conn;
+    int connected;
     pthread_mutex_t mutex;
-    pubsub_connection_handler_list_t *connection_handlers;
-    spacepi_server_down_callback server_down_callback;
     void *server_down_context;
     pubsub_subscription_tree_t *subscriptions;
 } pubsub_state_t;
 
 extern pubsub_state_t *pubsub_state;
 
-int spacepi_private_pubsub_connect(pubsub_state_t *state, int clean);
+int spacepi_private_pubsub_connect(pubsub_state_t *state);
 
 // Callbacks
-void spacepi_private_pubsub_connection_lost(void *context, char *cause);
 int spacepi_private_pubsub_message_arrived(void *context, char *topic_name, int topic_len, MQTTAsync_message *message);
 
 /* IO Functions */

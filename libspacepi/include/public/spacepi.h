@@ -409,28 +409,11 @@ typedef enum {
 } spacepi_qos_t;
 
 /*
- * spacepi_pubsub_connection_t represents the current connection state to the MQTT server
- */
-typedef enum {
-    sc_disconnected = 0, // This program is not connected to the server
-    sc_connected = 1, // This program is connected to the server
-    sc_connecting = 2 // This program is currently trying to connect to the server
-} spacepi_pubsub_connection_t;
-
-/*
  * spacepi_token_t represents a token that represents some task.  This token can then be given to spacepi_wait_token to
  * block until the task this token represents finishes.
  */
 typedef int spacepi_token_t;
 
-/*
- * spacepi_connection_callback is called after the status of the connection to the local MQTT server changes
- * 
- * Parameters:
- *  - context: The context object passed into spacepi_pubsub_connection_handler()
- *  - connection: The current state of the connection
- */
-typedef void (*spacepi_connection_callback)(void *context, spacepi_pubsub_connection_t connection);
 /*
  * spacepi_published_callback is called after a message has been published from this process onto the local MQTT server
  * 
@@ -456,14 +439,6 @@ typedef void (*spacepi_published_callback)(void *context, const char *channel, c
  *  - retain: If the message was saved to the channel
  */
 typedef void (*spacepi_subscription_callback)(void *context, const char *channel, const void *data, size_t data_len, spacepi_qos_t qos, int retain);
-/*
- * spacepi_server_down_callback is called after being disconnected and unable to reconnect to the server.  If not set,
- * the program will exit when unable to reconnect.
- * 
- * Parameters:
- *  - context: The context object passed into spacepi_handle_server_down()
- */
-typedef void (*spacepi_server_down_callback)(void *context);
 
 /*
  * spacepi_pubsub_init initializes the publish/subscribe framework for communicating between processes and hosts
@@ -477,35 +452,6 @@ int spacepi_pubsub_init(void);
  * Return: 0 on success or a negative number with errno set on error
  */
 int spacepi_pubsub_cleanup(void);
-/*
- * spacepi_pubsub_connected determines the current state of the connection to the local MQTT server
- * 
- * Return: The current state of the connection to the server
- */
-spacepi_pubsub_connection_t spacepi_pubsub_connected(void);
-/*
- * spacepi_pubsub_connection_handler registers a callback to be called every time the state of the connection to the local MQTT server changes
- * 
- * Parameters:
- *  - callback: The function to call when the state changes
- *  - context: A context object to pass to the callback function
- * 
- * Return: 0 on success or a negative number with errno set on error
- */
-int spacepi_pubsub_connection_handler(spacepi_connection_callback callback, void *context);
-/*
- * spacepi_handle_server_down sets a callabck to be called after being disconnected from the server and unable to
- * reconnect.  If not set, the program will exit when unable to reconnect.  Unlike the other callback functions, only
- * one function may be called for this, so a call to this function resets the behavior.  If the callback is NULL, the
- * default behavior of exiting the program will be restored.
- * 
- * Parameters:
- *  - callback: The function to call when unable to reconnect
- *  - context: A context object to pass to the callback function
- * 
- * Return: 0 on success or a negative number with errno set on error
- */
-int spacepi_handle_server_down(spacepi_server_down_callback callback, void *context);
 /*
  * spacepi_publish sends a message to other processes which have subscribed to the channel
  * 

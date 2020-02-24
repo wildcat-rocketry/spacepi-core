@@ -278,18 +278,6 @@ This function cleans up all resources used by the pubsub framework.
 Cleanup is automatically run when returning from `main()` or calling `exit()`.
 The main use for calling this directly would be if wanting to reinitialize the library (you can't call `spacepi_pubsub_init` twice without calling `spacepi_pubsub_cleanup` in between).
 
-### spacepi_pubsub_connected(), spacepi_pubsub_connection_handler()
-
-These two functions are for determining when the library is connected to the server.
-Normally you would not need to use these, though.
-If you, for example, try to publish while the library is reconnecting to the server (which is an automatic process), the publish function will block until the connection is established.
-
-### spacepi_handle_server_down()
-
-This sets a callback to be called if the library is unable to reconnect to the server.
-The default behavior (if you don't set your own) is to quit the program.
-This is also called if the first connection attempt fails.
-
 ### spacepi_publish(), spacepi_publish_token(), spacepi_publish_callback(), spacepi_wait_token()
 
 These functions publish a message to the messaging bus.
