@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(blinky-ip VERSION 1.0)
 
 add_executable(blinky-ip
+    backup.c
     encoder.c
     ips.c
     led.c

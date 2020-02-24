@@ -8,7 +8,6 @@
 int encode_bit(int bit, struct timespec *timer);
 
 int encode(uint32_t ipaddr, struct timespec *timer) {
-    printf("%d.%d.%d.%d\n", (ipaddr >> 24) & 0xFF, (ipaddr >> 16) & 0xFF, (ipaddr >> 8) & 0xFF, (ipaddr >> 0) & 0xFF);
     for (uint32_t mask = (1 << 31); mask; mask >>= 1) {
         CHECK_ERROR(encode_bit, ipaddr & mask, timer);
     }
