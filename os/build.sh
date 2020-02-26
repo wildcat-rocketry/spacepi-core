@@ -139,7 +139,7 @@ if [ "$1" != "armhf" ]; then
     mount -o bind /proc "$1/proc"
     chroot "$1" dpkg --add-architecture armhf
     chroot "$1" apt update
-    chroot "$1" apt install libstdc++6:armhf
+    chroot "$1" apt install -y libstdc++6:armhf
     umount "$1/proc"
     umount "$1/sys"
 fi
