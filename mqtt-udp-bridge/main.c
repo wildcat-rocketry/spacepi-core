@@ -115,7 +115,7 @@ int main(int argc, char ** argv, char ** envp) {
 	spacepi_subscribe("#", sq_at_most_once, subscription_cb, NULL);
 	
 	pthread_create(&recv_thread, NULL, recv_callback, NULL);
-	
+	pthread_join(recv_thread, NULL);
 	return 0;
 	
 }
