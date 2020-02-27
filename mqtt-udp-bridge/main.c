@@ -11,11 +11,11 @@
 #include <arpa/inet.h>
 
 // number of arguments passed into the program (excluding the program name)
-#define ARG_COUNT 2
+#define ARG_COUNT 3
 #define TOPIC_BUFFER_SIZE 0xFF
 #define DATA_BUFFER_SIZE 0xFFFF
 
-// args: udp_address udp_port
+// args: udp_send_address udp_recv_port udp_send_port
 
 int udp_fd;
 struct sockaddr_in udp_local_addr;
@@ -38,14 +38,19 @@ void * recv_callback(void * arg) {
 	printf("Started recieve thread\n");
 	while (1) {
 		memset(&topic_buf, 0, TOPIC_BUFFER_SIZE);
+		printf("Waiting for topic string\n");
 		udp_recieve(topic_buf, TOPIC_BUFFER_SIZE - 1); // allow space for null character
+		printf("Recieved topic string, waiting for data\n");
 		int datalen = udp_recieve(data_buf, DATA_BUFFER_SIZE);
+		printf("Recieved data, publishing to \"%s\"\n", topic_buf);
 		spacepi_publish(topic_buf, data_buf, datalen, sq_exactly_once, 0);
+		printf("Published data\n");
 	}
 	printf("Recieve thread died\n");
 }
 
 void subscription_cb(void * context, const char * channel, const void * data, size_t data_len, spacepi_qos_t qos, int retain) {
+	printf("Recieved data from channel \"%s\", sending over network\n", channel);
 	sendto(udp_fd, channel, strlen(channel), 0, (struct sockaddr *) &udp_addr, sizeof(udp_addr));
 	sendto(udp_fd, data, data_len, 0, (struct sockaddr *) &udp_addr, sizeof(udp_addr));
 }
@@ -103,7 +108,7 @@ int main(int argc, char ** argv, char ** envp) {
 	//udp_addr.sin_addr.s_addr = inet_addr(argv[1]);
 	inet_pton(AF_INET, argv[1], &udp_addr.sin_addr);
 	udp_addr.sin_family = AF_INET;
-	udp_addr.sin_port = htons(atoi(argv[2]));
+	udp_addr.sin_port = htons(atoi(argv[3]));
 	udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (udp_fd < 0) {
 		fprintf(stderr, "Failed to create socket: %s\n", strerror(errno));
@@ -117,6 +122,7 @@ int main(int argc, char ** argv, char ** envp) {
 	
 	// subscribe to everything
 	spacepi_subscribe("#", sq_at_most_once, subscription_cb, NULL);
+	printf("Subscribed\n");
 	
 	printf("Starting recieve thread\n");
 	pthread_create(&recv_thread, NULL, recv_callback, NULL);
