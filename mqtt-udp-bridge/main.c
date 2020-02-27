@@ -35,12 +35,14 @@ void conn_callback() {
 }
 
 void * recv_callback(void * arg) {
+	printf("Started recieve thread\n");
 	while (1) {
 		memset(&topic_buf, 0, TOPIC_BUFFER_SIZE);
 		udp_recieve(topic_buf, TOPIC_BUFFER_SIZE - 1); // allow space for null character
 		int datalen = udp_recieve(data_buf, DATA_BUFFER_SIZE);
 		spacepi_publish(topic_buf, data_buf, datalen, sq_exactly_once, 0);
 	}
+	printf("Recieve thread died\n");
 }
 
 void subscription_cb(void * context, const char * channel, const void * data, size_t data_len, spacepi_qos_t qos, int retain) {
@@ -89,6 +91,7 @@ int main(int argc, char ** argv, char ** envp) {
 		fprintf(stderr, "Failed to init pubsub library: %s\n", strerror(errno));
 		exit(1);
 	}
+	printf("Initialized pubsub library\n");
 	
 	// create UDP socket
 	memset(&udp_local_addr, 0, sizeof(udp_local_addr));
@@ -106,6 +109,7 @@ int main(int argc, char ** argv, char ** envp) {
 		fprintf(stderr, "Failed to create socket: %s\n", strerror(errno));
 		exit(1);
 	}
+	printf("Binding socket\n");
 	if (bind(udp_fd, (struct sockaddr *) &udp_local_addr, sizeof(udp_local_addr)) < 0) {
 		fprintf(stderr, "Failed to bind socket: %s\n", strerror(errno));
 		exit(1);
@@ -114,6 +118,7 @@ int main(int argc, char ** argv, char ** envp) {
 	// subscribe to everything
 	spacepi_subscribe("#", sq_at_most_once, subscription_cb, NULL);
 	
+	printf("Starting recieve thread\n");
 	pthread_create(&recv_thread, NULL, recv_callback, NULL);
 	pthread_join(recv_thread, NULL);
 	return 0;
