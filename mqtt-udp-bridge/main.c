@@ -53,7 +53,7 @@ void sigint(int signal) {
 	
 	// cleanup pubsub library
 	if (spacepi_pubsub_cleanup() < 0) {
-		fprintf(stderr, "Failed to cleanup pubsub library, oh well... (%d)\n", errno);
+		fprintf(stderr, "Failed to cleanup pubsub library, oh well... (%s)\n", strerror(errno));
 		exit(1);
 	}
 	exit(0);
@@ -86,27 +86,28 @@ int main(int argc, char ** argv, char ** envp) {
 	
 	// initialize pubsub library
 	if(spacepi_pubsub_init() < 0) {
-		fprintf(stderr, "Failed to init pubsub library: %d\n", errno);
+		fprintf(stderr, "Failed to init pubsub library: %s\n", strerror(errno));
 		exit(1);
 	}
 	
 	// create UDP socket
 	memset(&udp_local_addr, 0, sizeof(udp_local_addr));
-	udp_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	udp_addr.sin_family = AF_INET;
-	udp_addr.sin_port = 0;
+	udp_local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	udp_local_addr.sin_family = AF_INET;
+	udp_local_addr.sin_port = htons(atoi(argv[2]));
 
 	memset(&udp_addr, 0, sizeof(udp_addr));
-	udp_addr.sin_addr.s_addr = inet_addr(argv[1]);
+	//udp_addr.sin_addr.s_addr = inet_addr(argv[1]);
+	inet_pton(AF_INET, argv[1], &udp_addr.sin_addr);
 	udp_addr.sin_family = AF_INET;
 	udp_addr.sin_port = htons(atoi(argv[2]));
 	udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
 	if (udp_fd < 0) {
-		fprintf(stderr, "Failed to create socket: %d\n", errno);
+		fprintf(stderr, "Failed to create socket: %s\n", strerror(errno));
 		exit(1);
 	}
 	if (bind(udp_fd, (struct sockaddr *) &udp_local_addr, sizeof(udp_local_addr)) < 0) {
-		fprintf(stderr, "Failed to bind socket: %d\n", errno);
+		fprintf(stderr, "Failed to bind socket: %s\n", strerror(errno));
 		exit(1);
 	}
 	
