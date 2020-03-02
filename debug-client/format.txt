@@ -20,31 +20,10 @@ FLOAT32:Angular Rate (rad/s)
 TOPIC:/battery/%s/voltage
 FLOAT32:Battery voltage (V)
 
-TOPIC:/errors/barometer/%s
-ASCII_STRING_NT:Description
+TOPIC:/dio/%s
+ASCII_STRING@1:Value
 
-TOPIC:/errors/battery/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/gps/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/imu/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/kinematics/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/processor/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/pyro/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/radio/%s
-ASCII_STRING_NT:Description
-
-TOPIC:/errors/stepper/%s
+TOPIC:/errors/%s
 ASCII_STRING_NT:Description
 
 TOPIC:/kinematics/%s
@@ -105,6 +84,9 @@ ASCII_STRING_NT:NMEA Sentence
 TOPIC:/telemetry/gps/%s/altitude
 FLOAT64:Altitude (m MSL)
 
+TOPIC:/telemetry/gps/%s/enable
+ASCII_STRING@1:GPS Enable
+
 TOPIC:/telemetry/gps/%s/pos
 FLOAT64:Latitude (deg)
 FLOAT64:Longitude (deg)
@@ -121,3 +103,6 @@ TOPIC:/telemetry/imu/%s/gyro
 FLOAT64:Angular Rate Yaw (rad/s)
 FLOAT64:Angular Rate Pitch (rad/s)
 FLOAT64:Angular Rate Roll (rad/s)
+
+TOPIC:/uart/mqtt/%s/enable
+ASCII_STRING@1:MQTT over UART Enable
