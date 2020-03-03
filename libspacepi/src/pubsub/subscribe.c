@@ -50,7 +50,6 @@ int spacepi_subscribe(const char *channel, spacepi_qos_t qos, spacepi_subscripti
         CHECK_ALLOC_JUMP(unlock_mutex, tree, pubsub_subscription_tree_t);
         CHECK_ALLOC_ARRAY_JUMP(free_tree, channel2, char, strlen(channel) + 1);
         CHECK_ERROR_JUMP_MQTT(free_channel, MQTTAsync_subscribe, pubsub_state->mqtt, channel, qos, &opts);
-        printf("Subscribed to %s\n", channel);
         strcpy(channel2, channel);
         tree->channel = channel2;
         tree->qos = qos;
@@ -155,7 +154,6 @@ int spacepi_unsubscribe(const char *channel, spacepi_subscription_callback callb
 }
 
 int spacepi_private_pubsub_message_arrived(void *context, char *topic_name, int topic_len, MQTTAsync_message *message) {
-    printf("Got message on channel %s\n", topic_name);
     pubsub_state_t *state = (pubsub_state_t *) context;
     // Multi-level wildcard matches
     CHECK_ALLOC_ARRAY_DEF_JUMP(end, logical_channel, char, strlen(topic_name) + 1);
