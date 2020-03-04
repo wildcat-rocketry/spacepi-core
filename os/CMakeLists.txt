@@ -20,7 +20,7 @@ add_custom_target(os_reset
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(OS_BASE_PACKAGES build-essential,cloud-utils,cmake,firmware-brcm80211,gcc,git,g++,libgps-dev,make,mosquitto,network-manager,openssh-server,psmisc,rng-tools,sudo,systemd,systemd-sysv,wireless-tools,gdb,gpsd)
+set(OS_BASE_PACKAGES build-essential,cloud-utils,cmake,firmware-brcm80211,gcc,gdb,git,gpsd,g++,libgps-dev,man-db,make,mosquitto,network-manager,openssh-server,psmisc,rng-tools,sudo,systemd,systemd-sysv,wireless-tools)
 
 set(OS_DIST_NAME stable)
 set(OS_REPO_URL http://deb.debian.org/debian)
