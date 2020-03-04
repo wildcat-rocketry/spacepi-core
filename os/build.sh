@@ -116,6 +116,8 @@ chroot "$1" git -C /spacepi/code remote add origin "git@gitlab.com:ffaero/tools/
 mount /dev/mapper/${dev}p6 "$1/spacepi/build"
 mount /dev/mapper/${dev}p7 "$1/spacepi/bin"
 chroot "$1" chown -R root:sudo /spacepi
+chmod g+s -R "$1/spacepi"
+ln -s /tmp "$1/spacepi/bin/MQTT_PERSISTENCE_DIR"
 mount /dev/mapper/${dev}p4 "$1/mnt"
 cp -R --preserve=all "$1/var/"* "$1/mnt"
 umount "$1/mnt"
