@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include "utils.h"
 
 // number of arguments passed into the program (excluding the program name)
 #define ARG_COUNT 3
@@ -24,6 +25,7 @@ struct sockaddr_in udp_recv_addr;
 char topic_buf[TOPIC_BUFFER_SIZE];
 char data_buf[DATA_BUFFER_SIZE]; // buffer for recieving data over the network
 pthread_t recv_thread;
+buf_t hashbuf;
 
 int udp_recieve(char *, int);
 
@@ -43,6 +45,7 @@ void * recv_callback(void * arg) {
 		printf("Recieved topic string, waiting for data\n");
 		int datalen = udp_recieve(data_buf, DATA_BUFFER_SIZE);
 		printf("Recieved data, publishing to \"%s\"\n", topic_buf);
+		buf_add(&hashbuf, hash_buf(data_buf, datalen));
 		spacepi_publish(topic_buf, data_buf, datalen, sq_exactly_once, 0);
 		printf("Published data\n");
 	}
@@ -53,11 +56,12 @@ void subscription_cb(void * context, const char * channel, const void * data, si
 	printf("Recieved data from channel \"%s\", sending over network\n", channel);
 	sendto(udp_fd, channel, strlen(channel), 0, (struct sockaddr *) &udp_addr, sizeof(udp_addr));
 	sendto(udp_fd, data, data_len, 0, (struct sockaddr *) &udp_addr, sizeof(udp_addr));
+	buf_remove(&hashbuf, hash_buf((char *) data, data_len));
 }
 
 // callback for SIGINT
 void sigint(int signal) {
-	
+
 	// cleanup pubsub library
 	if (spacepi_pubsub_cleanup() < 0) {
 		fprintf(stderr, "Failed to cleanup pubsub library, oh well... (%s)\n", strerror(errno));
@@ -84,7 +88,7 @@ int main(int argc, char ** argv, char ** envp) {
 	
 	// sanity checking the argument count
 	if (argc != ARG_COUNT + 1) {
-		fprintf(stderr, "Invalid number of arguments!\n");
+		fprintf(stderr, "Invalid number of arguments!\nUsage: mqtt-udp-server [udp_send_address] [udp_recv_port] [udp_send_port]");
 		exit(1);
 	}
 	
@@ -98,6 +102,9 @@ int main(int argc, char ** argv, char ** envp) {
 	}
 	printf("Initialized pubsub library\n");
 	
+	// initialize buffer
+	buf_init(&hashbuf, 0xFFFF);
+
 	// create UDP socket
 	memset(&udp_local_addr, 0, sizeof(udp_local_addr));
 	udp_local_addr.sin_addr.s_addr = htonl(INADDR_ANY);

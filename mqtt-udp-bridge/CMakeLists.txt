@@ -4,6 +4,7 @@ project(mqtt-udp-bridge VERSION 1.0)
 find_package(Threads)
 add_executable(mqtt-udp-bridge
     main.c
+    utils.c
 )
 
 target_link_libraries(mqtt-udp-bridge PUBLIC spacepi ${CMAKE_THREAD_LIBS_INIT})
