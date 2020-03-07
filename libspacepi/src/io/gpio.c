@@ -2,21 +2,36 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <arpa/inet.h>
 #include <fcntl.h>
+#include <linux/gpio.h>
+#include <linux/limits.h>
 #include <poll.h>
 #include <pthread.h>
-#include <sys/mman.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
 #include <unistd.h>
 #include <spacepi-private.h>
+#define CONSUMER "libspacepi"
 
-#define NUM_PINS 28
-#define DEVICE_TREE_NAME_MAX 200
+#define BLOCK_DEVICE "/dev/gpiochip%d"
 
-static int open_device_tree(const char *alias, const char *field);
+typedef struct {
+    int fd;
+    uint8_t def;
+    int irq_fd;
+    void (*callback)(void *context);
+    void *callback_context;
+} gpio_pin_t;
+
+typedef struct {
+    int fd;
+    gpio_pin_t *pins;
+    int num_pins;
+    char consumer_name[32];
+    int irq_pipe[2];
+} gpio_t;
+
 static int io_init_device(unsigned address, void **context);
 static int io_validate_pin(void *context, unsigned address, unsigned pinno);
 static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t mode);
@@ -38,295 +53,193 @@ spacepi_io_driver_t io_driver_gpio = {
     .instances = NULL
 };
 
-typedef struct {
-    void (*callback)(void *context);
-    void *context;
-    int fd;
-} irq_t;
-
-typedef struct __attribute__((packed)) {
-    uint32_t GPFSEL[6]; uint32_t __resv_0;
-    uint32_t GPSET[2]; uint32_t __resv_1;
-    uint32_t GPCLR[2]; uint32_t __resv_2;
-    uint32_t GPLEV[2]; uint32_t __resv_3;
-    uint32_t GPEDS[2]; uint32_t __resv_4;
-    uint32_t GPREN[2]; uint32_t __resv_5;
-    uint32_t GPFEN[2]; uint32_t __resv_6;
-    uint32_t GPHEN[2]; uint32_t __resv_7;
-    uint32_t GPLEN[2]; uint32_t __resv_8;
-    uint32_t GPAREN[2]; uint32_t __resv_9;
-    uint32_t GPAFEN[2]; uint32_t __resv_10;
-    uint32_t GPPUD;
-    uint32_t GPPUDCLK[2]; uint32_t __resv_11;
-    uint32_t test;
-} bcm2835_regs_t;
-
-static volatile bcm2835_regs_t *bcm2835;
-static volatile irq_t irqs[NUM_PINS];
-static volatile int isr_running;
-static pthread_mutex_t isr_mutex;
-
-static int open_device_tree(const char *alias, const char *field) {
-    char buf[DEVICE_TREE_NAME_MAX + 1];
-    snprintf(buf, DEVICE_TREE_NAME_MAX, "/proc/device-tree/aliases/%s", alias);
-    int fd = open(buf, O_RDONLY);
-    if (fd < 0) {
-        spacepi_perror("open", __FILE__, __LINE__);
-        RETURN_REPORTED_ERROR();
-    }
-    char *it = buf + sizeof("/proc/device-tree") - 1;
-    int len = DEVICE_TREE_NAME_MAX - sizeof("/proc/device-tree");
-    int r = read(fd, it, len);
-    if (r < 0) {
-        spacepi_perror("read", __FILE__, __LINE__);
-        RETURN_REPORTED_ERROR();
-    }
-    it += r - 1;
-    len -= r;
-    CHECK_ERROR(close, fd);
-    strncpy(it, field, len);
-    fd = open(buf, O_RDONLY);
-    if (fd < 0) {
-        spacepi_perror("open", __FILE__, __LINE__);
-        RETURN_REPORTED_ERROR();
-    }
-    return fd;
-}
-
 static int io_init_device(unsigned address, void **context) {
-    static int needs_global_init = 1;
-    if (needs_global_init) {
-        int fd = open_device_tree("soc", "/ranges");
-        if (fd < 0) {
-            spacepi_perror("open_device_tree", __FILE__, __LINE__);
-            RETURN_REPORTED_ERROR();
-        }
-        uint32_t ranges[2]; // range[0] is the physical offset, range[1] is the virtual offset
-        CHECK_ERROR(read, fd, ranges, 8);
-        ranges[0] = ntohl(ranges[0]);
-        ranges[1] = ntohl(ranges[1]);
-        CHECK_ERROR(close, fd);
-        fd = open_device_tree("gpio", "/reg");
-        if (fd < 0) {
-            spacepi_perror("open_device_tree", __FILE__, __LINE__);
-            RETURN_REPORTED_ERROR();
-        }
-        uint32_t reg[2]; // reg[0] is the physical offset, reg[1] is the length
-        CHECK_ERROR(read, fd, reg, 8);
-        reg[0] = ntohl(reg[0]);
-        reg[1] = ntohl(reg[1]);
-        CHECK_ERROR(close, fd);
-        if (reg[1] < sizeof(bcm2835_regs_t)) {
-            fflush(stdout);
-            fprintf(stderr, "Register length is %u, but should be %u.\n", reg[1], sizeof(bcm2835_regs_t));
-            RETURN_REPORTED_ERROR();
-        }
-        fd = open("/dev/mem", O_RDWR | O_SYNC);
-        if (fd < 0) {
-            spacepi_perror("open", __FILE__, __LINE__);
-            RETURN_REPORTED_ERROR();
-        }
-        __off_t addr = reg[0] - ranges[0] + ranges[1];
-        bcm2835 = (volatile bcm2835_regs_t *) mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, addr);
-        if (bcm2835 == MAP_FAILED) {
-            spacepi_perror("mmap", __FILE__, __LINE__);
-            CHECK_ERROR(close, fd);
-            RETURN_REPORTED_ERROR();
-        }
-        CHECK_ERROR(close, fd);
-        for (int i = 0; i < NUM_PINS; ++i) {
-            irqs[i].fd = -1;
-        }
-        isr_running = 0;
-        CHECK_ERROR(pthread_mutex_init, &isr_mutex, NULL);
-        needs_global_init = 0;
+    int err = TRUE;
+    char path[PATH_MAX];
+    CHECK_ERROR(readlink, "/proc/self/exe", path, PATH_MAX);
+    CHECK_ALLOC_DEF(gpio, gpio_t);
+    char *last_slash = strrchr(path, '/');
+    if (last_slash) {
+        strncpy(gpio->consumer_name, last_slash + 1, sizeof(gpio->consumer_name) - 1);
     }
-    if (address != 0) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
+    char dev_name[sizeof(BLOCK_DEVICE) + 8];
+    snprintf(dev_name, sizeof(dev_name) - 1, BLOCK_DEVICE, address);
+    gpio->fd = open(dev_name, 0);
+    if (gpio->fd < 0) {
+        spacepi_perror("open", __FILE__, __LINE__);
+        goto free_gpio;
     }
-    *context = NULL;
+    struct gpiochip_info cinfo;
+    CHECK_ERROR_JUMP(close_fd, ioctl, gpio->fd, GPIO_GET_CHIPINFO_IOCTL, &cinfo);
+    gpio->num_pins = cinfo.lines;
+    CHECK_ALLOC_ARRAY_JUMP(close_fd, gpio->pins, gpio_pin_t, gpio->num_pins);
+    memset(gpio->pins, 0, sizeof(gpio_pin_t) * gpio->num_pins);
+    for (int i = 0; i < gpio->num_pins; ++i) {
+        gpio->pins[i].fd = -1;
+        gpio->pins[i].irq_fd = -1;
+    }
+    CHECK_ERROR_JUMP(free_mem, pipe, gpio->irq_pipe);
+    pthread_t thread;
+    CHECK_ERROR_JUMP(free_pipe, pthread_create, &thread, NULL, isr_thread, gpio);
+    
+    *context = gpio;
+    err = FALSE;
+    if (FALSE) {
+        free_pipe:
+        close(gpio->irq_pipe[0]);
+        close(gpio->irq_pipe[1]);
+        free_mem:
+        free(gpio->pins);
+        close_fd:
+        close(gpio->fd);
+        free_gpio:
+        free(gpio);
+    }
+    if (err) {
+        RETURN_REPORTED_ERROR();
+    }
     return 0;
 }
 
 static int io_validate_pin(void *context, unsigned address, unsigned pinno) {
-    if (pinno >= NUM_PINS) {
+    gpio_t *gpio = (gpio_t *) context;
+    if (pinno >= gpio->num_pins) {
         RETURN_ERROR_SPACEPI(INVALID_PIN);
     }
     return 0;
 }
 
 static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t mode) {
-    if (pinno >= NUM_PINS) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
+    CHECK_ERROR(io_validate_pin, context, address, pinno);
+    gpio_t *gpio = (gpio_t *) context;
+    gpio_pin_t *pin = gpio->pins + pinno;
+    if (pin->fd >= 0) {
+        CHECK_ERROR_JUMP(reset_fd, close, pin->fd);
+        reset_fd:
+        pin->fd = -1;
     }
-    volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPFSEL[pinno / 10];
-    *reg &= ~(7 << ((pinno % 10) * 3));
+    struct gpiohandle_request req = {
+        .lineoffsets = { pinno },
+        .default_values = { pin->def },
+        .lines = 1
+    };
     if (mode & sm_input_hi_z) {
-        switch (mode) {
-            case sm_input_hi_z:
-                bcm2835->GPPUD = 0;
-                break;
-            case sm_input_pullup:
-                bcm2835->GPPUD = 2;
-                break;
-            case sm_input_pulldown:
-                bcm2835->GPPUD = 1;
-                break;
-        }
-        struct timespec tm = {
-            .tv_sec = 0,
-            .tv_nsec = 600 // 150 clock cycles at 250 MHz
-        };
-        CHECK_ERROR(nanosleep, &tm, NULL);
-        bcm2835->GPPUDCLK[0] = (1 << pinno);
-        bcm2835->GPPUDCLK[1] = 0;
-        CHECK_ERROR(nanosleep, &tm, NULL);
-        bcm2835->GPPUD = 0;
-        bcm2835->GPPUDCLK[0] = 0;
-        bcm2835->GPPUDCLK[1] = 0;
+        req.flags = GPIOHANDLE_REQUEST_INPUT;
+        // TODO Handle pullup/pulldown
     } else {
-        *reg |= (1 << ((pinno % 10) * 3));
+        req.flags = GPIOHANDLE_REQUEST_OUTPUT;
     }
+    strcpy(req.consumer_label, gpio->consumer_name);
+    CHECK_ERROR(ioctl, gpio->fd, GPIO_GET_LINEHANDLE_IOCTL, &req);
+    pin->fd = req.fd;
     return 0;
 }
 
 static int io_write(void *context, unsigned address, unsigned pinno, int value) {
-    if (pinno >= NUM_PINS) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
+    CHECK_ERROR(io_validate_pin, context, address, pinno);
+    gpio_t *gpio = (gpio_t *) context;
+    gpio_pin_t *pin = gpio->pins + pinno;
+    pin->def = value;
+    if (pin->fd < 0) {
+        return 0;
     }
-    if (value) {
-        volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPSET[0];
-        *reg = (1 << pinno);
-    } else {
-        volatile uint32_t *reg = (volatile uint32_t *) &bcm2835->GPCLR[0];
-        *reg = (1 << pinno);
-    }
+    struct gpiohandle_data data = {
+        .values = { value }
+    };
+    CHECK_ERROR(ioctl, pin->fd, GPIOHANDLE_SET_LINE_VALUES_IOCTL, &data);
     return 0;
 }
 
 static int io_read(void *context, unsigned address, unsigned pinno) {
-    if (pinno >= NUM_PINS) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
+    CHECK_ERROR(io_validate_pin, context, address, pinno);
+    gpio_t *gpio = (gpio_t *) context;
+    gpio_pin_t *pin = gpio->pins + pinno;
+    if (pin->fd < 0) {
+        return pin->def;
     }
-    if (bcm2835->GPLEV[0] & (1 << pinno)) {
-        return HIGH;
-    } else {
-        return LOW;
-    }
+    struct gpiohandle_data data;
+    CHECK_ERROR(ioctl, pin->fd, GPIOHANDLE_GET_LINE_VALUES_IOCTL, &data);
+    return data.values[0];
 }
 
 static int io_attach_isr(void *context, unsigned address, unsigned pinno, edge_t edge, void (*callback)(void *context), void *callback_context) {
-    if (pinno >= NUM_PINS) {
-        RETURN_ERROR_SPACEPI(INVALID_PIN);
+    CHECK_ERROR(io_validate_pin, context, address, pinno);
+    gpio_t *gpio = (gpio_t *) context;
+    gpio_pin_t *pin = gpio->pins + pinno;
+    char buf;
+    if (pin->irq_fd >= 0) {
+        CHECK_ERROR_JUMP(reset_fd, close, pin->irq_fd);
+        reset_fd:
+        1;
+        int fd = pin->irq_fd;
+        pin->irq_fd = -1;
+        CHECK_ERROR_JUMP(after_reset_fd, write, gpio->irq_pipe[1], &buf, 1);
+        after_reset_fd:
+        close(fd);
     }
-    CHECK_ERROR(pthread_mutex_lock, &isr_mutex);
-    int err = 1;
-    irqs[pinno].callback = callback;
-    irqs[pinno].context = callback_context;
-    switch (edge) {
-        case si_none:
-            bcm2835->GPREN[0] &= ~(1 << pinno);
-            bcm2835->GPFEN[0] &= ~(1 << pinno);
-            if (irqs[pinno].fd >= 0) {
-                int fd = irqs[pinno].fd;
-                irqs[pinno].fd = -1;
-                CHECK_ERROR_JUMP(unlock_mutex, close, fd);
-            }
-            goto end;
-        case si_rising:
-            bcm2835->GPREN[0] |= (1 << pinno);
-            bcm2835->GPLEN[0] &= ~(1 << pinno);
-            break;
-        case si_falling:
-            bcm2835->GPREN[0] &= ~(1 << pinno);
-            bcm2835->GPLEN[0] |= (1 << pinno);
-            break;
-        case si_both:
-            bcm2835->GPREN[0] |= (1 << pinno);
-            bcm2835->GPLEN[0] |= (1 << pinno);
-            break;
+    struct gpioevent_request req = {
+        .lineoffset = pinno,
+        .handleflags = 0,
+        .eventflags = 0
+    };
+    if (edge & si_rising) {
+        req.eventflags |= GPIOEVENT_REQUEST_RISING_EDGE;
     }
-    if (irqs[pinno].fd < 0) {
-        int fd = open("/sys/class/gpio/export", O_WRONLY);
-        if (fd < 0) {
-            spacepi_perror("open", __FILE__, __LINE__);
-            goto unlock_mutex;
-        }
-        char buf[sizeof("/sys/class/gpio/gpioXX/value")];
-        int len = sprintf(buf, "%d", pinno);
-        CHECK_ERROR_JUMP(unlock_mutex, write, fd, buf, len);
-        CHECK_ERROR_JUMP(unlock_mutex, close, fd);
-        sprintf(buf, "/sys/class/gpio/gpio%d/value", pinno);
-        irqs[pinno].fd = open(buf, O_RDONLY);
-        if (irqs[pinno].fd < 0) {
-            spacepi_perror("open", __FILE__, __LINE__);
-            goto unlock_mutex;
-        }
-        if (!isr_running) {
-            pthread_t thread;
-            CHECK_ERROR_JUMP(unlock_mutex, pthread_create, &thread, NULL, isr_thread, NULL);
-            isr_running = 1;
-        }
+    if (edge & si_falling) {
+        req.eventflags |= GPIOEVENT_REQUEST_FALLING_EDGE;
     }
-    end:
-    err = 0;
-    unlock_mutex:
-    CHECK_ERROR(pthread_mutex_unlock, &isr_mutex);
-    if (err) {
-        RETURN_REPORTED_ERROR();
-    } else {
-        return 0;
-    }
+    CHECK_ERROR(ioctl, pin->fd, GPIO_GET_LINEEVENT_IOCTL, &req);
+    pin->irq_fd = pin->fd;
+    CHECK_ERROR(write, gpio->irq_pipe[1], &buf, 1);
+    return 0;
 }
 
 static void *isr_thread(void *context) {
-    struct pollfd polls[NUM_PINS];
-    int _pinno[NUM_PINS];
-    char buf[sizeof("/sys/class/gpio/gpioXX/value")];
-    while (1) {
-        struct pollfd *it = polls;
-        int *pinno = _pinno;
-        if (pthread_mutex_lock(&isr_mutex) < 0) {
-            spacepi_perror("pthread_mutex_lock", __FILE__, __LINE__);
-            continue;
-        }
-        for (int i = 0; i < NUM_PINS; ++i) {
-            if (irqs[i].fd >= 0) {
-                it->fd = irqs[i].fd;
-                it->events = POLLPRI;
-                *pinno++ = i;
-                ++it;
+    gpio_t *gpio = (gpio_t *) context;
+    CHECK_ALLOC_ARRAY_DEF_JUMP(alloc_err, fds, struct pollfd, gpio->num_pins + 1);
+    CHECK_ALLOC_ARRAY_DEF_JUMP(alloc_err_map, map, gpio_pin_t *, gpio->num_pins);
+    if (FALSE) {
+        alloc_err_map:
+        free(fds);
+        alloc_err:
+        fprintf(stderr, "isr_thread: Unable to allocate %d file descriptors for poll()\n", gpio->num_pins + 1);
+        return NULL;
+    }
+    fds[0].fd = gpio->irq_pipe[0];
+    for (int i = 0; i <= gpio->num_pins; ++i) {
+        fds[i].events = POLLIN;
+    }
+    struct gpioevent_data ev;
+    while (TRUE) {
+        struct pollfd *it = fds + 1;
+        gpio_pin_t **mit = map;
+        for (int i = 0; i < gpio->num_pins; ++i) {
+            gpio_pin_t *pin = gpio->pins + i;
+            if (pin->irq_fd >= 0) {
+                it++->fd = pin->irq_fd;
+                *mit++ = pin;
             }
         }
-        if (pthread_mutex_unlock(&isr_mutex) < 0) {
-            spacepi_perror("pthread_mutex_unlock", __FILE__, __LINE__);
+        CHECK_ERROR_JUMP(retry, poll, fds, it - fds, -1);
+        if (fds->revents & POLLIN) {
+            char buf;
+            CHECK_ERROR_JUMP(ignore1, read, fds->fd, &buf, 1);
+            ignore1:
+            1;
         }
-        if (it == polls) {
-            isr_running = 0;
-            return NULL;
-        }
-        if (poll(polls, it - polls, -1) < 0) {
-            spacepi_perror("poll", __FILE__, __LINE__);
-            continue;
-        }
-        if (pthread_mutex_lock(&isr_mutex) < 0) {
-            spacepi_perror("pthread_mutex_lock", __FILE__, __LINE__);
-        }
-        for (--it; it >= polls; --it) {
-            --pinno;
-            if (it->revents & POLLPRI) {
-                irqs[*pinno].callback(irqs[*pinno].context);
-            } else if (it->revents != 0) {
-                fprintf(stderr, "Error while waiting for interrupt on pin %d.\n", *pinno);
-                sprintf(buf, "/sys/class/gpio/gpio%d/value", *pinno);
-                irqs[*pinno].fd = open(buf, O_RDONLY);
-                if (irqs[*pinno].fd < 0) {
-                    spacepi_perror("open", __FILE__, __LINE__);
+        for (int i = 0; i < gpio->num_pins; ++i) {
+            if (fds[i+1].revents & POLLIN) {
+                CHECK_ERROR_JUMP(ignore2, read, fds[i+1].fd, &ev, sizeof(struct gpioevent_data));
+                CHECK_ERROR_JUMP(ignore2, call_isr, map[i]->callback, map[i]->callback_context);
+                if (FALSE) {
+                    ignore2:
+                    continue;
                 }
             }
         }
-        if (pthread_mutex_unlock(&isr_mutex) < 0) {
-            spacepi_perror("pthread_mutex_unlock", __FILE__, __LINE__);
-        }
+
+        retry:
+        1;
     }
+    return NULL;
 }
