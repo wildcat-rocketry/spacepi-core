@@ -153,9 +153,9 @@ public class PublishFrame {
 						JOptionPane.showMessageDialog(frame, "Please select a format to use.");
 					} else {
 						if (useFormatString.isSelected()) {
-							client.publish(String.format(((Format) formatList.getSelectedItem()).getName().substring(1), formatString.getText()), message); // removes some weird zero-width space
+							client.publish(String.format(((Format) formatList.getSelectedItem()).getName(), formatString.getText()), message);
 						} else {
-							client.publish(((Format) formatList.getSelectedItem()).getName().substring(1), message);// removes some weird zero-width space
+							client.publish(((Format) formatList.getSelectedItem()).getName(), message);
 						}
 					}
 				} catch (MqttException ex) {

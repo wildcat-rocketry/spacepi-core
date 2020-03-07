@@ -1,19 +1,19 @@
-TOPIC:​/actuators/pyro/disable
+TOPIC:/actuators/pyro/disable
 ASCII_STRING@55:Key
 
-TOPIC:​/actuators/pyro/%s/arm
+TOPIC:/actuators/pyro/%s/arm
 ASCII_STRING@14:Key
 
-TOPIC:​/actuators/pyro/%s/continuity
+TOPIC:/actuators/pyro/%s/continuity
 ASCII_STRING@1:Value
 
-TOPIC:​/actuators/pyro/%s/disable
+TOPIC:/actuators/pyro/%s/disable
 ASCII_STRING@52:Key
 
-TOPIC:​/actuators/pyro/%s/fire
+TOPIC:/actuators/pyro/%s/fire
 ASCII_STRING@13:Key
 
-TOPIC:​/actuators/stepper/%s
+TOPIC:/actuators/stepper/%s
 FLOAT32:Position (rad)
 FLOAT32:Angular Rate (rad/s)
 
