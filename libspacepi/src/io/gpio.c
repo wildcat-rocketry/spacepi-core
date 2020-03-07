@@ -125,7 +125,16 @@ static int io_mode(void *context, unsigned address, unsigned pinno, pin_mode_t m
     };
     if (mode & sm_input_hi_z) {
         req.flags = GPIOHANDLE_REQUEST_INPUT;
-        // TODO Handle pullup/pulldown
+#ifdef GPIOLINE_FLAG_BIAS_PULL_DOWN
+        if (mode & sm_input_pulldown) {
+            req.flags |= GPIOLINE_FLAG_BIAS_PULL_DOWN;
+        }
+#endif
+#ifdef GPIOLINE_FLAG_BIAS_PULL_UP
+        if (mode & sm_input_pullup) {
+            req.flags |= GPIOLINE_FLAG_BIAS_PULL_UP;
+        }
+#endif
     } else {
         req.flags = GPIOHANDLE_REQUEST_OUTPUT;
     }
