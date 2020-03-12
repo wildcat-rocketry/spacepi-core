@@ -133,6 +133,7 @@ touch "$1/var/local/wifi"
 chown root:root "$1/var/local/wifi"
 ln -sf /var/local/wifi "$1/etc/network/interfaces.d/wifi"
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/modules" "$1/etc/modules"
+systemctl disable gpsd
 mount -o bind paho.mqtt.c "$1/mnt"
 mount -t tmpfs none "$1/tmp"
 chroot "$1" cmake -S /mnt -B /tmp
