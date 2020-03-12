@@ -5,9 +5,12 @@
 #include <linux/limits.h>
 #include <sys/types.h>
 
+struct _program_t;
+typedef struct _program_t program_t;
+
 typedef void (*death_handler_t)(program_t *program);
 
-typedef struct {
+struct _program_t {
     pid_t pid;
     const char filename[PATH_MAX];
     char *const *args;
@@ -18,7 +21,7 @@ typedef struct {
     // Used to detect when it is useless to keep respawning a process
     int times_started;
     struct timespec last_start;
-} program_t;
+};
 
 int program_init(program_t *program);
 int program_start(program_t *program);
