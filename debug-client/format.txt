@@ -70,13 +70,10 @@ TOPIC:/radio/%s/rssi
 FLOAT32:RSSI (dB)
 
 TOPIC:/telemetry/barometer/%s
-FLOAT64:Absolute Pressure (Pa)
-
-TOPIC:/telemetry/barometer/agl
-FLOAT64:Altitude (m AGL)
-
-TOPIC:/telemetry/barometer/msl
-FLOAT64:Altitude (m MSL)
+FLOAT32:Absolute Pressure (Pa)
+FLOAT32:Altitude (m AGL)
+FLOAT32:Altitude (m MSL)
+FLOAT32:Temperature (K)
 
 TOPIC:/telemetry/gps/%s
 ASCII_STRING_NT:NMEA Sentence
