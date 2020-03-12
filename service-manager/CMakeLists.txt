@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.0)
 project(service-manager VERSION 1.0)
 
 add_executable(service-manager
+    config.c
+    logger.c
     main.c
+    program.c
+    programlist.c
+    resolver.c
 )
 
 target_link_libraries(service-manager PUBLIC spacepi)
