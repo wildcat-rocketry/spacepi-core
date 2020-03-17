@@ -1,6 +1,7 @@
 #ifndef SPACEPI_PRIVATE_H
 #define SPACEPI_PRIVATE_H
 
+#include <stdint.h>
 #include <pthread.h>
 #include <MQTTAsync.h>
 #include <spacepi.h>
@@ -36,20 +37,27 @@ struct _pubsub_subscription_tree {
     pubsub_subscription_tree_t *greater;
 };
 
+typedef uint16_t spacepi_pid_t;
+#define SPACEPI_PID_T_MAX UINT16_MAX
+
 typedef struct {
     MQTTAsync mqtt;
     int connected;
     pthread_mutex_t mutex;
     void *server_down_context;
     pubsub_subscription_tree_t *subscriptions;
+    spacepi_filter_t filter;
+    spacepi_pid_t pid;
 } pubsub_state_t;
 
 extern pubsub_state_t *pubsub_state;
 
 int spacepi_private_pubsub_connect(pubsub_state_t *state);
+int spacepi_pubsub_send_filtered(MQTTAsync handle, const char *topic_name, int payload_len, const void *payload, int qos, int retained, MQTTAsync_responseOptions *resp);
 
 // Callbacks
 int spacepi_private_pubsub_message_arrived(void *context, char *topic_name, int topic_len, MQTTAsync_message *message);
+int spacepi_private_pubsub_message_arrived_filterer(void *context, char *topic_name, int topic_len, MQTTAsync_message *message);
 
 /* IO Functions */
 

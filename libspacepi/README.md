@@ -278,6 +278,13 @@ This function cleans up all resources used by the pubsub framework.
 Cleanup is automatically run when returning from `main()` or calling `exit()`.
 The main use for calling this directly would be if wanting to reinitialize the library (you can't call `spacepi_pubsub_init` twice without calling `spacepi_pubsub_cleanup` in between).
 
+### spacepi_pubsub_filter()
+
+This function sets the filtering level of the packet receiver for the pubsub framework.
+By default, this is set to filter out all packets that were sent by this process, but that functionality can be changed using this function.
+
+Note: if the process is forked, the default filtering will filter all messages sent by any child to any other child.
+
 ### spacepi_publish(), spacepi_publish_token(), spacepi_publish_callback(), spacepi_wait_token()
 
 These functions publish a message to the messaging bus.

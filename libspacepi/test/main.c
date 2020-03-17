@@ -11,6 +11,7 @@ int main(int argc, const char **argv) {
     CHECK_ERROR(spacepi_pubsub_cleanup);
     CHECK_ERROR(spacepi_pubsub_init);
     puts("Connected.");
+    CHECK_ERROR(spacepi_pubsub_filter, sf_none);
     char a = 'A', b = 'B';
     CHECK_ERROR(spacepi_subscribe, "/abc/123", sq_exactly_once, callback_1, &a);
     CHECK_ERROR(spacepi_subscribe, "/abc/123", sq_exactly_once, callback_1, &b);
@@ -32,6 +33,11 @@ int main(int argc, const char **argv) {
     puts("Unsubscribing all...");
     CHECK_ERROR(spacepi_unsubscribe, "/abc/123", NULL, NULL);
     puts("Testing unsubscription and republish (expected none)");
+    CHECK_ERROR(spacepi_publish, "/abc/123", NULL, 0, sq_exactly_once, FALSE);
+    sleep(1);
+    puts("Testing publish with filter (expected none)");
+    CHECK_ERROR(spacepi_pubsub_filter, sf_same_pid);
+    CHECK_ERROR(spacepi_subscribe, "/abc/123", sq_exactly_once, callback_1, &a);
     CHECK_ERROR(spacepi_publish, "/abc/123", NULL, 0, sq_exactly_once, FALSE);
     sleep(1);
     puts("Testing complete.");

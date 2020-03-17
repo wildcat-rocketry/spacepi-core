@@ -11,6 +11,7 @@ add_library(spacepi
     src/pubsub/allocation.c
     src/pubsub/cleanup.c
     src/pubsub/connect.c
+    src/pubsub/filter.c
     src/pubsub/publish.c
     src/pubsub/subscribe.c
     src/error.c

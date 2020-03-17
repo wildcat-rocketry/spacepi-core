@@ -1,5 +1,8 @@
+#include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <pthread.h>
+#include <unistd.h>
 #include <spacepi-private.h>
 
 #ifdef MQTT_HOST
@@ -35,8 +38,16 @@ int spacepi_pubsub_init(void) {
     CHECK_ERROR_JUMP(destroy_mutex, randomize_string, base_62, 1, 62, client_id + 7, 23 - 7);
     client_id[22] = 0;
     CHECK_ERROR_JUMP_MQTT(destroy_mutex, MQTTAsync_create, &pubsub_state->mqtt, MQTT_HOST_STR, client_id, MQTTCLIENT_PERSISTENCE_DEFAULT, STR(MQTT_PERSISTENCE_DIR));
-    CHECK_ERROR_JUMP_MQTT(destroy_mqtt, MQTTAsync_setCallbacks, pubsub_state->mqtt, pubsub_state, NULL, spacepi_private_pubsub_message_arrived, NULL);
+    CHECK_ERROR_JUMP_MQTT(destroy_mqtt, MQTTAsync_setCallbacks, pubsub_state->mqtt, pubsub_state, NULL, spacepi_private_pubsub_message_arrived_filterer, NULL);
     CHECK_ERROR_JUMP(destroy_mqtt, spacepi_private_pubsub_connect, pubsub_state);
+    pubsub_state->filter = sf_default;
+    pid_t pid = getpid();
+    if (pid > SPACEPI_PID_T_MAX) {
+        pid &= SPACEPI_PID_T_MAX;
+        fflush(stdout);
+        fputs("spacepi: pubsub: PID is out of expected range", stderr);
+    }
+    pubsub_state->pid = (spacepi_pid_t) pid;
     return 0;
     destroy_mqtt:
     MQTTAsync_destroy(pubsub_state->mqtt);

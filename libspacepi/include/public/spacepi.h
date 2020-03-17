@@ -409,6 +409,16 @@ typedef enum {
 } spacepi_qos_t;
 
 /*
+ * spacepi_filter_t denotes a level of filtering incomming pubsub packets
+ */
+typedef enum {
+    sf_none = 0,
+    sf_same_pid = 1,
+
+    sf_default = sf_same_pid
+} spacepi_filter_t;
+
+/*
  * spacepi_token_t represents a token that represents some task.  This token can then be given to spacepi_wait_token to
  * block until the task this token represents finishes.
  */
@@ -452,6 +462,15 @@ int spacepi_pubsub_init(void);
  * Return: 0 on success or a negative number with errno set on error
  */
 int spacepi_pubsub_cleanup(void);
+/*
+ * spacepi_pubsub_filter sets the incoming packet filtering level
+ * 
+ * Parameters:
+ *  - level: The level at which to filter incomming packets
+ * 
+ * Return: the old filtering level as an int or a negative number with errno set on error
+ */
+int spacepi_pubsub_filter(spacepi_filter_t level);
 /*
  * spacepi_publish sends a message to other processes which have subscribed to the channel
  * 

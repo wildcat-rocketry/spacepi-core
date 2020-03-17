@@ -61,7 +61,7 @@ int spacepi_publish(const char *channel, const void *data, size_t data_len, spac
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    CHECK_ERROR_MQTT(MQTTAsync_send, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
+    CHECK_ERROR_MQTT(spacepi_pubsub_send_filtered, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
     return 0;
     RETURN_REPORTED_ERROR();
     PUBLISH_TAIL();
@@ -94,7 +94,7 @@ int spacepi_publish_token(const char *channel, const void *data, size_t data_len
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    CHECK_ERROR_MQTT(MQTTAsync_send, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
+    CHECK_ERROR_MQTT(spacepi_pubsub_send_filtered, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
     *token = (spacepi_token_t) opts.token;
     return 0;
     RETURN_REPORTED_ERROR();
@@ -142,7 +142,7 @@ int spacepi_publish_callback(const char *channel, const void *data, size_t data_
         .subscribeOptionsCount = 0,
         .subscribeOptionsList = NULL
     };
-    CHECK_ERROR_JUMP_MQTT(free_data, MQTTAsync_send, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
+    CHECK_ERROR_JUMP_MQTT(free_data, spacepi_pubsub_send_filtered, pubsub_state->mqtt, channel, data_len, data, qos, retain, &opts);
     return 0;
     free_data:
     free(data2);
