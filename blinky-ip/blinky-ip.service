@@ -1,9 +1,0 @@
-[Unit]
-Description=Blinks the IP address out over the LED
-
-[Service]
-Type=simple
-ExecStart=/spacepi/bin/blinky-ip
-
-[Install]
-WantedBy=multi-user.target

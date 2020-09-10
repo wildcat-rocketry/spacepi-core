@@ -1,1 +1,0 @@
-//list of programs for service manager to run
