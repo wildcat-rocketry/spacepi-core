@@ -1,0 +1,8 @@
+syntax = "proto3";
+package spacepi.core;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.MessageOptions {
+    uint32 messageId = 50000;
+}

@@ -1,0 +1,5 @@
+syntax = "proto3";
+package spacepi.core;
+
+import public "spacepi/message-id.proto";
+import public "spacepi/subscribe.proto";

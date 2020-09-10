@@ -1,0 +1,18 @@
+syntax = "proto3";
+package spacepi.core;
+
+import "spacepi/message-id.proto";
+
+message SubscribeRequest {
+    option (messageId) = 0xFFFFFFFF;
+
+    enum OperationType {
+        SUBSCRIBE = 0;
+        UNSUBSCRIBE = 1;
+        SUBSCRIBE_ALL = 2;
+        UNSUBSCRIBE_ALL = 3;
+    }
+
+    OperationType operation = 1;
+    repeated uint32 messages = 2;
+}
