@@ -18,6 +18,8 @@ if (NOT SPACEPI_CORE_SOURCE_DIR)
     set(SPACEPI_CORE_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/../")
 endif()
 
+set_property(GLOBAL PROPERTY CXX_STANDARD 14)
+
 find_package(Protobuf REQUIRED)
 
 function (spacepi_message_library)

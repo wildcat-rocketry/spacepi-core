@@ -1,10 +1,10 @@
 syntax = "proto3";
-package spacepi.core;
+package spacepi.messaging;
 
-import "spacepi/message-id.proto";
+import "spacepi/messaging/message-id.proto";
 
 message SubscribeRequest {
-    option (messageId) = 0xFFFFFFFF;
+    option (messageID) = 0xFFFFFFFF;
 
     enum OperationType {
         SUBSCRIBE = 0;
