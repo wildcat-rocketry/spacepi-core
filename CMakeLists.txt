@@ -34,3 +34,5 @@ target_link_libraries(spacepi
     Boost::system
     core-messages
 )
+
+add_subdirectory(router)

@@ -49,3 +49,31 @@ function (spacepi_message_library)
     )
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
 endfunction()
+
+function (spacepi_current_module)
+    get_filename_component(modName "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
+    file(RELATIVE_PATH relModDir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    string(REGEX REPLACE "[/\\]" "_" modPrefix "${relModDir}")
+    set(${ARGV0} "spacepi-mod_${modPrefix}_${modName}" PARENT_SCOPE)
+endfunction()
+
+function (spacepi_module)
+    spacepi_current_module(moduleName)
+
+    add_executable("${moduleName}" ${ARGV})
+    target_link_libraries("${moduleName}" PUBLIC spacepi)
+
+    install(TARGETS "${moduleName}")
+endfunction()
+
+function (spacepi_module_include_directories)
+    spacepi_current_module(moduleName)
+    
+    target_include_directories(${moduleName} ${ARGV})
+endfunction()
+
+function (spacepi_module_link_libraries)
+    spacepi_current_module(moduleName)
+
+    target_link_libraries(${moduleName} ${ARGV})
+endfunction()
