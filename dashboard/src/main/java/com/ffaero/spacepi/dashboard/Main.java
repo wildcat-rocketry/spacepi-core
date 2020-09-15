@@ -5,8 +5,13 @@ import java.awt.Graphics2D;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import com.ffaero.spacepi.dashboard.TestMessageOuterClass.TestMessage;
+
 public class Main {
 	public static void main(String[] args) {
+		
+		TestMessage msg = TestMessage.newBuilder().setTestField("Hello, world!").build();
+		System.out.println(msg.getTestField());
 
 		Frame f = new Frame("Testing");
 		f.setSize(800, 600);
@@ -27,7 +32,7 @@ public class Main {
 		f.add(p1);
 
 		f.setVisible(true);
-
+		
 	}
 
 }
