@@ -97,3 +97,7 @@ task copyRuntimeLibs(type: Copy) {
 assembleDist {
     dependsOn copyRuntimeLibs
 }
+
+build {
+    dependsOn copyRuntimeLibs
+}
