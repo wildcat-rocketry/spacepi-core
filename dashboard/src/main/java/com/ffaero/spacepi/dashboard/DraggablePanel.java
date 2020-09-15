@@ -1,4 +1,4 @@
-package com.github.ffaero.tools.spacepi.support.gui;
+package com.ffaero.spacepi.dashboard;
 
 import java.awt.Color;
 import java.awt.Cursor;
