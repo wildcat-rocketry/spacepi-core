@@ -56,3 +56,18 @@ java {
 repositories {
     mavenCentral()
 }
+
+task copyRuntimeLibs(type: Copy) {
+    group "Distribution"
+    description "Copies runtime classpath into folder so distribution scripts work properly in-tree."
+
+    into "$buildDir/lib"
+    from configurations.runtimeClasspath
+    from jar.archivePath
+
+    dependsOn jar
+}
+
+assembleDist {
+    dependsOn copyRuntimeLibs
+}
