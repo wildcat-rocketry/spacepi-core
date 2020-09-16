@@ -1,0 +1,27 @@
+apply plugin: "java"
+
+dependencies {
+    implementation "com.google.protobuf:protobuf-java:3.13.0"
+}
+
+jar {
+    archiveFileName = "${ARGV0}.jar"
+    destinationDirectory = file("${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
+        }
+    }
+}

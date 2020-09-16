@@ -4,7 +4,7 @@ include(cmake/CoreRepo.cmake)
 
 spacepi_message_library(core-messages ${SPACEPI_CORE_SOURCE_DIR}/include
     spacepi/messaging/subscribe.proto
-    spacepi/messaging/message-id.proto
+    spacepi/messaging/messageID.proto
 )
 
 find_package(Boost

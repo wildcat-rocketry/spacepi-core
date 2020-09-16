@@ -1,7 +1,7 @@
 syntax = "proto3";
 package spacepi.messaging;
 
-import "spacepi/messaging/message-id.proto";
+import "spacepi/messaging/messageID.proto";
 
 message SubscribeRequest {
     option (messageID) = 0xFFFFFFFF;
