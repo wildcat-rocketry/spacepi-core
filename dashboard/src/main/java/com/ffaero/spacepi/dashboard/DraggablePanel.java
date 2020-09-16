@@ -7,14 +7,27 @@ import java.awt.Graphics2D;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.function.Supplier;
 
+/**
+ * A subclass of {@code Panel} that allows you to drag it around inside of the
+ * parent. This component does not work if placed inside a parent component with
+ * a layout manager.
+ * 
+ * @author Hanavan Kuhn
+ *
+ */
 public class DraggablePanel extends Panel {
 
 	private static final long serialVersionUID = 7138283369372797773L;
 
+	/**
+	 * Defines the insets of the component that can be used to adjust the
+	 * size/location of the component.
+	 */
 	public static final int DRAG_BOUNDS = 10;
 
 	private static final int RESIZE_N = 0;
@@ -27,42 +40,87 @@ public class DraggablePanel extends Panel {
 	private static final int RESIZE_NW = 7;
 	private static final int DRAG = 8;
 
-	private IDrawable child;
+	private Supplier<Point> mousePos;
 	private Point origMousePos = null;
 	private int dragMode = 0;
+	private int origX, origY, origWidth, origHeight;
 
-	public DraggablePanel(IDrawable child) {
-		this.child = child;
-		addMouseListener(new MouseListener() {
+	/**
+	 * Creates a new {@code DraggablePanel}. Components can be added to this panel
+	 * so that they can be moved around.
+	 * 
+	 * @param mousePos a supplier that returns the current position of the mouse
+	 *                 relative to the parent component
+	 */
+	public DraggablePanel(Supplier<Point> mousePos) {
+		this.mousePos = mousePos;
 
-			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
+		// add listener events for the mouse
+		addMouseListener(new MouseAdapter() {
 
 			public void mousePressed(MouseEvent e) {
-				origMousePos = e.getPoint();
+				int width = getWidth();
+				int height = getHeight();
+				Point mpos = e.getPoint();
+				origMousePos = mousePos.get();
+				origX = getX();
+				origY = getY();
+				origWidth = getWidth();
+				origHeight = getHeight();
+
+				if (mpos.x < DRAG_BOUNDS) {
+					if (mpos.y < DRAG_BOUNDS) {
+						dragMode = RESIZE_NW;
+					} else if (mpos.y > height - DRAG_BOUNDS) {
+						dragMode = RESIZE_SW;
+					} else {
+						dragMode = RESIZE_W;
+					}
+				} else if (mpos.x > width - DRAG_BOUNDS) {
+					if (mpos.y < DRAG_BOUNDS) {
+						dragMode = RESIZE_NE;
+					} else if (mpos.y > height - DRAG_BOUNDS) {
+						dragMode = RESIZE_SE;
+					} else {
+						dragMode = RESIZE_E;
+					}
+				} else if (mpos.y < DRAG_BOUNDS) {
+					dragMode = RESIZE_N;
+				} else if (mpos.y > height - DRAG_BOUNDS) {
+					dragMode = RESIZE_S;
+				} else {
+					dragMode = DRAG;
+				}
 			}
 
 			public void mouseReleased(MouseEvent e) {
 				origMousePos = null;
 			}
 
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
 		});
 		addMouseMotionListener(new MouseMotionListener() {
 
 			public void mouseDragged(MouseEvent e) {
-
+				Point mpos = mousePos.get();
+				switch (dragMode) {
+				case RESIZE_N:
+					setLocation(origX, origY + (mpos.y - origMousePos.y));
+					setSize(origWidth, origHeight - (mpos.y - origMousePos.y));
+					break;
+				case RESIZE_E:
+					setSize(origWidth + (mpos.x - origMousePos.x), origHeight);
+					break;
+				case RESIZE_S:
+					setSize(origWidth, origHeight + (mpos.y - origMousePos.y));
+					break;
+				case RESIZE_W:
+					setLocation(origX + (mpos.x - origMousePos.x), origY);
+					setSize(origWidth - (mpos.x - origMousePos.x), origHeight);
+					break;
+				case DRAG:
+					setLocation(origX + (mpos.x - origMousePos.x), origY + (mpos.y - origMousePos.y));
+					break;
+				}
 			}
 
 			public void mouseMoved(MouseEvent e) {
@@ -108,9 +166,7 @@ public class DraggablePanel extends Panel {
 
 		g2d.setColor(Color.BLACK);
 		g2d.drawRect(0, 0, width - 1, height - 1);
-
-		Graphics2D childg = (Graphics2D) g2d.create(5, 5, width - 10, height - 10);
-		child.draw(childg, width - 10, height - 10);
+		super.paint(g2d);
 	}
 
 }
