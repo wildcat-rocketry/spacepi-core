@@ -1,23 +1,33 @@
 package com.ffaero.spacepi.dashboard;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Panel;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.function.Supplier;
 
+/**
+ * A subclass of {@code Panel} that allows you to drag it around inside of the
+ * parent. This component does not work if placed inside a parent component with
+ * a layout manager.
+ * 
+ * @author Hanavan Kuhn
+ *
+ */
 public class DraggablePanel extends Panel {
 
 	private static final long serialVersionUID = 7138283369372797773L;
 
+	/**
+	 * Defines the insets of the component that can be used to adjust the
+	 * size/location of the component.
+	 */
 	public static final int DRAG_BOUNDS = 10;
 
 	private static final int RESIZE_N = 0;
@@ -30,15 +40,14 @@ public class DraggablePanel extends Panel {
 	private static final int RESIZE_NW = 7;
 	private static final int DRAG = 8;
 
-	private Panel childPanel;
 	private Supplier<Point> mousePos;
 	private Point origMousePos = null;
 	private int dragMode = 0;
 	private int origX, origY, origWidth, origHeight;
 
 	/**
-	 * Creates a new <code>DraggablePanel</code> with the given Component as its .
-	 * Components can be added to this panel so that they can be moved around.
+	 * Creates a new {@code DraggablePanel}. Components can be added to this panel
+	 * so that they can be moved around.
 	 * 
 	 * @param mousePos a supplier that returns the current position of the mouse
 	 *                 relative to the parent component
@@ -46,19 +55,8 @@ public class DraggablePanel extends Panel {
 	public DraggablePanel(Supplier<Point> mousePos) {
 		this.mousePos = mousePos;
 
-		GridLayout layout = new GridLayout(1, 1);
-		// layout.
-		// java.awt.
-
-		childPanel = new Panel();
-		super.add(childPanel);
-
-		addMouseListener(new MouseListener() {
-
-			public void mouseClicked(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
+		// add listener events for the mouse
+		addMouseListener(new MouseAdapter() {
 
 			public void mousePressed(MouseEvent e) {
 				int width = getWidth();
@@ -97,16 +95,6 @@ public class DraggablePanel extends Panel {
 
 			public void mouseReleased(MouseEvent e) {
 				origMousePos = null;
-			}
-
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-
 			}
 
 		});
@@ -166,16 +154,6 @@ public class DraggablePanel extends Panel {
 			}
 
 		});
-	}
-
-	@Override
-	public Component add(Component comp) {
-		return childPanel.add(comp);
-	}
-
-	@Override
-	public void remove(Component comp) {
-		childPanel.remove(comp);
 	}
 
 	@Override
