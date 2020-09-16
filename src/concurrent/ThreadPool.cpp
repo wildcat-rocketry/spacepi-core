@@ -1,32 +1,16 @@
-#include <initializer_list>
+#include <vector>
 #include <boost/fiber/all.hpp>
 #include <spacepi/concurrent/ThreadPool.hpp>
-#include <spacepi/util/Exception.hpp>
 
 using namespace std;
 using namespace boost::fibers;
 using namespace spacepi::concurrent;
-using namespace spacepi::util;
 
-GenericThreadPool::GenericThreadPool() : state(INIT) {
+ThreadPool::ThreadPool() {
 }
 
-GenericThreadPool::~GenericThreadPool() {
-    if (state == INIT) {
-        run();
+ThreadPool::~ThreadPool() {
+    for (vector<fiber>::iterator it = functions.begin(); it != functions.end(); ++it) {
+        it->join();
     }
-}
-
-void GenericThreadPool::run() {
-    if (state != INIT) {
-        throw EXCEPTION(StateException("Thread pool can only be run once."));
-    }
-    while (hasNext()) {
-        // TODO
-        moveNext();
-    }
-}
-
-void GenericThreadPool::disable() {
-    state = SPAWNED;
 }

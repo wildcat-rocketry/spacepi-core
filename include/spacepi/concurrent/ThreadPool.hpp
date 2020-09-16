@@ -2,73 +2,41 @@
 #define SPACEPI_CORE_CONCURRENT_THREADPOOL_HPP
 
 #include <initializer_list>
-#include <list>
+#include <vector>
+#include <utility>
+#include <boost/context/all.hpp>
+#include <boost/fiber/all.hpp>
 
 namespace spacepi {
     namespace concurrent {
-        class GenericThreadPool {
-            public:
-                GenericThreadPool();
-                GenericThreadPool(const GenericThreadPool &) = delete;
-                virtual ~GenericThreadPool();
-
-                GenericThreadPool &operator =(const GenericThreadPool &) = delete;
-
-                void run();
-                void disable();
-
-            protected:
-                virtual bool hasNext() = 0;
-                virtual void spawnNext() = 0;
-                virtual void moveNext() = 0;
-
-            private:
-                enum State {
-                    INIT,
-                    SPAWNED
-                };
-
-                State state;
-        };
-
-        template <typename Function>
         class ThreadPool {
             public:
-                ThreadPool() : iterator(functions.cbegin()) {
-                }
-
-                ThreadPool(std::initializer_list<Function> functions) : functions(functions.begin(), functions.end()), iterator(this->functions.cbegin()) {
+                ThreadPool();
+                
+                template <typename Fn>
+                ThreadPool(std::initializer_list<Fn> fns) {
+                    for (typename std::initializer_list<Fn>::iterator it = fns.begin(); it != fns.end(); ++it) {
+                        add(*it);
+                    }
                 }
 
                 ThreadPool(const ThreadPool &) = delete;
 
+                virtual ~ThreadPool();
+
                 ThreadPool &operator =(const ThreadPool &) = delete;
 
-                const ThreadPool &add(Function func) const {
-                    functions.push_back(func);
-                    return *this;
-                }
-
-                const ThreadPool &operator <<(Function func) const {
-                    return this.add(func);
-                }
-
-            protected:
-                virtual bool hasNext() {
-                    return iterator != functions.cend();
-                }
-
-                virtual void spawnNext() {
-                    (*iterator)();
-                }
-
-                virtual void moveNext() {
-                    ++iterator;
+                template <typename Fn,
+                          typename ... Arg,
+                          typename = boost::context::detail::disable_overload<boost::fibers::fiber, Fn>,
+                          typename = boost::context::detail::disable_overload<boost::fibers::launch, Fn>,
+                          typename = boost::context::detail::disable_overload<std::allocator_arg_t, Fn>>
+                void add(Fn &&fn, Arg &&...arg) {
+                    functions.emplace_back(std::forward<Fn>(fn), std::forward<Arg>(arg)...);
                 }
 
             private:
-                std::list<Function> functions;
-                typename std::list<Function>::const_iterator iterator;
+                std::vector<boost::fibers::fiber> functions;
         };
     }
 }

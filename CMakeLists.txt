@@ -10,6 +10,7 @@ spacepi_message_library(core-messages ${SPACEPI_CORE_SOURCE_DIR}/include
 find_package(Boost
     REQUIRED COMPONENTS
     # asio
+    context
     exception
     fiber
     # format
@@ -27,6 +28,7 @@ add_library(spacepi SHARED
 )
 target_include_directories(spacepi PUBLIC ${SPACEPI_CORE_SOURCE_DIR}/include)
 target_link_libraries(spacepi
+    Boost::context
     Boost::exception
     Boost::fiber
     Boost::program_options
