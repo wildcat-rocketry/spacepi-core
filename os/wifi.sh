@@ -29,6 +29,7 @@ EOF
             ip link set $iface down
             iwconfig $iface channel 1 essid space-pi mode ad-hoc
             ip link set $iface up
+			ip link set $iface promisc on # Fixes arp issue (https://github.com/raspberrypi/linux/issues/2677)
         done
         iwconfig
         ip addr
