@@ -21,6 +21,7 @@ find_package(Boost
 
 add_library(spacepi SHARED
     src/concurrent/ThreadPool.cpp
+    src/memory/SocketDeleter.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
     src/util/CommandConfigurable.cpp
