@@ -1,0 +1,10 @@
+syntax = "proto3";
+package spacepi.messaging;
+
+import "spacepi/messaging/MessageID.proto";
+
+message HelloMessage {
+    option (MessageID) = 0x10;
+
+    string serverID = 1;
+}

@@ -4,5 +4,5 @@ package spacepi.messaging;
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.MessageOptions {
-    uint32 messageID = 50000;
+    uint32 MessageID = 50000;
 }

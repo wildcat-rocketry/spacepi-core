@@ -3,8 +3,10 @@ project(spacepi-core)
 include(cmake/CoreRepo.cmake)
 
 spacepi_message_library(core-messages ${SPACEPI_CORE_SOURCE_DIR}/include
-    spacepi/messaging/subscribe.proto
-    spacepi/messaging/messageID.proto
+    spacepi/messaging/EncapsulatedMessage.proto
+    spacepi/messaging/HelloMessage.proto
+    spacepi/messaging/MessageID.proto
+    spacepi/messaging/SubscribeRequest.proto
 )
 
 find_package(Boost
