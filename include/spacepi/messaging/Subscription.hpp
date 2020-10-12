@@ -2,15 +2,14 @@
 #define SPACEPI_CORE_MESSAGING_SUBSCRIPTION_HPP
 
 #include <cstdint>
-#include <memory>
 #include <type_traits>
-#include <unordered_set>
 #include <google/protobuf/message.h>
-#include <spacepi/messaging/message-id.pb.h>
+#include <spacepi/messaging/MessageID.pb.h>
 
 namespace spacepi {
     namespace messaging {
         class Connection;
+        class ImmovableConnection;
 
         class GenericSubscription {
             public:
@@ -22,26 +21,29 @@ namespace spacepi {
                 uint32_t getMessageID();
 
             protected:
+                GenericSubscription(ImmovableConnection *conn, uint32_t messageID);
                 GenericSubscription(Connection *conn, uint32_t messageID);
 
+                void recv(google::protobuf::Message *message);
+
             private:
-                Connection *conn;
+                ImmovableConnection *conn;
                 uint32_t messageID;
         };
 
         template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
         class Subscription : public GenericSubscription {
             public:
-                Subscription(Connection *conn) : GenericSubscription(conn, messageID) {
+                Subscription(ImmovableConnection *conn) : GenericSubscription(conn, MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID)) {
+                }
+
+                Subscription(Connection *conn) : GenericSubscription(conn, MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID)) {
                 }
 
                 Subscription &operator >>(MessageType &message) {
-                    this >> &message;
-                    return this;
+                    recv(&message);
+                    return *this;
                 }
-
-            private:
-                static const uint32_t messageID = MessageType::descriptor()->options().GetExtension(spacepi::messaging::messageID);
         };
     }
 }

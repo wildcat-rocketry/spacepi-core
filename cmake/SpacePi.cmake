@@ -19,6 +19,7 @@ if (NOT SPACEPI_CORE_SOURCE_DIR)
 endif()
 
 set_property(GLOBAL PROPERTY CXX_STANDARD 14)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Protobuf REQUIRED)
 find_package(Java 1.8 COMPONENTS Development)
@@ -41,7 +42,7 @@ function (spacepi_message_library)
     endforeach()
 
     add_library("${ARGV0}" STATIC ${cxxSources})
-    target_include_directories("${ARGV0}" PUBLIC "${ARGV1}" "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
+    target_include_directories("${ARGV0}" PUBLIC "${ARGV1}" "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}" ${SPACEPI_CORE_MESSAGES_INCLUDE})
 
     set(outputs --cpp_out "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
     if (Java_Development_FOUND)
@@ -72,6 +73,10 @@ function (spacepi_message_library)
         add_custom_target("${ARGV0}-java" ALL
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${ARGV0}.jar"
         )
+
+        if (NOT SPACEPI_CORE_MESSAGES_JAR)
+            set(SPACEPI_CORE_MESSAGES_JAR "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${ARGV0}.jar" CACHE INTERNAL "")
+        endif()
     endif()
 
     add_custom_command(
@@ -90,6 +95,14 @@ function (spacepi_message_library)
         COMMAND_EXPAND_LISTS
     )
     file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
+
+    if (NOT SPACEPI_CORE_MESSAGES_INCLUDE)
+        set(SPACEPI_CORE_MESSAGES_INCLUDE
+            "${SPACEPI_CORE_SOURCE_DIR}/include"
+            "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}"
+            CACHE INTERNAL ""
+        )
+    endif()
 endfunction()
 
 function (spacepi_current_module)

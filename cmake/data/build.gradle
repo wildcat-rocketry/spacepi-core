@@ -2,6 +2,9 @@ apply plugin: "java"
 
 dependencies {
     implementation "com.google.protobuf:protobuf-java:3.13.0"
+    if ("${SPACEPI_CORE_MESSAGES_JAR}" != "") {
+        implementation files("${SPACEPI_CORE_MESSAGES_JAR}")
+    }
 }
 
 jar {

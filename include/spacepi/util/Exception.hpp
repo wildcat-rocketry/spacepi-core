@@ -13,10 +13,19 @@ namespace spacepi {
 
         class Exception : public std::exception {
             public:
+                typedef boost::exception_ptr pointer;
+
                 Exception(boost::format message);
                 Exception(std::string message);
 
                 const char *what() const noexcept;
+
+                template <typename Type>
+                static inline pointer createPointer(const Type &ex) {
+                    return boost::copy_exception(ex);
+                }
+
+                static pointer getPointer();
 
             private:
                 std::string message;
@@ -33,6 +42,8 @@ namespace spacepi {
     }
 }
 
+std::ostream &operator <<(std::ostream &os, const spacepi::util::Exception::pointer &ex);
+
 #define EXCEPTION(e) boost::enable_error_info(e) \
     << spacepi::util::stackTrace(boost::stacktrace::stacktrace()) \
     << boost::throw_function(BOOST_THROW_EXCEPTION_CURRENT_FUNCTION) \
@@ -42,4 +53,6 @@ namespace spacepi {
 #endif
 #ifdef SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE
 SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(StateException)
+SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(MessagingException)
+SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(CommandConfigurableException)
 #endif

@@ -18,12 +18,21 @@ find_package(Boost
     # format
     program_options
     stacktrace_backtrace
-    system # for asio
+    system
 )
+find_package(Protobuf)
 
 add_library(spacepi SHARED
     src/concurrent/ThreadPool.cpp
-    src/memory/SocketDeleter.cpp
+    src/log/ConsoleTarget.cpp
+    src/log/Entry.cpp
+    src/log/Logger.cpp
+    src/log/LogLevel.cpp
+    src/log/LogManager.cpp
+    src/log/LogStream.cpp
+    src/messaging/network/MessagingSocket.cpp
+    src/messaging/network/NetworkThread.cpp
+    src/messaging/network/SocketWrapper.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
     src/util/CommandConfigurable.cpp
@@ -37,8 +46,11 @@ target_link_libraries(spacepi
     Boost::program_options
     Boost::stacktrace_backtrace
     Boost::system
+    ${Protobuf_LIBRARIES}
     core-messages
 )
 
 add_subdirectory(dashboard)
+#add_subdirectory(examples EXCLUDE_FROM_ALL)
+add_subdirectory(examples)
 add_subdirectory(router)

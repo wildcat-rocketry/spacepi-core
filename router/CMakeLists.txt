@@ -5,9 +5,14 @@ find_package(Boost
 )
 
 spacepi_module(
-    src/Client.cpp
     src/main.cpp
-    src/RouterServer.cpp
+    src/PubSubEndpoint.cpp
+    src/PubSubRouter.cpp
+    src/StreamClient.cpp
+    src/StreamServer.cpp
 )
 spacepi_module_include_directories(PUBLIC include)
-spacepi_module_link_libraries(PUBLIC Boost::system)
+spacepi_module_link_libraries(PUBLIC
+    Boost::system
+    core-messages
+)

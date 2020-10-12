@@ -1,6 +1,0 @@
-#ifndef SPACEPI_CORE_SPACEPI_HPP
-#define SPACEPI_CORE_SPACEPI_HPP
-
-
-
-#endif
