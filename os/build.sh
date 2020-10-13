@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+#set -x
 
 if [ $# -ne 2 ]; then
     echo "Usage: $0 [architecture] [qemu command]" >&2
@@ -64,6 +65,8 @@ mkdir -p "$1/boot" "$1/spacepi/code" "$1/spacepi/build" "$1/spacepi/bin" "$1/var
 for file in environment fstab hostname resolv.conf; do
     install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/$file" "$1/etc"
 done
+echo -e "127.0.1.1\t$(cat \"@CMAKE_CURRENT_SOURCE_DIR@/hostname\")" >> "$1/etc/hosts"
+
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/spacepi-ld.conf" "$1/etc/ld.so.conf.d"
 install -o root -g root -m 0600 "@CMAKE_CURRENT_SOURCE_DIR@/ethernet.nmconnection" "$1/etc/NetworkManager/system-connections"
 ln -sf bash "$1/bin/sh"
@@ -78,18 +81,19 @@ chroot "$1" systemctl enable wifi-preinit.service
 chroot "$1" systemctl enable wifi-init.service
 chroot "$1" systemctl enable spacepi-ld-setup.service
 chroot "$1" systemctl mask wpa_supplicant.service
-for user_file in "@CMAKE_CURRENT_SOURCE_DIR@/users/"*; do
-    user="$(basename "$user_file")"
-    chroot "$1" useradd -g sudo -m -N "$user"
-    mkdir -p "$1/home/$user/.ssh"
-    tail -n +3 "$user_file" > "$1/home/$user/.ssh/authorized_keys"
-    chmod 0644 "$1/home/$user/.ssh/authorized_keys"
-    install -m 0400 "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa" "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa.pub" "$1/home/$user/.ssh"
-    chroot "$1" su "$user" -c "git config --global user.name \"$(head -n 1 "$user_file")\""
-    chroot "$1" su "$user" -c "git config --global user.email \"$(head -n 2 "$user_file" | tail -n 1)\""
-    chroot "$1" chown -R "$user:sudo" "/home/$user"
-    chroot "$1" passwd -d "$user"
-done
+
+chroot "$1" apt-get -y install libboost-dev
+
+install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/setup/spacepi-config.service" "$1/etc/systemd/system"
+cat "@CMAKE_CURRENT_SOURCE_DIR@/setup/spacepi-config.cpp" | chroot "$1" c++ -Wall -o "/bin/spacepi-config" -xc++ -
+chroot "$1" chmod +x "/bin/spacepi-config"
+chroot "$1" systemctl enable spacepi-config.service
+
+# For now, the keys are still copied over
+mkdir -p "$1/root/.ssh"
+install -m 0440 "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa" "@CMAKE_CURRENT_SOURCE_DIR@/deploy-key/id_rsa.pub" "$1/root/.ssh"
+chroot "$1" chown -R root:sudo "/root/.ssh"
+
 
 rm -f "$1/etc/ssh/"ssh_host_*
 
@@ -123,8 +127,9 @@ cp -R --preserve=all "$1/var/"* "$1/mnt"
 umount "$1/mnt"
 rm -rf "$1/var/"*
 mount /dev/mapper/${dev}p4 "$1/var"
-cp -R --preserve=all "$1/home/"* "$1/var/local/home"
-rm -rf "$1/home/"*
+# Don't need to copy home when users are not being created until after boot
+#cp -R --preserve=all "$1/home/"* "$1/var/local/home"
+#rm -rf "$1/home/"*
 install -o root -g root -m 0644 "@CMAKE_CURRENT_SOURCE_DIR@/adjtime" "$1/var/local"
 ln -sf /var/local/adjtime "$1/etc/adjtime"
 patch -d "$1/etc/init.d" < "@CMAKE_CURRENT_SOURCE_DIR@/hwclock.patch"
