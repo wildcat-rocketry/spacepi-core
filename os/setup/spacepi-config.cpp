@@ -25,8 +25,6 @@
 
 #define CONFIG_PATH ROOT_PATH "/etc/spacepi.xml"
 
-
-
 using namespace std;
 
 using boost::property_tree::ptree;
@@ -58,20 +56,22 @@ struct users_ll {
 
 void cp_pwd(struct passwd* clone, const struct passwd* old);
 void cp_spwd(struct spwd* clone, const struct spwd* old);
-int set_users(ptree & users);
+int set_users(ptree & users, struct pwd_ll ** pwd_update, struct users_ll ** users_update);
 struct users_ll *load_users_ll(ptree & users);
 USER* find_user_by_uname(struct users_ll *top_user, char *uname);
 struct pwd_ll *sort_passwds(struct users_ll *top_user);
-void update_user(USER *user);
 int add_user(USER *user, uid_t uid, gid_t gid);
 int update_home(USER *user);
 uid_t next_uid(struct users_ll *top, uid_t start);
+int write_users(struct pwd_ll * passwords_first, struct users_ll * users_first);
 
 int main( int argc, char **argv ){
     ptree pt;
     read_xml(CONFIG_PATH, pt);    
     fstream file;
     string old_hostname;
+    string old_ip;
+    int update_hostname, update_ip;
 
     optional<ptree &> options = pt.get_child_optional("config.target.options");
     if(!options){
@@ -82,21 +82,65 @@ int main( int argc, char **argv ){
     optional<string> ip = (*options).get_optional<string>("ip");
     optional<string> hostname = (*options).get_optional<string>("hostname");
 
+    // Loop through users and determine if 1. User needs to be added, 2. User needs to be updated, 3. User needs to be deleted
+    optional<ptree &> users = (*options).get_child_optional("users");
+    struct pwd_ll ** updated_pwd = new struct pwd_ll *;
+    struct users_ll ** updated_users = new struct users_ll *;
+    if(users){
+        if(int retval = set_users(*users, updated_pwd, updated_users)){ return retval; }
+    } else {
+        cerr << "No users in config, will not change users\n";
+    }
+
     if(!ip || !hostname){
         cerr << "Either hostname or ip are not defined, not changing those\n";
     } else {
-
-        file.open(ROOT_PATH "/etc/ip", ios::out);
-        file << *ip << "\n";
-        file.close();
-
         file.open(ROOT_PATH "/etc/hostname", ios::in);
         if(file.is_open()){
             getline(file, old_hostname);
             cout << "Old hostname is (" << old_hostname << ")\n";
             file.close();
+
+            if(old_hostname.compare(*hostname)){
+                update_hostname = 1;
+            }
+        } else {
+            update_hostname = 1;
         }
 
+        file.open(ROOT_PATH "/etc/ip", ios::in);
+        if(file.is_open()){
+            getline(file, old_ip);
+            cout << "Old ip is (" << old_ip << ")\n";
+            file.close();
+
+            if(old_ip.compare(*ip)){
+                update_ip = 1;
+            }
+        } else {
+            update_ip = 1;
+        }
+
+        cout << "NEW IP: " << *ip << " HOSTNAME: " << *hostname << "\n";
+    }
+
+    FILE * fp_pwd;
+    int remount_root;
+    if(*updated_users || update_hostname || update_ip){
+        fp_pwd = fopen(ROOT_PATH "/etc/passwd", "a");
+        if(!fp_pwd) {
+            // Try remounting / as rw
+            remount_root = 1;
+            mount("", "/", "", MS_REMOUNT, NULL);
+        }
+	close((int)fp_pwd);
+    }
+
+    if(*updated_users != NULL){
+        if(int retval = write_users(*updated_pwd, *updated_users)){ return retval; }
+    }
+    
+    if(update_hostname){
         file.open(ROOT_PATH "/etc/hostname", ios::out);
         file << *hostname << "\n";
         file.close();
@@ -111,15 +155,27 @@ int main( int argc, char **argv ){
             wait(NULL);
         }
 
-        cout << "NEW IP: " << *ip << " HOSTNAME: " << *hostname << "\n";
-   }
+	// Set hostname used by systemd because systemd-hostnamed would have already been executed
+        cid = fork();
+        if(cid == 0){
+            execlp("hostnamectl", "--transient", "set-hostname", (*hostname).c_str(), (char*)NULL);
+        } else if (cid == -1){
+            cerr << "Fork for hostname somehow\n";
+            return 1;
+        } else {
+            wait(NULL);
+        }
+    }
 
-    // Loop through users and determine if 1. User needs to be added, 2. User needs to be updated, 3. User needs to be deleted
-    optional<ptree &> users = (*options).get_child_optional("users");
-    if(users){
-        if(int retval = set_users(*users)){ return retval; };
-    } else {
-        cerr << "No users in config, will not change users\n";
+    if(update_ip){
+        file.open(ROOT_PATH "/etc/ip", ios::out);
+        file << *ip << "\n";
+        file.close();
+    }
+
+    if(remount_root){
+        // Go back to ro for safety
+        mount("", "/", "", MS_REMOUNT | MS_RDONLY, NULL);
     }
     
     return 0;
@@ -156,10 +212,11 @@ void cp_spwd(struct spwd* clone, const struct spwd* old){
     strcpy(clone->sp_pwdp, old->sp_pwdp);
 }
 
-int set_users(ptree & users){
+int set_users(ptree & users, struct pwd_ll ** pwd_update, struct users_ll ** users_update){
     struct users_ll * users_first = load_users_ll(users);
     struct pwd_ll * passwords_first = sort_passwds(users_first);
     int ret;
+    bool update_pwd = false;
 
     cout << "Start setting up users\n";
 
@@ -173,9 +230,18 @@ int set_users(ptree & users){
     for(struct users_ll *user_i = users_first; user_i; user_i = user_i->next){
         if(user_i->data->entry){
             // Update existing entry
-            update_user(user_i->data);
+            if(user_i->data->shell){
+                if(user_i->data->entry->pw.pw_shell &&
+                   strcmp(user_i->data->entry->pw.pw_shell, (*(user_i->data->shell)).c_str()) != 0){
+                } else {
+                    update_pwd = true;
+                    user_i->data->entry->pw.pw_shell = (char*)malloc(sizeof(char) * 64);
+                    strcpy(user_i->data->entry->pw.pw_shell, (*(user_i->data->shell)).c_str());
+                }
+            }
         } else {
             // Add user entry
+            update_pwd = true;
             if( (ret = add_user(user_i->data, next_uid(users_first, 1000), sudo_grp->gr_gid)) ){
                 return ret;
             }
@@ -184,16 +250,20 @@ int set_users(ptree & users){
 
     cout << "Done updating or adding users\n";
 
-    int remount_root;
-
     // Add users to pwd
-    FILE *fp_pwd;
-    fp_pwd = fopen(ROOT_PATH "/etc/passwd", "w");
-    if(!fp_pwd) {
-        // Try remounting / as rw
-        remount_root = 1;
-        mount("", "/", "", MS_REMOUNT, NULL);
+    if(update_pwd){
+        *pwd_update = passwords_first;
+        *users_update = users_first;
+    }else{
+        *pwd_update = NULL;
+        *users_update = NULL;
     }
+
+    return 0;
+}
+
+int write_users(struct pwd_ll * passwords_first, struct users_ll * users_first){
+    FILE *fp_pwd;
 
     fp_pwd = fopen(ROOT_PATH "/etc/passwd", "w");
     if(!fp_pwd){
@@ -218,18 +288,12 @@ int set_users(ptree & users){
         putspent(&(user_i->data->entry->sh), fp_sh);
     }
 
-    if(remount_root){
-        // Go back to ro for safety
-        mount("", "/", "", MS_REMOUNT | MS_RDONLY, NULL);
-    }
-
     cout << "Done writing users\n";
 
     close((int)fp_pwd);
     close((int)fp_sh);
-   
+
     // Update user homes
-    //
     for(struct users_ll *user_i = users_first; user_i; user_i = user_i->next){
         update_home(user_i->data);
     }
@@ -323,13 +387,6 @@ struct pwd_ll *sort_passwds(struct users_ll *top_user){
     endpwent();
 
     return first_ll;
-}
-
-void update_user(USER *user){
-    if(user->shell){
-        user->entry->pw.pw_shell = (char*)malloc(sizeof(char) * 64);
-        strcpy(user->entry->pw.pw_shell, (*(user->shell)).c_str());
-    }
 }
 
 int add_user(USER *user, uid_t uid, gid_t gid){

@@ -1,0 +1,12 @@
+[Unit]
+Description=Spacepi Configuration
+Before=network-pre.target
+Wants=network-pre.target
+
+[Service]
+ExecStart=/bin/spacepi-config
+Type=oneshot
+
+
+[Install]
+WantedBy=multi-user.target
