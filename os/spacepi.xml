@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf8"?>
+<config>
+    <target>
+        <type>rpi</type>
+        <name>TemplateRPI</name>
+        <options>
+            <architecture>armel</architecture>
+            <ip>10.100.0.1</ip>
+			<hostname>template-hostname</hostname>
+			<users>
+				<user>
+					<name>Random User</name>
+					<email>somebody@somewhere.com</email>
+					<uname>somebody</uname>
+					<keys>{{ SSH PUBLIC KEY }}</keys>
+				</user>
+			</users>
+        </options>
+    </target>
+    <module>
+		<type>spacepi-modules/drivers/module</type>
+        <options>
+            <name>primary</name>
+        </options>
+    </module>
+</config>
