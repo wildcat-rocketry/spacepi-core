@@ -45,7 +45,7 @@ case $1 in
 	cmake)
 		mkdir -p $spacepi_dir/build
 		start
-		docker exec -it -u user -w $rep/build spacepi "cmake .."
+		docker exec -it -u user -w $rep/build spacepi cmake ..
 		stop
 		;;
 	*)
