@@ -1,3 +1,7 @@
+// spacepi-config
+// This configs the pi on boot from the /etc/spacepi.xml file
+
+// Way to many includes needed
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
@@ -19,11 +23,7 @@
 #include <string.h>
 #include <errno.h>
 
-#ifndef ROOT_PATH
-    #define ROOT_PATH ""
-#endif
-
-#define CONFIG_PATH ROOT_PATH "/etc/spacepi.xml"
+#define CONFIG_PATH "/etc/spacepi.xml"
 
 using namespace std;
 
@@ -35,11 +35,13 @@ typedef struct {
     struct spwd sh;
 } PWD_PAIR;
 
+// Linked list of passwords
 struct pwd_ll {
     PWD_PAIR* data;
     struct pwd_ll* next; // Next in the list
 };
 
+// All the info for a single user
 typedef struct {
     string uname;
     optional<string> name;
@@ -49,20 +51,39 @@ typedef struct {
     PWD_PAIR* entry;
 } USER;
 
+// Linked list of users
 struct users_ll {
    USER* data;
   struct users_ll* next; 
 };
 
+// Functions to Copy pwd and spwd structs because of static pointer returns
 void cp_pwd(struct passwd* clone, const struct passwd* old);
 void cp_spwd(struct spwd* clone, const struct spwd* old);
+
+// Take users from the config and passwd file and update them. Return updated user linked lists if updates are needed
+// Otherwise both ll are NULL
 int set_users(ptree & users, struct pwd_ll ** pwd_update, struct users_ll ** users_update);
+
+// Locate all users in the config
 struct users_ll *load_users_ll(ptree & users);
+
+// Find if there is an existing user with same uname
 USER* find_user_by_uname(struct users_ll *top_user, char *uname);
+
+// Determine what users are system users or config users, associate password entries
 struct pwd_ll *sort_passwds(struct users_ll *top_user);
+
+// Go through the process of adding a user and setting up the home dir. Should have similar result to useradd
 int add_user(USER *user, uid_t uid, gid_t gid);
+
+// Update the home dir of a user
 int update_home(USER *user);
+
+// Find the next available UID within a set range
 uid_t next_uid(struct users_ll *top, uid_t start);
+
+// Write users to disk
 int write_users(struct pwd_ll * passwords_first, struct users_ll * users_first);
 
 int main( int argc, char **argv ){
@@ -95,7 +116,7 @@ int main( int argc, char **argv ){
     if(!ip || !hostname){
         cerr << "Either hostname or ip are not defined, not changing those\n";
     } else {
-        file.open(ROOT_PATH "/etc/hostname", ios::in);
+        file.open("/etc/hostname", ios::in);
         if(file.is_open()){
             getline(file, old_hostname);
             cout << "Old hostname is (" << old_hostname << ")\n";
@@ -108,7 +129,7 @@ int main( int argc, char **argv ){
             update_hostname = 1;
         }
 
-        file.open(ROOT_PATH "/etc/ip", ios::in);
+        file.open("/etc/ip", ios::in);
         if(file.is_open()){
             getline(file, old_ip);
             cout << "Old ip is (" << old_ip << ")\n";
@@ -127,7 +148,7 @@ int main( int argc, char **argv ){
     FILE * fp_pwd;
     int remount_root;
     if(*updated_users || update_hostname || update_ip){
-        fp_pwd = fopen(ROOT_PATH "/etc/passwd", "a");
+        fp_pwd = fopen("/etc/passwd", "a");
         if(!fp_pwd) {
             // Try remounting / as rw
             remount_root = 1;
@@ -141,13 +162,13 @@ int main( int argc, char **argv ){
     }
     
     if(update_hostname){
-        file.open(ROOT_PATH "/etc/hostname", ios::out);
+        file.open("/etc/hostname", ios::out);
         file << *hostname << "\n";
         file.close();
 
         int cid = fork();
         if(cid == 0){
-            execlp("sed", "-e", string("s|" + old_hostname + "|" + *hostname + "|").c_str(), "-i", ROOT_PATH "/etc/hosts", (char*)NULL);
+            execlp("sed", "-e", string("s|" + old_hostname + "|" + *hostname + "|").c_str(), "-i", "/etc/hosts", (char*)NULL);
         } else if (cid == -1){
             cerr << "Fork for sed failed somehow\n";
             return 1;
@@ -168,7 +189,7 @@ int main( int argc, char **argv ){
     }
 
     if(update_ip){
-        file.open(ROOT_PATH "/etc/ip", ios::out);
+        file.open("/etc/ip", ios::out);
         file << *ip << "\n";
         file.close();
     }
@@ -265,16 +286,16 @@ int set_users(ptree & users, struct pwd_ll ** pwd_update, struct users_ll ** use
 int write_users(struct pwd_ll * passwords_first, struct users_ll * users_first){
     FILE *fp_pwd;
 
-    fp_pwd = fopen(ROOT_PATH "/etc/passwd", "w");
+    fp_pwd = fopen("/etc/passwd", "w");
     if(!fp_pwd){
-        cerr << "Unable to open " ROOT_PATH "/etc/passwd for editing\n";
+        cerr << "Unable to open /etc/passwd for editing\n";
         return 1;
     }
 
     FILE *fp_sh;
-    fp_sh = fopen(ROOT_PATH "/etc/shadow", "w");
+    fp_sh = fopen("/etc/shadow", "w");
     if(!fp_pwd){
-        cerr << "Unable to open " ROOT_PATH "/etc/shadow for editing\n";
+        cerr << "Unable to open /etc/shadow for editing\n";
         return 1;
     }
 
