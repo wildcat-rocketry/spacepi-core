@@ -51,6 +51,5 @@ target_link_libraries(spacepi
 )
 
 add_subdirectory(dashboard)
-#add_subdirectory(examples EXCLUDE_FROM_ALL)
-add_subdirectory(examples)
+add_subdirectory(examples EXCLUDE_FROM_ALL)
 add_subdirectory(router)
