@@ -120,3 +120,50 @@ function (spacepi_module_link_libraries)
 
     target_link_libraries(${moduleName} ${ARGV})
 endfunction()
+
+function (spacepi_target_in_dir)
+    file(RELATIVE_PATH relTargetDir "${CMAKE_SOURCE_DIR}" "${ARGV1}")
+    string(REGEX REPLACE "[/\\]" "_" targetName "${relTargetDir}")
+    if ("${targetName}" STREQUAL ".")
+        get_filename_component(targetName "${ARGV1}" NAME)
+    endif()
+    set(${ARGV0} "spacpei-target_${targetName}" PARENT_SCOPE)
+endfunction()
+
+function (spacepi_current_target)
+    spacepi_target_in_dir(tmp "${CMAKE_CURRENT_SOURCE_DIR}")
+    set(${ARGV0} "spacpei-target_${targetName}" PARENT_SCOPE)
+endfunction()
+
+function (spacepi_target)
+    spacepi_current_target(targetName)
+
+    add_executable("${targetName}" ${ARGV})
+    target_link_libraries("${targetName}" PUBLIC spacepi)
+endfunction()
+
+function (spacepi_target_include_directories)
+    spacepi_current_target(targetName)
+
+    target_include_directories("${targetName}" ${ARGV})
+endfunction()
+
+function (spacepi_target_link_libraries)
+    spacepi_current_target(targetName)
+
+    target_link_libraries("${targetName}" ${ARGV})
+endfunction()
+
+function (spacepi_package)
+    set(args ${ARGV})
+    list(REMOVE_AT args 0 1 2 3)
+
+    spacepi_target_in_dir(targetName "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV1}")
+
+    add_custom_target(${ARGV0} ALL
+        COMMAND "$<TARGET_FILE:${targetName}>" --config-file "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV2}" --out "${CMAKE_CURRENT_BINARY_DIR}/${ARGV3}" --data-dir "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV1}" ${args}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+        COMMENT "Updating package ${ARGV0}"
+        VERBATIM
+    )
+endfunction()
