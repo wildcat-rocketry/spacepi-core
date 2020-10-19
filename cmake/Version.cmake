@@ -1,1 +1,1 @@
-set(SPACEPI_CORE_VERSION 2.0)
+set(version 2.0)
