@@ -28,3 +28,13 @@ sourceSets {
         }
     }
 }
+
+task updateTimestamps {
+    doLast {
+        file(jar.archiveFile).setLastModified(System.currentTimeMillis())
+    }
+}
+
+build {
+    dependsOn updateTimestamps
+}
