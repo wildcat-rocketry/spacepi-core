@@ -1,2 +1,3 @@
-add_subdirectory(blinky-ip)
-add_subdirectory(os)
+cmake_minimum_required(VERSION 3.0)
+project(spacepi-target-rpi)
+include(core/cmake/TargetRepo.cmake)
