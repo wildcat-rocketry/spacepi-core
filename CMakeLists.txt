@@ -8,3 +8,5 @@ spacepi_target(
 )
 
 spacepi_target_include_directories(PUBLIC include)
+
+add_subdirectory(setup-deploy-key)
