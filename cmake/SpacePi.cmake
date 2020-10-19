@@ -29,15 +29,11 @@ function (spacepi_message_library)
     list(REMOVE_AT sources 0 1)
 
     set(cxxSources)
-    set(javaSources)
     set(dependencies)
     foreach (source IN LISTS sources)
         get_filename_component(namespace "${source}" DIRECTORY)
         get_filename_component(basename "${source}" NAME_WE)
         list(APPEND cxxSources "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${namespace}/${basename}.pb.cc")
-        if (Java_Development_FOUND)
-            list(APPEND javaSources "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java/${namespace}/${basename}.java")
-        endif()
         list(APPEND dependencies "${ARGV1}/${source}")
     endforeach()
 
@@ -64,7 +60,7 @@ function (spacepi_message_library)
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${ARGV0}.jar"
             COMMAND ${gradlew}
             ARGS build --warning-mode all
-            DEPENDS ${javaSources}
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
             WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}"
             COMMENT "Running Java compiler on ${ARGV0}"
             VERBATIM
@@ -80,16 +76,14 @@ function (spacepi_message_library)
     endif()
 
     add_custom_command(
-        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
-        COMMAND cmake
+        OUTPUT ${cxxSources} "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
+        COMMAND ${CMAKE_COMMAND}
         ARGS -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
-    )
-
-    add_custom_command(
-        OUTPUT ${cxxSources} ${javaSources}
         COMMAND protobuf::protoc
         ARGS ${outputs} "-I$<JOIN:$<TARGET_PROPERTY:${ARGV0},INCLUDE_DIRECTORIES>,;-I>" ${sources}
-        DEPENDS protobuf::protoc ${dependencies} "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
+        DEPENDS protobuf::protoc ${dependencies}
         COMMENT "Running protocol buffer compiler on ${ARGV0}"
         VERBATIM
         COMMAND_EXPAND_LISTS
