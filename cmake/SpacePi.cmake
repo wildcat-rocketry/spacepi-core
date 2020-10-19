@@ -60,7 +60,7 @@ function (spacepi_message_library)
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${ARGV0}.jar"
             COMMAND ${gradlew}
             ARGS build --warning-mode all
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
             WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}"
             COMMENT "Running Java compiler on ${ARGV0}"
             VERBATIM
@@ -76,13 +76,17 @@ function (spacepi_message_library)
     endif()
 
     add_custom_command(
-        OUTPUT ${cxxSources} "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
+        OUTPUT ${cxxSources} "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.begin" "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
         COMMAND ${CMAKE_COMMAND}
         ARGS -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
+        COMMAND ${CMAKE_COMMAND}
+        ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.begin"
         COMMAND protobuf::protoc
         ARGS ${outputs} "-I$<JOIN:$<TARGET_PROPERTY:${ARGV0},INCLUDE_DIRECTORIES>,;-I>" ${sources}
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.target"
+        ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
+        COMMAND ${CMAKE_COMMAND}
+        ARGS "-Droot_dir=${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}" "-Dexts=java,pb.cc,pb.h" "-Dcomp_file=${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.begin" -P "${SPACEPI_CORE_SOURCE_DIR}/cmake/CleanProtobuf.cmake"
         DEPENDS protobuf::protoc ${dependencies}
         COMMENT "Running protocol buffer compiler on ${ARGV0}"
         VERBATIM
