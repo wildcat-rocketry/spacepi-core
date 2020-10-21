@@ -129,7 +129,7 @@ handle_request(
         res.set(http::field::server, BOOST_BEAST_VERSION_STRING);
         res.set(http::field::content_type, "text/html");
         res.keep_alive(req.keep_alive());
-        res.body() = "The resource '" + target.to_string() + "' was not found.";
+        res.body() = "A WILD TEXT IS APPEARING ON THE PAGE.\n";
         res.prepare_payload();
         return res;
     };
@@ -157,20 +157,6 @@ handle_request(
         req.target()[0] != '/' ||
         req.target().find("..") != boost::beast::string_view::npos)
         return send(bad_request("Illegal request-target"));
-
-    // Build the path to the requested file
-    std::string path = path_cat(doc_root, req.target());
-    if(req.target().back() == '/')
-        path.append("index.html");
-
-    // Attempt to open the file
-    boost::beast::error_code ec;
-    http::file_body::value_type body;
-    body.open(path.c_str(), boost::beast::file_mode::scan, ec);
-
-    // Handle the case where the file doesn't exist
-    if(ec == boost::system::errc::no_such_file_or_directory)
-        return send(not_found(req.target()));
 
     // Handle an unknown error
     if(ec)
