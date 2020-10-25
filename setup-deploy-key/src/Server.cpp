@@ -1,6 +1,7 @@
 #include <boost/asio.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/setup-deploy-key/Server.hpp>
+#include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <cstdint>
 
@@ -14,6 +15,9 @@ void ServerAcceptCallback::operator()(const error_code& error){
     if(error) {
         serverPtr->log(LogLevel::Error) << "Error accepting client: " << error;
     }
+    else {
+        serverPtr->serverConnPtr->connReady(); 
+    }
     serverPtr->acceptClient();
 }
 ServerAcceptCallback::ServerAcceptCallback(Server* serverPtr) : serverPtr(serverPtr){
@@ -26,6 +30,7 @@ Server::Server(uint16_t portNum) : tcpAcceptor(NetworkThread::instance.getContex
 }
 
 void Server::acceptClient(){
-    tcp::socket socket(NetworkThread::instance.getContext());
-    tcpAcceptor.async_accept(socket,ServerAcceptCallback(this));
+    serverConnPtr.reset(new ServerConn());
+    tcpAcceptor.async_accept(serverConnPtr->getSocket(),ServerAcceptCallback(this));
 }
+
