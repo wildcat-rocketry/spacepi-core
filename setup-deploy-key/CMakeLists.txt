@@ -1,6 +1,7 @@
 add_executable(setup-deploy-key
     src/main.cpp
     src/Server.cpp
+    src/ServerConn.cpp
 )
 
 find_package(Boost
