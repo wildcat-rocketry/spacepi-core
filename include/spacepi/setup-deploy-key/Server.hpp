@@ -5,6 +5,8 @@
 #include <boost/system/error_code.hpp>
 #include <cstdint>
 #include <spacepi/log/AutoLog.hpp>
+#include <memory>
+#include <spacepi/setup-deploy-key/ServerConn.hpp>
 
 namespace spacepi{
     namespace target {
@@ -32,6 +34,7 @@ namespace spacepi{
                 private:
                     boost::asio::ip::tcp::acceptor tcpAcceptor;
                     void acceptClient();
+                    std::shared_ptr<ServerConn> serverConnPtr;
             };
         }
     }
