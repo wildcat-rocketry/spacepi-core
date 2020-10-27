@@ -4,12 +4,24 @@
 #include <boost/asio.hpp>
 #include <memory>
 #include <spacepi/log/AutoLog.hpp>
+#include <boost/beast.hpp>
+#include <boost/system/error_code.hpp>
 
 namespace spacepi {
     namespace target {
         namespace deployKey {
-            class ServerConn : public std::enable_shared_from_this<ServerConn> , private spacepi::log::AutoLog<decltype("setup-deploy-key"_autolog)>{
+            class ServerConn;
+            class ServerConnReadCallback {
+                friend class ServerConn;
+                public:
+                    void operator()(const boost::system::error_code& error,size_t transbyte);
 
+                private:
+                    ServerConnReadCallback(ServerConn* serverConnPtr);
+                    ServerConn* serverConnPtr;
+            };
+            class ServerConn : public std::enable_shared_from_this<ServerConn> , private spacepi::log::AutoLog<decltype("setup-deploy-key"_autolog)>{
+                friend class ServerConnReadCallback;
                 public:
                     ServerConn();
                     ~ServerConn();
@@ -20,6 +32,8 @@ namespace spacepi {
 
                 private:
                     boost::asio::ip::tcp::socket socket;
+                    boost::beast::flat_buffer buffer;
+                    boost::beast::http::request<boost::beast::http::empty_body> httprequest;
 
             };
         }
