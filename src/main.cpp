@@ -5,7 +5,7 @@ using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
 
 int main(int argc, const char **argv) {
-    Server server(1234);
+    Server server(8000);
     NetworkThread::instance.join();
 
     return 0;
