@@ -1,19 +1,15 @@
 package com.ffaero.spacepi.dashboard;
 
-import java.awt.Button;
-import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
-
-import com.ffaero.spacepi.dashboard.TestMessageOuterClass.TestMessage;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -22,15 +18,16 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.ffaero.spacepi.dashboard.net.ProtobufClient;
+import com.ffaero.spacepi.dashboard.ui.Widget;
+import com.ffaero.spacepi.messaging.HelloMessageOuterClass.HelloMessage;
+import com.ffaero.spacepi.messaging.MessageID;
+
 public class Main {
 	public static void main(String[] args) {
-
-		TestMessage msg = TestMessage.newBuilder().setTestField("Hello, world!").build();
-		System.out.println(msg.getTestField());
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -94,22 +91,12 @@ public class Main {
 
 		setup.setVisible(true);
 
-		Frame f = new Frame("Testing");
-		f.setSize(800, 600);
-		f.setLocationRelativeTo(null);
-		f.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				System.exit(0);
-			}
-		});
-		f.setLayout(null);
-		DraggablePanel p1 = new DraggablePanel(f::getMousePosition);
-		p1.add(new Button("TEST"));
-		p1.setBounds(50, 50, 200, 200);
-		f.add(p1);
+		WidgetWindow ww = new WidgetWindow(32, 16);
+		Widget widget = new Widget(1, 1, 2, 2);
+		widget.add(new JButton("Test"));
 
-		f.setVisible(true);
+		ww.addWidget(widget);
+		ww.addWidget(new Widget(4, 2, 3, 3));
 
 	}
 

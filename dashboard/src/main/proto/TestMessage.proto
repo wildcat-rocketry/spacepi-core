@@ -1,6 +1,0 @@
-syntax = "proto3";
-package com.ffaero.spacepi.dashboard;
-
-message TestMessage {
-    string TestField = 1;
-}
