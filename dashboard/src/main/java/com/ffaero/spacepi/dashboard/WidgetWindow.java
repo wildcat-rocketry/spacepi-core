@@ -18,9 +18,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
-import com.ffaero.spacepi.dashboard.ui.Widget;
 import com.ffaero.spacepi.dashboard.ui.WidgetContainer;
 import com.ffaero.spacepi.dashboard.ui.WidgetLayout;
+import com.ffaero.spacepi.dashboard.ui.widget.TextWidget;
+import com.ffaero.spacepi.dashboard.ui.widget.Widget;
 
 public class WidgetWindow {
 
@@ -43,18 +44,26 @@ public class WidgetWindow {
 
 		toolBar = new JToolBar(JToolBar.VERTICAL);
 		toolBar.setFloatable(false);
+		toolBar.setVisible(false);
 		frame.add(toolBar, BorderLayout.WEST);
 
 		JButton textWidgetButton = new JButton(loadIcon("icon_text_widget"));
+		textWidgetButton.setToolTipText("Text Widget");
+		textWidgetButton.addActionListener((e) -> {
+			addWidget(new TextWidget(0, 0, 1, 1));
+		});
 		toolBar.add(textWidgetButton);
 
 		JButton debugWidgetButton = new JButton(loadIcon("icon_debug_widget"));
+		debugWidgetButton.setToolTipText("Debug Widget");
 		toolBar.add(debugWidgetButton);
 
 		JButton graphWidgetButton = new JButton(loadIcon("icon_graph_widget"));
+		graphWidgetButton.setToolTipText("Graph Widget");
 		toolBar.add(graphWidgetButton);
 
 		JButton threeDWidgetButton = new JButton(loadIcon("icon_3d_widget"));
+		threeDWidgetButton.setToolTipText("3D Widget");
 		toolBar.add(threeDWidgetButton);
 
 		container = new WidgetContainer(frame, layout = new WidgetLayout(xTiles, yTiles));
@@ -81,7 +90,9 @@ public class WidgetWindow {
 
 		JMenuItem toggleEditModeMenuItem = new JMenuItem("Toggle Edit Mode");
 		toggleEditModeMenuItem.addActionListener((e) -> {
-			container.setDebugMode(!container.isDebugMode());
+			boolean newMode = !container.isDebugMode();
+			container.setDebugMode(newMode);
+			toolBar.setVisible(newMode);
 			frame.repaint();
 		});
 		editMenu.add(toggleEditModeMenuItem);

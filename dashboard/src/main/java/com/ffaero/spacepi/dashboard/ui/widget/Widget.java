@@ -1,4 +1,4 @@
-package com.ffaero.spacepi.dashboard.ui;
+package com.ffaero.spacepi.dashboard.ui.widget;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -15,7 +15,7 @@ import javax.swing.JPanel;
  * @author Hanavan Kuhn
  *
  */
-public class Widget extends JPanel {
+public abstract class Widget extends JPanel {
 
 	private static final long serialVersionUID = 7138283369372797773L;
 
@@ -39,6 +39,13 @@ public class Widget extends JPanel {
 		this.requestedWidth = requestedWidth;
 		this.requestedHeight = requestedHeight;
 	}
+
+	/**
+	 * Gets a panel that contains components that can configure the widget.
+	 * 
+	 * @return a configuration panel
+	 */
+	public abstract JPanel getConfigurationPanel();
 
 	@Override
 	public void paintComponent(Graphics g) {

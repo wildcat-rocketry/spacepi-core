@@ -22,7 +22,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import com.ffaero.spacepi.dashboard.net.ProtobufClient;
-import com.ffaero.spacepi.dashboard.ui.Widget;
+import com.ffaero.spacepi.dashboard.ui.widget.Widget;
 import com.ffaero.spacepi.messaging.HelloMessageOuterClass.HelloMessage;
 import com.ffaero.spacepi.messaging.MessageID;
 
@@ -92,11 +92,11 @@ public class Main {
 		setup.setVisible(true);
 
 		WidgetWindow ww = new WidgetWindow(32, 16);
-		Widget widget = new Widget(1, 1, 2, 2);
-		widget.add(new JButton("Test"));
-
-		ww.addWidget(widget);
-		ww.addWidget(new Widget(4, 2, 3, 3));
+//		Widget widget = new Widget(1, 1, 2, 2);
+//		widget.add(new JButton("Test"));
+//
+//		ww.addWidget(widget);
+//		ww.addWidget(new Widget(4, 2, 3, 3));
 
 	}
 

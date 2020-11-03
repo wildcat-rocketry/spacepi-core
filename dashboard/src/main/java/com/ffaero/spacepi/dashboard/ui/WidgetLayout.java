@@ -8,6 +8,8 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.ffaero.spacepi.dashboard.ui.widget.Widget;
+
 public class WidgetLayout implements LayoutManager {
 
 	private ArrayList<Widget> components = new ArrayList<Widget>();

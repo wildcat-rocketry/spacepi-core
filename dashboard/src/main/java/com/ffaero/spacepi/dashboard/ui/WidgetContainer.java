@@ -10,6 +10,8 @@ import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.ffaero.spacepi.dashboard.ui.widget.Widget;
+
 public class WidgetContainer extends JPanel {
 
 	private static final long serialVersionUID = -8185356487335989953L;
