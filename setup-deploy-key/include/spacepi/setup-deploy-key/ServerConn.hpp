@@ -17,8 +17,8 @@ namespace spacepi {
                     void operator()(const boost::system::error_code& error,size_t transbyte);
 
                 private:
-                    ServerConnReadCallback(ServerConn* serverConnPtr);
-                    ServerConn* serverConnPtr;
+                    ServerConnReadCallback(std::shared_ptr<ServerConn> serverConnPtr);
+                    std::shared_ptr<ServerConn> serverConnPtr;
             };
             class ServerConn : public std::enable_shared_from_this<ServerConn> , private spacepi::log::AutoLog<decltype("setup-deploy-key"_autolog)>{
                 friend class ServerConnReadCallback;
