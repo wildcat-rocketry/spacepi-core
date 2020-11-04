@@ -4,25 +4,28 @@
 #include <spacepi/log/LogLevel.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
+#include <memory>
 
+using namespace boost;
 using namespace boost::asio::ip;
 using namespace spacepi::target::deployKey;
 using namespace spacepi::messaging::network;
 using namespace spacepi::log;
 using namespace boost::beast::http;
 using namespace boost::system;
+using namespace std;
 
-void ServerConnReadCallback::operator()(const error_code& error,size_t transbyte){
+void ServerConnReadCallback::operator()(const system::error_code& error,size_t transbyte){
     if(error){
         serverConnPtr->log(LogLevel::Error) << "Error reading: " << error;
     }
     else {
-        serverConnPtr->connReady(); 
+        serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target();
+        serverConnPtr->connReady();
     }
-    serverConnPtr->connReady();
 }
 
-ServerConnReadCallback::ServerConnReadCallback(ServerConn* serverConnPtr) : serverConnPtr(serverConnPtr){
+ServerConnReadCallback::ServerConnReadCallback(std::shared_ptr<ServerConn> serverConnPtr) : serverConnPtr(serverConnPtr){
 
 }
 ServerConn::ServerConn() : socket(NetworkThread::instance.getContext()) {
@@ -39,5 +42,5 @@ tcp::socket& ServerConn::getSocket(){
 
 void ServerConn::connReady() {
     log(LogLevel::Info) << "Client connected to server.";
-    async_read(socket,buffer,httprequest,ServerConnReadCallback(this));
+    async_read(socket,buffer,httprequest,ServerConnReadCallback(shared_from_this()));
 }
