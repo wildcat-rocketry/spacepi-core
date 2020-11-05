@@ -33,7 +33,8 @@ ServerAcceptCallback::ServerAcceptCallback(Server* serverPtr) : serverPtr(server
 }
 
 Server::Server(uint16_t portNum) : tcpAcceptor(NetworkThread::instance.getContext(),tcp::endpoint(address::from_string("0.0.0.0"), portNum)) {
-    log(LogLevel::Info) << "Server started on port " << portNum; 
+    log(LogLevel::Info) << "Ready to connect to Github";
+    log(LogLevel::Info) << "Please navigate to one of the following addresses in your browser to complete setup:";
     struct ifaddrs *ifaddr;
     int family, s;
     char host[NI_MAXHOST];
