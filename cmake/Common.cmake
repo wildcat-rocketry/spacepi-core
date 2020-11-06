@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
 
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "Setting build type to 'Debug' as none was specified.")
@@ -106,7 +106,7 @@ function (spacepi_module)
     add_executable("${moduleName}" ${ARGV})
     target_link_libraries("${moduleName}" PUBLIC spacepi)
 
-    install(TARGETS "${moduleName}")
+    install(TARGETS "${moduleName}" RUNTIME DESTINATION bin)
 endfunction()
 
 function (spacepi_module_include_directories)

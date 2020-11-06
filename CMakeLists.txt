@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.11)
 project(spacepi-core)
 include(cmake/CoreRepo.cmake)
 
@@ -49,6 +49,7 @@ target_link_libraries(spacepi
     ${Protobuf_LIBRARIES}
     core-messages
 )
+install(TARGETS spacepi LIBRARY DESTINATION lib)
 
 add_subdirectory(dashboard)
 add_subdirectory(examples EXCLUDE_FROM_ALL)
