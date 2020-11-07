@@ -21,13 +21,28 @@ void ServerConnReadCallback::operator()(const system::error_code& error,size_t t
     }
     else {
         serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target();
-        serverConnPtr->connReady();
+        serverConnPtr->response.body() = "MEHHHHHH";
+        async_write(serverConnPtr->socket,serverConnPtr->response,ServerConnWriteCallback(serverConnPtr));
     }
 }
 
 ServerConnReadCallback::ServerConnReadCallback(std::shared_ptr<ServerConn> serverConnPtr) : serverConnPtr(serverConnPtr){
 
 }
+
+void ServerConnWriteCallback::operator()(const system::error_code& error, size_t transbyte){
+    if(error){
+        serverConnPtr->log(LogLevel::Error) << "Error writing: " << error;
+    }
+    else {
+        
+    } 
+}
+
+ServerConnWriteCallback::ServerConnWriteCallback(std::shared_ptr<ServerConn> serverConnPtr) : serverConnPtr(serverConnPtr) {
+
+}
+
 ServerConn::ServerConn() : socket(NetworkThread::instance.getContext()) {
     
 }
@@ -43,4 +58,5 @@ tcp::socket& ServerConn::getSocket(){
 void ServerConn::connReady() {
     log(LogLevel::Info) << "Client connected to server.";
     async_read(socket,buffer,httprequest,ServerConnReadCallback(shared_from_this()));
+
 }

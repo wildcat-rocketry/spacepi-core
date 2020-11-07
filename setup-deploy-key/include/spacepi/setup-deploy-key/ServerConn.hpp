@@ -20,8 +20,20 @@ namespace spacepi {
                     ServerConnReadCallback(std::shared_ptr<ServerConn> serverConnPtr);
                     std::shared_ptr<ServerConn> serverConnPtr;
             };
+
+            class ServerConnWriteCallback{
+                friend class ServerConnReadCallback;
+                public:
+                    void operator()(const boost::system::error_code& error,size_t transbyte);
+
+                private:
+                    ServerConnWriteCallback(std::shared_ptr<ServerConn> serverConnPtr);
+                    std::shared_ptr<ServerConn> serverConnPtr;
+            };
+
             class ServerConn : public std::enable_shared_from_this<ServerConn> , private spacepi::log::AutoLog<decltype("setup-deploy-key"_autolog)>{
                 friend class ServerConnReadCallback;
+                friend class ServerConnWriteCallback;
                 public:
                     ServerConn();
                     ~ServerConn();
@@ -34,7 +46,7 @@ namespace spacepi {
                     boost::asio::ip::tcp::socket socket;
                     boost::beast::flat_buffer buffer;
                     boost::beast::http::request<boost::beast::http::empty_body> httprequest;
-
+                    boost::beast::http::response<boost::beast::http::string_body> response;
             };
         }
     }
