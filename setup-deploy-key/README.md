@@ -27,8 +27,8 @@ Note: Since all of the users by default have the same SSH keys, this will add th
 Here is a more technical list of steps which happen when the program is run:
 
 1. Open an HTTP server on port `8000`, listening on all interfaces (`0.0.0.0`)
-2. Figure out a list of current IP addresses (and ignore `127.0.0.0/24`) and print all possible web links to access the server
-3. Redirect any requests to the web server (except the request mentioned in step 4) to `https://ffaero.com/static/github-auth/http%3A%2F%2F10.1.1.42%3A8000%2Fcallback?scope=write%3Apublic_key&allow_signup=false` (where `http%3A%2F%2F10.1.1.42%3A8000%2Fcallback` represents the encoded URL for step 4, so its IP should come from the `Host` HTTP request field)
+2. Figure out a list of current IP addresses (and ignore `127.0.0.0/8`) and print all possible web links to access the server
+3. Redirect any requests to the web server (except the request mentioned in step 4) to `https://ffaero.com/static/github-auth?target=10.1.1.42%3A8000%2Fcallback&scope=write%3Apublic_key&allow_signup=false` (where `10.1.1.42%3A8000%2Fcallback` represents the encoded URL for step 4, so its IP should come from the `Host` HTTP request field)
 4. When a request for `/callback?code=XXXXXXXXXX` is received, shut down the web server and use that code for future GitHub API calls
 5. Search for public keys (files in `$HOME/.ssh` which end in `.pub`) and add them to the GitHub account if they do not already exist
 6. Print out which keys were added then exit the program
