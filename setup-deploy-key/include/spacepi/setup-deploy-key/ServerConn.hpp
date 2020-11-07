@@ -36,7 +36,6 @@ namespace spacepi {
                 friend class ServerConnWriteCallback;
                 public:
                     ServerConn();
-                    ~ServerConn();
                     ServerConn(const ServerConn &) = delete;
                     ServerConn & operator = (const ServerConn &) = delete;
                     boost::asio::ip::tcp::socket& getSocket();
@@ -46,7 +45,7 @@ namespace spacepi {
                     boost::asio::ip::tcp::socket socket;
                     boost::beast::flat_buffer buffer;
                     boost::beast::http::request<boost::beast::http::empty_body> httprequest;
-                    boost::beast::http::response<boost::beast::http::string_body> response;
+                    boost::beast::http::response<boost::beast::http::empty_body> response;
             };
         }
     }
