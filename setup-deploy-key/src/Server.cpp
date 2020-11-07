@@ -71,7 +71,6 @@ Server::Server(uint16_t portNum) : tcpAcceptor(NetworkThread::instance.getContex
     }
 
     freeifaddrs(ifaddr);
-    exit(EXIT_SUCCESS);
     acceptClient();
 }
 
@@ -79,4 +78,3 @@ void Server::acceptClient(){
     serverConnPtr.reset(new ServerConn());
     tcpAcceptor.async_accept(serverConnPtr->getSocket(),ServerAcceptCallback(this));
 }
-
