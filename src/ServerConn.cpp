@@ -20,8 +20,9 @@ void ServerConnReadCallback::operator()(const system::error_code& error,size_t t
         serverConnPtr->log(LogLevel::Error) << "Error reading: " << error;
     }
     else {
-        serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target();
-        serverConnPtr->response.body() = "MEHHHHHH";
+        //serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target(); //USE THIS L8R
+        serverConnPtr->response.result(status::temporary_redirect);
+        serverConnPtr->response.set("Location","https://ffaero.com/static/github-auth?target=" + serverConnPtr->httprequest["Host"].to_string()+"%2Fcallback&scope=write%3Apublic_key&allow_signup=false");
         async_write(serverConnPtr->socket,serverConnPtr->response,ServerConnWriteCallback(serverConnPtr));
     }
 }
@@ -32,7 +33,7 @@ ServerConnReadCallback::ServerConnReadCallback(std::shared_ptr<ServerConn> serve
 
 void ServerConnWriteCallback::operator()(const system::error_code& error, size_t transbyte){
     if(error){
-        serverConnPtr->log(LogLevel::Error) << "Error writing: " << error;
+        serverConnPtr->log(LogLevel::Error) << "Error writing to server. " << error;
     }
     else {
         
@@ -47,16 +48,12 @@ ServerConn::ServerConn() : socket(NetworkThread::instance.getContext()) {
     
 }
 
-ServerConn::~ServerConn() {
-    log(LogLevel::Info) << "Client connection lost from server.";
-}
 
 tcp::socket& ServerConn::getSocket(){
     return socket;
 }
 
 void ServerConn::connReady() {
-    log(LogLevel::Info) << "Client connected to server.";
     async_read(socket,buffer,httprequest,ServerConnReadCallback(shared_from_this()));
 
 }
