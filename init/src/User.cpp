@@ -127,7 +127,15 @@ uid_t User::get_uid(){
     return passwd->pw_uid;
 }
 
+gid_t User::get_gid(){
+    return passwd->pw_gid;
+}
+
 void User::add_pw(struct passwd* pw, struct spwd* sh){
     passwd = pw;
     shadow = sh;
+}
+
+string User::get_home_dir(){
+    return string(pw->pw_dir);
 }
