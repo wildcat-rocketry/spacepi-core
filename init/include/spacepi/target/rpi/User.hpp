@@ -32,6 +32,8 @@ namespace spacepi {
                     std::string get_spw();
 
                     uid_t get_uid();
+                    uid_t get_gid();
+                    std::string get_home_dir();
                 protected:
                     // Take pointers and keep them. (User now owns the pointers, don't free)
                     void add_pw(struct passwd* pw, struct spwd* sh);

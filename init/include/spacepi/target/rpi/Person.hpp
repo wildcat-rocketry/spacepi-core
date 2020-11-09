@@ -20,7 +20,6 @@ namespace spacepi {
 
                     void add_info(optional<string> new_name, optional<string> new_email, optional<string> new_shell, optional<string> new_keys);
                     void update_user();
-                    void write_user();
 
                 protected:
                     void update_info(optional<string> &old_param, optional<string> &new_param, bool &update_flag);
@@ -28,6 +27,9 @@ namespace spacepi {
 
                     // Build a new default home dir for the listed user
                     static void build_home(string uname, uid_t uid, gid_t gid); 
+
+                    void write_keys();
+                    void update_git();
 
                     optional<string> name;
                     optional<string> email;
