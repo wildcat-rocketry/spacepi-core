@@ -5,6 +5,8 @@
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
 #include <memory>
+#include <spacepi/setup-deploy-key/Server.hpp>
+#include <spacepi/messaging/network/NetworkThread.hpp>
 
 using namespace boost;
 using namespace boost::asio::ip;
@@ -16,11 +18,17 @@ using namespace boost::system;
 using namespace std;
 
 void ServerConnReadCallback::operator()(const system::error_code& error,size_t transbyte){
+    std::string url = serverConnPtr->httprequest.target().to_string();
     if(error){
         serverConnPtr->log(LogLevel::Error) << "Error reading: " << error;
     }
     else {
         //serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target(); //USE THIS L8R
+        if(url.substr(0,14) == ("/callback?code")) {
+            serverConnPtr->log(LogLevel::Info) << "Found Callback String";
+            std::string tempcode = url.substr(15);
+            serverConnPtr->serverPtr->setCallbackCode(tempcode);
+        }
         serverConnPtr->response.result(status::temporary_redirect);
         serverConnPtr->response.set("Location","https://ffaero.com/static/github-auth?target=" + serverConnPtr->httprequest["Host"].to_string()+"%2Fcallback&scope=write%3Apublic_key&allow_signup=false");
         async_write(serverConnPtr->socket,serverConnPtr->response,ServerConnWriteCallback(serverConnPtr));
@@ -35,16 +43,13 @@ void ServerConnWriteCallback::operator()(const system::error_code& error, size_t
     if(error){
         serverConnPtr->log(LogLevel::Error) << "Error writing to server. " << error;
     }
-    else {
-        
-    } 
 }
 
 ServerConnWriteCallback::ServerConnWriteCallback(std::shared_ptr<ServerConn> serverConnPtr) : serverConnPtr(serverConnPtr) {
 
 }
 
-ServerConn::ServerConn() : socket(NetworkThread::instance.getContext()) {
+ServerConn::ServerConn(Server* serverPtr) : socket(NetworkThread::instance.getContext()), serverPtr(serverPtr) {
     
 }
 
@@ -57,3 +62,7 @@ void ServerConn::connReady() {
     async_read(socket,buffer,httprequest,ServerConnReadCallback(shared_from_this()));
 
 }
+
+
+
+

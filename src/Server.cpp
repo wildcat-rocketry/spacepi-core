@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <linux/if_link.h>
+#include <mutex>
 
 using namespace boost::asio::ip;
 using namespace boost::system;
@@ -74,7 +75,24 @@ Server::Server(uint16_t portNum) : tcpAcceptor(NetworkThread::instance.getContex
     acceptClient();
 }
 
+void Server::setCallbackCode(std::string str){
+    std::unique_lock<std::mutex> mutexlock(mutualexclusion);
+    Server::callbackcode = str;
+    waiting.notify_all();
+}
+
+std::string Server::getCallbackCode() {
+    return callbackcode;
+}
+
+void Server::waitForCallbackCode() {
+    std::unique_lock<std::mutex> mutexlock(mutualexclusion);
+    while(callbackcode.empty()){
+        waiting.wait(mutexlock);
+    }
+}
+
 void Server::acceptClient(){
-    serverConnPtr.reset(new ServerConn());
+    serverConnPtr.reset(new ServerConn(this));
     tcpAcceptor.async_accept(serverConnPtr->getSocket(),ServerAcceptCallback(this));
 }
