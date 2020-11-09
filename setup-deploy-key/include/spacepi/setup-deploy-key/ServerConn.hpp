@@ -11,6 +11,7 @@ namespace spacepi {
     namespace target {
         namespace deployKey {
             class ServerConn;
+            class Server;
             class ServerConnReadCallback {
                 friend class ServerConn;
                 public:
@@ -35,17 +36,20 @@ namespace spacepi {
                 friend class ServerConnReadCallback;
                 friend class ServerConnWriteCallback;
                 public:
-                    ServerConn();
+                    ServerConn(Server* serverPtr);
                     ServerConn(const ServerConn &) = delete;
                     ServerConn & operator = (const ServerConn &) = delete;
                     boost::asio::ip::tcp::socket& getSocket();
                     void connReady();
+
+                    
 
                 private:
                     boost::asio::ip::tcp::socket socket;
                     boost::beast::flat_buffer buffer;
                     boost::beast::http::request<boost::beast::http::empty_body> httprequest;
                     boost::beast::http::response<boost::beast::http::empty_body> response;
+                    Server* serverPtr;
             };
         }
     }

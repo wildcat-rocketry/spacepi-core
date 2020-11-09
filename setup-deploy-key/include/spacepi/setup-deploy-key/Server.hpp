@@ -7,6 +7,8 @@
 #include <spacepi/log/AutoLog.hpp>
 #include <memory>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
+#include <mutex>
+#include <condition_variable>
 
 namespace spacepi{
     namespace target {
@@ -29,12 +31,18 @@ namespace spacepi{
                     Server(uint16_t portNum);
                     Server(const Server &) = delete; 
                     Server & operator = (const Server &) = delete; 
+                    void setCallbackCode(std::string str);
+                    std::string getCallbackCode();
+                    void waitForCallbackCode();
                     
 
                 private:
                     boost::asio::ip::tcp::acceptor tcpAcceptor;
                     void acceptClient();
                     std::shared_ptr<ServerConn> serverConnPtr;
+                    std::string callbackcode;
+                    std::mutex mutualexclusion;
+                    std::condition_variable waiting;
             };
         }
     }
