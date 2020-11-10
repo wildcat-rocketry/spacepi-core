@@ -3,9 +3,13 @@
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/log/LogLevel.hpp>
 
+#include <iostream>
+#include <boost/filesystem.hpp>
+
 using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
 using namespace spacepi::log;
+using namespace boost::filesystem;
 
 int main(int argc, const char **argv) {
     Server server(8000);
@@ -17,8 +21,15 @@ int main(int argc, const char **argv) {
     log(LogLevel::Info) << "Callback sent to main";
     log(LogLevel::Info) << callbackcode;
 
-    NetworkThread::instance.join();
+    std::string filepath = std::string(getenv("HOME")) + "/.ssh";
+    for (const auto & entry : directory_iterator(filepath)){
+        std::string p = entry.path().extension().generic_string();
+        if (p == ".pub") {
+            std::cout << p << std::endl;
+        }
+    }
 
+    NetworkThread::instance.join();
     return 0;
 }
 
