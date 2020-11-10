@@ -10,11 +10,13 @@ find_package(Boost
     # beast
     system
     thread
+    filesystem
 )
 
 target_link_libraries(setup-deploy-key
     Boost::system
     Boost::thread
+    Boost::filesystem
     spacepi
 )
 target_include_directories(setup-deploy-key PUBLIC include)
