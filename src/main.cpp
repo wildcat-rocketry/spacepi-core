@@ -5,6 +5,9 @@
 
 #include <iostream>
 #include <boost/filesystem.hpp>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
@@ -25,7 +28,12 @@ int main(int argc, const char **argv) {
     for (const auto & entry : directory_iterator(filepath)){
         std::string p = entry.path().extension().generic_string();
         if (p == ".pub") {
-            std::cout << p << std::endl;
+            std::string filename = entry.path().generic_string();
+            std::ifstream inputfile;
+            inputfile.open(filename);
+            std::stringstream stringstream;
+            stringstream << inputfile.rdbuf();
+            std::string filestring = stringstream.str();
         }
     }
 
