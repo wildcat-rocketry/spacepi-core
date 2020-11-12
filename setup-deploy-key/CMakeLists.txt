@@ -2,6 +2,7 @@ add_executable(setup-deploy-key
     src/main.cpp
     src/Server.cpp
     src/ServerConn.cpp
+    src/GithubHandler.cpp
 )
 
 find_package(Boost
