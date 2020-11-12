@@ -2,12 +2,12 @@
 #include <spacepi/setup-deploy-key/Server.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/log/LogLevel.hpp>
-
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <spacepi/setup-deploy-key/GithubHandler.hpp>
 
 using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
@@ -25,6 +25,7 @@ int main(int argc, const char **argv) {
     log(LogLevel::Info) << callbackcode;
 
     std::string filepath = std::string(getenv("HOME")) + "/.ssh";
+    GithubHandler githubhandler;
     for (const auto & entry : directory_iterator(filepath)){
         std::string p = entry.path().extension().generic_string();
         if (p == ".pub") {
@@ -34,6 +35,7 @@ int main(int argc, const char **argv) {
             std::stringstream stringstream;
             stringstream << inputfile.rdbuf();
             std::string filestring = stringstream.str();
+            githubhandler.getFileContents(filestring);
         }
     }
 
