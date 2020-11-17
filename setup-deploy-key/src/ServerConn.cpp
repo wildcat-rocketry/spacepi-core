@@ -23,7 +23,6 @@ void ServerConnReadCallback::operator()(const system::error_code& error,size_t t
         serverConnPtr->log(LogLevel::Error) << "Error reading: " << error;
     }
     else {
-        //serverConnPtr->log(LogLevel::Info) << serverConnPtr->httprequest.target(); //USE THIS L8R
         if(url.substr(0,14) == ("/callback?code")) {
             serverConnPtr->log(LogLevel::Info) << "Found Callback String";
             std::string tempcode = url.substr(15);
