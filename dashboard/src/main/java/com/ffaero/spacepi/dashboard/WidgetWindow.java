@@ -5,6 +5,8 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.function.Supplier;
 
@@ -15,9 +17,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import com.ffaero.spacepi.dashboard.ui.WidgetConfigurationWindow;
 import com.ffaero.spacepi.dashboard.ui.WidgetContainer;
 import com.ffaero.spacepi.dashboard.ui.WidgetLayout;
 import com.ffaero.spacepi.dashboard.ui.widget.TextWidget;
@@ -50,7 +54,10 @@ public class WidgetWindow {
 		JButton textWidgetButton = new JButton(loadIcon("icon_text_widget"));
 		textWidgetButton.setToolTipText("Text Widget");
 		textWidgetButton.addActionListener((e) -> {
-			addWidget(new TextWidget(0, 0, 1, 1));
+			Widget w = new TextWidget(0, 0, 1, 1, null);
+			w.addMouseListener(new PopupMouseListener(w));
+			addWidget(w);
+			frame.repaint();
 		});
 		toolBar.add(textWidgetButton);
 
@@ -132,6 +139,30 @@ public class WidgetWindow {
 		// widgets.remove(widget);
 		layout.removeLayoutComponent(widget);
 		container.remove(widget);
+	}
+
+	private class PopupMouseListener extends MouseAdapter {
+		
+		private final Widget widget;
+		
+		public PopupMouseListener(Widget widget) {
+			this.widget = widget;
+		}
+		
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				JPopupMenu menu = new JPopupMenu();
+				
+				JMenuItem editConfigurationMenuItem = new JMenuItem("Edit Configuration...");
+				editConfigurationMenuItem.addActionListener((e2) -> {
+					WidgetConfigurationWindow wcw = new WidgetConfigurationWindow(frame, widget);
+				});
+				menu.add(editConfigurationMenuItem);
+				
+				menu.show(widget, e.getX(), e.getY());
+			}
+		}
 	}
 
 }

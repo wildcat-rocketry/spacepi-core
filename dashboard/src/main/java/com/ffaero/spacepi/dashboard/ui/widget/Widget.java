@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.swing.JPanel;
 
@@ -23,6 +25,7 @@ public abstract class Widget extends JPanel {
 	private int requestedY;
 	private int requestedWidth;
 	private int requestedHeight;
+	private Properties properties;
 
 	private boolean debugMode = false;
 
@@ -30,22 +33,46 @@ public abstract class Widget extends JPanel {
 	 * Creates a new {@code DraggablePanel}. Components can be added to this panel
 	 * so that they can be moved around.
 	 * 
-	 * @param mousePos a supplier that returns the current position of the mouse
-	 *                 relative to the parent component
+	 * @param requestedX
+	 * @param requestedY
+	 * @param requestedWidth
+	 * @param requestedHeight
+	 * @param configuration   the configuration properties for this widget, or
+	 *                        <code>null</code> if no properties are defined and
+	 *                        should be generated from the default widget
+	 *                        configuration
 	 */
-	public Widget(int requestedX, int requestedY, int requestedWidth, int requestedHeight) {
+	public Widget(int requestedX, int requestedY, int requestedWidth, int requestedHeight, Properties configuration) {
 		this.requestedX = requestedX;
 		this.requestedY = requestedY;
 		this.requestedWidth = requestedWidth;
 		this.requestedHeight = requestedHeight;
+		if (configuration != null) {
+			this.properties = configuration;
+		} else {
+			this.properties = new Properties();
+			for (Entry<Object, Object> prop : getDefaultConfigurationProperties().entrySet()) {
+				properties.put(prop.getKey(), prop.getValue());
+			}
+		}
+	}
+
+	public final Properties getConfigurationProperties() {
+		return properties;
 	}
 
 	/**
-	 * Gets a panel that contains components that can configure the widget.
+	 * Gets the default configuration properties for this widget.
 	 * 
-	 * @return a configuration panel
+	 * @return the default configuration properties
 	 */
-	public abstract JPanel getConfigurationPanel();
+	public abstract Properties getDefaultConfigurationProperties();
+
+	/**
+	 * Called when the configuration has been updated and the widget should update
+	 * it's UI to reflect the changes.
+	 */
+	public abstract void updateConfiguration();
 
 	@Override
 	public void paintComponent(Graphics g) {
