@@ -24,6 +24,12 @@ namespace spacepi {
                     void stop();
 
                 private:
+                    enum State {
+                        Starting,
+                        Running,
+                        Stopping
+                    };
+
                     NetworkThread();
                     ~NetworkThread();
 
@@ -32,7 +38,7 @@ namespace spacepi {
                     boost::asio::io_context ctx;
                     std::mutex mtx;
                     std::condition_variable cond;
-                    bool hasStarted;
+                    enum State state;
                     std::thread thread;
             };
         }

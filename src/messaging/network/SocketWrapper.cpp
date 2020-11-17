@@ -94,10 +94,12 @@ void GenericSocketWriter::operator ()(const system::error_code &err, size_t leng
             wrapper->writeBuffer.consume(length);
             wrapper->writeCommitted -= length;
         }
-        if (wrapper->writeUncommitted > 0) {
-            wrapper->writeBuffer.commit(wrapper->writeUncommitted);
-            wrapper->writeCommitted += wrapper->writeUncommitted;
-            wrapper->writeUncommitted = 0;
+        while (!wrapper->writeUncommitted.empty()) {
+            string &pkt = wrapper->writeUncommitted.front();
+            wrapper->writeBuffer.prepare(pkt.size());
+            wrapper->writeBuffer.sputn(pkt.data(), pkt.size());
+            wrapper->writeCommitted += pkt.size();
+            wrapper->writeUncommitted.pop();
         }
         if (wrapper->writeCommitted > 0) {
             wrapper->startWrite();
@@ -112,7 +114,7 @@ void GenericSocketWriter::operator ()(const system::error_code &err, size_t leng
 GenericSocketWriter::GenericSocketWriter(GenericSocketWrapper *wrapper) : wrapper(wrapper) {
 }
 
-GenericSocketWrapper::GenericSocketWrapper(SocketWrapperCallback *callback) : reader(this), writer(this), callback(callback), inited(false), writeCommitted(0), writeUncommitted(0), isWriting(false) {
+GenericSocketWrapper::GenericSocketWrapper(SocketWrapperCallback *callback) : reader(this), writer(this), callback(callback), inited(false), writeCommitted(0), isWriting(false) {
     readBuffer.prepare(1024);
 }
 
@@ -123,22 +125,25 @@ void GenericSocketWrapper::sendPacket(const string &pkt) {
         ++numLengthBytes;
     }
     std::unique_lock<mutex> lck(writeMutex);
+    string raw;
+    raw.reserve(length + numLengthBytes);
     writeBuffer.prepare(length + numLengthBytes);
     for (int lengthToRepresent = length; lengthToRepresent > 0; lengthToRepresent >>= 7) {
         if (lengthToRepresent >= 0x80) {
-            writeBuffer.sputc(0x80 | (lengthToRepresent & 0x7F));
+            raw.insert(raw.end(), 0x80 | (lengthToRepresent & 0x7F));
         } else {
-            writeBuffer.sputc(lengthToRepresent);
+            raw.insert(raw.end(), lengthToRepresent);
         }
     }
-    writeBuffer.sputn(pkt.data(), length);
-    writeUncommitted += length;
+    raw.insert(raw.size(), pkt);
     if (!isWriting) {
-        writeBuffer.commit(writeUncommitted);
-        writeCommitted += writeUncommitted;
-        writeUncommitted = 0;
+        writeBuffer.prepare(raw.size());
+        writeBuffer.sputn(raw.data(), raw.size());
+        writeCommitted += raw.size();
         isWriting = true;
         startWrite();
+    } else {
+        writeUncommitted.push(std::move(raw));
     }
 }
 

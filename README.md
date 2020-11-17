@@ -2,6 +2,101 @@
 
 // TODO
 
+## Building from Source
+
+### Requirements
+
+The following are required to build the SpacePi core:
+
+* CMake version 3.11 or later
+* Make
+* C++ Compiler toolchain supporting C++14
+* ProtoBuf compiler supporting Proto3
+* Boost libraries and headers
+* Java Development Kit version 8 or later (optional)
+
+These can be installed with the following command on Debian and similar:
+
+```
+# apt update
+# apt install cmake build-essential protobuf-compiler libboost-all-dev
+```
+
+### Configuring Build Environment
+
+CMake is used to automatically scan the host system and write Makefiles based on the system configuration.
+The following process needs to be done once, after cloning the repo, to configure it to build properly:
+
+```
+$ cd spacepi-core
+$ mkdir -p build
+$ cd build
+$ cmake ..
+```
+
+### Building Core
+
+The core library, router, and dashboard (if Java was found) can be built with the following commands:
+
+```
+$ cd spacepi-core/build
+$ make
+```
+
+### Building Examples
+
+The targets in the `examples` directory will not build by default to speed up build times.
+In order to build them, either build their targets directly or run `make` from inside the `examples` directory.
+For example:
+
+```
+$ cd spacepi-core/build/examples
+$ make
+```
+
+### Building Dashboard in an IDE
+
+The dashboard project can be opened in a Java IDE instead of using the CMake scripts, which makes development and debugging much easier.
+Currently, Eclipse and Idea IDEs are supported.
+
+#### Importing Dashboard Project into Eclipse IDE
+
+When opening the project on Windows (even if building in WSL), run the following in PowerShell:
+
+```
+> cd spacepi-core\dashboard
+> .\gradlew.bat eclipse
+```
+
+If opening the project on Linux (not from WSL), run the following commands in terminal:
+
+```
+$ cd spacepi-core/dashboard
+$ ./gradlew eclipse
+```
+
+Then, import the project into Eclipse by going to `File` > `Import...`, then select `General` > `Existing Projects into Workspace`, then select the `spacepi-core/dashboard` folder as the project root directory and import the project.
+Now, the project can be built and run directly from Eclipse.
+
+#### Importing Dashboard Project into Idea IDE
+
+When opening the project on Windows (even if building in WSL), run the following in PowerShell:
+
+```
+> cd spacepi-core\dashboard
+> .\gradlew.bat idea
+```
+
+If opening the project on Linux (not from WSL), run the following commands in terminal:
+
+```
+$ cd spacepi-core/dashboard
+$ ./gradlew idea
+```
+
+Then, import the project into Idea and select the `spacepi-core/dashboard` folder as the project root directory.
+Now, the project can be built and run directly from Eclipse.
+
 ## Technical Details
 
 ### Networking Protocol

@@ -4,13 +4,13 @@
 #include <condition_variable>
 #include <memory>
 #include <mutex>
-#include <queue>
 #include <thread>
 #include <vector>
 #include <spacepi/concurrent/RWMutex.hpp>
 #include <spacepi/log/Entry.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/log/LogTarget.hpp>
+#include <spacepi/util/TemporalQueue.hpp>
 
 namespace spacepi {
     namespace log {
@@ -31,7 +31,7 @@ namespace spacepi {
 
                 std::condition_variable cond;
                 std::mutex entryMutex;
-                std::queue<Entry> entries;
+                spacepi::util::TemporalQueue<Entry, 64> entries;
                 std::vector<std::shared_ptr<LogTarget>> targets;
                 spacepi::concurrent::RWMutex<std::mutex, std::unique_lock<std::mutex>, std::condition_variable> targetLock;
                 bool running;

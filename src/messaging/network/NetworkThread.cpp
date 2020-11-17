@@ -22,8 +22,8 @@ io_context &NetworkThread::getContext() {
 
 void NetworkThread::start() {
     std::unique_lock<mutex> lck(mtx);
-    if (!hasStarted) {
-        hasStarted = true;
+    if (state == Starting) {
+        state = Running;
         cond.notify_one();
     }
 }
@@ -34,26 +34,34 @@ void NetworkThread::join() {
 }
 
 void NetworkThread::stop() {
+    std::unique_lock<mutex> lck(mtx);
+    if (state == Starting) {
+        state = Stopping;
+        cond.notify_one();
+    }
+    lck.unlock();
     ctx.stop();
-    join();
+    if (thread.joinable()) {
+        join();
+    }
 }
 
-NetworkThread::NetworkThread() : hasStarted(false), thread(bind(&NetworkThread::run, this)) {
+NetworkThread::NetworkThread() : state(Starting), thread(bind(&NetworkThread::run, this)) {
 }
 
 NetworkThread::~NetworkThread() {
-    if (thread.joinable()) {
-        stop();
-    }
+    stop();
 }
 
 void NetworkThread::run() {
-    {
-        std::unique_lock<mutex> lck(mtx);
-        while (!hasStarted) {
-            cond.wait(lck);
-        }
+    std::unique_lock<mutex> lck(mtx);
+    while (state == Starting) {
+        cond.wait(lck);
     }
+    if (state == Stopping) {
+        return;
+    }
+    lck.unlock();
     log(LogLevel::Info) << "Network thread starting...";
     try {
         ctx.run();

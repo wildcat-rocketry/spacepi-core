@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <memory>
 #include <mutex>
+#include <queue>
 #include <string>
 #include <utility>
 #include <boost/asio.hpp>
@@ -83,8 +84,8 @@ namespace spacepi {
                     SocketWrapperCallback *callback;
                     bool inited;
                     std::mutex writeMutex;
+                    std::queue<std::string> writeUncommitted;
                     int writeCommitted;
-                    int writeUncommitted;
                     bool isWriting;
             };
 
