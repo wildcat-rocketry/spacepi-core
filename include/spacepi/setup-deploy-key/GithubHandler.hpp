@@ -14,6 +14,8 @@ namespace spacepi{
             GithubHandler(const GithubHandler &) = delete; 
             GithubHandler & operator = (const GithubHandler &) = delete; 
             void getFileContents(std::string str);
+            void sendCurlAPICommand();
+            void getUserContent();
 
             private:
             std::string filecontents;
