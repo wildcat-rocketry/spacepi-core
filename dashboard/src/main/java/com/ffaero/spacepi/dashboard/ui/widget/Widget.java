@@ -1,9 +1,12 @@
 package com.ffaero.spacepi.dashboard.ui.widget;
 
+import java.awt.AWTEvent;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 import java.util.Map.Entry;
 import java.util.Properties;
 

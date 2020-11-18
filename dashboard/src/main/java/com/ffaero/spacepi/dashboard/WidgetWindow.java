@@ -21,6 +21,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import com.ffaero.spacepi.dashboard.ui.ProxyingMouseAdapter;
 import com.ffaero.spacepi.dashboard.ui.WidgetConfigurationWindow;
 import com.ffaero.spacepi.dashboard.ui.WidgetContainer;
 import com.ffaero.spacepi.dashboard.ui.WidgetLayout;
@@ -55,9 +56,11 @@ public class WidgetWindow {
 		textWidgetButton.setToolTipText("Text Widget");
 		textWidgetButton.addActionListener((e) -> {
 			Widget w = new TextWidget(0, 0, 1, 1, null);
-			w.addMouseListener(new PopupMouseListener(w));
+			PopupMouseListener l = new PopupMouseListener(w);
+			w.addMouseListener(l);
+			w.addMouseMotionListener(l);
 			addWidget(w);
-			frame.repaint();
+			w.revalidate();
 		});
 		toolBar.add(textWidgetButton);
 
@@ -141,7 +144,7 @@ public class WidgetWindow {
 		container.remove(widget);
 	}
 
-	private class PopupMouseListener extends MouseAdapter {
+	private class PopupMouseListener extends ProxyingMouseAdapter {
 		
 		private final Widget widget;
 		
@@ -161,6 +164,8 @@ public class WidgetWindow {
 				menu.add(editConfigurationMenuItem);
 				
 				menu.show(widget, e.getX(), e.getY());
+			} else {
+				super.mouseReleased(e);
 			}
 		}
 	}
