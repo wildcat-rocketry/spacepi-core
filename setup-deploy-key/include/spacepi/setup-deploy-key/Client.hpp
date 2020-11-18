@@ -14,13 +14,11 @@ namespace spacepi{
                     Client();
                     Client(const Client &) = delete; 
                     Client & operator = (const Client &) = delete;
-                    //boost::property_tree::ptree getPtreeResponse(boost::property_tree::ptree request);
-                    std::string urlRequest(std::string url, std::string method, std::string body, std::string contenttype, std::string accept);
-
+                    std::string urlRequest(std::string url, boost::beast::http::verb method, std::string body, std::string contenttype, std::string accept,std::string authorization);
+                    boost::property_tree::ptree urlRequest(std::string url, boost::beast::http::verb method, boost::property_tree::ptree body, std::string contenttype, std::string accept,std::string authorization);
 
                 private:
-                //boost::property_tree::ptree response;
-                boost::asio::ssl::context ctx;
+                    boost::asio::ssl::context ctx;
             };
         }
     }
