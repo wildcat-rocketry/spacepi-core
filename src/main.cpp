@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <spacepi/setup-deploy-key/GithubHandler.hpp>
+#include <spacepi/setup-deploy-key/Client.hpp>
 
 using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
@@ -38,6 +39,9 @@ int main(int argc, const char **argv) {
             githubhandler.getFileContents(filestring);
         }
     }
+    Client client;
+    std::string ret = client.urlRequest("https://api.github.com/user/keys","test","test","test","test");
+    log(LogLevel::Info) << ret;
 
     NetworkThread::instance.join();
     return 0;
