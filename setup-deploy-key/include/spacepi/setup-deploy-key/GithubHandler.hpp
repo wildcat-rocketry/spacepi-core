@@ -16,6 +16,9 @@ namespace spacepi{
             GithubHandler(const GithubHandler &) = delete; 
             GithubHandler & operator = (const GithubHandler &) = delete; 
 
+            bool hasKey(const std::string &key);
+            void addKey(const std::string &key);
+
             private:
             Client client;
             std::unordered_set<std::string> keys;
