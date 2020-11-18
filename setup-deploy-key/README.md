@@ -33,6 +33,93 @@ Here is a more technical list of steps which happen when the program is run:
 5. Search for public keys (files in `$HOME/.ssh` which end in `.pub`) and add them to the GitHub account if they do not already exist
 6. Print out which keys were added then exit the program
 
+### GitHub Request Documentation
+
+#### Request 1: Converting code to authorization token
+
+```
+POST /login/oauth/access_token HTTP/1.1
+Host: github.com
+Content-Type: application/json
+Accept: application/json
+
+{
+    "client_id": "6a1a713dd92598462dec",
+    "client_secret": "fe8615e958d230646d9bfc35e57dcc446b903fe9",
+    "code": "<code from server callback>"
+}
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+    "access_token": "<authorization token>",
+    "token_type": "bearer",
+    "scope": "write:public_key"
+}
+```
+
+#### Request 2: Getting existing public keys
+
+```
+GET /user/keys
+Host: api.github.com
+Authorization: token <authorization token>
+Accept: application/vnd.github.v3+json
+
+HTTP/1.1 200 OK
+Content-Type: application/vnd.github.v3+json
+
+[
+    {
+        "id": 1234,
+        "key": "ssh-rsa AAAA...=",
+        "url": "https://api.github.com/user/keys/1234",
+        "title": "My key title...",
+        "verified": true,
+        "created_at": "2020-11-17T21:23:00Z",
+        "read_only": false
+    },
+    {
+        "id": 12345,
+        "key": "ssh-rsa AAAA...=",
+        "url": "https://api.github.com/user/keys/12345",
+        "title": "My key other title...",
+        "verified": true,
+        "created_at": "2020-11-17T21:24:00Z",
+        "read_only": false
+    }
+]
+```
+
+#### Request 3: Upload new key
+
+```
+POST /user/keys
+Host: api.github.com
+Authorization: token <authorization token>
+Content-Type: application/vnd.github.v3+json
+Accept: application/vnd.github.v3+json
+
+{
+    "key": "ssh-rsa AAAA...=",
+    "title": "Put something here if you want or don't include it"
+}
+
+HTTP/1.1 201 Created
+Content-Type: application/vnd.github.v3+json
+
+{
+    "id": 123456,
+    "key": "ssh-rsa AAAA...=",
+    "url": "https://api.github.com/user/keys/123456",
+    "title": "Put something here if you want or don't include it",
+    "verified": false,
+    "created_at": "2020-11-17T21:25:00Z",
+    "read_only": false
+}
+```
+
 ### Technical References
 
 * Networking library with Boost: [Boost.Asio](https://www.boost.org/doc/libs/1_74_0/doc/html/boost_asio.html)
