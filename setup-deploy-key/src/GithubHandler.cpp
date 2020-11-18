@@ -14,10 +14,10 @@ void GithubHandler::getFileContents(std::string str){
 }
 
 void GithubHandler::sendCurlAPICommand(){
-    serverConnPtr->response.set("Location"," https://api.github.comhttps://api.github.com" + serverConnPtr->httprequest["Authorization: token "].to_string()+ filecontents);
+    //erverConnPtr->response.set("Location"," https://api.github.comhttps://api.github.com" + serverConnPtr->httprequest["Authorization: token "].to_string()+ filecontents);
 }
 
 void GithubHandler::getUserContent(){
-    std::string content = "curl -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users";
-    system(content.c_str());
+    //std::string content = "curl -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users";
+    //system(content.c_str());
 }
