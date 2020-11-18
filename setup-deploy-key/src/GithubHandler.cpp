@@ -18,5 +18,7 @@ GithubHandler::GithubHandler(std::string callbackcode){
     std::string accesstoken;
     accesstoken = response.get<std::string>("access_token");
     response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::get, ptree(), "", "application/vnd.github.v3+json","token " + accesstoken);
-    //keys = response.get<std::string>("key");
+    for (ptree::const_iterator it = response.begin(); it != response.end(); ++it) {
+        keys.insert(it->second.get<std::string>("key"));
+    }
 }
