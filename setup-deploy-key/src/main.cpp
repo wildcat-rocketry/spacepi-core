@@ -24,9 +24,10 @@ int main(int argc, const char **argv) {
     Logger log("verification");
     log(LogLevel::Info) << "Callback sent to main";
     log(LogLevel::Info) << callbackcode;
+    
 
     std::string filepath = std::string(getenv("HOME")) + "/.ssh";
-    GithubHandler githubhandler;
+    GithubHandler githubhandler(callbackcode);
     for (const auto & entry : directory_iterator(filepath)){
         std::string p = entry.path().extension().generic_string();
         if (p == ".pub") {
@@ -36,11 +37,10 @@ int main(int argc, const char **argv) {
             std::stringstream stringstream;
             stringstream << inputfile.rdbuf();
             std::string filestring = stringstream.str();
-            githubhandler.getFileContents(filestring);
         }
     }
     Client client;
-    std::string ret = client.urlRequest("https://api.github.com/user/keys","test","test","test","test");
+    std::string ret = client.urlRequest("https://api.github.com/user/keys",boost::beast::http::verb::get,"test","test","test","test");
     log(LogLevel::Info) << ret;
 
     NetworkThread::instance.join();

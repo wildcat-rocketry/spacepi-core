@@ -11,6 +11,7 @@ using namespace boost::beast::http;
 using namespace boost::asio;
 using namespace spacepi::messaging::network;
 using namespace boost::asio::ip;
+using namespace boost::property_tree::json_parser;
 
 Client::Client() : ctx(ssl::context::sslv23_client) {
     std::string file = "/etc/ssl/certs/ca-certificates.crt";
@@ -22,7 +23,7 @@ Client::Client() : ctx(ssl::context::sslv23_client) {
     ctx.add_certificate_authority(buffer(fileofcrap.data(),fileofcrap.size())); 
 }
 
-std::string Client::urlRequest(std::string url, std::string method, std::string body, std::string contenttype, std::string accept){
+std::string Client::urlRequest(std::string url, http::verb method, std::string body, std::string contenttype, std::string accept,std::string authorization){
     tcp::resolver resolver(NetworkThread::instance.getContext());
     ssl::stream<tcp::socket> socket{NetworkThread::instance.getContext(), ctx};
 
@@ -36,7 +37,7 @@ std::string Client::urlRequest(std::string url, std::string method, std::string 
     host = host.substr(0,slash);
     auto const results = resolver.resolve(host, "443");
 
-    http::request<http::string_body> req{http::verb::get,path, 11};
+    http::request<http::string_body> req{method,path, 11};
 
     if(! SSL_set_tlsext_host_name(socket.native_handle(), host.data()))
     {
@@ -48,7 +49,11 @@ std::string Client::urlRequest(std::string url, std::string method, std::string 
     socket.handshake(ssl::stream_base::client);
 
     req.set(http::field::host, host);
+    req.set(http::field::content_type,contenttype);
+    req.set(http::field::accept,accept);
+    req.set(http::field::authorization,authorization);
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    req.body() = body;
 
     http::write(socket, req);
     boost::beast::flat_buffer buffer;
@@ -58,4 +63,15 @@ std::string Client::urlRequest(std::string url, std::string method, std::string 
     socket.shutdown(ec);
 
     return res.body();
+}
+
+boost::property_tree::ptree Client::urlRequest(std::string url, boost::beast::http::verb method, boost::property_tree::ptree body, std::string contenttype, std::string accept,std::string authorization){
+    std::stringstream stringstream;
+    write_json(stringstream,body);
+    std::string bodystr = stringstream.str();
+    std::string reqbody = urlRequest(url,method,bodystr,contenttype,accept,authorization);
+    stringstream << reqbody;
+    boost::property_tree::ptree tree;
+    read_json(stringstream,tree);
+    return tree;
 }

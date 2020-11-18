@@ -4,21 +4,21 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <spacepi/setup-deploy-key/Client.hpp>
+#include <unordered_set>
 
 namespace spacepi{
     namespace target {
         namespace deployKey {
             class GithubHandler{
             public:
-            GithubHandler();
+            GithubHandler(std::string callbackcode);
             GithubHandler(const GithubHandler &) = delete; 
             GithubHandler & operator = (const GithubHandler &) = delete; 
-            void getFileContents(std::string str);
-            void sendCurlAPICommand();
-            void getUserContent();
 
             private:
-            std::string filecontents;
+            Client client;
+            std::unordered_set<std::string> keys;
             };
         }
     }
