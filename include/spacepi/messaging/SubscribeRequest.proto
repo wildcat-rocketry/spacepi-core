@@ -15,5 +15,5 @@ message SubscribeRequest {
     }
 
     OperationType operation = 1;
-    repeated uint32 messages = 2;
+    uint64 messageID = 2;
 }

@@ -1,5 +1,4 @@
 #include <condition_variable>
-#include <cstdint>
 #include <initializer_list>
 #include <mutex>
 #include <string>
@@ -8,12 +7,14 @@
 #include <spacepi/messaging/EncapsulatedMessage.pb.h>
 #include <spacepi/messaging/MessageID.pb.h>
 #include <spacepi/messaging/SubscribeRequest.pb.h>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/router/PubSubEndpoint.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
 
 using namespace std;
 using namespace spacepi::concurrent;
 using namespace spacepi::messaging;
+using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 
 PubSubRouter::PubSubRouter() {
@@ -22,43 +23,39 @@ PubSubRouter::PubSubRouter() {
 void PubSubRouter::unregister(PubSubEndpoint *endpoint) {
     unique_lock<RWMutex<mutex, unique_lock<mutex>, condition_variable>::WriteSide> lck(mtx.write());
     fullSubscriptions.erase(endpoint);
-    for (unordered_map<uint32_t, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.begin(); it != subscriptions.end(); ++it) {
+    for (unordered_map<SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.begin(); it != subscriptions.end(); ++it) {
         it->second.erase(endpoint);
     }
 }
 
-void PubSubRouter::publish(PubSubEndpoint *sender, uint32_t id, const std::string &data) {
-    if (id == SubscribeRequest::descriptor()->options().GetExtension(MessageID)) {
+void PubSubRouter::publish(PubSubEndpoint *sender, const SubscriptionID &id, const std::string &data) {
+    if (id.getMessageID() == SubscribeRequest::descriptor()->options().GetExtension(MessageID)) {
         SubscribeRequest req;
         req.ParseFromString(data);
         unique_lock<RWMutex<mutex, unique_lock<mutex>, condition_variable>::WriteSide> lck(mtx.write());
+        SubscriptionID chanId(req.messageid(), id.getInstanceID());
+        unordered_map<SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator it;
         switch (req.operation()) {
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_SUBSCRIBE:
                 if (fullSubscriptions.find(sender) == fullSubscriptions.end()) {
-                    for (int i = req.messages_size() - 1; i >= 0; --i) {
-                        uint32_t id = req.messages(i);
-                        unordered_map<uint32_t, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.find(id);
-                        if (it == subscriptions.end()) {
-                            subscriptions.emplace(id, (initializer_list<PubSubEndpoint *>) {
-                                sender
-                            });
-                        } else {
-                            it->second.insert(sender);
-                        }
+                    it = subscriptions.find(chanId);
+                    if (it == subscriptions.end()) {
+                        subscriptions.emplace_hint(it, chanId, (initializer_list<PubSubEndpoint *>) {
+                            sender
+                        });
+                    } else {
+                        it->second.insert(sender);
                     }
                 }
                 break;
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_UNSUBSCRIBE:
-                for (int i = req.messages_size() - 1; i >= 0; --i) {
-                    uint32_t id = req.messages(i);
-                    unordered_map<uint32_t, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.find(id);
-                    if (it != subscriptions.end()) {
-                        it->second.erase(sender);
-                    }
+                it = subscriptions.find(chanId);
+                if (it != subscriptions.end()) {
+                    it->second.erase(sender);
                 }
                 break;
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_SUBSCRIBE_ALL:
-                for (unordered_map<uint32_t, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.begin(); it != subscriptions.end(); ++it) {
+                for (it = subscriptions.begin(); it != subscriptions.end(); ++it) {
                     it->second.erase(sender);
                 }
                 fullSubscriptions.insert(sender);

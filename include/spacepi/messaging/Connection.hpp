@@ -14,9 +14,9 @@
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/Subscription.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/Exception.hpp>
-#include <spacepi/util/Functional.hpp>
 
 namespace spacepi {
     namespace messaging {
@@ -24,7 +24,7 @@ namespace spacepi {
 
         class SubscriptionData {
             public:
-                SubscriptionData(ImmovableConnection *conn, uint32_t id);
+                SubscriptionData(ImmovableConnection *conn, const network::SubscriptionID &id);
                 SubscriptionData(const SubscriptionData &) = delete;
 
                 SubscriptionData &operator =(const SubscriptionData &) = delete;
@@ -36,30 +36,45 @@ namespace spacepi {
 
             private:
                 ImmovableConnection *conn;
-                uint32_t id;
+                network::SubscriptionID id;
                 int count;
                 std::queue<std::string> messages;
                 boost::fibers::mutex mtx;
                 boost::fibers::condition_variable cond;
         };
 
+        class Publisher {
+            friend class ImmovableConnection;
+
+            public:
+                Publisher &operator <<(const google::protobuf::Message *message);
+                
+                template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
+                Publisher &operator <<(const MessageType &message) {
+                    *this << (const google::protobuf::Message *) &message;
+                    return *this;
+                }
+
+            private:
+                Publisher(std::shared_ptr<ImmovableConnection> conn, uint64_t instanceID);
+
+                std::shared_ptr<ImmovableConnection> conn;
+                uint64_t instanceID;
+        };
+
         class Connection;
 
-        class ImmovableConnection : public spacepi::util::CommandConfigurable, private spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
+        class ImmovableConnection : public spacepi::util::CommandConfigurable, public std::enable_shared_from_this<ImmovableConnection>, private spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
             friend class Connection;
+            friend class Publisher;
 
             public:
                 ImmovableConnection(std::vector<std::string> &args);
                 ImmovableConnection(const ImmovableConnection &) = delete;
 
                 ImmovableConnection &operator =(const ImmovableConnection &) = delete;
-                ImmovableConnection &operator <<(const google::protobuf::Message *message);
 
-                template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
-                ImmovableConnection &operator <<(const MessageType &message) {
-                    *this << (const google::protobuf::Message *) &message;
-                    return *this;
-                }
+                Publisher operator ()(uint64_t instanceID);
 
                 void subscribe(GenericSubscription *sub);
                 void unsubscribe(GenericSubscription *sub);
@@ -68,25 +83,19 @@ namespace spacepi {
             protected:
                 void options(boost::program_options::options_description &desc) const;
                 void configure(const boost::program_options::parsed_options &opts);
-                void handleMessage(uint32_t id, const std::string &msg);
+                void handleMessage(const network::SubscriptionID &id, const std::string &msg);
                 void handleError(spacepi::util::Exception::pointer err);
 
             private:
-                std::unordered_map<uint32_t, SubscriptionData, spacepi::util::Cast<size_t, uint32_t>> subscriptions;
+                std::unordered_map<network::SubscriptionID, SubscriptionData> subscriptions;
         };
 
         class Connection {
             public:
                 Connection(std::vector<std::string> &args);
-
-                Connection &operator <<(const google::protobuf::Message *message);
+                
                 operator ImmovableConnection *();
-
-                template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
-                Connection &operator <<(const MessageType &message) {
-                    *this << (const google::protobuf::Message *) &message;
-                    return *this;
-                }
+                Publisher operator ()(uint64_t instanceID);
 
             private:
                 std::shared_ptr<ImmovableConnection> conn;

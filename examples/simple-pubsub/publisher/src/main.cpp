@@ -20,6 +20,7 @@ using namespace spacepi::util;
 static void publishThread(Connection &conn);
 static void helloReceiver(Connection &conn);
 static void goodbyeReceiver(Connection &conn);
+static void hiddenGoodbyeReceiver(Connection &conn);
 
 int main(int argc, const char **argv) {
     vector<string> args = CommandConfigurable::parse(argc, argv);
@@ -27,7 +28,8 @@ int main(int argc, const char **argv) {
     ThreadPool {
         bind(publishThread, conn),
         bind(helloReceiver, conn),
-        bind(goodbyeReceiver, conn)
+        bind(goodbyeReceiver, conn),
+        bind(hiddenGoodbyeReceiver, conn)
     };
     return 0;
 }
@@ -40,21 +42,29 @@ static void publishThread(Connection &conn) {
     log(LogLevel::Info) << "Sending hello from Zach";
     hello.set_greeting("Hello");
     hello.set_name("Zach");
-    conn << hello;
+    conn(0) << hello;
 
     log(LogLevel::Info) << "Sending hi from Miranda";
     hello.set_greeting("Hi");
     hello.set_name("Miranda");
-    conn << hello;
+    conn(0) << hello;
 
     log(LogLevel::Info) << "Sending message 'Goodbye world!'";
     goodbye.set_message("Goodbye world!");
-    conn << goodbye;
+    conn(0) << goodbye;
+
+    log(LogLevel::Info) << "Sending message 'Goodbye hidden world!'";
+    goodbye.set_message("Goodbye hidden world!");
+    conn(1) << goodbye;
+
+    log(LogLevel::Info) << "Sending message 'Goodbye very hidden world!'";
+    goodbye.set_message("Goodbye very hidden world!");
+    conn(2) << goodbye;
 }
 
 static void helloReceiver(Connection &conn) {
     Logger log("example:publisher");
-    Subscription<HelloMessage> sub(&conn);
+    Subscription<HelloMessage> sub(&conn, 0);
     HelloMessage msg;
     while (true) {
         sub >> msg;
@@ -64,10 +74,20 @@ static void helloReceiver(Connection &conn) {
 
 static void goodbyeReceiver(Connection &conn) {
     Logger log("example:publisher");
-    Subscription<GoodbyeMessage> sub(&conn);
+    Subscription<GoodbyeMessage> sub(&conn, 0);
     GoodbyeMessage msg;
     while (true) {
         sub >> msg;
         log(LogLevel::Info) << "Got goodbye '" << msg.message() << "'";
+    }
+}
+
+static void hiddenGoodbyeReceiver(Connection &conn) {
+    Logger log("example:publisher");
+    Subscription<GoodbyeMessage> sub(&conn, 1);
+    GoodbyeMessage msg;
+    while (true) {
+        sub >> msg;
+        log(LogLevel::Info) << "Got hidden goodbye '" << msg.message() << "'";
     }
 }

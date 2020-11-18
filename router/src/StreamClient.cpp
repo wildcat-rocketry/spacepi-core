@@ -1,9 +1,9 @@
-#include <cstdint>
 #include <string>
 #include <boost/system/error_code.hpp>
 #include <spacepi/messaging/HelloMessage.pb.h>
 #include <spacepi/messaging/MessageID.pb.h>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/router/StreamClient.hpp>
 #include <spacepi/router/PubSubEndpoint.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
@@ -21,14 +21,14 @@ StreamClient::StreamClient(PubSubRouter *router, StreamClientCallback *callback)
 void StreamClient::sendHello() {
     HelloMessage msg;
     msg.set_serverid("SpacePi Router v2.0\n");
-    sendMessage(HelloMessage::descriptor()->options().GetExtension(MessageID), msg.SerializeAsString());
+    sendMessage(SubscriptionID(HelloMessage::descriptor()->options().GetExtension(MessageID), 0), msg.SerializeAsString());
 }
 
-void StreamClient::handlePublish(uint32_t id, const string &data) {
+void StreamClient::handlePublish(const SubscriptionID &id, const string &data) {
     sendMessage(id, data);
 }
 
-void StreamClient::handleMessage(uint32_t id, const string &data) {
+void StreamClient::handleMessage(const SubscriptionID &id, const string &data) {
     publish(id, data);
 }
 

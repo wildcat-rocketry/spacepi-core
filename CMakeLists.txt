@@ -33,6 +33,7 @@ add_library(spacepi SHARED
     src/messaging/network/MessagingSocket.cpp
     src/messaging/network/NetworkThread.cpp
     src/messaging/network/SocketWrapper.cpp
+    src/messaging/network/SubscriptionID.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
     src/util/CommandConfigurable.cpp

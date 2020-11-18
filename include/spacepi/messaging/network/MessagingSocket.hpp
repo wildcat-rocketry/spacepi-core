@@ -1,13 +1,13 @@
 #ifndef SPACEPI_CORE_MESSAGING_NETWORK_MESSAGINGSOCKET_HPP
 #define SPACEPI_CORE_MESSAGING_NETWORK_MESSAGINGSOCKET_HPP
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/network/SocketWrapper.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
@@ -23,7 +23,7 @@ namespace spacepi {
                 friend class MessagingSocketConnector;
 
                 protected:
-                    virtual void handleMessage(uint32_t id, const std::string &msg) = 0;
+                    virtual void handleMessage(const SubscriptionID &id, const std::string &msg) = 0;
                     virtual void handleAccept();
                     virtual void handleConnect();
                     virtual void handleError(spacepi::util::Exception::pointer err) = 0;
@@ -71,7 +71,7 @@ namespace spacepi {
                     template <typename Endpoint>
                     void connect(const Endpoint &endpoint);
 
-                    void sendMessage(uint32_t id, const std::string &msg);
+                    void sendMessage(const SubscriptionID &id, const std::string &msg);
 
                 protected:
                     void handlePacket(const std::string &pkt);

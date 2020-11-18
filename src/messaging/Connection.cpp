@@ -16,8 +16,8 @@
 #include <spacepi/messaging/SubscribeRequest.pb.h>
 #include <spacepi/messaging/Subscription.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
-#include <spacepi/util/Functional.hpp>
 
 using namespace std;
 using namespace boost;
@@ -29,16 +29,16 @@ using namespace spacepi::messaging;
 using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 
-SubscriptionData::SubscriptionData(ImmovableConnection *conn, uint32_t id) : conn(conn), id(id), count(0) {
+SubscriptionData::SubscriptionData(ImmovableConnection *conn, const SubscriptionID &id) : conn(conn), id(id), count(0) {
 }
 
 void SubscriptionData::add() {
     std::unique_lock<fibers::mutex> lck(mtx);
     if (++count == 1) {
         SubscribeRequest req;
-        req.add_messages(id);
+        req.set_messageid(id.getMessageID());
         req.set_operation(SubscribeRequest_OperationType::SubscribeRequest_OperationType_SUBSCRIBE);
-        *conn << req;
+        (*conn)(id.getInstanceID()) << req;
     }
 }
 
@@ -46,9 +46,9 @@ void SubscriptionData::sub() {
     std::unique_lock<fibers::mutex> lck(mtx);
     if (--count == 0) {
         SubscribeRequest req;
-        req.add_messages(id);
+        req.set_messageid(id.getMessageID());
         req.set_operation(SubscribeRequest_OperationType::SubscribeRequest_OperationType_UNSUBSCRIBE);
-        *conn << req;
+        (*conn)(id.getInstanceID()) << req;
     }
 }
 
@@ -70,28 +70,35 @@ void SubscriptionData::put(const string &msg) {
     }
 }
 
+Publisher &Publisher::operator <<(const Message *message) {
+    conn->sendMessage(SubscriptionID(message->GetDescriptor()->options().GetExtension(MessageID), instanceID), message->SerializeAsString());
+    return *this;
+}
+
+Publisher::Publisher(std::shared_ptr<ImmovableConnection> conn, uint64_t instanceID) : conn(conn), instanceID(instanceID) {
+}
+
 ImmovableConnection::ImmovableConnection(vector<string> &args) : CommandConfigurable("Connection Options", args), MessagingSocket(this) {
     construct();
 }
 
-ImmovableConnection &ImmovableConnection::operator <<(const Message *message) {
-    sendMessage(message->GetDescriptor()->options().GetExtension(MessageID), message->SerializeAsString());
-    return *this;
+Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
+    return Publisher(shared_from_this(), instanceID);
 }
 
 void ImmovableConnection::subscribe(GenericSubscription *sub) {
-    uint32_t id = sub->getMessageID();
-    subscriptions.emplace(piecewise_construct, make_tuple(id), make_tuple(this, id)).first->second.add();
+    const SubscriptionID &id = sub->getID();
+    subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::make_tuple(this, id)).first->second.add();
 }
 
 void ImmovableConnection::unsubscribe(GenericSubscription *sub) {
-    uint32_t id = sub->getMessageID();
-    subscriptions.emplace(piecewise_construct, make_tuple(id), make_tuple(this, id)).first->second.sub();
+    const SubscriptionID &id = sub->getID();
+    subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::make_tuple(this, id)).first->second.sub();
 }
 
 string ImmovableConnection::recieve(GenericSubscription *sub) {
-    uint32_t id = sub->getMessageID();
-    return subscriptions.emplace(piecewise_construct, make_tuple(id), make_tuple(this, id)).first->second.get();
+    const SubscriptionID &id = sub->getID();
+    return subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::make_tuple(this, id)).first->second.get();
 }
 
 void ImmovableConnection::options(options_description &desc) const {
@@ -103,8 +110,8 @@ void ImmovableConnection::configure(const parsed_options &opts) {
     connect(tcp::endpoint(address::from_string("127.0.0.1"), 8000));
 }
 
-void ImmovableConnection::handleMessage(uint32_t id, const std::string &msg) {
-    unordered_map<uint32_t, SubscriptionData, Cast<size_t, uint32_t>>::iterator it = subscriptions.find(id);
+void ImmovableConnection::handleMessage(const SubscriptionID &id, const std::string &msg) {
+    unordered_map<SubscriptionID, SubscriptionData>::iterator it = subscriptions.find(id);
     if (it != subscriptions.end()) {
         it->second.put(msg);
     }
@@ -117,11 +124,10 @@ void ImmovableConnection::handleError(Exception::pointer err) {
 Connection::Connection(vector<string> &args) : conn(new ImmovableConnection(args)) {
 }
 
-Connection &Connection::operator <<(const Message *message) {
-    *conn << message;
-    return *this;
-}
-
 Connection::operator ImmovableConnection *() {
     return conn.get();
+}
+
+Publisher Connection::operator ()(uint64_t instanceID) {
+    return (*conn)(instanceID);
 }

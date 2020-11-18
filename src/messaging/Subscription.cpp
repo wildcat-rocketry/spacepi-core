@@ -1,11 +1,12 @@
-#include <cstdint>
 #include <string>
 #include <google/protobuf/message.h>
 #include <spacepi/messaging/Connection.hpp>
 #include <spacepi/messaging/Subscription.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 
 using namespace google::protobuf;
 using namespace spacepi::messaging;
+using namespace spacepi::messaging::network;
 
 GenericSubscription::~GenericSubscription() {
     conn->unsubscribe(this);
@@ -16,15 +17,15 @@ GenericSubscription &GenericSubscription::operator >>(Message *message) {
     return *this;
 }
 
-uint32_t GenericSubscription::getMessageID() {
-    return messageID;
+const SubscriptionID &GenericSubscription::getID() {
+    return id;
 }
 
-GenericSubscription::GenericSubscription(ImmovableConnection *conn, uint32_t messageID) : conn(conn), messageID(messageID) {
+GenericSubscription::GenericSubscription(ImmovableConnection *conn, const SubscriptionID &id) : conn(conn), id(id) {
     conn->subscribe(this);
 }
 
-GenericSubscription::GenericSubscription(Connection *conn, uint32_t messageID) : conn((ImmovableConnection *) *conn), messageID(messageID) {
+GenericSubscription::GenericSubscription(Connection *conn, const SubscriptionID &id) : conn((ImmovableConnection *) *conn), id(id) {
     this->conn->subscribe(this);
 }
 

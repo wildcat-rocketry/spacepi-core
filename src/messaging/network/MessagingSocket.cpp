@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <string>
 #include <memory>
 #include <utility>
@@ -84,9 +83,10 @@ void MessagingSocket::connect<stream_protocol::endpoint>(const stream_protocol::
     socket = static_pointer_cast<GenericSocketWrapper>(s);
 }
 
-void MessagingSocket::sendMessage(uint32_t id, const std::string &msg) {
+void MessagingSocket::sendMessage(const SubscriptionID &id, const std::string &msg) {
     EncapsulatedMessage cap;
-    cap.set_messageid(id);
+    cap.set_messageid(id.getMessageID());
+    cap.set_instanceid(id.getInstanceID());
     cap.set_payload(msg);
     socket->sendPacket(cap.SerializeAsString());
 }
@@ -94,7 +94,7 @@ void MessagingSocket::sendMessage(uint32_t id, const std::string &msg) {
 void MessagingSocket::handlePacket(const std::string &pkt) {
     EncapsulatedMessage cap;
     cap.ParseFromString(pkt);
-    callback->handleMessage(cap.messageid(), cap.payload());
+    callback->handleMessage(SubscriptionID(cap.messageid(), cap.instanceid()), cap.payload());
 }
 
 void MessagingSocket::handleError(Exception::pointer err) {

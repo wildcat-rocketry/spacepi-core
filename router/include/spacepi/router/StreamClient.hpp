@@ -1,9 +1,9 @@
 #ifndef SPACEPI_CORE_ROUTER_STREAMCLIENT_HPP
 #define SPACEPI_CORE_ROUTER_STREAMCLIENT_HPP
 
-#include <cstdint>
 #include <string>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/router/PubSubEndpoint.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
 #include <spacepi/util/Exception.hpp>
@@ -31,8 +31,8 @@ namespace spacepi {
                 void sendHello();
 
             protected:
-                void handlePublish(uint32_t id, const std::string &data);
-                void handleMessage(uint32_t id, const std::string &msg);
+                void handlePublish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
+                void handleMessage(const spacepi::messaging::network::SubscriptionID &id, const std::string &msg);
                 void handleAccept();
                 void handleError(spacepi::util::Exception::pointer err);
 

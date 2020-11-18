@@ -5,6 +5,7 @@
 #include <type_traits>
 #include <google/protobuf/message.h>
 #include <spacepi/messaging/MessageID.pb.h>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 
 namespace spacepi {
     namespace messaging {
@@ -18,26 +19,26 @@ namespace spacepi {
 
                 GenericSubscription &operator >>(google::protobuf::Message *message);
 
-                uint32_t getMessageID();
+                const network::SubscriptionID &getID();
 
             protected:
-                GenericSubscription(ImmovableConnection *conn, uint32_t messageID);
-                GenericSubscription(Connection *conn, uint32_t messageID);
+                GenericSubscription(ImmovableConnection *conn, const network::SubscriptionID &id);
+                GenericSubscription(Connection *conn, const network::SubscriptionID &id);
 
                 void recv(google::protobuf::Message *message);
 
             private:
                 ImmovableConnection *conn;
-                uint32_t messageID;
+                network::SubscriptionID id;
         };
 
         template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
         class Subscription : public GenericSubscription {
             public:
-                Subscription(ImmovableConnection *conn) : GenericSubscription(conn, MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID)) {
+                Subscription(ImmovableConnection *conn, uint32_t instanceID) : GenericSubscription(conn, network::SubscriptionID(MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID), instanceID)) {
                 }
 
-                Subscription(Connection *conn) : GenericSubscription(conn, MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID)) {
+                Subscription(Connection *conn, uint32_t instanceID) : GenericSubscription(conn, network::SubscriptionID(MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID), instanceID)) {
                 }
 
                 Subscription &operator >>(MessageType &message) {

@@ -1,8 +1,8 @@
 #ifndef SPACEPI_CORE_ROUTER_PUBSUBENDPOINT_HPP
 #define SPACEPI_CORE_ROUTER_PUBSUBENDPOINT_HPP
 
-#include <cstdint>
 #include <string>
+#include <spacepi/messaging/network/SubscriptionID.hpp>
 
 namespace spacepi {
     namespace router {
@@ -20,8 +20,8 @@ namespace spacepi {
             protected:
                 PubSubEndpoint(PubSubRouter *router);
 
-                void publish(uint32_t id, const std::string &data);
-                virtual void handlePublish(uint32_t id, const std::string &data) = 0;
+                void publish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
+                virtual void handlePublish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data) = 0;
 
             private:
                 PubSubRouter *router;
