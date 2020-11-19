@@ -1,3 +1,4 @@
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
@@ -16,10 +17,13 @@
 #include <spacepi/messaging/SubscribeRequest.pb.h>
 #include <spacepi/messaging/Subscription.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
+#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
+#include <spacepi/util/Exception.hpp>
 
 using namespace std;
+using namespace std::chrono;
 using namespace boost;
 using namespace boost::asio::ip;
 using namespace boost::program_options;
@@ -71,12 +75,19 @@ void SubscriptionData::put(const string &msg) {
     }
 }
 
-ImmovableConnection::ImmovableConnection(vector<string> &args) : CommandConfigurable("Connection Options", args), MessagingSocket((MessagingCallback &) *this) {
+void ReconnectTimerCallback::operator ()(const system::error_code &err) {
+    conn->connect();
+}
+
+ReconnectTimerCallback::ReconnectTimerCallback(ImmovableConnection &conn) noexcept : conn(conn.shared_from_this()) {
+}
+
+ImmovableConnection::ImmovableConnection(vector<string> &args) : CommandConfigurable("Connection Options", args), state(ImmovableConnection::Created), timer(NetworkThread::instance.getContext()) {
     construct();
 }
 
 Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
-    return Publisher(static_pointer_cast<ImmovableConnection>(shared_from_this()), instanceID);
+    return Publisher(shared_from_this(), instanceID);
 }
 
 void ImmovableConnection::subscribe(GenericSubscription &sub) {
@@ -100,7 +111,7 @@ void ImmovableConnection::options(options_description &desc) const {
 
 void ImmovableConnection::configure(const parsed_options &opts) {
     // TODO
-    connect<tcp>(tcp::endpoint(address::from_string("127.0.0.1"), 8000));
+    connect();
 }
 
 void ImmovableConnection::handleMessage(const SubscriptionID &id, const std::string &msg) {
@@ -110,12 +121,60 @@ void ImmovableConnection::handleMessage(const SubscriptionID &id, const std::str
     }
 }
 
+void ImmovableConnection::handleConnect() {
+    log(log::LogLevel::Info) << "Connected to router.";
+    std::unique_lock<fibers::mutex> lck(mtx);
+    state = Connected;
+    cond.notify_all();
+}
+
 void ImmovableConnection::handleError(const Exception::pointer &err) {
-    log(log::LogLevel::Error) << "Connection error: " << err;
+    std::unique_lock<fibers::mutex> lck(mtx);
+    switch (state) {
+        case Connecting:
+            log(log::LogLevel::Warning) << "Error connecting to router: " << Exception::what(err) << "\n"
+                                           "Will attempt to retry connection...";
+            break;
+        case Connected:
+            log(log::LogLevel::Warning) << "Lost connection from router.\n"
+                                           "Will attempt to reconnect...";
+            break;
+        case Reconnecting:
+            log(log::LogLevel::Debug) << "Connection attempt failed.";
+            break;
+        default:
+            throw EXCEPTION(StateException("Invalid state for socket error to occur"));
+    }
+    state = Disconnected;
+    lck.unlock();
+    timer.expires_after(seconds(1));
+    timer.async_wait(ReconnectTimerCallback(*this));
+}
+
+void ImmovableConnection::connect() {
+    std::unique_lock<fibers::mutex> lck(mtx);
+    switch (state) {
+        case Created:
+            state = Connecting;
+            break;
+        case Disconnected:
+            state = Reconnecting;
+            break;
+        default:
+            return;
+    }
+    lck.unlock();
+    socket.reset(new MessagingSocket(*this));
+    socket->connect<tcp>(tcp::endpoint(address::from_string("127.0.0.1"), 8000));
 }
 
 const Publisher &Publisher::operator <<(const Message &message) const {
-    conn->sendMessage(SubscriptionID(message.GetDescriptor()->options().GetExtension(MessageID), instanceID), message.SerializeAsString());
+    std::unique_lock<fibers::mutex> lck(conn->mtx);
+    while (conn->state != ImmovableConnection::Connected) {
+        conn->cond.wait(lck);
+    }
+    lck.unlock();
+    conn->socket->sendMessage(SubscriptionID(message.GetDescriptor()->options().GetExtension(MessageID), instanceID), message.SerializeAsString());
     return *this;
 }
 

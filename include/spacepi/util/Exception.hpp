@@ -26,6 +26,7 @@ namespace spacepi {
                 }
 
                 static pointer getPointer() noexcept;
+                static std::string what(pointer ptr) noexcept;
 
             private:
                 const std::string message;
@@ -53,6 +54,5 @@ std::ostream &operator <<(std::ostream &os, const spacepi::util::Exception::poin
 #endif
 #ifdef SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE
 SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(StateException)
-SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(MessagingException)
 SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(CommandConfigurableException)
 #endif

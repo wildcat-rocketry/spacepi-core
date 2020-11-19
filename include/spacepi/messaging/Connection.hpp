@@ -8,8 +8,10 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <boost/asio.hpp>
 #include <boost/fiber/all.hpp>
 #include <boost/program_options.hpp>
+#include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/network/MessagingCallback.hpp>
@@ -48,9 +50,22 @@ namespace spacepi {
                     boost::fibers::condition_variable cond;
             };
 
-            class ImmovableConnection : public spacepi::util::CommandConfigurable, public spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
+            class ReconnectTimerCallback {
+                friend class ImmovableConnection;
+
+                public:
+                    void operator ()(const boost::system::error_code &err);
+
+                private:
+                    ReconnectTimerCallback(ImmovableConnection &conn) noexcept;
+
+                    const std::shared_ptr<ImmovableConnection> conn;
+            };
+
+            class ImmovableConnection : public std::enable_shared_from_this<ImmovableConnection>, public spacepi::util::CommandConfigurable, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
                 friend class messaging::Connection;
                 friend class messaging::Publisher;
+                friend class ReconnectTimerCallback;
 
                 public:
                     explicit ImmovableConnection(std::vector<std::string> &args);
@@ -68,10 +83,26 @@ namespace spacepi {
                     void options(boost::program_options::options_description &desc) const;
                     void configure(const boost::program_options::parsed_options &opts);
                     void handleMessage(const network::SubscriptionID &id, const std::string &msg);
+                    void handleConnect();
                     void handleError(const spacepi::util::Exception::pointer &err);
 
                 private:
+                    enum State {
+                        Created,
+                        Connecting,
+                        Connected,
+                        Disconnected,
+                        Reconnecting
+                    };
+
+                    void connect();
+
                     std::unordered_map<network::SubscriptionID, SubscriptionData> subscriptions;
+                    std::unique_ptr<spacepi::messaging::network::MessagingSocket> socket;
+                    enum State state;
+                    boost::fibers::mutex mtx;
+                    boost::fibers::condition_variable cond;
+                    boost::asio::steady_timer timer;
             };
         }
 

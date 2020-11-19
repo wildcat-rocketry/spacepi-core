@@ -25,7 +25,7 @@ template void MessagingSocket::connect<stream_protocol>(const stream_protocol::e
 
 void MessagingSocketAcceptor::operator ()(const system::error_code &err) {
     if (err) {
-        socket->callback.handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while accepting socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+        socket->callback.handleError(Exception::createPointer(system::system_error(err)));
     } else {
         socket->callback.handleAccept();
         socket->socket->startRead();
@@ -37,7 +37,7 @@ MessagingSocketAcceptor::MessagingSocketAcceptor(MessagingSocket &socket) noexce
 
 void MessagingSocketConnector::operator ()(const system::error_code &err) {
     if (err) {
-        socket->callback.handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while connecting socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+        socket->callback.handleError(Exception::createPointer(system::system_error(err)));
     } else {
         socket->callback.handleConnect();
         socket->socket->startRead();

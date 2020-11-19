@@ -20,6 +20,15 @@ Exception::pointer Exception::getPointer() noexcept {
     return boost::current_exception();
 }
 
+string Exception::what(Exception::pointer ptr) noexcept {
+    try {
+        rethrow_exception(ptr);
+    } catch (const std::exception &ex) {
+        return string(ex.what());
+    }
+    return "(unknown exception)";
+}
+
 std::ostream &operator <<(std::ostream &os, const spacepi::util::Exception::pointer &ex) {
     return os << diagnostic_information(ex);
 }

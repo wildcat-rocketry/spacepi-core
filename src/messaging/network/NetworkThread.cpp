@@ -66,7 +66,7 @@ void NetworkThread::run() {
     try {
         ctx.run();
     } catch (const std::exception &) {
-        log(LogLevel::Error) << "" << Exception::createPointer(EXCEPTION(MessagingException("Error on networking thread")) << errinfo_nested_exception(Exception::getPointer()));
+        log(LogLevel::Error) << Exception::getPointer();
     }
     log(LogLevel::Info) << "Network thread shutting down.";
 }

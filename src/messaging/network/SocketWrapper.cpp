@@ -47,7 +47,7 @@ pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> GenericSocketR
             return make_pair(begin + header + length, true);
         }
     } catch (const std::exception &) {
-        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while determining if a packet is complete")) << errinfo_nested_exception(Exception::getPointer())));
+        callback->handleError(Exception::getPointer());
     }
     return make_pair(end, false);
 }
@@ -55,7 +55,7 @@ pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> GenericSocketR
 void GenericSocketReader::operator ()(const system::error_code &err, size_t length) {
     try {
         if (err) {
-            callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while reading socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+            callback->handleError(Exception::createPointer(system::system_error(err)));
         } else if (length != 0) {
             // Last byte of length is first byte without MSB set
             const char *payload = (const char *) wrapper->readBuffer.data().data();
@@ -74,7 +74,7 @@ void GenericSocketReader::operator ()(const system::error_code &err, size_t leng
             wrapper->startRead();
         }
     } catch (const std::exception &) {
-        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
+        callback->handleError(Exception::getPointer());
     }
 }
 
@@ -84,7 +84,7 @@ GenericSocketReader::GenericSocketReader(GenericSocketWrapper &wrapper, SharedOr
 void GenericSocketWriter::operator ()(const system::error_code &err, size_t length) {
     try {
         if (err) {
-            callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while writing socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+            callback->handleError(Exception::createPointer(system::system_error(err)));
         }
         std::unique_lock<mutex> lck(wrapper->writeMutex);
         if (!err) {
@@ -104,7 +104,7 @@ void GenericSocketWriter::operator ()(const system::error_code &err, size_t leng
             wrapper->isWriting = false;
         }
     } catch (const std::exception &) {
-        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
+        callback->handleError(Exception::getPointer());
     }
 }
 
