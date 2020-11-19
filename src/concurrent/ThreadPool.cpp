@@ -9,6 +9,7 @@
 using namespace std;
 using namespace boost::fibers;
 using namespace spacepi::concurrent;
+using namespace spacepi::concurrent::detail;
 using namespace spacepi::messaging::network;
 
 ThreadPool::ThreadPool() {

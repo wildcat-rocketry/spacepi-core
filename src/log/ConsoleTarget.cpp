@@ -8,7 +8,7 @@ using namespace std;
 using namespace std::chrono;
 using namespace spacepi::log;
 
-ConsoleTarget::ConsoleTarget(ostream &os) : os(os) {
+ConsoleTarget::ConsoleTarget(ostream &os) noexcept : os(os) {
 }
 
 void ConsoleTarget::operator <<(const Entry &entry) {

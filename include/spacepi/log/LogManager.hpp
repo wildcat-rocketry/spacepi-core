@@ -16,15 +16,16 @@ namespace spacepi {
     namespace log {
         class LogManager {
             public:
-                LogManager();
-                LogManager(const LogManager &) = delete;
-                ~LogManager();
-
                 static LogManager instance;
 
-                LogManager &operator =(const LogManager &) = delete;
+                LogManager();
+                ~LogManager();
+
+                LogManager(LogManager &) = delete;
+                LogManager &operator =(LogManager &) = delete;
+
                 void operator <<(const Entry &entry);
-                LogManager &operator +=(std::shared_ptr<LogTarget> target);
+                LogManager &operator +=(const std::shared_ptr<LogTarget> &target);
 
             private:
                 void run();

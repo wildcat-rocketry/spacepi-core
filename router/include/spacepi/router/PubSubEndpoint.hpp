@@ -12,19 +12,19 @@ namespace spacepi {
             friend class PubSubRouter;
 
             public:
-                PubSubEndpoint(const PubSubEndpoint &) = delete;
-                virtual ~PubSubEndpoint();
+                ~PubSubEndpoint() noexcept;
 
-                PubSubEndpoint &operator =(const PubSubEndpoint &) = delete;
+                PubSubEndpoint(PubSubEndpoint &) = delete;
+                PubSubEndpoint &operator =(PubSubEndpoint &) = delete;
 
             protected:
-                PubSubEndpoint(PubSubRouter *router);
+                explicit PubSubEndpoint(PubSubRouter &router) noexcept;
 
                 void publish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
                 virtual void handlePublish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data) = 0;
 
             private:
-                PubSubRouter *router;
+                PubSubRouter &router;
         };
     }
 }

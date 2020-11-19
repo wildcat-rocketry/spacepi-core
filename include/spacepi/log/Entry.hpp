@@ -9,13 +9,13 @@ namespace spacepi {
     namespace log {
         class Entry {
             public:
-                Entry();
-                Entry(const std::string &tag, const LogLevel &level, const std::chrono::system_clock::time_point &time, const std::string &message);
+                Entry() noexcept;
+                Entry(const std::string &tag, const LogLevel &level, const std::chrono::system_clock::time_point &time, const std::string &message) noexcept;
 
-                const std::string &getTag() const;
-                const LogLevel &getLevel() const;
-                const std::chrono::system_clock::time_point &getTime() const;
-                const std::string &getMessage() const;
+                const std::string &getTag() const noexcept;
+                const LogLevel &getLevel() const noexcept;
+                const std::chrono::system_clock::time_point &getTime() const noexcept;
+                const std::string &getMessage() const noexcept;
 
             private:
                 const std::string tag;

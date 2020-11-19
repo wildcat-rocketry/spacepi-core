@@ -27,13 +27,13 @@ LogManager::~LogManager() {
 
 void LogManager::operator <<(const Entry &entry) {
     unique_lock<mutex> lck(entryMutex);
-    entries.push(entry);
+    entries.emplace(entry);
     cond.notify_one();
 }
 
-LogManager &LogManager::operator +=(shared_ptr<LogTarget> target) {
+LogManager &LogManager::operator +=(const shared_ptr<LogTarget> &target) {
     unique_lock<RWMutex<mutex, unique_lock<mutex>, condition_variable>::WriteSide> lck(targetLock.write());
-    targets.push_back(target);
+    targets.emplace_back(target);
     return *this;
 }
 

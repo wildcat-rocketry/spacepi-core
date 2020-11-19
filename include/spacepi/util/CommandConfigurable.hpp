@@ -9,8 +9,13 @@ namespace spacepi {
     namespace util {
         class CommandConfigurable {
             public:
-                CommandConfigurable(const std::string &caption, std::vector<std::string> &args);
-                virtual ~CommandConfigurable();
+                CommandConfigurable(const std::string &caption, std::vector<std::string> &args) noexcept;
+                CommandConfigurable(const CommandConfigurable &copy) noexcept;
+                CommandConfigurable(const CommandConfigurable &&move) noexcept;
+                virtual ~CommandConfigurable() noexcept;
+
+                CommandConfigurable &operator =(const CommandConfigurable &copy) noexcept;
+                CommandConfigurable &operator =(const CommandConfigurable &&move) noexcept;
 
                 static std::vector<std::string> parse(int argc, const char **argv);
             

@@ -5,26 +5,23 @@
 #include <utility>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
-#include <spacepi/log/LogLevel.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/messaging/network/SocketWrapper.hpp>
 #include <spacepi/util/Exception.hpp>
+#include <spacepi/util/SharedOrRef.hpp>
+#include <spacepi/util/WeakOrRef.hpp>
 
 using namespace std;
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
 using namespace boost::asio::local;
-using namespace spacepi::log;
 using namespace spacepi::messaging::network;
+using namespace spacepi::messaging::network::detail;
 using namespace spacepi::util;
 
 template class SocketWrapper<tcp>;
 template class SocketWrapper<stream_protocol>;
-
-void DefaultSocketWrapperCallback::handleError(Exception::pointer err) {
-    log(LogLevel::Error) << "SocketWrapper unhandled error: " << err;
-}
 
 pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> GenericSocketReader::operator ()(buffers_iterator<asio::streambuf::const_buffers_type> begin, buffers_iterator<asio::streambuf::const_buffers_type> end) {
     try {
@@ -49,8 +46,8 @@ pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> GenericSocketR
         if (header + length <= end - begin) {
             return make_pair(begin + header + length, true);
         }
-    } catch (std::exception &) {
-        wrapper->callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while determining if a packet is complete")) << errinfo_nested_exception(Exception::getPointer())));
+    } catch (const std::exception &) {
+        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while determining if a packet is complete")) << errinfo_nested_exception(Exception::getPointer())));
     }
     return make_pair(end, false);
 }
@@ -58,7 +55,7 @@ pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> GenericSocketR
 void GenericSocketReader::operator ()(const system::error_code &err, size_t length) {
     try {
         if (err) {
-            wrapper->callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while reading socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+            callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while reading socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
         } else if (length != 0) {
             // Last byte of length is first byte without MSB set
             const char *payload = (const char *) wrapper->readBuffer.data().data();
@@ -73,21 +70,21 @@ void GenericSocketReader::operator ()(const system::error_code &err, size_t leng
             // Pass to handler
             string msg(payload, payloadlen);
             wrapper->readBuffer.consume(length);
-            wrapper->callback->handlePacket(msg);
+            callback->handlePacket(msg);
+            wrapper->startRead();
         }
-        wrapper->startRead();
     } catch (const std::exception &) {
-        wrapper->callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
+        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
     }
 }
 
-GenericSocketReader::GenericSocketReader(GenericSocketWrapper *wrapper) : wrapper(wrapper) {
+GenericSocketReader::GenericSocketReader(GenericSocketWrapper &wrapper, SharedOrRef<SocketWrapperCallback> &&callback) noexcept : wrapper(wrapper), callback(std::move(callback)) {
 }
 
 void GenericSocketWriter::operator ()(const system::error_code &err, size_t length) {
     try {
         if (err) {
-            wrapper->callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while writing socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
+            callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while writing socket")) << errinfo_nested_exception(Exception::createPointer(system::system_error(err)))));
         }
         std::unique_lock<mutex> lck(wrapper->writeMutex);
         if (!err) {
@@ -107,14 +104,14 @@ void GenericSocketWriter::operator ()(const system::error_code &err, size_t leng
             wrapper->isWriting = false;
         }
     } catch (const std::exception &) {
-        wrapper->callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
+        callback->handleError(Exception::createPointer(EXCEPTION(MessagingException("Error while executing read handler")) << errinfo_nested_exception(Exception::getPointer())));
     }
 }
 
-GenericSocketWriter::GenericSocketWriter(GenericSocketWrapper *wrapper) : wrapper(wrapper) {
+GenericSocketWriter::GenericSocketWriter(GenericSocketWrapper &wrapper, SharedOrRef<SocketWrapperCallback> &&callback) noexcept : wrapper(wrapper), callback(std::move(callback)) {
 }
 
-GenericSocketWrapper::GenericSocketWrapper(SocketWrapperCallback *callback) : reader(this), writer(this), callback(callback), inited(false), writeCommitted(0), isWriting(false) {
+GenericSocketWrapper::GenericSocketWrapper(const WeakOrRef<SocketWrapperCallback> &callback) : callback(callback), inited(false), writeCommitted(0), isWriting(false) {
     readBuffer.prepare(1024);
 }
 
@@ -147,25 +144,28 @@ void GenericSocketWrapper::sendPacket(const string &pkt) {
     }
 }
 
-template <>
-SocketWrapper<tcp>::SocketWrapper(SocketWrapperCallback *callback) : GenericSocketWrapper(callback), socket(new tcp::socket(NetworkThread::instance.getContext())) {
-}
-
-template <>
-SocketWrapper<stream_protocol>::SocketWrapper(SocketWrapperCallback *callback) : GenericSocketWrapper(callback), socket(new stream_protocol::socket(NetworkThread::instance.getContext())) {
+template <typename Proto>
+SocketWrapper<Proto>::SocketWrapper(const WeakOrRef<SocketWrapperCallback> &callback) : GenericSocketWrapper(callback), socket(NetworkThread::instance.getContext()) {
 }
 
 template <typename Proto>
-basic_stream_socket<Proto> &SocketWrapper<Proto>::getSocket() {
-    return *socket;
+typename Proto::socket &SocketWrapper<Proto>::getSocket() {
+    return socket;
 }
 
 template <typename Proto>
 void SocketWrapper<Proto>::startRead() {
-    async_read_until(*socket, readBuffer, reader, reader);
+    SharedOrRef<SocketWrapperCallback> callback = this->callback.lock();
+    if (callback) {
+        GenericSocketReader reader(*this, std::move(callback));
+        async_read_until(socket, readBuffer, reader, reader);
+    }
 }
 
 template <typename Proto>
 void SocketWrapper<Proto>::startWrite() {
-    async_write(*socket, writeBuffer, writer);
+    SharedOrRef<SocketWrapperCallback> callback = this->callback.lock();
+    if (callback) {
+        async_write(socket, writeBuffer, GenericSocketWriter(*this, std::move(callback)));
+    }
 }

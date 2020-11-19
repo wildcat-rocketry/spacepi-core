@@ -30,6 +30,7 @@ add_library(spacepi SHARED
     src/log/LogLevel.cpp
     src/log/LogManager.cpp
     src/log/LogStream.cpp
+    src/messaging/network/MessagingCallback.cpp
     src/messaging/network/MessagingSocket.cpp
     src/messaging/network/NetworkThread.cpp
     src/messaging/network/SocketWrapper.cpp

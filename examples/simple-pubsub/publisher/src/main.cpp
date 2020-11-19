@@ -64,7 +64,7 @@ static void publishThread(Connection &conn) {
 
 static void helloReceiver(Connection &conn) {
     Logger log("example:publisher");
-    Subscription<HelloMessage> sub(&conn, 0);
+    Subscription<HelloMessage> sub(conn, 0);
     HelloMessage msg;
     while (true) {
         sub >> msg;
@@ -74,7 +74,7 @@ static void helloReceiver(Connection &conn) {
 
 static void goodbyeReceiver(Connection &conn) {
     Logger log("example:publisher");
-    Subscription<GoodbyeMessage> sub(&conn, 0);
+    Subscription<GoodbyeMessage> sub(conn, 0);
     GoodbyeMessage msg;
     while (true) {
         sub >> msg;
@@ -84,7 +84,7 @@ static void goodbyeReceiver(Connection &conn) {
 
 static void hiddenGoodbyeReceiver(Connection &conn) {
     Logger log("example:publisher");
-    Subscription<GoodbyeMessage> sub(&conn, 1);
+    Subscription<GoodbyeMessage> sub(conn, 1);
     GoodbyeMessage msg;
     while (true) {
         sub >> msg;

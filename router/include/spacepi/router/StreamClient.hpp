@@ -6,26 +6,16 @@
 #include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/router/PubSubEndpoint.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
+#include <spacepi/router/StreamClientCallback.hpp>
 #include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
     namespace router {
-        class StreamClient;
-
-        class StreamClientCallback {
-            friend class StreamClient;
-
-            protected:
-                virtual void handleAccept() = 0;
-                virtual void handleAcceptError(spacepi::util::Exception::pointer err) = 0;
-                virtual void handleError(spacepi::util::Exception::pointer err) = 0;
-        };
-
         class StreamClient : public PubSubEndpoint, public spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback {
             public:
-                StreamClient(PubSubRouter *router, StreamClientCallback *callback);
-                StreamClient(const StreamClient &) = delete;
+                StreamClient(PubSubRouter &router, StreamClientCallback &callback) noexcept;
 
+                StreamClient(const StreamClient &) = delete;
                 StreamClient &operator =(const StreamClient &) = delete;
 
                 void sendHello();
@@ -34,10 +24,10 @@ namespace spacepi {
                 void handlePublish(const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
                 void handleMessage(const spacepi::messaging::network::SubscriptionID &id, const std::string &msg);
                 void handleAccept();
-                void handleError(spacepi::util::Exception::pointer err);
+                void handleError(const spacepi::util::Exception::pointer &err);
 
             private:
-                StreamClientCallback *callback;
+                StreamClientCallback &callback;
                 bool accepted;
         };
     }

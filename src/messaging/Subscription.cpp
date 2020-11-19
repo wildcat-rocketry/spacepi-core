@@ -6,14 +6,15 @@
 
 using namespace google::protobuf;
 using namespace spacepi::messaging;
+using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
 
 GenericSubscription::~GenericSubscription() {
-    conn->unsubscribe(this);
+    conn.unsubscribe(*this);
 }
 
-GenericSubscription &GenericSubscription::operator >>(Message *message) {
-    recv(message);
+GenericSubscription &GenericSubscription::operator >>(Message &message) {
+    message.ParseFromString(conn.recieve(*this));
     return *this;
 }
 
@@ -21,15 +22,6 @@ const SubscriptionID &GenericSubscription::getID() {
     return id;
 }
 
-GenericSubscription::GenericSubscription(ImmovableConnection *conn, const SubscriptionID &id) : conn(conn), id(id) {
-    conn->subscribe(this);
-}
-
-GenericSubscription::GenericSubscription(Connection *conn, const SubscriptionID &id) : conn((ImmovableConnection *) *conn), id(id) {
-    this->conn->subscribe(this);
-}
-
-void GenericSubscription::recv(Message *message) {
-    string str = conn->recieve(this);
-    message->ParseFromString(str);
+GenericSubscription::GenericSubscription(ImmovableConnection &conn, const SubscriptionID &id) : conn(conn), id(id) {
+    conn.subscribe(*this);
 }

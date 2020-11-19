@@ -9,7 +9,7 @@ namespace spacepi {
     namespace log {
         class ConsoleTarget : public LogTarget {
             public:
-                ConsoleTarget(std::ostream &os);
+                explicit ConsoleTarget(std::ostream &os) noexcept;
 
                 void operator <<(const Entry &entry);
 

@@ -23,8 +23,7 @@ namespace spacepi {
                 }
 
             private:
-                Sleep() {
-                }
+                Sleep() noexcept = default;
         };
     }
 }

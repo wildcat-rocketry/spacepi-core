@@ -14,15 +14,17 @@ namespace spacepi {
     namespace router {
         class PubSubRouter {
             public:
-                PubSubRouter();
-                PubSubRouter(const PubSubRouter &) = delete;
+                PubSubRouter() = default;
 
+                PubSubRouter(const PubSubRouter &) = delete;
                 PubSubRouter &operator =(const PubSubRouter &) = delete;
 
-                void unregister(PubSubEndpoint *endpoint);
-                void publish(PubSubEndpoint *sender, const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
+                void release(PubSubEndpoint &sender) noexcept;
+                void publish(PubSubEndpoint &sender, const spacepi::messaging::network::SubscriptionID &id, const std::string &data);
 
             private:
+                void publish(PubSubEndpoint &sender, const spacepi::messaging::network::SubscriptionID &id, const std::string &data, std::unordered_set<PubSubEndpoint *> &endpoints);
+
                 std::unordered_set<PubSubEndpoint *> fullSubscriptions;
                 std::unordered_map<spacepi::messaging::network::SubscriptionID, std::unordered_set<PubSubEndpoint *>> subscriptions;
                 spacepi::concurrent::RWMutex<std::mutex, std::unique_lock<std::mutex>, std::condition_variable> mtx;

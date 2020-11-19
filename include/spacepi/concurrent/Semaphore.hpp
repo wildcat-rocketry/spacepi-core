@@ -8,23 +8,22 @@ namespace spacepi {
         template <typename Mutex, typename UniqueLock, typename ConditionVariable>
         class Semaphore {
             public:
-                Semaphore(uint32_t locks = 0) : locksAvailable(locks), locksRequested(0), locksServed(0) {
+                Semaphore(uint32_t locks = 0) noexcept : locksAvailable(locks), locksRequested(0), locksServed(0) {
                 }
 
-                Semaphore(const Semaphore &) = delete;
-
-                Semaphore &operator =(const Semaphore &) = delete;
+                Semaphore(Semaphore &) = delete;
+                Semaphore &operator =(Semaphore &) = delete;
 
                 void lock(uint32_t locks = 1) {
                     UniqueLock lck(mutex);
-                    do_lock(locks, lck);
+                    doLock(locks, lck);
                 }
 
                 bool try_lock(uint32_t locks = 1) {
                     UniqueLock lck(mutex);
                     bool can = locks <= locksAvailable;
                     if (can) {
-                        do_lock(locks, lck);
+                        doLock(locks, lck);
                     }
                     return can;
                 }
@@ -36,7 +35,7 @@ namespace spacepi {
                 }
 
             private:
-                void do_lock(uint32_t locks, UniqueLock &lck) {
+                void doLock(uint32_t locks, UniqueLock &lck) {
                     uint32_t lockId = locksRequested++;
                     while (lockId != locksServed || locks > locksAvailable) {
                         condition.wait(lck);

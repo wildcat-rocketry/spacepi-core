@@ -14,24 +14,22 @@ namespace spacepi {
         template <typename Proto>
         class StreamServer : public StreamClientCallback, private spacepi::log::AutoLog<decltype("core:router"_autolog)> {
             public:
-                template <typename Endpoint>
-                StreamServer(PubSubRouter *router, const Endpoint &endpoint);
-                StreamServer(const StreamServer<Proto> &) = delete;
+                StreamServer(PubSubRouter &router, const typename Proto::endpoint &endpoint);
 
+                StreamServer(const StreamServer<Proto> &) = delete;
                 StreamServer<Proto> &operator =(const StreamServer<Proto> &) = delete;
 
             protected:
                 void handleAccept();
-                void handleAcceptError(spacepi::util::Exception::pointer err);
-                void handleError(spacepi::util::Exception::pointer err);
+                void handleAcceptError(const spacepi::util::Exception::pointer &err);
+                void handleError(const spacepi::util::Exception::pointer &err);
 
             private:
                 void startAccept();
 
-                boost::asio::basic_socket_acceptor<Proto> acceptor;
-                std::vector<std::shared_ptr<StreamClient>> clients;
-                std::shared_ptr<StreamClient> newClient;
-                PubSubRouter *router;
+                typename Proto::acceptor acceptor;
+                std::shared_ptr<StreamClient> client;
+                PubSubRouter &router;
         };
     }
 }

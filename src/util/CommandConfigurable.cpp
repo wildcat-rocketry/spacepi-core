@@ -10,17 +10,64 @@ using namespace std;
 using namespace boost::program_options;
 using namespace spacepi::util;
 
-CommandConfigurable::CommandConfigurable(const string &caption, vector<string> &args) : caption(caption), args(args), constructed(false) {
+static const string invalidCaption;
+static vector<string> invalidArgs;
+
+CommandConfigurable::CommandConfigurable(const string &caption, vector<string> &args) noexcept : caption(caption), args(args), constructed(false) {
+}
+
+CommandConfigurable::CommandConfigurable(const CommandConfigurable &copy) noexcept : caption(invalidCaption), args(invalidArgs), constructed(true) {
+    if (!copy.constructed) {
+        try {
+            throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called inside the child class constructor before copy constructing"));
+        } catch (const exception &) {
+            terminate();
+        }
+    }
+}
+
+CommandConfigurable::CommandConfigurable(const CommandConfigurable &&move) noexcept : caption(invalidCaption), args(invalidArgs), constructed(true) {
+    if (!move.constructed) {
+        try {
+            throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called inside the child class constructor before move constructing"));
+        } catch (const exception &) {
+            terminate();
+        }
+    }
 }
 
 CommandConfigurable::~CommandConfigurable() {
     if (!constructed) {
         try {
             throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called inside the child class constructor"));
-        } catch (const std::exception &) {
-            std::terminate();
+        } catch (const exception &) {
+            terminate();
         }
     }
+}
+
+CommandConfigurable &CommandConfigurable::operator =(const CommandConfigurable &copy) noexcept {
+    if (!copy.constructed) {
+        try {
+            throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called inside the child class constructor before copy assigning"));
+        } catch (const exception &) {
+            terminate();
+        }
+    }
+    constructed = true;
+    return *this;
+}
+
+CommandConfigurable &CommandConfigurable::operator =(const CommandConfigurable &&move) noexcept {
+    if (!move.constructed) {
+        try {
+            throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called inside the child class constructor before move assigning"));
+        } catch (const exception &) {
+            terminate();
+        }
+    }
+    constructed = true;
+    return *this;
 }
 
 vector<string> CommandConfigurable::parse(int argc, const char **argv) {
@@ -33,7 +80,11 @@ vector<string> CommandConfigurable::parse(int argc, const char **argv) {
 
 void CommandConfigurable::construct() {
     if (constructed) {
-        throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called only once inside the child class constructor"));
+        try {
+            throw EXCEPTION(CommandConfigurableException("CommandConfigurable::construct() must be called only once inside the child class constructor"));
+        } catch (const exception &) {
+            terminate();
+        }
     }
     constructed = true;
     options_description desc(caption);

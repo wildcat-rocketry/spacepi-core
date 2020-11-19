@@ -12,8 +12,8 @@ namespace spacepi {
     namespace log {
         class LogStream : public std::ostream {
             public:
-                LogStream(const std::string &tag, const LogLevel &level, LogManager &manager);
-                LogStream(const LogStream &copy);
+                LogStream(const std::string &tag, const LogLevel &level, LogManager &manager) noexcept;
+                LogStream(const LogStream &copy) noexcept;
                 ~LogStream();
 
                 LogStream &operator =(const LogStream &) = delete;

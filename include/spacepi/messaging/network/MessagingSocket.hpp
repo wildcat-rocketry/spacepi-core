@@ -5,83 +5,69 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
-#include <spacepi/log/AutoLog.hpp>
+#include <spacepi/messaging/network/MessagingCallback.hpp>
 #include <spacepi/messaging/network/SocketWrapper.hpp>
+#include <spacepi/messaging/network/SocketWrapperCallback.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/Exception.hpp>
+#include <spacepi/util/SharedOrRef.hpp>
 
 namespace spacepi {
     namespace messaging {
         namespace network {
             class MessagingSocket;
-            class MessagingSocketAcceptor;
-            class MessagingSocketConnector;
 
-            class MessagingCallback {
-                friend class MessagingSocket;
-                friend class MessagingSocketAcceptor;
-                friend class MessagingSocketConnector;
+            namespace detail {
+                class MessagingSocketAcceptor {
+                    friend class network::MessagingSocket;
 
-                protected:
-                    virtual void handleMessage(const SubscriptionID &id, const std::string &msg) = 0;
-                    virtual void handleAccept();
-                    virtual void handleConnect();
-                    virtual void handleError(spacepi::util::Exception::pointer err) = 0;
-            };
+                    public:
+                        void operator ()(const boost::system::error_code &err);
 
-            class DefaultMessagingCallback : public MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
-                protected:
-                    virtual void handleError(spacepi::util::Exception::pointer err);
-            };
+                    private:
+                        explicit MessagingSocketAcceptor(MessagingSocket &socket) noexcept;
 
-            class MessagingSocketAcceptor {
-                friend class MessagingSocket;
+                        spacepi::util::SharedOrRef<MessagingSocket> socket;
+                };
 
-                public:
-                    void operator ()(const boost::system::error_code &err);
+                class MessagingSocketConnector {
+                    friend class network::MessagingSocket;
 
-                private:
-                    MessagingSocketAcceptor(MessagingSocket *socket);
+                    public:
+                        void operator ()(const boost::system::error_code &err);
 
-                    MessagingSocket *socket;
-            };
+                    private:
+                        explicit MessagingSocketConnector(MessagingSocket &socket) noexcept;
 
-            class MessagingSocketConnector {
-                friend class MessagingSocket;
+                        spacepi::util::SharedOrRef<MessagingSocket> socket;
+                };
+            }
+
+            class MessagingSocket : public SocketWrapperCallback, public std::enable_shared_from_this<MessagingSocket> {
+                friend class detail::MessagingSocketAcceptor;
+                friend class detail::MessagingSocketConnector;
 
                 public:
-                    void operator ()(const boost::system::error_code &err);
+                    explicit MessagingSocket(MessagingCallback &callback) noexcept;
 
-                private:
-                    MessagingSocketConnector(MessagingSocket *socket);
+                    MessagingSocket(MessagingSocket &) = delete;
+                    MessagingSocket &operator =(MessagingSocket &) = delete;
 
-                    MessagingSocket *socket;
-            };
+                    template <typename Proto>
+                    void accept(typename Proto::acceptor &acceptor);
 
-            class MessagingSocket : public SocketWrapperCallback {
-                friend class MessagingSocketAcceptor;
-                friend class MessagingSocketConnector;
-
-                public:
-                    MessagingSocket(MessagingCallback *callback);
-
-                    template <typename Acceptor>
-                    void accept(Acceptor &acceptor);
-
-                    template <typename Endpoint>
-                    void connect(const Endpoint &endpoint);
+                    template <typename Proto>
+                    void connect(const typename Proto::endpoint &endpoint);
 
                     void sendMessage(const SubscriptionID &id, const std::string &msg);
 
                 protected:
                     void handlePacket(const std::string &pkt);
-                    void handleError(spacepi::util::Exception::pointer err);
+                    void handleError(const spacepi::util::Exception::pointer &err);
 
                 private:
-                    MessagingCallback *callback;
+                    MessagingCallback &callback;
                     std::shared_ptr<GenericSocketWrapper> socket;
-                    MessagingSocketAcceptor acceptor;
-                    MessagingSocketConnector connector;
             };
         }
     }

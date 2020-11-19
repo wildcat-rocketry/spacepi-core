@@ -16,38 +16,33 @@ using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 using namespace spacepi::util;
 
-template <>
-template <>
-StreamServer<tcp>::StreamServer<tcp::endpoint>(PubSubRouter *router, const tcp::endpoint &endpoint) : acceptor(NetworkThread::instance.getContext(), endpoint), router(router) {
-    startAccept();
-}
+template class StreamServer<tcp>;
+template class StreamServer<stream_protocol>;
 
-template <>
-template <>
-StreamServer<stream_protocol>::StreamServer<stream_protocol::endpoint>(PubSubRouter *router, const stream_protocol::endpoint &endpoint) : acceptor(NetworkThread::instance.getContext(), endpoint), router(router) {
+template <typename Proto>
+StreamServer<Proto>::StreamServer(PubSubRouter &router, const typename Proto::endpoint &endpoint) : acceptor(NetworkThread::instance.getContext(), endpoint), router(router), client(nullptr) {
     startAccept();
 }
 
 template <typename Proto>
 void StreamServer<Proto>::handleAccept() {
-    clients.push_back(newClient);
-    newClient->sendHello();
+    client->sendHello();
     startAccept();
 }
 
 template <typename Proto>
-void StreamServer<Proto>::handleAcceptError(Exception::pointer err) {
+void StreamServer<Proto>::handleAcceptError(const Exception::pointer &err) {
     startAccept();
     handleError(err);
 }
 
 template <typename Proto>
-void StreamServer<Proto>::handleError(Exception::pointer err) {
+void StreamServer<Proto>::handleError(const Exception::pointer &err) {
     log(LogLevel::Error) << "Socket error: " << err;
 }
 
 template <typename Proto>
 void StreamServer<Proto>::startAccept() {
-    newClient.reset(new StreamClient(router, this));
-    newClient->accept(acceptor);
+    client.reset(new StreamClient(router, *this));
+    client->accept<Proto>(acceptor);
 }

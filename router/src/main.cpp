@@ -9,7 +9,7 @@ using namespace spacepi::router;
 
 int main(int argc, const char **argv) {
     PubSubRouter router;
-    StreamServer<tcp> server(&router, tcp::endpoint(tcp::v4(), 8000));
+    StreamServer<tcp> server(router, tcp::endpoint(tcp::v4(), 8000));
     NetworkThread::instance.join();
     return 0;
 }

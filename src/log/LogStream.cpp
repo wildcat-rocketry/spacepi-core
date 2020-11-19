@@ -10,10 +10,10 @@ using namespace std;
 using namespace std::chrono;
 using namespace spacepi::log;
 
-LogStream::LogStream(const string &tag, const LogLevel &level, LogManager &manager) : ostream(&buffer), tag(tag), level(level), manager(manager), time(system_clock::now()) {
+LogStream::LogStream(const string &tag, const LogLevel &level, LogManager &manager) noexcept : ostream(&buffer), tag(tag), level(level), manager(manager), time(system_clock::now()) {
 }
 
-LogStream::LogStream(const LogStream &copy) : ostream(&buffer), tag(copy.tag), level(copy.level), manager(copy.manager), time(copy.time), buffer(copy.buffer.str()) {
+LogStream::LogStream(const LogStream &copy) noexcept : ostream(&buffer), tag(copy.tag), level(copy.level), manager(copy.manager), time(copy.time), buffer(copy.buffer.str()) {
 }
 
 LogStream::~LogStream() {

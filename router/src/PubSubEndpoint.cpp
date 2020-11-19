@@ -6,13 +6,13 @@
 using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 
-PubSubEndpoint::~PubSubEndpoint() {
-    router->unregister(this);
+PubSubEndpoint::~PubSubEndpoint() noexcept {
+    router.release(*this);
 }
 
-PubSubEndpoint::PubSubEndpoint(PubSubRouter *router) : router(router) {
+PubSubEndpoint::PubSubEndpoint(PubSubRouter &router) noexcept : router(router) {
 }
 
 void PubSubEndpoint::publish(const SubscriptionID &id, const std::string &data) {
-    router->publish(this, id, data);
+    router.publish(*this, id, data);
 }

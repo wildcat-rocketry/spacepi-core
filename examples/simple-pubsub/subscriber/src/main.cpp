@@ -32,7 +32,7 @@ int main(int argc, const char **argv) {
 
 static void helloReceiver(Connection &conn) {
     Logger log("example:subscriber");
-    Subscription<HelloMessage> sub(&conn, 0);
+    Subscription<HelloMessage> sub(conn, 0);
     HelloMessage msg;
     while (true) {
         sub >> msg;
@@ -42,7 +42,7 @@ static void helloReceiver(Connection &conn) {
 
 static void goodbyeReceiver(Connection &conn) {
     Logger log("example:subscriber");
-    Subscription<GoodbyeMessage> sub(&conn, 0);
+    Subscription<GoodbyeMessage> sub(conn, 0);
     GoodbyeMessage msg;
     while (true) {
         sub >> msg;

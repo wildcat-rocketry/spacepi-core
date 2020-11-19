@@ -8,16 +8,16 @@ namespace spacepi {
     namespace log {
         class LogLevel {
             public:
-                LogLevel(int id, const std::string &tag);
+                LogLevel(int id, const std::string &tag) noexcept;
 
-                bool operator ==(const LogLevel &other) const;
-                bool operator !=(const LogLevel &other) const;
-                bool operator < (const LogLevel &other) const;
-                bool operator <=(const LogLevel &other) const;
-                bool operator > (const LogLevel &other) const;
-                bool operator >=(const LogLevel &other) const;
+                bool operator ==(const LogLevel &other) const noexcept;
+                bool operator !=(const LogLevel &other) const noexcept;
+                bool operator < (const LogLevel &other) const noexcept;
+                bool operator <=(const LogLevel &other) const noexcept;
+                bool operator > (const LogLevel &other) const noexcept;
+                bool operator >=(const LogLevel &other) const noexcept;
 
-                const std::string &getTag() const;
+                const std::string &getTag() const noexcept;
 
                 static const LogLevel Debug;
                 static const LogLevel Info;
@@ -25,8 +25,8 @@ namespace spacepi {
                 static const LogLevel Error;
 
             private:
-                int id;
-                std::string tag;
+                const int id;
+                const std::string tag;
         };
     }
 }

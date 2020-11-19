@@ -15,27 +15,27 @@ namespace spacepi {
             public:
                 typedef boost::exception_ptr pointer;
 
-                Exception(boost::format message);
-                Exception(std::string message);
+                explicit Exception(const boost::format &message) noexcept;
+                explicit Exception(const std::string &message) noexcept;
 
                 const char *what() const noexcept;
 
                 template <typename Type>
-                static inline pointer createPointer(const Type &ex) {
+                static inline pointer createPointer(const Type &ex) noexcept {
                     return boost::copy_exception(ex);
                 }
 
-                static pointer getPointer();
+                static pointer getPointer() noexcept;
 
             private:
-                std::string message;
+                const std::string message;
         };
 
 #define SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(name) \
         class name : public Exception { \
             public: \
-                name(boost::format message); \
-                name(std::string message); \
+                explicit name(const boost::format &message) noexcept; \
+                explicit name(const std::string &message) noexcept; \
         };
 #include <spacepi/util/Exception.hpp>
 #undef SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE

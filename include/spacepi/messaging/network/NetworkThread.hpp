@@ -15,10 +15,9 @@ namespace spacepi {
                     static NetworkThread instance;
 
                     NetworkThread(const NetworkThread &) = delete;
-
                     NetworkThread &operator =(const NetworkThread &) = delete;
 
-                    boost::asio::io_context &getContext();
+                    boost::asio::io_context &getContext() noexcept;
                     void start();
                     void join();
                     void stop();

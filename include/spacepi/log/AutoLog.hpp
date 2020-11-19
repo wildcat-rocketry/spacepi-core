@@ -14,14 +14,14 @@ namespace spacepi {
         template <char... tag>
         class AutoLog<std::integer_sequence<char, tag...>> {
             protected:
-                AutoLog() : log(getTag()) {
+                AutoLog() noexcept : log(getTag()) {
                 }
 
                 Logger log;
 
             private:
-                static inline std::string getTag() {
-                    static constexpr char str[sizeof...(tag)] = { tag... };
+                static constexpr std::string getTag() noexcept {
+                    constexpr char str[sizeof...(tag)] = { tag... };
                     return std::string(str, sizeof...(tag));
                 }
         };
@@ -29,7 +29,7 @@ namespace spacepi {
 }
 
 template <typename Char, Char... chars>
-constexpr std::integer_sequence<Char, chars...> operator ""_autolog() {
+constexpr std::integer_sequence<Char, chars...> operator ""_autolog() noexcept {
     return {};
 }
 

@@ -17,18 +17,15 @@ using namespace spacepi::messaging;
 using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 
-PubSubRouter::PubSubRouter() {
-}
-
-void PubSubRouter::unregister(PubSubEndpoint *endpoint) {
+void PubSubRouter::release(PubSubEndpoint &sender) noexcept {
     unique_lock<RWMutex<mutex, unique_lock<mutex>, condition_variable>::WriteSide> lck(mtx.write());
-    fullSubscriptions.erase(endpoint);
+    fullSubscriptions.erase(&sender);
     for (unordered_map<SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator it = subscriptions.begin(); it != subscriptions.end(); ++it) {
-        it->second.erase(endpoint);
+        it->second.erase(&sender);
     }
 }
 
-void PubSubRouter::publish(PubSubEndpoint *sender, const SubscriptionID &id, const std::string &data) {
+void PubSubRouter::publish(PubSubEndpoint &sender, const SubscriptionID &id, const std::string &data) {
     if (id.getMessageID() == SubscribeRequest::descriptor()->options().GetExtension(MessageID)) {
         SubscribeRequest req;
         req.ParseFromString(data);
@@ -37,45 +34,42 @@ void PubSubRouter::publish(PubSubEndpoint *sender, const SubscriptionID &id, con
         unordered_map<SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator it;
         switch (req.operation()) {
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_SUBSCRIBE:
-                if (fullSubscriptions.find(sender) == fullSubscriptions.end()) {
+                if (fullSubscriptions.find(&sender) == fullSubscriptions.end()) {
                     it = subscriptions.find(chanId);
                     if (it == subscriptions.end()) {
                         subscriptions.emplace_hint(it, chanId, (initializer_list<PubSubEndpoint *>) {
-                            sender
+                            &sender
                         });
                     } else {
-                        it->second.insert(sender);
+                        it->second.insert(&sender);
                     }
                 }
                 break;
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_UNSUBSCRIBE:
                 it = subscriptions.find(chanId);
                 if (it != subscriptions.end()) {
-                    it->second.erase(sender);
+                    it->second.erase(&sender);
                 }
                 break;
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_SUBSCRIBE_ALL:
                 for (it = subscriptions.begin(); it != subscriptions.end(); ++it) {
-                    it->second.erase(sender);
+                    it->second.erase(&sender);
                 }
-                fullSubscriptions.insert(sender);
+                fullSubscriptions.insert(&sender);
                 break;
             case SubscribeRequest::OperationType::SubscribeRequest_OperationType_UNSUBSCRIBE_ALL:
-                fullSubscriptions.erase(sender);
+                fullSubscriptions.erase(&sender);
                 break;
         }
     } else {
         unique_lock<RWMutex<mutex, unique_lock<mutex>, condition_variable>::ReadSide> lck(mtx.read());
-        for (unordered_set<PubSubEndpoint *>::iterator it = fullSubscriptions.begin(); it != fullSubscriptions.end(); ++it) {
-            if (*it != sender) {
-                (*it)->handlePublish(id, data);
-            }
-        }
-        unordered_set<PubSubEndpoint *> &subs = subscriptions[id];
-        for (unordered_set<PubSubEndpoint *>::iterator it = subs.begin(); it != subs.end(); ++it) {
-            if (*it != sender) {
-                (*it)->handlePublish(id, data);
-            }
-        }
+        publish(sender, id, data, fullSubscriptions);
+        publish(sender, id, data, subscriptions[id]);
+    }
+}
+
+void PubSubRouter::publish(PubSubEndpoint &sender, const SubscriptionID &id, const std::string &data, unordered_set<PubSubEndpoint *> &endpoints) {
+    for (unordered_set<PubSubEndpoint *>::iterator it = endpoints.begin(); it != endpoints.end(); ++it) {
+        (*it)->handlePublish(id, data);
     }
 }

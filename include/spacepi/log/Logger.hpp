@@ -10,9 +10,9 @@ namespace spacepi {
     namespace log {
         class Logger {
             public:
-                Logger(const std::string &tag, LogManager &manager = LogManager::instance);
+                Logger(const std::string &tag, LogManager &manager = LogManager::instance) noexcept;
 
-                LogStream operator ()(const LogLevel &level) const;
+                LogStream operator ()(const LogLevel &level) const noexcept;
 
             private:
                 const std::string tag;

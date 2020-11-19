@@ -10,34 +10,34 @@ const LogLevel LogLevel::Info   (1, "INFO ");
 const LogLevel LogLevel::Warning(2, "WARN ");
 const LogLevel LogLevel::Error  (3, "ERROR");
 
-LogLevel::LogLevel(int id, const string &tag) : id(id), tag(tag) {
+LogLevel::LogLevel(int id, const string &tag) noexcept : id(id), tag(tag) {
 }
 
-bool LogLevel::operator ==(const LogLevel &other) const {
+bool LogLevel::operator ==(const LogLevel &other) const noexcept {
     return id == other.id;
 }
 
-bool LogLevel::operator !=(const LogLevel &other) const {
+bool LogLevel::operator !=(const LogLevel &other) const noexcept {
     return id != other.id;
 }
 
-bool LogLevel::operator <(const LogLevel &other) const {
+bool LogLevel::operator <(const LogLevel &other) const noexcept {
     return id < other.id;
 }
 
-bool LogLevel::operator <=(const LogLevel &other) const {
+bool LogLevel::operator <=(const LogLevel &other) const noexcept {
     return id <= other.id;
 }
 
-bool LogLevel::operator >(const LogLevel &other) const {
+bool LogLevel::operator >(const LogLevel &other) const noexcept {
     return id > other.id;
 }
 
-bool LogLevel::operator >=(const LogLevel &other) const {
+bool LogLevel::operator >=(const LogLevel &other) const noexcept {
     return id >= other.id;
 }
 
-const string &LogLevel::getTag() const {
+const string &LogLevel::getTag() const noexcept {
     return tag;
 }
 

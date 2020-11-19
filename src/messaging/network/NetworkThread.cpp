@@ -16,7 +16,7 @@ using namespace spacepi::util;
 
 NetworkThread NetworkThread::instance;
 
-io_context &NetworkThread::getContext() {
+io_context &NetworkThread::getContext() noexcept {
     return ctx;
 }
 
