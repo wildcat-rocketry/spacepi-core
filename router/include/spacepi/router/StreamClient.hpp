@@ -2,6 +2,7 @@
 #define SPACEPI_CORE_ROUTER_STREAMCLIENT_HPP
 
 #include <string>
+#include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/router/PubSubEndpoint.hpp>
@@ -11,7 +12,7 @@
 
 namespace spacepi {
     namespace router {
-        class StreamClient : public PubSubEndpoint, public spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback {
+        class StreamClient : public PubSubEndpoint, public spacepi::messaging::network::MessagingSocket, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:router"_autolog)> {
             public:
                 StreamClient(PubSubRouter &router, StreamClientCallback &callback) noexcept;
 

@@ -11,9 +11,7 @@ namespace spacepi {
             friend class StreamClient;
 
             protected:
-                virtual void handleAccept() = 0;
-                virtual void handleAcceptError(const spacepi::util::Exception::pointer &err) = 0;
-                virtual void handleError(const spacepi::util::Exception::pointer &err) = 0;
+                virtual void handleAccept(const spacepi::util::Exception::pointer *err) = 0;
         };
     }
 }

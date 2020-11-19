@@ -20,9 +20,7 @@ namespace spacepi {
                 StreamServer<Proto> &operator =(const StreamServer<Proto> &) = delete;
 
             protected:
-                void handleAccept();
-                void handleAcceptError(const spacepi::util::Exception::pointer &err);
-                void handleError(const spacepi::util::Exception::pointer &err);
+                void handleAccept(const spacepi::util::Exception::pointer *err);
 
             private:
                 void startAccept();

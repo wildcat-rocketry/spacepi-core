@@ -1,5 +1,6 @@
 #include <string>
 #include <boost/system/error_code.hpp>
+#include <spacepi/log/LogLevel.hpp>
 #include <spacepi/messaging/HelloMessage.pb.h>
 #include <spacepi/messaging/MessageID.pb.h>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
@@ -11,6 +12,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace spacepi::log;
 using namespace spacepi::messaging;
 using namespace spacepi::messaging::network;
 using namespace spacepi::router;
@@ -35,13 +37,14 @@ void StreamClient::handleMessage(const SubscriptionID &id, const string &data) {
 
 void StreamClient::handleAccept() {
     accepted = true;
-    callback.handleAccept();
+    log(LogLevel::Debug) << "Client connected.";
+    callback.handleAccept(nullptr);
 }
 
 void StreamClient::handleError(const Exception::pointer &err) {
     if (accepted) {
-        callback.handleError(err);
+        log(LogLevel::Debug) << "Client disconnected.";
     } else {
-        callback.handleAcceptError(err);
+        callback.handleAccept(&err);
     }
 }

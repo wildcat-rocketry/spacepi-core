@@ -25,20 +25,13 @@ StreamServer<Proto>::StreamServer(PubSubRouter &router, const typename Proto::en
 }
 
 template <typename Proto>
-void StreamServer<Proto>::handleAccept() {
-    client->sendHello();
+void StreamServer<Proto>::handleAccept(const Exception::pointer *err) {
+    if (err) {
+        log(LogLevel::Error) << "Socket error: " << *err;
+    } else {
+        client->sendHello();
+    }
     startAccept();
-}
-
-template <typename Proto>
-void StreamServer<Proto>::handleAcceptError(const Exception::pointer &err) {
-    startAccept();
-    handleError(err);
-}
-
-template <typename Proto>
-void StreamServer<Proto>::handleError(const Exception::pointer &err) {
-    log(LogLevel::Error) << "Socket error: " << err;
 }
 
 template <typename Proto>
