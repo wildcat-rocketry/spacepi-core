@@ -204,13 +204,13 @@ void ImmovableConnection::updateSubscriptions() {
     if (state == Connected) {
         SubscribeRequest req;
         for (unordered_set<network::SubscriptionID>::const_iterator it = toSubscribe.begin(); it != toSubscribe.end(); ++it) {
-            messaging::SubscriptionID *sub = req.add_subscribe();
+            detail::SubscriptionID *sub = req.add_subscribe();
             sub->set_messageid(it->getMessageID());
             sub->set_instanceid(it->getInstanceID());
         }
         toSubscribe.clear();
         for (unordered_set<network::SubscriptionID>::const_iterator it = toUnsubscribe.begin(); it != toUnsubscribe.end(); ++it) {
-            messaging::SubscriptionID *sub = req.add_unsubscribe();
+            detail::SubscriptionID *sub = req.add_unsubscribe();
             sub->set_messageid(it->getMessageID());
             sub->set_instanceid(it->getInstanceID());
         }

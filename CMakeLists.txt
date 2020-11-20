@@ -54,6 +54,12 @@ target_link_libraries(spacepi
 )
 install(TARGETS spacepi LIBRARY DESTINATION lib)
 
+add_executable(spacepi_pch src/PCH.cpp)
+target_link_libraries(spacepi_pch spacepi)
+target_precompile_headers(spacepi_pch PUBLIC
+    <SpacePi.hpp>
+)
+
 add_subdirectory(dashboard)
 add_subdirectory(examples EXCLUDE_FROM_ALL)
 add_subdirectory(router)

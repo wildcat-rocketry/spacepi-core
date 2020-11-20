@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace spacepi;
 using namespace spacepi::log;
 using namespace spacepi::messaging;
 using namespace spacepi::messaging::network;
@@ -22,9 +23,9 @@ StreamClient::StreamClient(PubSubRouter &router, StreamClientCallback &callback)
 }
 
 void StreamClient::sendHello() {
-    HelloMessage msg;
+    messaging::detail::HelloMessage msg;
     msg.set_serverid("SpacePi Router v2.0\n");
-    sendMessage(SubscriptionID(HelloMessage::descriptor()->options().GetExtension(MessageID), 0), msg.SerializeAsString());
+    sendMessage(SubscriptionID(messaging::detail::HelloMessage::descriptor()->options().GetExtension(MessageID), 0), msg.SerializeAsString());
 }
 
 void StreamClient::handlePublish(const SubscriptionID &id, const string &data) {

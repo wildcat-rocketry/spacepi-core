@@ -1,5 +1,5 @@
 syntax = "proto3";
-package spacepi.messaging;
+package spacepi.messaging.detail;
 option java_package = "com.ffaero.spacepi.messaging";
 
 import "spacepi/messaging/MessageID.proto";

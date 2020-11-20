@@ -14,6 +14,7 @@ using namespace boost;
 using namespace boost::asio::ip;
 using namespace boost::asio::local;
 using namespace spacepi::messaging;
+using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
 using namespace spacepi::messaging::network::detail;
 using namespace spacepi::util;

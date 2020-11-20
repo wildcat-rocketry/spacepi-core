@@ -104,6 +104,7 @@ function (spacepi_module)
     spacepi_current_module(moduleName)
 
     add_executable("${moduleName}" ${ARGV})
+    target_precompile_headers("${moduleName}" REUSE_FROM spacepi_pch)
     target_link_libraries("${moduleName}" PUBLIC spacepi)
 
     install(TARGETS "${moduleName}" RUNTIME DESTINATION bin)
@@ -113,6 +114,12 @@ function (spacepi_module_include_directories)
     spacepi_current_module(moduleName)
     
     target_include_directories(${moduleName} ${ARGV})
+endfunction()
+
+function (spacepi_module_precompile_headers)
+    spacepi_current_module(moduleName)
+
+    target_precompile_headers(${moduleName} ${ARGV})
 endfunction()
 
 function (spacepi_module_link_libraries)

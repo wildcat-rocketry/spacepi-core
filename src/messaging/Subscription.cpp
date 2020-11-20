@@ -7,7 +7,6 @@
 using namespace google::protobuf;
 using namespace spacepi::messaging;
 using namespace spacepi::messaging::detail;
-using namespace spacepi::messaging::network;
 
 GenericSubscription::~GenericSubscription() {
     conn.unsubscribe(*this);
@@ -18,10 +17,10 @@ GenericSubscription &GenericSubscription::operator >>(Message &message) {
     return *this;
 }
 
-const SubscriptionID &GenericSubscription::getID() {
+const network::SubscriptionID &GenericSubscription::getID() {
     return id;
 }
 
-GenericSubscription::GenericSubscription(ImmovableConnection &conn, const SubscriptionID &id) : conn(conn), id(id) {
+GenericSubscription::GenericSubscription(ImmovableConnection &conn, const network::SubscriptionID &id) : conn(conn), id(id) {
     conn.subscribe(*this);
 }

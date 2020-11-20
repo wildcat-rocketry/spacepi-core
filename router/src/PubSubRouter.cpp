@@ -18,6 +18,7 @@ using namespace google::protobuf;
 using namespace spacepi;
 using namespace spacepi::concurrent;
 using namespace spacepi::messaging;
+using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 
@@ -46,16 +47,16 @@ void PubSubRouter::publish(PubSubEndpoint &sender, const network::SubscriptionID
                 }
                 fullSubscriptions.insert(&sender);
             } else {
-                const RepeatedPtrField<messaging::SubscriptionID> &unsubs = req.unsubscribe();
-                for (RepeatedPtrField<messaging::SubscriptionID>::const_iterator it = unsubs.begin(); it != unsubs.end(); ++it) {
+                const RepeatedPtrField<messaging::detail::SubscriptionID> &unsubs = req.unsubscribe();
+                for (RepeatedPtrField<messaging::detail::SubscriptionID>::const_iterator it = unsubs.begin(); it != unsubs.end(); ++it) {
                     network::SubscriptionID chanId(it->messageid(), it->instanceid());
                     unordered_map<network::SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator chan = subscriptions.find(chanId);
                     if (chan != subscriptions.end()) {
                         chan->second.erase(&sender);
                     }
                 }
-                const RepeatedPtrField<messaging::SubscriptionID> &subs = req.subscribe();
-                for (RepeatedPtrField<messaging::SubscriptionID>::const_iterator it = subs.begin(); it != subs.end(); ++it) {
+                const RepeatedPtrField<messaging::detail::SubscriptionID> &subs = req.subscribe();
+                for (RepeatedPtrField<messaging::detail::SubscriptionID>::const_iterator it = subs.begin(); it != subs.end(); ++it) {
                     network::SubscriptionID chanId(it->messageid(), it->instanceid());
                     pair<unordered_map<network::SubscriptionID, unordered_set<PubSubEndpoint *>>::iterator, bool> res = subscriptions.emplace(chanId, (initializer_list<PubSubEndpoint *>) { &sender });
                     if (!res.second) {

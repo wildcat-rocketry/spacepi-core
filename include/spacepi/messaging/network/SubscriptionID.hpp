@@ -18,7 +18,7 @@ namespace spacepi {
 
                     template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
                     static SubscriptionID create(uint64_t instanceID) {
-                        return SubscriptionID(MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID), instanceID);
+                        return SubscriptionID(MessageType::descriptor()->options().GetExtension(MessageID), instanceID);
                     }
 
                     uint64_t getMessageID() const;

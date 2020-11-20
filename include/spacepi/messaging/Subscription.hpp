@@ -32,7 +32,7 @@ namespace spacepi {
         template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
         class Subscription : public GenericSubscription {
             public:
-                Subscription(Connection &conn, uint64_t instanceID) : GenericSubscription(*conn.conn, network::SubscriptionID(MessageType::descriptor()->options().GetExtension(spacepi::messaging::MessageID), instanceID)) {
+                Subscription(Connection &conn, uint64_t instanceID) : GenericSubscription(*conn.conn, network::SubscriptionID(MessageType::descriptor()->options().GetExtension(MessageID), instanceID)) {
                 }
 
                 Subscription &operator >>(MessageType &message) {
