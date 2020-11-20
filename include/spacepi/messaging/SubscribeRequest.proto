@@ -3,17 +3,13 @@ package spacepi.messaging;
 option java_package = "com.ffaero.spacepi.messaging";
 
 import "spacepi/messaging/MessageID.proto";
+import "spacepi/messaging/SubscriptionID.proto";
 
 message SubscribeRequest {
     option (MessageID) = 0x20;
 
-    enum OperationType {
-        SUBSCRIBE = 0;
-        UNSUBSCRIBE = 1;
-        SUBSCRIBE_ALL = 2;
-        UNSUBSCRIBE_ALL = 3;
-    }
-
-    OperationType operation = 1;
-    uint64 messageID = 2;
+    repeated SubscriptionID subscribe = 1;
+    repeated SubscriptionID unsubscribe = 2;
+    bool subscribeAll = 3;
+    bool unsubscribeAll = 4;
 }

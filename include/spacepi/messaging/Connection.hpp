@@ -8,6 +8,7 @@
 #include <string>
 #include <type_traits>
 #include <unordered_map>
+#include <unordered_set>
 #include <boost/asio.hpp>
 #include <boost/fiber/all.hpp>
 #include <boost/program_options.hpp>
@@ -31,19 +32,17 @@ namespace spacepi {
 
             class SubscriptionData {
                 public:
-                    SubscriptionData(ImmovableConnection &conn, const network::SubscriptionID &id);
+                    SubscriptionData() noexcept;
 
                     SubscriptionData(const SubscriptionData &) = delete;
                     SubscriptionData &operator =(const SubscriptionData &) = delete;
 
                     void add();
-                    void sub();
+                    bool sub();
                     std::string get();
                     void put(const std::string &msg);
 
                 private:
-                    ImmovableConnection &conn;
-                    const network::SubscriptionID id;
                     int count;
                     std::queue<std::string> messages;
                     boost::fibers::mutex mtx;
@@ -96,8 +95,11 @@ namespace spacepi {
                     };
 
                     void connect();
+                    void updateSubscriptions();
 
-                    std::unordered_map<network::SubscriptionID, SubscriptionData> subscriptions;
+                    std::unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>> subscriptions;
+                    std::unordered_set<network::SubscriptionID> toSubscribe;
+                    std::unordered_set<network::SubscriptionID> toUnsubscribe;
                     std::unique_ptr<spacepi::messaging::network::MessagingSocket> socket;
                     enum State state;
                     boost::fibers::mutex mtx;

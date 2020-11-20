@@ -1,13 +1,16 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <boost/asio.hpp>
+#include <boost/fiber/all.hpp>
 #include <boost/program_options.hpp>
 #include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
@@ -16,6 +19,7 @@
 #include <spacepi/messaging/MessageID.pb.h>
 #include <spacepi/messaging/SubscribeRequest.pb.h>
 #include <spacepi/messaging/Subscription.hpp>
+#include <spacepi/messaging/SubscriptionID.pb.h>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
@@ -34,27 +38,15 @@ using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 
-SubscriptionData::SubscriptionData(ImmovableConnection &conn, const SubscriptionID &id) : conn(conn), id(id), count(0) {
+SubscriptionData::SubscriptionData() noexcept : count(0) {
 }
 
 void SubscriptionData::add() {
-    std::unique_lock<fibers::mutex> lck(mtx);
-    if (++count == 1) {
-        SubscribeRequest req;
-        req.set_messageid(id.getMessageID());
-        req.set_operation(SubscribeRequest_OperationType::SubscribeRequest_OperationType_SUBSCRIBE);
-        conn(id.getInstanceID()) << req;
-    }
+    ++count;
 }
 
-void SubscriptionData::sub() {
-    std::unique_lock<fibers::mutex> lck(mtx);
-    if (--count == 0) {
-        SubscribeRequest req;
-        req.set_messageid(id.getMessageID());
-        req.set_operation(SubscribeRequest_OperationType::SubscribeRequest_OperationType_UNSUBSCRIBE);
-        conn(id.getInstanceID()) << req;
-    }
+bool SubscriptionData::sub() {
+    return --count == 0;
 }
 
 string SubscriptionData::get() {
@@ -91,18 +83,41 @@ Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
 }
 
 void ImmovableConnection::subscribe(GenericSubscription &sub) {
-    const SubscriptionID &id = sub.getID();
-    subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::tuple<ImmovableConnection &, const SubscriptionID &>(*this, id)).first->second.add();
+    const network::SubscriptionID &id = sub.getID();
+    std::unique_lock<fibers::mutex> lck(mtx);
+    unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
+    if (it == subscriptions.end()) {
+        std::shared_ptr<SubscriptionData> ptr(new SubscriptionData());
+        it = subscriptions.emplace_hint(it, piecewise_construct, std::make_tuple(id), std::make_tuple(std::move(ptr)));
+        toSubscribe.insert(id);
+        toUnsubscribe.erase(id);
+        updateSubscriptions();
+    }
+    it->second->add();
 }
 
 void ImmovableConnection::unsubscribe(GenericSubscription &sub) {
-    const SubscriptionID &id = sub.getID();
-    subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::tuple<ImmovableConnection &, const SubscriptionID &>(*this, id)).first->second.sub();
+    const network::SubscriptionID &id = sub.getID();
+    std::unique_lock<fibers::mutex> lck(mtx);
+    unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
+    if (it != subscriptions.end() && it->second->sub()) {
+        subscriptions.erase(it);
+        toSubscribe.erase(id);
+        toUnsubscribe.insert(id);
+        updateSubscriptions();
+    }
 }
 
 string ImmovableConnection::recieve(GenericSubscription &sub) {
-    const SubscriptionID &id = sub.getID();
-    return subscriptions.emplace(piecewise_construct, std::make_tuple(id), std::tuple<ImmovableConnection &, const SubscriptionID &>(*this, id)).first->second.get();
+    std::unique_lock<fibers::mutex> lck(mtx);
+    unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(sub.getID());
+    if (it != subscriptions.end()) {
+        std::shared_ptr<SubscriptionData> ptr = it->second;
+        lck.unlock();
+        return ptr->get();
+    } else {
+        throw EXCEPTION(StateException("Cannot receive before subscribing"));
+    }
 }
 
 void ImmovableConnection::options(options_description &desc) const {
@@ -114,17 +129,34 @@ void ImmovableConnection::configure(const parsed_options &opts) {
     connect();
 }
 
-void ImmovableConnection::handleMessage(const SubscriptionID &id, const std::string &msg) {
-    unordered_map<SubscriptionID, SubscriptionData>::iterator it = subscriptions.find(id);
+void ImmovableConnection::handleMessage(const network::SubscriptionID &id, const std::string &msg) {
+    std::unique_lock<fibers::mutex> lck(mtx);
+    unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
     if (it != subscriptions.end()) {
-        it->second.put(msg);
+        std::shared_ptr<SubscriptionData> ptr = it->second;
+        lck.unlock();
+        ptr->put(msg);
     }
 }
 
 void ImmovableConnection::handleConnect() {
     log(log::LogLevel::Info) << "Connected to router.";
     std::unique_lock<fibers::mutex> lck(mtx);
+    SubscribeRequest req;
+    switch (state) {
+        case Connecting:
+            break;
+        case Reconnecting:
+            toUnsubscribe.clear();
+            for (unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::const_iterator it = subscriptions.begin(); it != subscriptions.end(); ++it) {
+                toSubscribe.insert(it->first);
+            }
+            break;
+        default:
+            throw EXCEPTION(StateException("Invalid state for socket connect to occur"));
+    }
     state = Connected;
+    updateSubscriptions();
     cond.notify_all();
 }
 
@@ -168,13 +200,32 @@ void ImmovableConnection::connect() {
     socket->connect<tcp>(tcp::endpoint(address::from_string("127.0.0.1"), 8000));
 }
 
+void ImmovableConnection::updateSubscriptions() {
+    if (state == Connected) {
+        SubscribeRequest req;
+        for (unordered_set<network::SubscriptionID>::const_iterator it = toSubscribe.begin(); it != toSubscribe.end(); ++it) {
+            messaging::SubscriptionID *sub = req.add_subscribe();
+            sub->set_messageid(it->getMessageID());
+            sub->set_instanceid(it->getInstanceID());
+        }
+        toSubscribe.clear();
+        for (unordered_set<network::SubscriptionID>::const_iterator it = toUnsubscribe.begin(); it != toUnsubscribe.end(); ++it) {
+            messaging::SubscriptionID *sub = req.add_unsubscribe();
+            sub->set_messageid(it->getMessageID());
+            sub->set_instanceid(it->getInstanceID());
+        }
+        toUnsubscribe.clear();
+        socket->sendMessage(network::SubscriptionID(req.GetDescriptor()->options().GetExtension(MessageID), 0), req.SerializeAsString());
+    }
+}
+
 const Publisher &Publisher::operator <<(const Message &message) const {
     std::unique_lock<fibers::mutex> lck(conn->mtx);
     while (conn->state != ImmovableConnection::Connected) {
         conn->cond.wait(lck);
     }
+    conn->socket->sendMessage(network::SubscriptionID(message.GetDescriptor()->options().GetExtension(MessageID), instanceID), message.SerializeAsString());
     lck.unlock();
-    conn->socket->sendMessage(SubscriptionID(message.GetDescriptor()->options().GetExtension(MessageID), instanceID), message.SerializeAsString());
     return *this;
 }
 

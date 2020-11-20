@@ -7,6 +7,7 @@ spacepi_message_library(core-messages ${SPACEPI_CORE_SOURCE_DIR}/include
     spacepi/messaging/HelloMessage.proto
     spacepi/messaging/MessageID.proto
     spacepi/messaging/SubscribeRequest.proto
+    spacepi/messaging/SubscriptionID.proto
 )
 
 find_package(Boost
