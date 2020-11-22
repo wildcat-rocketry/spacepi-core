@@ -25,3 +25,5 @@ target_link_libraries(setup-deploy-key
     spacepi
 )
 target_include_directories(setup-deploy-key PUBLIC include)
+
+target_precompile_headers(setup-deploy-key REUSE_FROM spacepi_pch)

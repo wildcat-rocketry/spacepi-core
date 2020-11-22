@@ -22,9 +22,6 @@ int main(int argc, const char **argv) {
     server.waitForCallbackCode();
     std::string callbackcode = server.getCallbackCode();
     Logger log("verification");
-    log(LogLevel::Info) << "Callback sent to main";
-    log(LogLevel::Info) << callbackcode;
-    
 
     std::string filepath = std::string(getenv("HOME")) + "/.ssh";
     GithubHandler githubhandler(callbackcode);
@@ -37,12 +34,13 @@ int main(int argc, const char **argv) {
             std::stringstream stringstream;
             stringstream << inputfile.rdbuf();
             std::string filestring = stringstream.str();
+            if(! githubhandler.isKey(filestring)){
+                githubhandler.addKey(filestring);
+            }
+
         }
     }
-    Client client;
-    std::string ret = client.urlRequest("https://api.github.com/user/keys",boost::beast::http::verb::get,"test","test","test","test");
-    log(LogLevel::Info) << ret;
-
+    log(LogLevel::Info) << "Done adding keys.";
     NetworkThread::instance.join();
     return 0;
 }
