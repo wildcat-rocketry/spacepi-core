@@ -15,10 +15,20 @@ GithubHandler::GithubHandler(std::string callbackcode){
     tree.put("code",callbackcode);
     ptree response;
     response = client.urlRequest("https://github.com/login/oauth/access_token", boost::beast::http::verb::post, tree, "application/json", "application/json","");
-    std::string accesstoken;
     accesstoken = response.get<std::string>("access_token");
     response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::get, ptree(), "", "application/vnd.github.v3+json","token " + accesstoken);
     for (ptree::const_iterator it = response.begin(); it != response.end(); ++it) {
         keys.insert(it->second.get<std::string>("key"));
     }
+}
+
+
+bool GithubHandler::isKey(std::string key){
+    return keys.find(key) != keys.end();
+}
+
+void GithubHandler::addKey(std::string key){
+    ptree tree;
+    tree.put("key",key);
+    client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, tree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
 }

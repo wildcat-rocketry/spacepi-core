@@ -14,14 +14,14 @@ namespace spacepi{
             public:
             GithubHandler(std::string callbackcode);
             GithubHandler(const GithubHandler &) = delete; 
-            GithubHandler & operator = (const GithubHandler &) = delete; 
-
-            bool hasKey(const std::string &key);
-            void addKey(const std::string &key);
+            GithubHandler & operator = (const GithubHandler &) = delete;
+            bool isKey(std::string key);
+            void addKey(std::string key);
 
             private:
             Client client;
             std::unordered_set<std::string> keys;
+            std::string accesstoken;
             };
         }
     }

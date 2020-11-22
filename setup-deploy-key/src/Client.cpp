@@ -37,7 +37,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     host = host.substr(0,slash);
     auto const results = resolver.resolve(host, "443");
 
-    http::request<http::string_body> req{method,path, 11};
+    http::request<http::string_body> req{method,path.c_str(), 11};
 
     if(! SSL_set_tlsext_host_name(socket.native_handle(), host.data()))
     {
@@ -48,10 +48,12 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     boost::asio::connect(socket.next_layer(), results.begin(), results.end());
     socket.handshake(ssl::stream_base::client);
 
-    req.set(http::field::host, host);
-    req.set(http::field::content_type,contenttype);
-    req.set(http::field::accept,accept);
-    req.set(http::field::authorization,authorization);
+    req.set(http::field::host, host.c_str());
+    req.set(http::field::content_type,contenttype.c_str());
+    req.set(http::field::accept,accept.c_str());
+    if(!authorization.empty()){
+        req.set(http::field::authorization,authorization.c_str());
+    }
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
     req.body() = body;
 
@@ -67,10 +69,13 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
 
 boost::property_tree::ptree Client::urlRequest(std::string url, boost::beast::http::verb method, boost::property_tree::ptree body, std::string contenttype, std::string accept,std::string authorization){
     std::stringstream stringstream;
-    write_json(stringstream,body);
+    write_json(stringstream,body, false);
     std::string bodystr = stringstream.str();
+    while (bodystr.back() == '\n') {
+        bodystr = bodystr.substr(0, bodystr.length() - 1);
+    }
     std::string reqbody = urlRequest(url,method,bodystr,contenttype,accept,authorization);
-    stringstream << reqbody;
+    stringstream.str(reqbody);
     boost::property_tree::ptree tree;
     read_json(stringstream,tree);
     return tree;
