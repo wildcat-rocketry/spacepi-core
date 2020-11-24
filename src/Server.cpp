@@ -30,7 +30,6 @@ void ServerAcceptCallback::operator()(const error_code& error){
     serverPtr->acceptClient();
 }
 ServerAcceptCallback::ServerAcceptCallback(Server* serverPtr) : serverPtr(serverPtr){
-
 }
 
 Server::Server(uint16_t portNum) : tcpAcceptor(NetworkThread::instance.getContext(),tcp::endpoint(address::from_string("0.0.0.0"), portNum)) {

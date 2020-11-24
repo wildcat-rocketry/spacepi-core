@@ -37,13 +37,55 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     tcp::resolver::results_type results;
     if(protocol == "https:"){
         results = resolver.resolve(host, "443");
+        http::request<http::string_body> req{method,path.c_str(), 11};
+
+        if(! SSL_set_tlsext_host_name(socket.native_handle(), host.data())) {
+        boost::system::error_code ec{static_cast<int>(::ERR_get_error()), boost::asio::error::get_ssl_category()};
+        throw boost::system::system_error{ec};
+        }
+
+        boost::asio::connect(socket.next_layer(), results.begin(), results.end());
+        socket.handshake(ssl::stream_base::client);
+        req.set(http::field::host, host.c_str());
+        req.set(http::field::content_type,contenttype.c_str());
+        req.set(http::field::accept,accept.c_str());
+        if(!authorization.empty()){
+            req.set(http::field::authorization,authorization.c_str());
+        }
+        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+        req.body() = body;
+
+        http::write(socket, req);
+        boost::beast::flat_buffer buffer;
+        http::response<http::string_body> res;
+        http::read(socket, buffer, res);
+        boost::system::error_code ec;
+        socket.shutdown(ec);
     }
     else {
-        results = resolver.resolve(host,"8080");
+        results = resolver.resolve(host,"80");
+        http::request<http::string_body> req{method,path.c_str(), 11};
+        boost::asio::connect(socket.next_layer(), results.begin(), results.end());
+        socket.handshake(ssl::stream_base::client);
+        req.set(http::field::host, host.c_str());
+        req.set(http::field::content_type,contenttype.c_str());
+        req.set(http::field::accept,accept.c_str());
+        if(!authorization.empty()){
+            req.set(http::field::authorization,authorization.c_str());
+        }
+        req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+        req.body() = body;
+
+        http::write(socket, req);
+        boost::beast::flat_buffer buffer;
+        http::response<http::string_body> res;
+        http::read(socket, buffer, res);
+        boost::system::error_code ec;
+        socket.shutdown(ec);
     }
     
 
-    http::request<http::string_body> req{method,path.c_str(), 11};
+    /*http::request<http::string_body> req{method,path.c_str(), 11};
 
     if(! SSL_set_tlsext_host_name(socket.native_handle(), host.data()))
     {
@@ -52,6 +94,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     }
 
     boost::asio::connect(socket.next_layer(), results.begin(), results.end());
+
     socket.handshake(ssl::stream_base::client);
 
     req.set(http::field::host, host.c_str());
@@ -68,8 +111,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     http::response<http::string_body> res;
     http::read(socket, buffer, res);
     boost::system::error_code ec;
-    socket.shutdown(ec);
-
+    socket.shutdown(ec);*/
     return res.body();
 }
 
