@@ -8,7 +8,7 @@
 
 The following are required to build the SpacePi core:
 
-* CMake version 3.11 or later
+* CMake version 3.11 or later (3.16 or later recommended)
 * Make
 * C++ Compiler toolchain supporting C++14
 * ProtoBuf compiler supporting Proto3

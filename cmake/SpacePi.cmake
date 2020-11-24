@@ -17,6 +17,7 @@ endif()
 
 if ("${SPACEPI_CORE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_LIST_DIR}/../")
     if (NOT SPACEPI_NO_COMMON)
+        include("${SPACEPI_CORE_SOURCE_DIR}/cmake/Compat.cmake")
         include("${SPACEPI_CORE_SOURCE_DIR}/cmake/Common.cmake")
     endif()
     if (NOT SPACEPI_BUILDING_CORE)
