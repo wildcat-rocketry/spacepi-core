@@ -37,7 +37,6 @@ int main(int argc, const char **argv) {
             if(! githubhandler.isKey(filestring)){
                 githubhandler.addKey(filestring);
             }
-
         }
     }
     log(LogLevel::Info) << "Done adding keys.";
