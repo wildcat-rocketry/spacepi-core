@@ -22,13 +22,16 @@ LogManager::LogManager() : running(true), thread(bind(&LogManager::run, this)) {
 
 LogManager::~LogManager() {
     running = false;
+    cond.notify_all();
     thread.join();
 }
 
 void LogManager::operator <<(const Entry &entry) {
     unique_lock<mutex> lck(entryMutex);
-    entries.emplace(entry);
-    cond.notify_one();
+    if (running) {
+        entries.emplace(entry);
+        cond.notify_one();
+    }
 }
 
 LogManager &LogManager::operator +=(const shared_ptr<LogTarget> &target) {
@@ -45,7 +48,7 @@ void LogManager::run() {
         while (entries.empty() && running) {
             cond.wait(elck);
         }
-        if (!running) {
+        if (entries.empty()) {
             return;
         }
         Entry ent = entries.front();
