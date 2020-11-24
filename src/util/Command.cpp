@@ -77,14 +77,18 @@ bool Command::run() noexcept {
         l << "Usage: " << args.front() << " [options...]\n";
         size_t longest = 0;
         for (vector<CommandGroup>::const_iterator git = groups.begin(); git != groups.end(); ++git) {
-            for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
-                longest = max(longest, (*oit)->example().length());
+            if (!git->caption.empty()) {
+                for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
+                    longest = max(longest, (*oit)->example().length());
+                }
             }
         }
         for (vector<CommandGroup>::const_iterator git = groups.begin(); git != groups.end(); ++git) {
+            if (!git->caption.empty()) {
             l << "\n" << git->caption << ":\n";
-            for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
-                l << "    " << left << setw(longest) << (*oit)->example() << setw(0) << "  " << (*oit)->desc << "\n";
+                for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
+                    l << "    " << left << setw(longest) << (*oit)->example() << setw(0) << "  " << (*oit)->desc << "\n";
+                }
             }
         }
     }

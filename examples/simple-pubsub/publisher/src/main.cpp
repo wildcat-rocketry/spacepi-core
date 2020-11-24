@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <functional>
 #include <string>
 #include <vector>
@@ -8,6 +9,7 @@
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/messaging/Connection.hpp>
 #include <spacepi/messaging/Subscription.hpp>
+#include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 
 using namespace std;
@@ -23,15 +25,19 @@ static void goodbyeReceiver(Connection &conn);
 static void hiddenGoodbyeReceiver(Connection &conn);
 
 int main(int argc, const char **argv) {
-    vector<string> args = CommandConfigurable::parse(argc, argv);
-    Connection conn(args);
-    ThreadPool {
+    Command cmd(argc, argv);
+    Connection conn(cmd);
+    ThreadPool pool(cmd, {
         bind(publishThread, conn),
         bind(helloReceiver, conn),
         bind(goodbyeReceiver, conn),
         bind(hiddenGoodbyeReceiver, conn)
-    };
-    return 0;
+    });
+    if (cmd.run()) {
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
 }
 
 static void publishThread(Connection &conn) {

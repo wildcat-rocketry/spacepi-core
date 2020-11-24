@@ -3,10 +3,13 @@
 
 #include <initializer_list>
 #include <memory>
+#include <thread>
 #include <vector>
 #include <utility>
 #include <boost/context/all.hpp>
 #include <boost/fiber/all.hpp>
+#include <spacepi/util/Command.hpp>
+#include <spacepi/util/CommandConfigurable.hpp>
 
 namespace spacepi {
     namespace concurrent {
@@ -31,12 +34,12 @@ namespace spacepi {
             };
         }
 
-        class ThreadPool {
+        class ThreadPool : public spacepi::util::CommandConfigurable {
             public:
-                ThreadPool();
+                ThreadPool(spacepi::util::Command &cmd);
                 
                 template <typename Fn>
-                explicit ThreadPool(std::initializer_list<Fn> fns) {
+                explicit ThreadPool(spacepi::util::Command &cmd, std::initializer_list<Fn> fns) : spacepi::util::CommandConfigurable("", cmd) {
                     for (typename std::initializer_list<Fn>::iterator it = fns.begin(); it != fns.end(); ++it) {
                         add(*it);
                     }
@@ -57,10 +60,13 @@ namespace spacepi {
                     functions.emplace_back(new detail::WrappedFiber<decltype(func)>(func));
                 }
 
+                void runCommand();
+
             private:
                 void run();
 
                 std::vector<std::unique_ptr<detail::GenericFiber>> functions;
+                std::thread thread;
         };
     }
 }

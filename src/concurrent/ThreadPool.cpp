@@ -5,20 +5,28 @@
 #include <boost/fiber/all.hpp>
 #include <spacepi/concurrent/ThreadPool.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
+#include <spacepi/util/Command.hpp>
+#include <spacepi/util/CommandConfigurable.hpp>
 
 using namespace std;
 using namespace boost::fibers;
 using namespace spacepi::concurrent;
 using namespace spacepi::concurrent::detail;
 using namespace spacepi::messaging::network;
+using namespace spacepi::util;
 
-ThreadPool::ThreadPool() {
+ThreadPool::ThreadPool(Command &cmd) : CommandConfigurable("", cmd) {
 }
 
 ThreadPool::~ThreadPool() {
-    thread th(bind(&ThreadPool::run, this));
+    if (thread.joinable()) {
+        thread.join();
+    }
+}
+
+void ThreadPool::runCommand() {
+    thread = std::thread(bind(&ThreadPool::run, this));
     NetworkThread::instance.start();
-    th.join();
 }
 
 void ThreadPool::run() {
