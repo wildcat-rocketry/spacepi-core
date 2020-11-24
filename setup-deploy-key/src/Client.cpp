@@ -34,7 +34,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     slash = host.find_first_of('/');
     std::string path = host.substr(slash);
     host = host.substr(0,slash); 
-    std::string protocol = url.substr(0,5);
+    std::string protocol = url.substr(0,6);
     tcp::resolver::results_type results;
     if(protocol == "https:"){
         results = resolver.resolve(host, "443");
@@ -78,7 +78,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     else {
         http::read(socket2, buffer, res);
     }
-    
+
     boost::system::error_code ec;
     socket.shutdown(ec);
     return res.body();
