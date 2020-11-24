@@ -8,6 +8,8 @@ spacepi_module(
     src/main.cpp
     src/PubSubEndpoint.cpp
     src/PubSubRouter.cpp
+    src/Router.cpp
+    src/RouterEndpoint.cpp
     src/StreamClient.cpp
     src/StreamServer.cpp
 )

@@ -61,6 +61,33 @@ namespace spacepi {
                     const std::shared_ptr<ImmovableConnection> conn;
             };
 
+            class ConnectionEndpoint {
+                public:
+                    enum Type {
+                        Invalid,
+                        TCP,
+                        UNIX
+                    };
+
+                    static ConnectionEndpoint defaultEndpoint;
+
+                    ConnectionEndpoint() noexcept;
+                    ConnectionEndpoint(const boost::asio::ip::tcp::endpoint &endpoint) noexcept;
+                    ConnectionEndpoint(const boost::asio::local::stream_protocol::endpoint &endpoint) noexcept;
+
+                    static bool tryParse(const std::string &str, ConnectionEndpoint &endpoint) noexcept;
+                    std::string toString() const noexcept;
+
+                    enum Type getType() const noexcept;
+                    const boost::asio::ip::tcp::endpoint &getTCPEndpoint() const noexcept;
+                    const boost::asio::local::stream_protocol::endpoint &getUNIXEndpoint() const noexcept;
+
+                private:
+                    enum Type type;
+                    boost::asio::ip::tcp::endpoint tcpEndpoint;
+                    boost::asio::local::stream_protocol::endpoint unixEndpoint;
+            };
+
             class ImmovableConnection : public std::enable_shared_from_this<ImmovableConnection>, public spacepi::util::CommandConfigurable, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
                 friend class messaging::Connection;
                 friend class messaging::Publisher;
@@ -104,6 +131,7 @@ namespace spacepi {
                     boost::fibers::mutex mtx;
                     boost::fibers::condition_variable cond;
                     boost::asio::steady_timer timer;
+                    ConnectionEndpoint endpoint;
             };
         }
 

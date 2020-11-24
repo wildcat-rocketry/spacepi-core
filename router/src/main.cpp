@@ -1,15 +1,19 @@
-#include <boost/asio.hpp>
+#include <cstdlib>
 #include <spacepi/messaging/network/NetworkThread.hpp>
-#include <spacepi/router/PubSubRouter.hpp>
-#include <spacepi/router/StreamServer.hpp>
+#include <spacepi/router/Router.hpp>
+#include <spacepi/util/Command.hpp>
 
-using namespace boost::asio::ip;
 using namespace spacepi::messaging::network;
 using namespace spacepi::router;
+using namespace spacepi::util;
 
 int main(int argc, const char **argv) {
-    PubSubRouter router;
-    StreamServer<tcp> server(router, tcp::endpoint(tcp::v4(), 8000));
-    NetworkThread::instance.join();
-    return 0;
+    Command cmd(argc, argv);
+    Router router(cmd);
+    if (cmd.run()) {
+        NetworkThread::instance.join();
+        return EXIT_SUCCESS;
+    } else {
+        return EXIT_FAILURE;
+    }
 }

@@ -24,18 +24,23 @@
 #include <spacepi/messaging/network/SubscriptionID.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
+#include <spacepi/util/CommandInternals.hpp>
 #include <spacepi/util/Exception.hpp>
 
 using namespace std;
 using namespace std::chrono;
 using namespace boost;
 using namespace boost::asio::ip;
+using namespace boost::asio::local;
 using namespace google::protobuf;
 using namespace spacepi;
 using namespace spacepi::messaging;
 using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
 using namespace spacepi::util;
+using namespace spacepi::util::detail;
+
+ConnectionEndpoint ConnectionEndpoint::defaultEndpoint = ConnectionEndpoint(tcp::endpoint(address_v4(0x7F000001), 25401));
 
 SubscriptionData::SubscriptionData() noexcept : count(0) {
 }
@@ -73,7 +78,68 @@ void ReconnectTimerCallback::operator ()(const system::error_code &err) {
 ReconnectTimerCallback::ReconnectTimerCallback(ImmovableConnection &conn) noexcept : conn(conn.shared_from_this()) {
 }
 
+ConnectionEndpoint::ConnectionEndpoint() noexcept : type(ConnectionEndpoint::Invalid) {
+}
+
+ConnectionEndpoint::ConnectionEndpoint(const tcp::endpoint &endpoint) noexcept : type(ConnectionEndpoint::TCP), tcpEndpoint(endpoint) {
+}
+
+ConnectionEndpoint::ConnectionEndpoint(const stream_protocol::endpoint &endpoint) noexcept : type(ConnectionEndpoint::UNIX), unixEndpoint(endpoint) {
+}
+
+bool ConnectionEndpoint::tryParse(const string &str, ConnectionEndpoint &endpoint) noexcept {
+    try {
+        int colon = str.find_first_of(':');
+        if (colon) {
+            system::error_code ec;
+            address ip = make_address(str.substr(0, colon), ec);
+            if (ec) {
+                return false;
+            }
+            size_t len;
+            int port = stoi(str.substr(colon + 1), &len);
+            if (colon + 1 + len != str.length()) {
+                return false;
+            }
+            if (port < 0 || port > 65535) {
+                return false;
+            }
+            endpoint = ConnectionEndpoint(tcp::endpoint(ip, port));
+            return true;
+        } else {
+            endpoint = ConnectionEndpoint(stream_protocol::endpoint(str));
+            return true;
+        }
+    } catch (const std::exception &) {
+        return false;
+    }
+}
+
+string ConnectionEndpoint::toString() const noexcept {
+    switch (type) {
+        case TCP:
+            return tcpEndpoint.address().to_string() + ":" + to_string(tcpEndpoint.port());
+        case UNIX:
+            return unixEndpoint.path();
+        default:
+            return "(invalid)";
+    }
+}
+
+enum ConnectionEndpoint::Type ConnectionEndpoint::getType() const noexcept {
+    return type;
+}
+
+const tcp::endpoint &ConnectionEndpoint::getTCPEndpoint() const noexcept {
+    return tcpEndpoint;
+}
+
+const stream_protocol::endpoint &ConnectionEndpoint::getUNIXEndpoint() const noexcept {
+    return unixEndpoint;
+}
+
 ImmovableConnection::ImmovableConnection(Command &cmd) : CommandConfigurable("Connection Options", cmd), state(ImmovableConnection::Created), timer(NetworkThread::instance.getContext()) {
+    fromCommand(endpoint, ConnectionEndpoint::defaultEndpoint, "router", "The address of the router to connect to");
 }
 
 Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
@@ -190,7 +256,16 @@ void ImmovableConnection::connect() {
     }
     lck.unlock();
     socket.reset(new MessagingSocket(*this));
-    socket->connect<tcp>(tcp::endpoint(address::from_string("127.0.0.1"), 8000));
+    switch (endpoint.getType()) {
+        case ConnectionEndpoint::TCP:
+            socket->connect<tcp>(endpoint.getTCPEndpoint());
+            break;
+        case ConnectionEndpoint::UNIX:
+            socket->connect<stream_protocol>(endpoint.getUNIXEndpoint());
+            break;
+        default:
+            throw invalid_argument("Unknown endpoint type");
+    }
 }
 
 void ImmovableConnection::updateSubscriptions() {
@@ -235,4 +310,21 @@ Connection::Connection(Command &cmd) : conn(new ImmovableConnection(cmd)) {
 
 Publisher Connection::operator ()(uint64_t instanceID) const noexcept {
     return (*conn)(instanceID);
+}
+
+template <>
+pair<vector<string>::const_iterator, string> CommandParser<ConnectionEndpoint>::parse(const vector<string> &args, const vector<string>::const_iterator &start) noexcept {
+    pair<string, pair<vector<string>::const_iterator, string>> res = parseNormal(args, start);
+    if (!res.first.empty()) {
+        valid = ConnectionEndpoint::tryParse(res.first, var);
+        if (!valid) {
+            return make_pair(res.second.first, "Invalid endpoint format");
+        }
+    }
+    return res.second;
+}
+
+template <>
+string CommandParser<ConnectionEndpoint>::example() const noexcept {
+    return "--" + name + "=" + ConnectionEndpoint::defaultEndpoint.toString();
 }
