@@ -27,22 +27,19 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     tcp::resolver resolver(NetworkThread::instance.getContext());
     ssl::stream<tcp::socket> socket{NetworkThread::instance.getContext(), ctx};
 
-    std::string host;
-    std::string path;
     int slash = url.find_first_of('/');
     slash = url.find_first_of('/',slash+1);
-    host = url.substr(slash+1);
+    std::string host = url.substr(slash+1);
     slash = host.find_first_of('/');
-    path = host.substr(slash);
+    std::string path = host.substr(slash);
     host = host.substr(0,slash); 
     std::string protocol = url.substr(0,5);
     tcp::resolver::results_type results;
     if(protocol == "https:"){
         results = resolver.resolve(host, "443");
     }
-    else
-    {
-        results = resolver.resolve(host,"80");
+    else {
+        results = resolver.resolve(host,"8080");
     }
     
 
