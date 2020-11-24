@@ -21,7 +21,7 @@ CommandHelpWrapper::CommandHelpWrapper(Command &cmd) noexcept : CommandConfigura
 void CommandHelpWrapper::runCommand() {
 }
 
-Command::Command(int argc, const char **argv) noexcept : helpWrapper(*this) {
+Command::Command(int argc, const char **argv) noexcept : helpWrapper(*this), logFilter(*this) {
     args.reserve(argc);
     for (int i = 0; i < argc; ++i) {
         args.emplace_back(argv[i]);

@@ -6,6 +6,7 @@
 #include <vector>
 #include <utility>
 #include <spacepi/log/AutoLog.hpp>
+#include <spacepi/log/LogFilterCommand.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/CommandInternals.hpp>
 
@@ -42,6 +43,7 @@ namespace spacepi {
                 std::vector<std::string> args;
                 std::vector<detail::CommandGroup> groups;
                 detail::CommandHelpWrapper helpWrapper;
+                spacepi::log::LogFilterCommand logFilter;
         };
     }
 }

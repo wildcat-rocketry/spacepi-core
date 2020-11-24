@@ -5,4 +5,5 @@
 #include <spacepi/util/Exception.hpp>
 #include <spacepi/util/SharedOrRef.hpp>
 #include <spacepi/util/TemporalQueue.hpp>
+#include <spacepi/util/Trie.hpp>
 #include <spacepi/util/WeakOrRef.hpp>

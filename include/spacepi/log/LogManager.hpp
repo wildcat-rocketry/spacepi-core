@@ -8,6 +8,7 @@
 #include <vector>
 #include <spacepi/concurrent/RWMutex.hpp>
 #include <spacepi/log/Entry.hpp>
+#include <spacepi/log/LogFilter.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/log/LogTarget.hpp>
 #include <spacepi/util/TemporalQueue.hpp>
@@ -27,9 +28,13 @@ namespace spacepi {
                 void operator <<(const Entry &entry);
                 LogManager &operator +=(const std::shared_ptr<LogTarget> &target);
 
+                LogFilter &getFilter() noexcept;
+                const LogFilter &getFilter() const noexcept;
+
             private:
                 void run();
 
+                LogFilter filter;
                 std::condition_variable cond;
                 std::mutex entryMutex;
                 spacepi::util::TemporalQueue<Entry, 64> entries;

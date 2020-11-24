@@ -26,6 +26,8 @@ add_library(spacepi SHARED
     src/concurrent/ThreadPool.cpp
     src/log/ConsoleTarget.cpp
     src/log/Entry.cpp
+    src/log/LogFilter.cpp
+    src/log/LogFilterCommand.cpp
     src/log/Logger.cpp
     src/log/LogLevel.cpp
     src/log/LogManager.cpp
