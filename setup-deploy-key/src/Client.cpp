@@ -61,6 +61,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     }
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
     req.body() = body;
+    req.prepare_payload();
 
     if(protocol == "https:"){
         http::write(socket, req);
