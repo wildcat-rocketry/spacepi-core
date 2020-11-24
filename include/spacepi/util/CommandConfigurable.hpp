@@ -1,33 +1,39 @@
 #ifndef SPACEPI_CORE_UTIL_COMMANDCONFIGURABLE_HPP
 #define SPACEPI_CORE_UTIL_COMMANDCONFIGURABLE_HPP
 
+#include <memory>
 #include <string>
-#include <vector>
-#include <boost/program_options.hpp>
+#include <utility>
+#include <spacepi/util/CommandInternals.hpp>
 
 namespace spacepi {
     namespace util {
         class CommandConfigurable {
-            public:
-                CommandConfigurable(const std::string &caption, std::vector<std::string> &args) noexcept;
-                CommandConfigurable(const CommandConfigurable &copy) noexcept;
-                CommandConfigurable(const CommandConfigurable &&move) noexcept;
-                virtual ~CommandConfigurable() noexcept;
+            friend class Command;
 
-                CommandConfigurable &operator =(const CommandConfigurable &copy) noexcept;
-                CommandConfigurable &operator =(const CommandConfigurable &&move) noexcept;
-
-                static std::vector<std::string> parse(int argc, const char **argv);
-            
             protected:
-                void construct();
-                virtual void options(boost::program_options::options_description &desc) const = 0;
-                virtual void configure(const boost::program_options::parsed_options &opts) = 0;
+                CommandConfigurable(const std::string &caption, Command &cmd) noexcept;
+
+                template <typename Type>
+                void fromCommand(Type &var, const std::string &name, const std::string &desc) {
+                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<Type>(var, name, desc))));
+                }
+
+                template <typename Type>
+                void fromCommand(Type &var, const Type &def, const std::string &name, const std::string &desc) {
+                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<Type>(var, def, name, desc))));
+                }
+
+                // The compiler wants to call the previous prototype with a const char * instead of an std::string so add another overload
+                template <typename Type>
+                void fromCommand(Type &var, const std::string &def, const std::string &name, const std::string &desc) {
+                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<Type>(var, def, name, desc))));
+                }
+
+                virtual void runCommand() = 0;
 
             private:
-                const std::string &caption;
-                std::vector<std::string> &args;
-                bool constructed;
+                detail::CommandGroup &group;
         };
     }
 }

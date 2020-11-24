@@ -17,7 +17,6 @@ find_package(Boost
     exception
     fiber
     # format
-    program_options
     stacktrace_backtrace
     system
 )
@@ -38,7 +37,9 @@ add_library(spacepi SHARED
     src/messaging/network/SubscriptionID.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
+    src/util/Command.cpp
     src/util/CommandConfigurable.cpp
+    src/util/CommandInternals.cpp
     src/util/Exception.cpp
 )
 target_include_directories(spacepi PUBLIC ${SPACEPI_CORE_SOURCE_DIR}/include)
@@ -46,7 +47,6 @@ target_link_libraries(spacepi
     Boost::context
     Boost::exception
     Boost::fiber
-    Boost::program_options
     Boost::stacktrace_backtrace
     Boost::system
     ${Protobuf_LIBRARIES}

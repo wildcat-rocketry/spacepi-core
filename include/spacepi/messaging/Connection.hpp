@@ -11,13 +11,13 @@
 #include <unordered_set>
 #include <boost/asio.hpp>
 #include <boost/fiber/all.hpp>
-#include <boost/program_options.hpp>
 #include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/network/MessagingCallback.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
+#include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/Exception.hpp>
 
@@ -67,7 +67,7 @@ namespace spacepi {
                 friend class ReconnectTimerCallback;
 
                 public:
-                    explicit ImmovableConnection(std::vector<std::string> &args);
+                    explicit ImmovableConnection(spacepi::util::Command &cmd);
 
                     ImmovableConnection(ImmovableConnection &) = delete;
                     ImmovableConnection &operator =(ImmovableConnection &) = delete;
@@ -79,8 +79,7 @@ namespace spacepi {
                     std::string recieve(GenericSubscription &sub);
 
                 protected:
-                    void options(boost::program_options::options_description &desc) const;
-                    void configure(const boost::program_options::parsed_options &opts);
+                    void runCommand();
                     void handleMessage(const network::SubscriptionID &id, const std::string &msg);
                     void handleConnect();
                     void handleError(const spacepi::util::Exception::pointer &err);
@@ -130,7 +129,7 @@ namespace spacepi {
             friend class Subscription;
 
             public:
-                explicit Connection(std::vector<std::string> &args);
+                explicit Connection(spacepi::util::Command &cmd);
                 
                 Publisher operator ()(uint64_t instanceID) const noexcept;
 

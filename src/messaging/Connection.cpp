@@ -11,7 +11,6 @@
 #include <unordered_set>
 #include <boost/asio.hpp>
 #include <boost/fiber/all.hpp>
-#include <boost/program_options.hpp>
 #include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
 #include <spacepi/log/LogLevel.hpp>
@@ -23,6 +22,7 @@
 #include <spacepi/messaging/network/MessagingSocket.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
+#include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/Exception.hpp>
 
@@ -30,7 +30,6 @@ using namespace std;
 using namespace std::chrono;
 using namespace boost;
 using namespace boost::asio::ip;
-using namespace boost::program_options;
 using namespace google::protobuf;
 using namespace spacepi;
 using namespace spacepi::messaging;
@@ -74,8 +73,7 @@ void ReconnectTimerCallback::operator ()(const system::error_code &err) {
 ReconnectTimerCallback::ReconnectTimerCallback(ImmovableConnection &conn) noexcept : conn(conn.shared_from_this()) {
 }
 
-ImmovableConnection::ImmovableConnection(vector<string> &args) : CommandConfigurable("Connection Options", args), state(ImmovableConnection::Created), timer(NetworkThread::instance.getContext()) {
-    construct();
+ImmovableConnection::ImmovableConnection(Command &cmd) : CommandConfigurable("Connection Options", cmd), state(ImmovableConnection::Created), timer(NetworkThread::instance.getContext()) {
 }
 
 Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
@@ -120,12 +118,7 @@ string ImmovableConnection::recieve(GenericSubscription &sub) {
     }
 }
 
-void ImmovableConnection::options(options_description &desc) const {
-    // TODO
-}
-
-void ImmovableConnection::configure(const parsed_options &opts) {
-    // TODO
+void ImmovableConnection::runCommand() {
     connect();
 }
 
@@ -237,7 +230,7 @@ Publisher &Publisher::operator <<(const Message &message) {
 Publisher::Publisher(const std::shared_ptr<ImmovableConnection> &conn, uint64_t instanceID) noexcept : conn(conn), instanceID(instanceID) {
 }
 
-Connection::Connection(vector<string> &args) : conn(new ImmovableConnection(args)) {
+Connection::Connection(Command &cmd) : conn(new ImmovableConnection(cmd)) {
 }
 
 Publisher Connection::operator ()(uint64_t instanceID) const noexcept {
