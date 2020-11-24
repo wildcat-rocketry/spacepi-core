@@ -26,6 +26,7 @@ Client::Client() : ctx(ssl::context::sslv23_client) {
 std::string Client::urlRequest(std::string url, http::verb method, std::string body, std::string contenttype, std::string accept,std::string authorization){
     tcp::resolver resolver(NetworkThread::instance.getContext());
     ssl::stream<tcp::socket> socket{NetworkThread::instance.getContext(), ctx};
+    tcp::socket socket2(NetworkThread::instance.getContext());
 
     int slash = url.find_first_of('/');
     slash = url.find_first_of('/',slash+1);
@@ -48,7 +49,7 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     }
     else {
         results = resolver.resolve(host,"80");
-        boost::asio::connect(socket.next_layer(), results.begin(), results.end());
+        boost::asio::connect(socket2, results.begin(), results.end());
     }
 
     http::request<http::string_body> req{method,path.c_str(), 11};
@@ -61,10 +62,23 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
     req.body() = body;
 
-    http::write(socket, req);
+    if(protocol == "https:"){
+        http::write(socket, req);
+    }
+    else {
+        http::write(socket2,req);
+    }
+
     boost::beast::flat_buffer buffer;
     http::response<http::string_body> res;
-    http::read(socket, buffer, res);
+
+        if(protocol == "https:"){
+        http::read(socket, buffer, res);
+    }
+    else {
+        http::read(socket2, buffer, res);
+    }
+    
     boost::system::error_code ec;
     socket.shutdown(ec);
     return res.body();
