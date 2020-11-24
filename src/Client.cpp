@@ -49,8 +49,8 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     else {
         results = resolver.resolve(host,"80");
         boost::asio::connect(socket.next_layer(), results.begin(), results.end());
-        socket.handshake(ssl::stream_base::client);
     }
+
     http::request<http::string_body> req{method,path.c_str(), 11};
     req.set(http::field::host, host.c_str());
     req.set(http::field::content_type,contenttype.c_str());
