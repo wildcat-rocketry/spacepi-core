@@ -34,8 +34,17 @@ std::string Client::urlRequest(std::string url, http::verb method, std::string b
     host = url.substr(slash+1);
     slash = host.find_first_of('/');
     path = host.substr(slash);
-    host = host.substr(0,slash);
-    auto const results = resolver.resolve(host, "443");
+    host = host.substr(0,slash); 
+    std::string protocol = url.substr(0,5);
+    tcp::resolver::results_type results;
+    if(protocol == "https:"){
+        results = resolver.resolve(host, "443");
+    }
+    else
+    {
+        results = resolver.resolve(host,"80");
+    }
+    
 
     http::request<http::string_body> req{method,path.c_str(), 11};
 
