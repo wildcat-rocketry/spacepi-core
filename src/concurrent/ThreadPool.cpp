@@ -4,7 +4,6 @@
 #include <vector>
 #include <boost/fiber/all.hpp>
 #include <spacepi/concurrent/ThreadPool.hpp>
-#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 
@@ -12,7 +11,6 @@ using namespace std;
 using namespace boost::fibers;
 using namespace spacepi::concurrent;
 using namespace spacepi::concurrent::detail;
-using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 
 ThreadPool::ThreadPool(Command &cmd) : CommandConfigurable("", cmd) {
@@ -26,7 +24,6 @@ ThreadPool::~ThreadPool() {
 
 void ThreadPool::runCommand() {
     thread = std::thread(bind(&ThreadPool::run, this));
-    NetworkThread::instance.start();
 }
 
 void ThreadPool::run() {
@@ -38,5 +35,4 @@ void ThreadPool::run() {
     for (vector<fiber>::iterator it = fibers.begin(); it != fibers.end(); ++it) {
         it->join();
     }
-    NetworkThread::instance.join();
 }

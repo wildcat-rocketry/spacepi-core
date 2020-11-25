@@ -186,6 +186,7 @@ string ImmovableConnection::recieve(GenericSubscription &sub) {
 
 void ImmovableConnection::runCommand() {
     connect();
+    NetworkThread::instance.start();
 }
 
 void ImmovableConnection::handleMessage(const network::SubscriptionID &id, const std::string &msg) {
