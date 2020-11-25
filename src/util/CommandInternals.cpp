@@ -105,6 +105,39 @@ string CommandParser<vector<int>>::example() const noexcept {
 }
 
 template <>
+pair<vector<string>::const_iterator, string> CommandParser<double>::parse(const vector<string> &args, const vector<string>::const_iterator &start) noexcept {
+    pair<string, pair<vector<string>::const_iterator, string>> res = parseNormal(args, start);
+    if (!res.first.empty()) {
+        try {
+            size_t idx = 0;
+            var = stod(res.first, &idx);
+            if (idx != res.first.length()) {
+                throw exception();
+            }
+            valid = true;
+        } catch (const exception &) {
+            return make_pair(res.second.first, "Invalid argument for --" + name);
+        }
+    }
+    return res.second;
+}
+
+template <>
+string CommandParser<double>::example() const noexcept {
+    return "--" + name + "=12.3";
+}
+
+template <>
+pair<vector<string>::const_iterator, string> CommandParser<vector<double>>::parse(const vector<string> &args, const vector<string>::const_iterator &start) noexcept {
+    return parseVector(args, start, var);
+}
+
+template <>
+string CommandParser<vector<double>>::example() const noexcept {
+    return "--" + name + "=12.3...";
+}
+
+template <>
 pair<vector<string>::const_iterator, string> CommandParser<bool>::parse(const vector<string> &args, const vector<string>::const_iterator &start) noexcept {
     if (*start == "--" + name) {
         var = true;
