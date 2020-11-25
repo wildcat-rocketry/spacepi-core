@@ -56,7 +56,7 @@ namespace spacepi {
                           typename = boost::context::detail::disable_overload<boost::fibers::launch, Fn>,
                           typename = boost::context::detail::disable_overload<std::allocator_arg_t, Fn>>
                 void add(Fn &&fn, Arg &&...arg) {
-                    auto func = bind(fn, std::forward<Arg>(arg)...);
+                    auto func = std::bind(fn, std::forward<Arg>(arg)...);
                     functions.emplace_back(new detail::WrappedFiber<decltype(func)>(func));
                 }
 
