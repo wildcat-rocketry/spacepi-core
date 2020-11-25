@@ -18,12 +18,13 @@ The following are required to build the SpacePi Target RPI for debugging:
 * ProtoBuf compiler supporting Proto3
 * Boost libraries and headers
 * LibGPIOd
+* LibI2C
 
 Most of these can be installed with the following command on Debian and similar:
 
 ```
 # apt update
-# apt install cmake build-essential protobuf-compiler libboost-all-dev
+# apt install cmake build-essential protobuf-compiler libboost-all-dev libi2c-dev
 ```
 
 The following can be used to install LibGPIOd:
