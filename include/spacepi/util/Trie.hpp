@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
     namespace util {
@@ -24,7 +25,7 @@ namespace spacepi {
 
                         const Type &data() const {
                             if (!constData) {
-                                throw std::invalid_argument("Find result does not contain data");
+                                throw EXCEPTION(StateException("Find result does not contain data"));
                             }
                             return *constData;
                         }
@@ -35,7 +36,7 @@ namespace spacepi {
 
                         const Trie<Type, KeyElement, Min, Max> &child() const {
                             if (!constChild) {
-                                throw std::invalid_argument("Find result does not contain a child");
+                                throw EXCEPTION(StateException("Find result does not contain a child"));
                             }
                             return *constChild;
                         }
@@ -62,14 +63,14 @@ namespace spacepi {
 
                         Type &data() {
                             if (!mutableData) {
-                                throw std::invalid_argument("Find result does not contain data");
+                                throw EXCEPTION(StateException("Find result does not contain data"));
                             }
                             return *mutableData;
                         }
 
                         Trie<Type, KeyElement, Min, Max> &child() {
                             if (!mutableChild) {
-                                throw std::invalid_argument("Find result does not contain a child");
+                                throw EXCEPTION(StateException("Find result does not contain a child"));
                             }
                             return *mutableChild;
                         }
@@ -443,7 +444,7 @@ namespace spacepi {
 
                 void throwInvalidRange(KeyElement key) const {
                     if (!validateRange(key)) {
-                        throw std::invalid_argument("Index out of range");
+                        throw EXCEPTION(ArgumentException("Index out of range"));
                     }
                 }
 
@@ -457,7 +458,7 @@ namespace spacepi {
                 void throwChild(KeyElement key) const {
                     throwInvalidRange(key);
                     if (validateChild(key)) {
-                        throw std::invalid_argument("Key represents a child");
+                        throw EXCEPTION(StateException("Key represents a child"));
                     }
                 }
 
@@ -471,7 +472,7 @@ namespace spacepi {
                 void throwData(KeyElement key) const {
                     throwInvalidRange(key);
                     if (validateData(key)) {
-                        throw std::invalid_argument("Key represents a data element");
+                        throw EXCEPTION(StateException("Key represents a data element"));
                     }
                 }
 

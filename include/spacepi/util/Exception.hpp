@@ -54,6 +54,6 @@ std::ostream &operator <<(std::ostream &os, const spacepi::util::Exception::poin
 #endif
 #ifdef SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE
 SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(StateException)
-SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(CommandConfigurableException)
+SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(ArgumentException)
 SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(ResourceException)
 #endif
