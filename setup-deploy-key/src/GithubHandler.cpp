@@ -49,9 +49,14 @@ void GithubHandler::addKey(std::string key){
     ptree bodytree;
     ptree response;
     bodytree.put("key",key);
-    response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, bodytree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
-    boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
+    try{
+        response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, bodytree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
+        boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
         if(errorexists){
             log(LogLevel::Error) << errorexists.get();
         }
+    }
+    catch(const ptree_error &e) {  
+        log(LogLevel::Error) << e.what();
+    }
 }
