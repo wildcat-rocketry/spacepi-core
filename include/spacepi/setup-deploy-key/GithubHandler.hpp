@@ -10,7 +10,7 @@
 namespace spacepi{
     namespace target {
         namespace deployKey {
-            class GithubHandler{
+            class GithubHandler: private spacepi::log::AutoLog<decltype("setup-deploy-key"_autolog)>{
             public:
             GithubHandler(std::string callbackcode);
             GithubHandler(const GithubHandler &) = delete; 
