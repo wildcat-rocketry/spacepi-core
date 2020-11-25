@@ -11,9 +11,12 @@ check_cxx_source_compiles("
 " HAVE_LIBGPIOD_BIAS)
 
 spacepi_extension(
+    src/detail/UniqueFD.cpp
     src/DigitalIO.cpp
     src/DigitalIOChip.cpp
     src/DigitalIOFactory.cpp
+    src/I2C.cpp
+    src/I2CFactory.cpp
 )
 if (HAVE_LIBGPIOD_BIAS)
     spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
