@@ -119,11 +119,15 @@ ostream &operator <<(ostream &os, DigitalIO::Mode mode) {
     switch (mode) {
         case DigitalIO::Output:
             return os << "Output";
+        case DigitalIO::Output | (int) DigitalIO::OpenDrain:
+            return os << "Output (Open Drain)";
+        case DigitalIO::Output | (int) DigitalIO::OpenSource:
+            return os << "Output (Open Source)";
         case DigitalIO::Input:
             return os << "Input";
-        case DigitalIO::Input | DigitalIO::PullUp:
+        case DigitalIO::Input | (int) DigitalIO::PullUp:
             return os << "Input (with Pullup)";
-        case DigitalIO::Input | DigitalIO::PullDown:
+        case DigitalIO::Input | (int) DigitalIO::PullDown:
             return os << "Input (with Pulldown)";
         default:
             return os << "Unknown mode " << (int) mode;

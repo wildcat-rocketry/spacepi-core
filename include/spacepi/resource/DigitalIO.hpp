@@ -13,6 +13,8 @@ namespace spacepi {
                 enum Mode {
                     Output = 0,
                     Input = 1,
+                    OpenDrain = 2,
+                    OpenSource = 4,
                     PullUp = 2,
                     PullDown = 4
                 };
