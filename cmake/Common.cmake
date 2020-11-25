@@ -46,11 +46,16 @@ function (spacepi_message_library)
             set(gradlew ./gradlew)
         endif()
 
+        set(javaDependencies "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end")
+        if (NOT "${ARGV0}" STREQUAL "core-messages")
+            list(APPEND javaDependencies "core-messages-java")
+        endif()
+
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/${ARGV0}.jar"
             COMMAND ${gradlew}
             ARGS build --warning-mode all
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
+            DEPENDS ${javaDependencies}
             WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}"
             COMMENT "Running Java compiler on ${ARGV0}"
             VERBATIM
