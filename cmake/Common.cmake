@@ -151,6 +151,7 @@ function (spacepi_target)
     spacepi_current_target(targetName)
 
     add_executable("${targetName}" ${ARGV})
+    target_precompile_headers("${targetName}" REUSE_FROM spacepi_pch)
     target_link_libraries("${targetName}" PUBLIC spacepi)
 endfunction()
 
