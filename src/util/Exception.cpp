@@ -1,3 +1,4 @@
+#include <csignal>
 #include <string>
 #include <boost/format.hpp>
 #include <spacepi/util/Exception.hpp>
@@ -5,6 +6,10 @@
 using namespace std;
 using namespace boost;
 using namespace spacepi::util;
+
+static void segmentationFaultHandler(int sig);
+
+static void (*segmentationFaultRegistration)(int) = signal(SIGSEGV, segmentationFaultHandler);
 
 Exception::Exception(const format &message) noexcept : message(message.str()) {
 }
@@ -31,6 +36,10 @@ string Exception::what(Exception::pointer ptr) noexcept {
 
 std::ostream &operator <<(std::ostream &os, const spacepi::util::Exception::pointer &ex) {
     return os << diagnostic_information(ex);
+}
+
+static void segmentationFaultHandler(int sig) {
+    throw EXCEPTION(SegmentationFaultException("Attempt to access unallocated memory"));
 }
 
 #define SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(name) \
