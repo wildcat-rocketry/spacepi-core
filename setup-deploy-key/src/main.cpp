@@ -21,7 +21,7 @@ int main(int argc, const char **argv) {
 
     server.waitForCallbackCode();
     std::string callbackcode = server.getCallbackCode();
-    Logger log("verification");
+    Logger log("setup-deploy-key-verification");
 
     std::string filepath = std::string(getenv("HOME")) + "/.ssh";
     GithubHandler githubhandler(callbackcode);
