@@ -174,3 +174,39 @@ function (spacepi_package)
         VERBATIM
     )
 endfunction()
+
+function (spacepi_current_extension)
+    get_filename_component(extName "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
+    file(RELATIVE_PATH relExtDir "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}")
+    string(REGEX REPLACE "[/\\]" "_" extPrefix "${relExtDir}")
+    set(${ARGV0} "spacepi-ext_${extPrefix}_${extName}" PARENT_SCOPE)
+endfunction()
+
+function (spacepi_extension)
+    spacepi_current_extension(extensionName)
+
+    add_library("${extensionName}" ${ARGV})
+    target_precompile_headers("${extensionName}" REUSE_FROM spacepi)
+    target_link_libraries("${extensionName}" PUBLIC spacepi)
+
+    install(TARGETS "${extensionName}" LIBRARY DESTINATION lib)
+endfunction()
+
+function (spacepi_extension_include_directories)
+    spacepi_current_extension(extensionName)
+
+    target_include_directories(${extensionName} ${ARGV})
+endfunction()
+
+function (spacepi_extension_precompile_headers)
+    spacepi_current_extension(extensionName)
+
+    target_precompile_headers(${extensionName} ${ARGV})
+endfunction()
+
+
+function (spacepi_extension_link_libraries)
+    spacepi_current_extension(extensionName)
+
+    target_link_libraries(${extensionName} ${ARGV})
+endfunction()

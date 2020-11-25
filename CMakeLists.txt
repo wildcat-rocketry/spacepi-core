@@ -39,6 +39,12 @@ add_library(spacepi SHARED
     src/messaging/network/SubscriptionID.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
+    src/resource/ADC.cpp
+    src/resource/BusTransaction.cpp
+    src/resource/DigitalIO.cpp
+    src/resource/I2C.cpp
+    src/resource/SPI.cpp
+    src/resource/UART.cpp
     src/util/Command.cpp
     src/util/CommandConfigurable.cpp
     src/util/CommandInternals.cpp
@@ -54,6 +60,10 @@ target_link_libraries(spacepi
     ${Protobuf_LIBRARIES}
     core-messages
 )
+target_precompile_headers(spacepi PUBLIC
+    <SpacePi.hpp>
+)
+set_target_properties(spacepi PROPERTIES DEFINE_SYMBOL "")
 install(TARGETS spacepi LIBRARY DESTINATION lib)
 
 add_executable(spacepi_pch src/PCH.cpp)
