@@ -43,6 +43,8 @@ add_library(spacepi SHARED
     src/resource/BusTransaction.cpp
     src/resource/DigitalIO.cpp
     src/resource/I2C.cpp
+    src/resource/Memory.cpp
+    src/resource/Processor.cpp
     src/resource/SPI.cpp
     src/resource/UART.cpp
     src/util/Command.cpp
