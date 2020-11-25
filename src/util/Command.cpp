@@ -67,8 +67,8 @@ bool Command::run() noexcept {
         for (vector<CommandGroup>::const_iterator git = groups.begin(); git != groups.end(); ++git) {
             try {
                 git->cmd.runCommand();
-            } catch (const std::exception &) {
-                log(LogLevel::Error) << "Error initializing commands from " << git->caption;
+            } catch (const std::exception &e) {
+                log(LogLevel::Error) << "Error initializing commands from " << git->caption << ": " << e.what();
                 return false;
             }
         }
