@@ -17,17 +17,25 @@ GithubHandler::GithubHandler(std::string callbackcode){
     bodytree.put("client_id","6a1a713dd92598462dec");
     bodytree.put("client_secret","fe8615e958d230646d9bfc35e57dcc446b903fe9");
     bodytree.put("code",callbackcode);
+    Logger log("debugger");
     ptree response;
     try {
         response = client.urlRequest("https://github.com/login/oauth/access_token", boost::beast::http::verb::post, bodytree, "application/json", "application/json","");
+        boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
+        if(errorexists){
+            log(LogLevel::Error) << errorexists.get();
+        }
         accesstoken = response.get<std::string>("access_token");
         response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::get, ptree(), "", "application/vnd.github.v3+json","token " + accesstoken);
+        errorexists = response.get_optional<std::string>("error");
+        if(errorexists){
+            log(LogLevel::Error) << errorexists.get();
+        }
         for (ptree::const_iterator it = response.begin(); it != response.end(); ++it) {
             keys.insert(it->second.get<std::string>("key"));
         }
     }
     catch(const ptree_error &e) {  
-        Logger log("debugger");
         log(LogLevel::Error) << e.what();
     }
 }
@@ -38,7 +46,12 @@ bool GithubHandler::isKey(std::string key){
 }
 
 void GithubHandler::addKey(std::string key){
-    ptree tree;
-    tree.put("key",key);
-    client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, tree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
+    ptree bodytree;
+    ptree response;
+    bodytree.put("key",key);
+    response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, bodytree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
+    boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
+        if(errorexists){
+            log(LogLevel::Error) << errorexists.get();
+        }
 }
