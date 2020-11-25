@@ -10,7 +10,7 @@ namespace spacepi {
             public:
                 template <typename Rep, typename Period>
                 static void duration(const std::chrono::duration<Rep, Period> &duration) {
-                    boost::this_fiber::sleep_for(duration);
+                    boost::this_fiber::sleep_for(std::chrono::duration_cast<std::chrono::nanoseconds>(duration));
                 }
 
                 static void momentarily() {
@@ -19,7 +19,7 @@ namespace spacepi {
 
                 template <typename Clock, typename Duration>
                 static void until(const std::chrono::time_point<Clock, Duration> &time) {
-                    boost::this_fiber::sleep_until(time);
+                    boost::this_fiber::sleep_until(std::chrono::time_point_cast<std::chrono::nanoseconds>(time));
                 }
 
             private:
