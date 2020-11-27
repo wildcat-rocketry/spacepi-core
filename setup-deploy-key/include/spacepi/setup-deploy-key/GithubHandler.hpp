@@ -22,6 +22,7 @@ namespace spacepi{
             Client client;
             std::unordered_set<std::string> keys;
             std::string accesstoken;
+            bool handleErrors(boost::property_tree::ptree tree);
             };
         }
     }
