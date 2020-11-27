@@ -21,16 +21,10 @@ GithubHandler::GithubHandler(std::string callbackcode){
     ptree response;
     try {
         response = client.urlRequest("https://github.com/login/oauth/access_token", boost::beast::http::verb::post, bodytree, "application/json", "application/json","");
-        boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
-        if(errorexists){
-            log(LogLevel::Error) << errorexists.get();
-        }
+        handleErrors(response);
         accesstoken = response.get<std::string>("access_token");
         response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::get, ptree(), "", "application/vnd.github.v3+json","token " + accesstoken);
-        errorexists = response.get_optional<std::string>("error");
-        if(errorexists){
-            log(LogLevel::Error) << errorexists.get();
-        }
+        handleErrors(response);
         for (ptree::const_iterator it = response.begin(); it != response.end(); ++it) {
             keys.insert(it->second.get<std::string>("key"));
         }
@@ -51,12 +45,23 @@ void GithubHandler::addKey(std::string key){
     bodytree.put("key",key);
     try{
         response = client.urlRequest("https://api.github.com/user/keys", boost::beast::http::verb::post, bodytree, "application/vnd.github.v3+json", "application/vnd.github.v3+json","token " + accesstoken);
-        boost::optional<std::string> errorexists = response.get_optional<std::string>("error");
-        if(errorexists){
-            log(LogLevel::Error) << errorexists.get();
-        }
+        handleErrors(response);
     }
     catch(const ptree_error &e) {  
         log(LogLevel::Error) << e.what();
     }
+}
+
+bool GithubHandler::handleErrors(boost::property_tree::ptree tree){
+    boost::optional<std::string> errorexists = tree.get_optional<std::string>("error");
+    if(errorexists) {
+        log(LogLevel::Error) << errorexists.get();
+    }
+    ptree::assoc_iterator errorsexists = tree.find("errors");
+    if(errorsexists != tree.not_found()) {
+        for (ptree::const_iterator it = errorsexists->second.begin(); it != errorsexists->second.end(); ++it) {
+            log(LogLevel::Error) << it->second.get<std::string>("message");
+        }
+    }
+    return (bool)errorexists;
 }
