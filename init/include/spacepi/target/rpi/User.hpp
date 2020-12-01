@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <boost/program_options.hpp>
-#include <spacepi/util/CommandConfigurable.hpp>
 #include <pwd.h>
 #include <shadow.h>
 
@@ -13,9 +12,9 @@ namespace spacepi {
         namespace rpi {
             class User {
                 public:
-                    static struct passwd* copy_passwd(struct passwd* pw);
-                    static struct spwd* copy_spwd(struct spwd* sh);
-                    static bool is_system_user(struct passwd* sh);
+                    static struct passwd* copy_passwd(const struct passwd* pw);
+                    static struct spwd* copy_spwd(const struct spwd* sh);
+                    static bool is_system_user(const struct passwd* sh);
                     static bool is_system_user(User user);
 
                     static void destroy_passwd(struct passwd* pw);
@@ -28,19 +27,22 @@ namespace spacepi {
 
                     std::string get_uname();
 
-                    std::string get_pw();
-                    std::string get_spw();
+                    std::string get_pw() const;
+                    std::string get_spw() const;
 
                     uid_t get_uid();
                     uid_t get_gid();
                     std::string get_home_dir();
+
+                    static bool uid_system(uid_t uid);
+
                 protected:
                     // Take pointers and keep them. (User now owns the pointers, don't free)
                     void add_pw(struct passwd* pw, struct spwd* sh);
 
                 private:
-                    static bool uid_system(uid_t uid);
-                    static char[256] pw_buff;
+                    static std::string negative_blank(int num);
+                    static char pw_buff[256];
                     struct passwd* passwd;
                     struct spwd* shadow;
             };
