@@ -3,14 +3,13 @@
 
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
-#include <spacepi/util/CommandConfigurable.hpp>
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
 
-#include <spacepi/target/rpi/User>
-#include <spacepi/target/rpi/Person>
+#include <boost/property_tree/ptree.hpp>
+#include <spacepi/target/rpi/User.hpp>
+#include <spacepi/target/rpi/Person.hpp>
 
 namespace spacepi {
     namespace target {
@@ -18,12 +17,6 @@ namespace spacepi {
             class UserManager {
                 public:
                     UserManager(boost::property_tree::ptree & users);
-
-                    // Iterate through user entries and build People List
-                    void MakePeopleList(boost::property_tree::ptree & users);
-
-                    // Make a list of the system users
-                    void MakeUserList();
 
                     bool needs_update();
 
@@ -33,8 +26,9 @@ namespace spacepi {
                     bool update;
 
                 private:
-                    std::list<spacepi::target::rpi::Users> system_users;
-                    std::list<spacepi::target::rpi::People> human_users;
+                    std::list<spacepi::target::rpi::User> system_users;
+                    std::list<spacepi::target::rpi::Person> human_users;
+                    spacepi::target::rpi::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t sudo_gid);
 
                     std::list<uid_t> uids;
                     uid_t next_uid(uid_t start);
