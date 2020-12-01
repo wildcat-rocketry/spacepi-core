@@ -1,21 +1,48 @@
 // This is the program for initializing the spacepi
+#include <iostream>
 
-// Check if the path provided points to a valid config file
-bool needsUpdate(string path);
+#include <spacepi/target/rpi/UserManager.hpp>
+#include <spacepi/target/rpi/System.hpp>
 
-// Clears the update
-void clearUpdate(string path);
+#include <boost/property_tree/xml_parser.hpp>
 
-// Update hostname and ip
-void updateHostname(string hostname);
-void updateIP(string ip);
+#define CONFIG_PATH "/etc/spacepi.xml"
 
-// Proccess the XML document and make needed changes
-void processXML(string path);
+using namespace std;
 
-void processUsers(ptree& users);
-
+using boost::property_tree::ptree;
+using boost::optional;
+using namespace spacepi::target::rpi;
 
 int main(int argc, char ** argv){
+    ptree pt;
+    read_xml(CONFIG_PATH, pt);
 
+    optional<ptree &> options = pt.get_child_optional("config.target.options");
+    if(!options){
+        cerr << "config.target.options does not exist in " CONFIG_PATH "\n";
+        return 1;
+    }
+
+    optional<ptree &> users = (*options).get_child_optional("users");
+    if(!options){
+        cerr << "config.target.options does not exist in " CONFIG_PATH "\n";
+        return 1;
+    }
+
+    if(!users){
+        cerr << "config.target.options.users does not exist in " CONFIG_PATH "\n";
+        return 1;
+    }
+
+    System system(*options);
+    UserManager user_man(*users);
+
+    if(user_man.needs_update()){
+        user_man.write_users();
+    }
+
+    if(system.needs_update()){
+        system.write_updates();
+    }
 }
