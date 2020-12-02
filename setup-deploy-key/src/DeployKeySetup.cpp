@@ -1,7 +1,5 @@
-#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/setup-deploy-key/Server.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
-#include <spacepi/log/LogLevel.hpp>
 #include <iostream>
 #include <boost/filesystem.hpp>
 #include <fstream>
@@ -10,13 +8,19 @@
 #include <spacepi/setup-deploy-key/GithubHandler.hpp>
 #include <spacepi/setup-deploy-key/Client.hpp>
 #include <spacepi/setup-deploy-key/DeployKeySetup.hpp>
+#include <SpacePi.hpp>
 
 using namespace spacepi::messaging::network;
 using namespace spacepi::target::deployKey;
 using namespace spacepi::log;
 using namespace boost::filesystem;
+using namespace spacepi::util;
 
-void DeployKeySetup::runCode(){
+DeployKeySetup::DeployKeySetup(Command &cmd) noexcept : CommandConfigurable("Deploy Key Setup Options", cmd) {
+    //fromCommand();
+}
+
+void DeployKeySetup::runCommand(){
     Server server(8000);
     NetworkThread::instance.start();
 
@@ -41,5 +45,5 @@ void DeployKeySetup::runCode(){
         }
     }
     log(LogLevel::Info) << "Done adding keys.";
-    NetworkThread::instance.join();
+    
 }
