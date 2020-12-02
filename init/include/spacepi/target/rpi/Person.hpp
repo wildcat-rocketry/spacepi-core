@@ -3,38 +3,39 @@
 
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
-#include <spacepi/util/CommandConfigurable.hpp>
-#include <spacepi/target/rpi/User>
+#include <boost/optional.hpp>
+#include <spacepi/target/rpi/User.hpp>
+#include <pwd.h>
+#include <shadow.h>
 
 namespace spacepi {
     namespace target {
         namespace rpi {
-            class Person (spacepi::target::rpi::User) {
+            class Person: public spacepi::target::rpi::User {
                 public:
-                    static char * set_string(string to_set);
-                    Person(string uname, uid_t uid, gid_t gid); // Makes a new person with defaults
+                    Person(std::string uname, uid_t uid, gid_t gid); // Makes a new person with defaults
 
                     // Make a new person by copying data from C library
-                    Person(struct passwd* pw, struct spwd* sh);
+                    Person(const struct passwd* pw, const struct spwd* sh);
 
-                    void add_info(optional<string> new_name, optional<string> new_email, optional<string> new_shell, optional<string> new_keys);
+                    void add_info(boost::optional<std::string> new_name, boost::optional<std::string> new_email, boost::optional<std::string> new_shell, boost::optional<std::string> new_keys);
                     void update_user();
+                    static char *set_string(std::string to_set);
 
                 protected:
-                    void update_info(optional<string> &old_param, optional<string> &new_param, bool &update_flag);
-                    static void make_defualt_pw(struct passwd* pw, struct spwd* sh, string uname, uid_t uid);
+                    void update_info(boost::optional<std::string> &old_param, boost::optional<std::string> &new_param, bool &update_flag);
+                    static void make_defualt_pw(struct passwd* pw, struct spwd* sh, std::string uname, uid_t uid, gid_t gid);
 
                     // Build a new default home dir for the listed user
-                    static void build_home(string uname, uid_t uid, gid_t gid); 
+                    static void build_home(std::string uname, uid_t uid, gid_t gid); 
 
                     void write_keys();
                     void update_git();
 
-                    optional<string> name;
-                    optional<string> email;
-                    optional<string> shell;
-                    optional<string> keys;
+                    boost::optional<std::string> name;
+                    boost::optional<std::string> email;
+                    boost::optional<std::string> shell;
+                    boost::optional<std::string> keys;
 
                     bool update_name;
                     bool update_email;
