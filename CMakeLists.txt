@@ -4,3 +4,4 @@ include(core/cmake/SpacePi.cmake)
 
 add_subdirectory(extension)
 add_subdirectory(setup-deploy-key)
+add_subdirectory(spacepictl)
