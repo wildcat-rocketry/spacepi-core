@@ -13,3 +13,5 @@ spacepi_target_link_libraries(PUBLIC
     spacepi-targetlib-linux
 )
 spacepi_target_include_directories(PUBLIC include)
+
+add_subdirectory(install-spacepi-boardsupport)
