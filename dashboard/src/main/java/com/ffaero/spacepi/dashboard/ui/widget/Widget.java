@@ -1,16 +1,15 @@
 package com.ffaero.spacepi.dashboard.ui.widget;
 
-import java.awt.AWTEvent;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.event.MouseEvent;
 import java.util.Map.Entry;
 import java.util.Properties;
 
 import javax.swing.JPanel;
+
+import com.ffaero.spacepi.dashboard.net.ProtobufClient;
 
 /**
  * A subclass of {@code Panel} that allows you to drag it around inside of the
@@ -29,6 +28,7 @@ public abstract class Widget extends JPanel {
 	private int requestedWidth;
 	private int requestedHeight;
 	private Properties properties;
+	private final ProtobufClient client;
 
 	private boolean debugMode = false;
 
@@ -44,12 +44,16 @@ public abstract class Widget extends JPanel {
 	 *                        <code>null</code> if no properties are defined and
 	 *                        should be generated from the default widget
 	 *                        configuration
+	 * @param client          the protobuf client that can be used to send and
+	 *                        receive data from the router
 	 */
-	public Widget(int requestedX, int requestedY, int requestedWidth, int requestedHeight, Properties configuration) {
+	public Widget(int requestedX, int requestedY, int requestedWidth, int requestedHeight, Properties configuration,
+			ProtobufClient client) {
 		this.requestedX = requestedX;
 		this.requestedY = requestedY;
 		this.requestedWidth = requestedWidth;
 		this.requestedHeight = requestedHeight;
+		this.client = client;
 		if (configuration != null) {
 			this.properties = configuration;
 		} else {
@@ -77,6 +81,12 @@ public abstract class Widget extends JPanel {
 	 */
 	public abstract void updateConfiguration();
 
+	/**
+	 * Called when the widget is removed from the UI, and the listeners are no
+	 * longer needed. They should be removed from the protobuf client object.
+	 */
+	public abstract void removeProtobufClientListeners();
+
 	@Override
 	public void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -92,6 +102,10 @@ public abstract class Widget extends JPanel {
 			g2d.drawRect(0, 0, width - 1, height - 1);
 		}
 
+	}
+	
+	public ProtobufClient getProtobufClient() {
+		return client;
 	}
 
 	public int getRequestedX() {

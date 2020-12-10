@@ -31,6 +31,7 @@ public class ProtobufClient {
 	private final ArrayList<EncapsulatedMessage> messageQueue = new ArrayList<EncapsulatedMessage>();
 	private final ArrayList<MessageHandlerObject<?>> messageHandlers = new ArrayList<MessageHandlerObject<?>>();
 	private final HashMap<Long, Class<? extends Message>> messageIDMap = new HashMap<Long, Class<? extends Message>>();
+	private final URLClassLoader loader;
 
 	private boolean running = true;
 
@@ -39,15 +40,17 @@ public class ProtobufClient {
 		// load in messages from JAR file
 		try {
 			JarFile jarFile = new JarFile(messageJarFile);
-			URLClassLoader loader = URLClassLoader.newInstance(new URL[] { messageJarFile.toURI().toURL() });
+			loader = URLClassLoader.newInstance(new URL[] { messageJarFile.toURI().toURL() });
 			Enumeration<JarEntry> e = jarFile.entries();
 			while (e.hasMoreElements()) {
 				JarEntry entry = e.nextElement();
 				if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
 					String className = entry.getName();
+					//System.out.println(className);
 					className = className.substring(0, className.length() - 6); // removes ".class"
 					className = className.replace('/', '.');
-					Class<?> messageClass = loader.loadClass(className);
+					Class<?> messageClass = Class.forName(className, true, loader);
+					System.out.println("loaded class " + messageClass.getName());
 					if (Message.class.isAssignableFrom(messageClass)) {
 						try {
 							messageIDMap.put(getMessageIDForMessage((Class<? extends Message>) messageClass),
@@ -58,6 +61,7 @@ public class ProtobufClient {
 					}
 				}
 			}
+			jarFile.close();
 		} catch (ClassNotFoundException /*
 										 * | NoSuchMethodException | IllegalAccessException | IllegalArgumentException |
 										 * InvocationTargetException
@@ -79,6 +83,10 @@ public class ProtobufClient {
 		// start threads
 		writeThread.start();
 		readThread.start();
+	}
+	
+	public Class<? extends Message> getClass(String className) throws ClassNotFoundException {
+		return (Class<? extends Message>) Class.forName(className, true, loader);
 	}
 
 	/**
@@ -170,11 +178,12 @@ public class ProtobufClient {
 				synchronized (messageQueue) {
 					while (messageQueue.size() > 0) {
 						EncapsulatedMessage message = messageQueue.remove(0);
-						byte[] buf = message.getPayload().toByteArray();
+						byte[] buf = message.toByteArray();
 
 						writeVarInt(out, buf.length);
 						out.write(buf);
 					}
+					out.flush();
 				}
 			}
 		} catch (IOException e) {
@@ -193,6 +202,9 @@ public class ProtobufClient {
 				byte[] message = new byte[(int) length];
 				in.read(message);
 				EncapsulatedMessage em = EncapsulatedMessage.parseFrom(message);
+				
+				System.out.println("read message of length " + length);
+				System.out.println("message ID: " + em.getMessageID());
 
 				// get message from payload
 				Class<? extends Message> messageClass = messageIDMap.get(em.getMessageID());
