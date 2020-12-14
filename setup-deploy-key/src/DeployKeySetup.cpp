@@ -17,7 +17,8 @@ using namespace boost::filesystem;
 using namespace spacepi::util;
 
 DeployKeySetup::DeployKeySetup(Command &cmd) noexcept : CommandConfigurable("Deploy Key Setup Options", cmd) {
-    //fromCommand();
+    std::string defaultpath = std::string(getenv("HOME")) + "/.ssh";
+    fromCommand(filepath,defaultpath,"path","filepath with the .pub file with generated ssh keys. Default value will look in the HOME environment.");
 }
 
 void DeployKeySetup::runCommand(){
@@ -28,7 +29,6 @@ void DeployKeySetup::runCommand(){
     std::string callbackcode = server.getCallbackCode();
     Logger log("setup-deploy-key-verification");
 
-    std::string filepath = std::string(getenv("HOME")) + "/.ssh";
     GithubHandler githubhandler(callbackcode);
     for (const auto & entry : directory_iterator(filepath)){
         std::string p = entry.path().extension().generic_string();
@@ -45,5 +45,6 @@ void DeployKeySetup::runCommand(){
         }
     }
     log(LogLevel::Info) << "Done adding keys.";
+    NetworkThread::instance.stop();
     
 }

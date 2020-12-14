@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <SpacePi.hpp>
+#include <string>
 namespace spacepi {
     namespace target {
         namespace deployKey {
@@ -14,6 +15,7 @@ namespace spacepi {
                 void runCommand();
 
             private:
+                std::string filepath;
             };
         }
     }
