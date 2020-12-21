@@ -12,6 +12,9 @@ set_property(GLOBAL PROPERTY CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Protobuf REQUIRED)
+if (NOT TARGET protobuf::protoc)
+    message(FATAL_ERROR "Unable to find protoc")
+endif()
 find_package(Java 1.8 COMPONENTS Development)
 
 function (spacepi_message_library)
