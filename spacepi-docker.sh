@@ -7,9 +7,12 @@ user_uuid=$(id -u)
 rep=/spacepi
 
 function build {
+	old_pwd=$PWD
+	cd $spacepi_dir/Docker
 	old_image=$(docker images -q ffaero:spacepi)
 	if [[ -n $old_image ]]; then docker rmi --no-prune $old_image; fi
 	docker build -t ffaero:spacepi .
+	cd $old_pwd
 }
 
 # Start with 4GB stack size instead of default
