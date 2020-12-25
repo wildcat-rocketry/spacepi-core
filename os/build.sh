@@ -117,6 +117,9 @@ cp -R firmware/boot/* "@CMAKE_CURRENT_SOURCE_DIR@/cmdline.txt" "@CMAKE_CURRENT_S
 mount /dev/mapper/${dev}p5 "$1/spacepi/code"
 chroot "$1" git -C /spacepi/code init
 chroot "$1" git -C /spacepi/code remote add origin "git@gitlab.com:ffaero/tools/space-pi.git"
+
+# Add local clone and build within
+
 mount /dev/mapper/${dev}p6 "$1/spacepi/build"
 mount /dev/mapper/${dev}p7 "$1/spacepi/bin"
 chroot "$1" chown -R root:sudo /spacepi

@@ -2,13 +2,14 @@
 
 # Script to execute docker builds and common spacepi tasks
 
-spacepi_dir=$(dirname "$(readlink -f $0)")
+script_dir=$(dirname "$(readlink -f $0)")
+spacepi_dir=$(git rev-parse --show-toplevel)
 user_uuid=$(id -u)
 rep=/spacepi
 
 function build {
 	old_pwd=$PWD
-	cd $spacepi_dir/Docker
+	cd $script_dir
 	old_image=$(docker images -q ffaero:spacepi)
 	if [[ -n $old_image ]]; then docker rmi --no-prune $old_image; fi
 	docker build -t ffaero:spacepi .
