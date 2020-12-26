@@ -1,7 +1,7 @@
-FROM debian:bullseye
+FROM debian:buster-backports
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y git libgps-dev build-essential cmake mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev libgpiod-dev protobuf-compiler libi2c-dev
+    apt-get install -y git libgps-dev build-essential cmake mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev libgpiod-dev protobuf-compiler libi2c-dev && apt-get -t buster-backports install -y cmake
 	
 RUN bash -c "echo -e \"ALL ALL=(ALL) NOPASSWD:ALL\\nDefaults env_keep += \\\"QEMU_RESERVED_VA\\\"\" > /etc/sudoers"
 

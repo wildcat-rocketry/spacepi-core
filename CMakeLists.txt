@@ -15,3 +15,4 @@ spacepi_target_link_libraries(PUBLIC
 spacepi_target_include_directories(PUBLIC include)
 
 add_subdirectory(install-spacepi-boardsupport)
+add_subdirectory(os)
