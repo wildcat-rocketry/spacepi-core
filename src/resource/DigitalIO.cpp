@@ -23,7 +23,6 @@ namespace spacepi {
                     const std::function<void(void)> &getISR() const noexcept;
                     enum Edge getISREdge() const noexcept;
                     void setISR(const std::function<void(void)> &isr, enum Edge edge);
-                    void clearISR();
 
                 private:
                     std::string name;
@@ -98,12 +97,6 @@ void MockDigitalIO::setISR(const function<void(void)> &isr, enum DigitalIO::Edge
     isrEdge = edge;
 }
 
-void MockDigitalIO::clearISR() {
-    log(LogLevel::Debug) << "Clearing Digital IO '" << name << "' ISR.";
-    isr = nullptr;
-    isrEdge = Disable;
-}
-
 MockDigitalIOFactory::MockDigitalIOFactory() : ResourceFactory<DigitalIO>("mock") {
 }
 
@@ -115,15 +108,32 @@ shared_ptr<DigitalIO> DigitalIO::get(const string &name) {
     return ResourceFactory<DigitalIO>::get(name);
 }
 
+void DigitalIO::clearISR() {
+    static function<void(void)> nil;
+    setISR(nil, Disable);
+}
+
+enum DigitalIO::Mode operator |(enum DigitalIO::Mode a, enum DigitalIO::Mode b) noexcept {
+    return (enum DigitalIO::Mode) (a | b);
+}
+
+enum DigitalIO::Mode &operator |=(enum DigitalIO::Mode &a, enum DigitalIO::Mode b) noexcept {
+    return a = (a | b);
+}
+
 ostream &operator <<(ostream &os, DigitalIO::Mode mode) {
     switch (mode) {
         case DigitalIO::Output:
             return os << "Output";
+        case DigitalIO::Output | (int) DigitalIO::OpenDrain:
+            return os << "Output (Open Drain)";
+        case DigitalIO::Output | (int) DigitalIO::OpenSource:
+            return os << "Output (Open Source)";
         case DigitalIO::Input:
             return os << "Input";
-        case DigitalIO::Input | DigitalIO::PullUp:
+        case DigitalIO::Input | (int) DigitalIO::PullUp:
             return os << "Input (with Pullup)";
-        case DigitalIO::Input | DigitalIO::PullDown:
+        case DigitalIO::Input | (int) DigitalIO::PullDown:
             return os << "Input (with Pulldown)";
         default:
             return os << "Unknown mode " << (int) mode;

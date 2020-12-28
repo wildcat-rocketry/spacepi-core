@@ -12,6 +12,9 @@ set_property(GLOBAL PROPERTY CXX_STANDARD 14)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Protobuf REQUIRED)
+if (NOT TARGET protobuf::protoc)
+    message(FATAL_ERROR "Unable to find protoc")
+endif()
 find_package(Java 1.8 COMPONENTS Development)
 
 function (spacepi_message_library)
@@ -115,6 +118,14 @@ function (spacepi_module)
     install(TARGETS "${moduleName}" RUNTIME DESTINATION bin)
 endfunction()
 
+function (spacepi_module_add_definitions)
+    spacepi_current_module(moduleName)
+
+    get_target_property(defs ${moduleName} COMPILE_DEFINITIONS)
+    list(APPEND defs ${ARGV})
+    set_target_property(${moduleName} PROPERTIES COMPILE_DEFINITIONS "${defs}")
+endfunction()
+
 function (spacepi_module_include_directories)
     spacepi_current_module(moduleName)
     
@@ -151,7 +162,16 @@ function (spacepi_target)
     spacepi_current_target(targetName)
 
     add_executable("${targetName}" ${ARGV})
+    target_precompile_headers("${targetName}" REUSE_FROM spacepi_pch)
     target_link_libraries("${targetName}" PUBLIC spacepi)
+endfunction()
+
+function (spacepi_target_add_definitions)
+    spacepi_current_target(targetName)
+
+    get_target_property(defs ${targetName} COMPILE_DEFINITIONS)
+    list(APPEND defs ${ARGV})
+    set_target_property(${targetName} PROPERTIES COMPILE_DEFINITIONS "${defs}")
 endfunction()
 
 function (spacepi_target_include_directories)
@@ -195,6 +215,14 @@ function (spacepi_extension)
     target_link_libraries("${extensionName}" PUBLIC spacepi)
 
     install(TARGETS "${extensionName}" LIBRARY DESTINATION lib)
+endfunction()
+
+function (spacepi_extension_add_definitions)
+    spacepi_current_extension(extensionName)
+
+    get_target_property(defs ${extensionName} COMPILE_DEFINITIONS)
+    list(APPEND defs ${ARGV})
+    set_target_property(${extensionName} PROPERTIES COMPILE_DEFINITIONS "${defs}")
 endfunction()
 
 function (spacepi_extension_include_directories)

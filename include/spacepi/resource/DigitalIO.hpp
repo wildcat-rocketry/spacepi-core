@@ -13,6 +13,8 @@ namespace spacepi {
                 enum Mode {
                     Output = 0,
                     Input = 1,
+                    OpenDrain = 2,
+                    OpenSource = 4,
                     PullUp = 2,
                     PullDown = 4
                 };
@@ -35,10 +37,13 @@ namespace spacepi {
                 virtual const std::function<void(void)> &getISR() const noexcept = 0;
                 virtual enum Edge getISREdge() const noexcept = 0;
                 virtual void setISR(const std::function<void(void)> &isr, enum Edge edge) = 0;
-                virtual void clearISR() = 0;
+                void clearISR();
         };
     }
 }
+
+enum spacepi::resource::DigitalIO::Mode operator |(enum spacepi::resource::DigitalIO::Mode a, enum spacepi::resource::DigitalIO::Mode b) noexcept;
+enum spacepi::resource::DigitalIO::Mode &operator |=(enum spacepi::resource::DigitalIO::Mode &a, enum spacepi::resource::DigitalIO::Mode b) noexcept;
 
 std::ostream &operator <<(std::ostream &os, spacepi::resource::DigitalIO::Mode mode);
 std::ostream &operator <<(std::ostream &os, spacepi::resource::DigitalIO::Edge edge);

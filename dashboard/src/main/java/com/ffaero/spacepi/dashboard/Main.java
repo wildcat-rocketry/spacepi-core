@@ -4,12 +4,9 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -21,10 +18,9 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import com.ffaero.spacepi.dashboard.net.MessageHandler;
 import com.ffaero.spacepi.dashboard.net.ProtobufClient;
-import com.ffaero.spacepi.dashboard.ui.widget.Widget;
-import com.ffaero.spacepi.messaging.HelloMessageOuterClass.HelloMessage;
-import com.ffaero.spacepi.messaging.MessageID;
+import com.google.protobuf.Message;
 
 public class Main {
 	public static void main(String[] args) {
@@ -91,7 +87,29 @@ public class Main {
 
 		setup.setVisible(true);
 
-		WidgetWindow ww = new WidgetWindow(32, 16);
+		try {
+			ProtobufClient client = new ProtobufClient("localhost", 8000, new File(
+					"F:\\Rocketry\\spacepi-core\\build\\examples\\simple-pubsub\\example-simplepubsub-messages\\example-simplepubsub-messages.jar"));
+			Class<Message> clazz = (Class<Message>) client.getClass("spacepi.example.HelloMessageOuterClass$HelloMessage");
+			client.addMessageHandler(new MessageHandler<Message>() {
+
+				@Override
+				public void handleMessage(Message message, long instanceID) {
+					System.out.println("got a message");
+				}
+
+			}, clazz, 0);
+			Object builder = clazz.getMethod("newBuilder").invoke(null);
+			builder.getClass().getMethod("setName", String.class).invoke(builder, "Hanavan");
+			builder.getClass().getMethod("setGreeting", String.class).invoke(builder, "Hallo!");
+			client.writeMessage(0, (Message) builder.getClass().getMethod("build").invoke(builder));
+			
+			WidgetWindow ww = new WidgetWindow(32, 16, client);
+		} catch (IOException | ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+
+		
 //		Widget widget = new Widget(1, 1, 2, 2);
 //		widget.add(new JButton("Test"));
 //

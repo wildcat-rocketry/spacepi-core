@@ -5,7 +5,6 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.function.Supplier;
@@ -21,6 +20,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import com.ffaero.spacepi.dashboard.net.ProtobufClient;
 import com.ffaero.spacepi.dashboard.ui.ProxyingMouseAdapter;
 import com.ffaero.spacepi.dashboard.ui.WidgetConfigurationWindow;
 import com.ffaero.spacepi.dashboard.ui.WidgetContainer;
@@ -40,7 +40,7 @@ public class WidgetWindow {
 	private WidgetLayout layout;
 	private WidgetContainer container;
 
-	public WidgetWindow(int xTiles, int yTiles) {
+	public WidgetWindow(int xTiles, int yTiles, ProtobufClient client) {
 		frame = new JFrame("Testing");
 		frame.setSize(800, 600);
 		frame.setLocationRelativeTo(null);
@@ -55,7 +55,7 @@ public class WidgetWindow {
 		JButton textWidgetButton = new JButton(loadIcon("icon_text_widget"));
 		textWidgetButton.setToolTipText("Text Widget");
 		textWidgetButton.addActionListener((e) -> {
-			Widget w = new TextWidget(0, 0, 1, 1, null);
+			Widget w = new TextWidget(0, 0, 1, 1, null, client);
 			PopupMouseListener l = new PopupMouseListener(w);
 			w.addMouseListener(l);
 			w.addMouseMotionListener(l);
@@ -145,24 +145,33 @@ public class WidgetWindow {
 	}
 
 	private class PopupMouseListener extends ProxyingMouseAdapter {
-		
+
 		private final Widget widget;
-		
+
 		public PopupMouseListener(Widget widget) {
 			this.widget = widget;
 		}
-		
+
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				JPopupMenu menu = new JPopupMenu();
-				
+
 				JMenuItem editConfigurationMenuItem = new JMenuItem("Edit Configuration...");
 				editConfigurationMenuItem.addActionListener((e2) -> {
 					WidgetConfigurationWindow wcw = new WidgetConfigurationWindow(frame, widget);
 				});
 				menu.add(editConfigurationMenuItem);
 				
+				JMenuItem deleteMenuItem = new JMenuItem("Delete");
+				deleteMenuItem.addActionListener((e2) -> {
+					widget.removeProtobufClientListeners();
+					removeWidget(widget);
+					frame.revalidate();
+					frame.repaint();
+				});
+				menu.add(deleteMenuItem);
+
 				menu.show(widget, e.getX(), e.getY());
 			} else {
 				super.mouseReleased(e);
