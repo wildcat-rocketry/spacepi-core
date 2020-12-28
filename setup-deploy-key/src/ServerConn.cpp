@@ -1,12 +1,10 @@
 #include <boost/asio.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
-#include <spacepi/messaging/network/NetworkThread.hpp>
-#include <spacepi/log/LogLevel.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
 #include <memory>
 #include <spacepi/setup-deploy-key/Server.hpp>
-#include <spacepi/messaging/network/NetworkThread.hpp>
+#include <SpacePi.hpp>
 
 using namespace boost;
 using namespace boost::asio::ip;

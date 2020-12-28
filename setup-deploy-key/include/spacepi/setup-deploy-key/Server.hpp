@@ -9,6 +9,7 @@
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <mutex>
 #include <condition_variable>
+#include <SpacePi.hpp>
 
 namespace spacepi{
     namespace target {

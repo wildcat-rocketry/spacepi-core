@@ -4,8 +4,7 @@
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/setup-deploy-key/Client.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <spacepi/log/LogLevel.hpp>
-#include <spacepi/log/AutoLog.hpp>
+#include <SpacePi.hpp>
 #include <boost/property_tree/exceptions.hpp>
 
 using namespace spacepi::target::deployKey;

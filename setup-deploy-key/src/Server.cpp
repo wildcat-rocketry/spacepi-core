@@ -1,8 +1,7 @@
 #include <boost/asio.hpp>
-#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/setup-deploy-key/Server.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
-#include <spacepi/log/LogLevel.hpp>
+#include <SpacePi.hpp>
 #include <cstdint>
 #include <arpa/inet.h>
 #include <sys/socket.h>

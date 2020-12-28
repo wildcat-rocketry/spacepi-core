@@ -5,6 +5,7 @@
 #include <boost/beast.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <SpacePi.hpp>
 
 namespace spacepi{
     namespace target {
