@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <spacepi/util/CommandInternals.hpp>
 
@@ -25,9 +26,8 @@ namespace spacepi {
                 }
 
                 // The compiler wants to call the previous prototype with a const char * instead of an std::string so add another overload
-                template <typename Type>
-                void fromCommand(Type &var, const std::string &def, const std::string &name, const std::string &desc) {
-                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<Type>(var, def, name, desc))));
+                void fromCommand(std::string &var, const std::string &def, const std::string &name, const std::string &desc) {
+                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<std::string>(var, def, name, desc))));
                 }
 
                 virtual void runCommand() = 0;
