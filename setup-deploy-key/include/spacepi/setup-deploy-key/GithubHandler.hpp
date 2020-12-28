@@ -6,6 +6,7 @@
 #include <sstream>
 #include <spacepi/setup-deploy-key/Client.hpp>
 #include <unordered_set>
+#include <SpacePi.hpp>
 
 namespace spacepi{
     namespace target {
