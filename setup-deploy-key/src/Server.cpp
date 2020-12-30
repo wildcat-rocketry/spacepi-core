@@ -1,17 +1,17 @@
+#include <arpa/inet.h>
 #include <boost/asio.hpp>
+#include <cstdint>
+#include <ifaddrs.h>
+#include <linux/if_link.h>
+#include <mutex>
+#include <netdb.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <spacepi/setup-deploy-key/Server.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <SpacePi.hpp>
-#include <cstdint>
-#include <arpa/inet.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <ifaddrs.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
-#include <linux/if_link.h>
-#include <mutex>
 
 using namespace boost::asio::ip;
 using namespace boost::system;
