@@ -1,8 +1,8 @@
 #include <boost/asio.hpp>
-#include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
 #include <memory>
+#include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/setup-deploy-key/Server.hpp>
 #include <SpacePi.hpp>
 
