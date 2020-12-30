@@ -23,4 +23,4 @@ target_compile_definitions(spacepictl PUBLIC BOOST_NO_CXX11_SCOPED_ENUMS=0)
 
 target_include_directories(spacepictl PUBLIC include)
 
-install(TARGETS spacepictl DESTINATION /usr/bin)
+install(TARGETS spacepictl RUNTIME DESTINATION bin)
