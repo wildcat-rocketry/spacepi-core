@@ -15,6 +15,10 @@ using boost::property_tree::ptree;
 using boost::optional;
 using namespace spacepi::target::rpi;
 
+int initialize_system();
+int userspace_utility(int argc, char ** argv);
+int run_reconfiguration();
+
 int main(int argc, char ** argv){
     if(getpid() == 1) {
         // Am da boss
@@ -38,7 +42,8 @@ int initialize_system(){
     // Delete update flag
 
     // Boot into systemd
-    execl("/sbin/init", ""); 
+    execl("/sbin/init", "/sbin/init"); 
+    return 0;
 }
 
 int userspace_utility(int argc, char ** argv){
