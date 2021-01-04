@@ -14,12 +14,13 @@ The following are required to build the SpacePi core:
 * ProtoBuf compiler supporting Proto3
 * Boost libraries and headers
 * Java Development Kit version 8 or later (optional)
+* Doxygen (optional)
 
 These can be installed with the following command on Debian and similar:
 
 ```
 # apt update
-# apt install cmake build-essential protobuf-compiler libboost-all-dev
+# apt install cmake build-essential protobuf-compiler libboost-all-dev openjdk-8-jdk-headless doxygen
 ```
 
 ### Configuring Build Environment
@@ -53,6 +54,19 @@ For example:
 $ cd spacepi-core/build/examples
 $ make
 ```
+
+### Building Documentation
+
+The documentation can be built if `doxygen` is installed.  To build the documentation, run:
+
+```
+$ cd spacepi-core/build
+$ make spacepi-docs
+```
+
+Alternatively, building the core library by just running `make` by itself will also generate the documenation by default (if `doxygen` is installed).
+
+After building the documenation, it can be viewed by opening `spacepi-core/build/html/index.html` in a web browser.
 
 ### Building Dashboard in an IDE
 
