@@ -135,11 +135,25 @@ namespace spacepi {
             };
         }
 
+        /**
+         * \brief Temporary helper class to assist syntax for publishing messages
+         */
         class Publisher {
             friend class detail::ImmovableConnection;
 
             public:
+                /**
+                 * \brief Publish a message to all subscribers on different Connection's
+                 * 
+                 * \param[in] message The message to publish
+                 * 
+                 * \return The Publisher to allow \c << chaining
+                 */
                 const Publisher &operator <<(const google::protobuf::Message &message) const;
+
+                /**
+                 * \copydoc operator<<
+                 */
                 Publisher &operator <<(const google::protobuf::Message &message);
                 
             private:
@@ -152,13 +166,28 @@ namespace spacepi {
         template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type *>
         class Subscription;
 
+        /**
+         * \brief The main class which is used to handle a connection to the router, and therefore other modules
+         */
         class Connection {
             template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type *>
             friend class Subscription;
 
             public:
+                /**
+                 * \brief Initialize a Connection
+                 * 
+                 * \param[in] cmd The command to use to configure the Connection
+                 */
                 explicit Connection(spacepi::util::Command &cmd);
-                
+
+                /**
+                 * \brief Starts a publish operation for the given instance ID
+                 * 
+                 * \param[in] instanceID The instance ID
+                 * 
+                 * \return The publishing helper (see Publisher::operator<<)
+                 */
                 Publisher operator ()(uint64_t instanceID) const noexcept;
 
             private:

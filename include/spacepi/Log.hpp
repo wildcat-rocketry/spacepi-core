@@ -8,3 +8,10 @@
 #include <spacepi/log/LogManager.hpp>
 #include <spacepi/log/LogStream.hpp>
 #include <spacepi/log/LogTarget.hpp>
+
+namespace spacepi {
+    /**
+     * \brief Namespace containing classes related to logging
+     */
+    namespace log {}
+}

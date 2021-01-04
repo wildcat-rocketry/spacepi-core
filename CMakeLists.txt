@@ -74,6 +74,64 @@ target_precompile_headers(spacepi_pch PUBLIC
     <SpacePi.hpp>
 )
 
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+    set(DOXYGEN_ENABLE_PREPROCESSING YES)
+    set(DOXYGEN_PREDEFINED DOXYGEN_SHOULD_SKIP_THIS)
+    set(DOXYGEN_EXCLUDE_SYMBOLS "*::detail::*;std::*;boost::*")
+    set(DOXYGEN_QUIET YES)
+    doxygen_add_docs(spacepi-docs
+        include/spacepi/concurrent/RWMutex.hpp
+        include/spacepi/concurrent/Semaphore.hpp
+        include/spacepi/concurrent/Sleep.hpp
+        include/spacepi/concurrent/ThreadPool.hpp
+        include/spacepi/log/AutoLog.hpp
+        include/spacepi/log/ConsoleTarget.hpp
+        include/spacepi/log/Entry.hpp
+        include/spacepi/log/LogFilter.hpp
+        include/spacepi/log/LogFilterCommand.hpp
+        include/spacepi/log/Logger.hpp
+        include/spacepi/log/LogLevel.hpp
+        include/spacepi/log/LogManager.hpp
+        include/spacepi/log/LogStream.hpp
+        include/spacepi/log/LogTarget.hpp
+        include/spacepi/messaging/network/MessagingCallback.hpp
+        include/spacepi/messaging/network/MessagingSocket.hpp
+        include/spacepi/messaging/network/NetworkThread.hpp
+        include/spacepi/messaging/network/SocketWrapper.hpp
+        include/spacepi/messaging/network/SocketWrapperCallback.hpp
+        include/spacepi/messaging/network/SubscriptionID.hpp
+        include/spacepi/messaging/Connection.hpp
+        include/spacepi/messaging/Network.hpp
+        include/spacepi/messaging/Subscription.hpp
+        include/spacepi/resource/ADC.hpp
+        include/spacepi/resource/BusTransaction.hpp
+        include/spacepi/resource/DigitalIO.hpp
+        include/spacepi/resource/I2C.hpp
+        include/spacepi/resource/Memory.hpp
+        include/spacepi/resource/Processor.hpp
+        include/spacepi/resource/ResourceFactory.hpp
+        include/spacepi/resource/ResourcePtr.hpp
+        include/spacepi/resource/SPI.hpp
+        include/spacepi/resource/UART.hpp
+        include/spacepi/util/Command.hpp
+        include/spacepi/util/CommandConfigurable.hpp
+        include/spacepi/util/CommandInternals.hpp
+        include/spacepi/util/Exception.hpp
+        include/spacepi/util/SharedOrRef.hpp
+        include/spacepi/util/TemporalQueue.hpp
+        include/spacepi/util/Trie.hpp
+        include/spacepi/util/WeakOrRef.hpp
+        include/spacepi/Concurrent.hpp
+        include/spacepi/Log.hpp
+        include/spacepi/Messaging.hpp
+        include/spacepi/Resource.hpp
+        include/spacepi/Util.hpp
+        include/SpacePi.hpp
+        ALL USE_STAMP_FILE
+    )
+endif()
+
 add_subdirectory(dashboard)
 add_subdirectory(examples EXCLUDE_FROM_ALL)
 add_subdirectory(router)

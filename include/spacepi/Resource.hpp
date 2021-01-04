@@ -8,3 +8,10 @@
 #include <spacepi/resource/ResourcePtr.hpp>
 #include <spacepi/resource/SPI.hpp>
 #include <spacepi/resource/UART.hpp>
+
+namespace spacepi {
+    /**
+     * \brief Namespace containing classes which allow interfacing with hardware resources
+     */
+    namespace resource {}
+}

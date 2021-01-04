@@ -4,3 +4,12 @@
 #include <spacepi/messaging/network/SocketWrapper.hpp>
 #include <spacepi/messaging/network/SocketWrapperCallback.hpp>
 #include <spacepi/messaging/network/SubscriptionID.hpp>
+
+namespace spacepi {
+    namespace messaging {
+        /**
+         * \brief Namespace containing low-level interfaces to the networking code
+         */
+        namespace network {}
+    }
+}

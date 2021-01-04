@@ -7,8 +7,16 @@
 
 namespace spacepi {
     namespace log {
+        /**
+         * \brief Logging target which prints the log to an \c std::ostream
+         */
         class ConsoleTarget : public LogTarget {
             public:
+                /**
+                 * \brief Creates a new ConsoleTarget which prints to the given \c std::ostream
+                 * 
+                 * \param[in,out] os The stream to print log entries to
+                 */
                 explicit ConsoleTarget(std::ostream &os) noexcept;
 
                 void operator <<(const Entry &entry);

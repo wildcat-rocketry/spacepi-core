@@ -6,3 +6,10 @@
 #include <spacepi/messaging/SubscribeRequest.pb.h>
 #include <spacepi/messaging/Subscription.hpp>
 #include <spacepi/messaging/SubscriptionID.pb.h>
+
+namespace spacepi {
+    /**
+     * \brief Namespace containing high-level interfaces to the networking code
+     */
+    namespace messaging {}
+}

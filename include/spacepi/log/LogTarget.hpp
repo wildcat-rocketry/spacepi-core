@@ -5,8 +5,16 @@
 
 namespace spacepi {
     namespace log {
+        /**
+         * \brief Base class for classes which can receive logging events
+         */
         class LogTarget {
             public:
+                /**
+                 * \brief Writes a new Entry to the log
+                 * 
+                 * \param[in] entry The new logging Entry
+                 */
                 virtual void operator <<(const Entry &entry) = 0;
         };
     }

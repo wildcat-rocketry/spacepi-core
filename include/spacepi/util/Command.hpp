@@ -28,15 +28,27 @@ namespace spacepi {
             };
         }
 
+        /**
+         * \brief Representation of command-line arguments which can be used to configure a set of CommandConfigurable's
+         */
         class Command : private spacepi::log::AutoLog<decltype("core"_autolog)> {
             friend class CommandConfigurable;
 
             public:
+                /**
+                 * \brief Initialize the Command
+                 * 
+                 * \param[in] argc The total number of command-line arguments to the program
+                 * \param[in] argv The values of the command-line arguments to the program
+                 */
                 Command(int argc, const char **argv) noexcept;
 
                 Command(Command &) = delete;
                 Command &operator =(Command &) = delete;
 
+                /**
+                 * \brief Runs the CommandConfigurable actions that have been configured with this Command
+                 */
                 bool run() noexcept;
 
             private:

@@ -11,39 +11,82 @@
 
 namespace spacepi {
     namespace resource {
+        /**
+         * \brief A pointer to a hardware resource which can be parsed out of command-line arguments
+         * 
+         * \tparam Type The type of resource
+         */
         template <typename Type>
         class ResourcePtr {
             public:
+                /**
+                 * \brief Copy-assign a ResourcePtr from a \c std::shared_ptr
+                 * 
+                 * \param[in] ptr The \c std::shared_ptr containing the resource
+                 * 
+                 * \return \c this
+                 */
                 ResourcePtr &operator =(const std::shared_ptr<Type> &ptr) {
                     res = ptr;
                     return *this;
                 }
 
+                /**
+                 * \brief Move-assign a ResourcePtr from a \c std::shared_ptr
+                 * 
+                 * \param[in,out] ptr The \c std::shared_ptr containing the resource
+                 * 
+                 * \return \c this
+                 */
                 ResourcePtr &operator =(std::shared_ptr<Type> &&ptr) {
                     res = std::move(ptr);
                     return *this;
                 }
 
+                /**
+                 * \brief Get a reference to the underlying resource object
+                 * 
+                 * \return The reference
+                 */
                 Type &operator *() {
                     return *res;
                 }
 
+                /**
+                 * \copydoc operator*
+                 */
                 const Type &operator *() const {
                     return *res;
                 }
 
+                /**
+                 * \brief Call a function on the underlying resource object
+                 */
                 Type *operator ->() {
                     return res.get();
                 }
 
+                /**
+                 * \copydoc operator->
+                 */
                 Type *operator ->() const {
                     return res.get();
                 }
 
+                /**
+                 * \brief Get a pointer to the underlying resource object
+                 * 
+                 * \return The pointer
+                 */
                 operator Type *() {
                     return res.get();
                 }
 
+                /**
+                 * \brief Get a pointer to the underlying resource object
+                 * 
+                 * \return The pointer
+                 */
                 operator const Type *() const {
                     return res.get();
                 }

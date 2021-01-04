@@ -12,12 +12,26 @@ namespace spacepi {
                 class GenericSocketWriter;
             }
 
+            /**
+             * \brief Callback class for events from the SocketWrapper
+             */
             class SocketWrapperCallback {
                 friend class detail::GenericSocketReader;
                 friend class detail::GenericSocketWriter;
 
                 protected:
+                    /**
+                     * \brief Called after a message from the other end of the socket is received
+                     * 
+                     * \param[in] pkt The serialized binary representation of the packet
+                     */
                     virtual void handlePacket(const std::string &pkt) = 0;
+
+                    /**
+                     * \brief Called any time there is an error during an IO operation with the socket
+                     * 
+                     * \param[in] err The error which occurred
+                     */
                     virtual void handleError(const spacepi::util::Exception::pointer &err) = 0;
             };
         }
