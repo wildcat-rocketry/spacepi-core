@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <spacepi/util/CommandInternals.hpp>
 
@@ -65,9 +66,8 @@ namespace spacepi {
                  * \param[in] name The name of the option to use to determine the variable value
                  * \param[in] desc A short description of what the option does
                  */
-                template <typename Type>
-                void fromCommand(Type &var, const std::string &def, const std::string &name, const std::string &desc) {
-                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<Type>(var, def, name, desc))));
+                void fromCommand(std::string &var, const std::string &def, const std::string &name, const std::string &desc) {
+                    group.add(std::move(std::shared_ptr<detail::GenericCommandParser>(new detail::CommandParser<std::string>(var, def, name, desc))));
                 }
 
                 /**
