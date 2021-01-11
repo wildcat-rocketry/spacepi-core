@@ -144,7 +144,7 @@ if (DOXYGEN_FOUND)
         add_custom_command(
             OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sphinx.stamp"
             COMMAND Python3::Interpreter
-            ARGS -m pip install -q -r requirements.txt
+            ARGS -m pip install -q --user -r requirements.txt
             COMMAND ${CMAKE_COMMAND}
             ARGS -E env "BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}" $<TARGET_FILE:Python3::Interpreter> -m sphinx.cmd.build -M html . "${CMAKE_CURRENT_BINARY_DIR}/sphinx"
             COMMAND ${CMAKE_COMMAND}
