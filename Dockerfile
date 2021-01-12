@@ -1,8 +1,12 @@
 # I'll try using this image as a base bacuase it apparently has full systemd
-FROM alehaa/debian-systemd
+FROM alehaa/debian-systemd:buster
+
+# Add Backports
+RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y git libgps-dev build-essential cmake mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev libgpiod-dev protobuf-compiler libi2c-dev cmake 
+    apt-get install -y git libgps-dev build-essential mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev libgpiod-dev protobuf-compiler libi2c-dev && \
+	apt-get -t buster-backports install -y cmake
 	
 RUN bash -c "echo -e \"ALL ALL=(ALL) NOPASSWD:ALL\\nDefaults env_keep += \\\"QEMU_RESERVED_VA\\\"\" > /etc/sudoers"
 
@@ -18,7 +22,7 @@ RUN cd /opt ; \
 	rm -dRf /opt/paho.mqtt.c
 
 RUN mkdir /opt/spacepi-target-docker
-COPY * /opt/spacepi-target-docker/
+COPY . /opt/spacepi-target-docker/
 
 RUN cd /opt/spacepi-target-docker ; \
 	mkdir build ; \
@@ -40,4 +44,4 @@ VOLUME [ "/spacepi/", "/sys/fs/cgroup", "/run", "/run/lock", "/tmp" ]
 # As this image should run systemd, the default command will be changed to start
 # the init system. CMD will be preferred in favor of ENTRYPOINT, so one may
 # override it when creating the container to e.g. to run a bash console instead.
-CMD [ "/sbin/init" ]
+CMD [ "/usr/local/bin/spacepictl" ]
