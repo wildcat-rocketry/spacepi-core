@@ -20,7 +20,7 @@ These can be installed with the following command on Debian and similar:
 
 ```
 # apt update
-# apt install cmake build-essential protobuf-compiler libboost-all-dev openjdk-8-jdk-headless doxygen
+# apt install cmake build-essential protobuf-compiler libboost-all-dev openjdk-11-jdk-headless doxygen
 ```
 
 ### Configuring Build Environment
