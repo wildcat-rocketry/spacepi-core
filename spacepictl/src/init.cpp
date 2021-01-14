@@ -4,8 +4,11 @@
 #include <spacepi/target/rpi/UserManager.hpp>
 #include <spacepi/target/rpi/System.hpp>
 #include <unistd.h> 
+#include <sys/mount.h>
 
+#include <boost/process.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <boost/filesystem.hpp>
 
 #define CONFIG_PATH "/etc/spacepi.xml"
 
@@ -14,10 +17,14 @@ using namespace std;
 using boost::property_tree::ptree;
 using boost::optional;
 using namespace spacepi::target::rpi;
+namespace fs = boost::filesystem;
+namespace bp = boost::process;
 
 int initialize_system();
 int userspace_utility(int argc, char ** argv);
 int run_reconfiguration();
+bool points_to_file(fs::path& p);
+void ensure_root_rw();
 
 int main(int argc, char ** argv){
     if(getpid() == 1) {
@@ -27,6 +34,7 @@ int main(int argc, char ** argv){
 
     if(geteuid() != 0){
         cerr << "Program should be run as root\n";
+        return 1;
     }
 
     return userspace_utility(argc, argv);
@@ -34,16 +42,37 @@ int main(int argc, char ** argv){
 
 int initialize_system(){
     // Check for existence of setup program link
-    //string setup_prog_path = "/etc/spacepi/setup"
+    fs::path setup_prog_path{"/etc/spacepi/setup"};
+    if(points_to_file(setup_prog_path)){
+        bp::system(setup_prog_path);
+        mount(NULL, "/", NULL, MS_REMOUNT, NULL);
+        fs::remove("/etc/spacepi/setup");
+    }
 
     // Delete setup program link if setup doesn't fail
 
     // Check for existence of update flag
     // Delete update flag
 
+    mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, NULL);
     // Boot into systemd
     execl("/sbin/init", "/sbin/init"); 
     return 0;
+}
+
+bool points_to_file(fs::path& p){
+    fs::path canon;
+    if(fs::exists(p)){
+        canon = fs::canonical(p);
+        if(fs::is_regular_file(canon)){
+            p = canon;
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
 }
 
 int userspace_utility(int argc, char ** argv){
