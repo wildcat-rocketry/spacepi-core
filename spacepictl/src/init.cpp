@@ -24,6 +24,7 @@ int initialize_system();
 int userspace_utility(int argc, char ** argv);
 int run_reconfiguration();
 bool points_to_file(fs::path& p);
+bool is_readonlyfs(string test_file_path = "/rwtest");
 void ensure_root_rw();
 
 int main(int argc, char ** argv){
@@ -42,10 +43,13 @@ int main(int argc, char ** argv){
 
 int initialize_system(){
     // Check for existence of setup program link
+
+    bool is_ro = is_readonlyfs();
+
     fs::path setup_prog_path{"/etc/spacepi/setup"};
     if(points_to_file(setup_prog_path)){
         bp::system(setup_prog_path);
-        mount(NULL, "/", NULL, MS_REMOUNT, NULL);
+        if(is_ro) mount(NULL, "/", NULL, MS_REMOUNT, NULL);
         fs::remove("/etc/spacepi/setup");
     }
 
@@ -54,7 +58,7 @@ int initialize_system(){
     // Check for existence of update flag
     // Delete update flag
 
-    mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, NULL);
+    if(is_ro) mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, NULL);
     // Boot into systemd
     execl("/sbin/init", "/sbin/init"); 
     return 0;
@@ -73,6 +77,17 @@ bool points_to_file(fs::path& p){
     } else {
         return false;
     }
+}
+
+bool is_readonlyfs(string test_file_path){
+    ofstream testFile (test_file_path);
+    if(!testFile.is_open()){
+        return true;
+    }
+
+    testFile.close();
+
+    return false;
 }
 
 int userspace_utility(int argc, char ** argv){
