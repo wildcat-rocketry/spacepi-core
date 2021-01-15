@@ -10,6 +10,8 @@ check_cxx_source_compiles("
     }
 " HAVE_LIBGPIOD_BIAS)
 
+find_library(LibI2C NAMES libi2c.so REQUIRED)
+
 spacepi_extension(
     src/detail/UniqueFD.cpp
     src/DigitalIO.cpp
@@ -26,4 +28,5 @@ spacepi_extension_include_directories(PUBLIC
 )
 spacepi_extension_link_libraries(PUBLIC
     ${LibGPIOd}
+    ${LibI2C}
 )
