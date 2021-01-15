@@ -65,15 +65,15 @@ shared_ptr<Memory> Memory::get(const string &name) {
     return ResourceFactory<Memory>::get(name);
 }
 
-MemoryInfo::MemoryInfo(uint64_t used, uint64_t total) noexcept : used(used), total(total) {
+MemoryInfo::MemoryInfo(uint64_t free, uint64_t total) noexcept : free(free), total(total) {
 }
 
 uint64_t MemoryInfo::bytesUsed() const noexcept {
-    return used;
+    return total - free;
 }
 
 uint64_t MemoryInfo::bytesFree() const noexcept {
-    return total - used;
+    return free;
 }
 
 uint64_t MemoryInfo::bytesTotal() const noexcept {

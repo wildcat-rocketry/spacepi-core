@@ -15,10 +15,10 @@ namespace spacepi {
                 /**
                  * \brief Create a new MemoryInfo
                  * 
-                 * \param[in] used The number of bytes used
+                 * \param[in] free The number of bytes not used
                  * \param[in] total The total number of bytes
                  */
-                MemoryInfo(uint64_t used, uint64_t total) noexcept;
+                MemoryInfo(uint64_t free, uint64_t total) noexcept;
 
                 /**
                  * \brief Get the number of bytes used
@@ -42,7 +42,7 @@ namespace spacepi {
                 uint64_t bytesTotal() const noexcept;
 
             private:
-                uint64_t used;
+                uint64_t free;
                 uint64_t total;
         };
 
