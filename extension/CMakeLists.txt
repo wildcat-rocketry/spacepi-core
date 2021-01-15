@@ -24,6 +24,8 @@ spacepi_extension(
     src/MemoryFactory.cpp
     src/Processor.cpp
     src/ProcessorFactory.cpp
+    src/SPI.cpp
+    src/SPIFactory.cpp
 )
 if (HAVE_LIBGPIOD_BIAS)
     spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
