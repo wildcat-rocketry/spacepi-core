@@ -214,6 +214,10 @@ function (spacepi_extension)
     target_precompile_headers("${extensionName}" REUSE_FROM spacepi)
     target_link_libraries("${extensionName}" PUBLIC spacepi)
 
+    add_executable("${extensionName}-linktest" "${SPACEPI_CORE_SOURCE_DIR}/cmake/data/main.cpp")
+    target_precompile_headers("${extensionName}-linktest" REUSE_FROM spacepi_pch)
+    target_link_libraries("${extensionName}-linktest" PUBLIC "${extensionName}" spacepi)
+
     install(TARGETS "${extensionName}" LIBRARY DESTINATION lib)
 endfunction()
 
