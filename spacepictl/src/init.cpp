@@ -16,7 +16,7 @@ using namespace std;
 
 using boost::property_tree::ptree;
 using boost::optional;
-using namespace spacepi::target::rpi;
+using namespace spacepi::spacepictl;
 namespace fs = boost::filesystem;
 namespace bp = boost::process;
 
