@@ -26,6 +26,8 @@ spacepi_extension(
     src/ProcessorFactory.cpp
     src/SPI.cpp
     src/SPIFactory.cpp
+    src/UART.cpp
+    src/UARTFactory.cpp
 )
 if (HAVE_LIBGPIOD_BIAS)
     spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
