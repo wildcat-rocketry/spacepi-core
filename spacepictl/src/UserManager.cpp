@@ -4,9 +4,9 @@
 #include <iostream>
 #include <fstream>
 
-#include <spacepi/target/rpi/User.hpp>
-#include <spacepi/target/rpi/Person.hpp>
-#include <spacepi/target/rpi/UserManager.hpp>
+#include <spacepi/spacepictl/User.hpp>
+#include <spacepi/spacepictl/Person.hpp>
+#include <spacepi/spacepictl/UserManager.hpp>
 
 #include <pwd.h>
 #include <grp.h>
@@ -15,7 +15,7 @@
 using boost::property_tree::ptree;
 using boost::optional;
 namespace fs = boost::filesystem;
-using namespace spacepi::target::rpi;
+using namespace spacepi::spacepictl;
 using namespace std;
 
 UserManager::UserManager(ptree & users){

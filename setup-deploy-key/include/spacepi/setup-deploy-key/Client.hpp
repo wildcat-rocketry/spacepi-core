@@ -1,10 +1,11 @@
 #ifndef SPACEPI_TARGET_CLIENT_HPP
 #define SPACEPI_TARGET_CLIENT_HPP
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/beast.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/beast.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <SpacePi.hpp>
 
 namespace spacepi{
     namespace target {

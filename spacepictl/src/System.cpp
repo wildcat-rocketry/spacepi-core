@@ -5,12 +5,12 @@
 #include <fstream>
 #include <string>
 
-#include <spacepi/target/rpi/System.hpp>
+#include <spacepi/spacepictl/System.hpp>
 
 using boost::property_tree::ptree;
 using boost::optional;
 namespace fs = boost::filesystem;
-using namespace spacepi::target::rpi;
+using namespace spacepi::spacepictl;
 using namespace std;
 
 System::System(ptree & config){

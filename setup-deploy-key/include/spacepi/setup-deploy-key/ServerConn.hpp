@@ -3,9 +3,9 @@
 
 #include <boost/asio.hpp>
 #include <memory>
-#include <spacepi/log/AutoLog.hpp>
 #include <boost/beast.hpp>
 #include <boost/system/error_code.hpp>
+#include <SpacePi.hpp>
 
 namespace spacepi {
     namespace target {

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <spacepi/target/rpi/User.hpp>
+#include <spacepi/spacepictl/User.hpp>
 
 #include <sstream>
 
@@ -10,7 +10,7 @@
 #include <shadow.h>
 
 using namespace std;
-using namespace spacepi::target::rpi;
+using namespace spacepi::spacepictl;
 
 User::User(const struct passwd* pw, const struct spwd* sh) {
     passwd = copy_passwd(pw);

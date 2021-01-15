@@ -3,12 +3,13 @@
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
-#include <cstdint>
-#include <spacepi/log/AutoLog.hpp>
-#include <memory>
-#include <spacepi/setup-deploy-key/ServerConn.hpp>
-#include <mutex>
 #include <condition_variable>
+#include <cstdint>
+#include <memory>
+#include <mutex>
+#include <spacepi/setup-deploy-key/ServerConn.hpp>
+#include <spacepi/log/AutoLog.hpp>
+#include <SpacePi.hpp>
 
 namespace spacepi{
     namespace target {
