@@ -15,6 +15,6 @@ UARTFactory UARTFactory::instance;
 UARTFactory::UARTFactory() noexcept : ResourceFactory<resource::UART>("dev") {
 }
 
-shared_ptr<resource::UART> create(const string &name) {
+shared_ptr<resource::UART> UARTFactory::create(const string &name) {
     return shared_ptr<resource::UART>(new extension::UART(name));
 }
