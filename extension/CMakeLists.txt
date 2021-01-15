@@ -1,6 +1,6 @@
 include(CheckCXXSourceCompiles)
 
-find_library(LibGPIOd NAMES libgpiod.so REQUIRED)
+find_library(LibGPIOd NAMES libgpiodcxx.so REQUIRED)
 check_cxx_source_compiles("
     #include <gpiod.hpp>
 

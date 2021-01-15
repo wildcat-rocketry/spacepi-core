@@ -4,11 +4,13 @@
 #include <utility>
 #include <vector>
 #include <fcntl.h>
-#include <i2c/smbus.h>
-#include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+extern "C" {
+#include <i2c/smbus.h>
+#include <linux/i2c-dev.h>
+}
 #include <SpacePi.hpp>
 #include <spacepi/target/extension/I2C.hpp>
 
