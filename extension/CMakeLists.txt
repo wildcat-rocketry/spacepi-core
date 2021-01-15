@@ -13,6 +13,7 @@ check_cxx_source_compiles("
 find_library(LibI2C NAMES libi2c.so REQUIRED)
 
 spacepi_extension(
+    src/detail/UniqueDir.cpp
     src/detail/UniqueFD.cpp
     src/DigitalIO.cpp
     src/DigitalIOChip.cpp
@@ -21,6 +22,8 @@ spacepi_extension(
     src/I2CFactory.cpp
     src/Memory.cpp
     src/MemoryFactory.cpp
+    src/Processor.cpp
+    src/ProcessorFactory.cpp
 )
 if (HAVE_LIBGPIOD_BIAS)
     spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
