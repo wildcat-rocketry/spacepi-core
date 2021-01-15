@@ -1,12 +1,11 @@
-#include <spacepi/setup-deploy-key/GithubHandler.hpp>
+#include <boost/property_tree/exceptions.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include <spacepi/setup-deploy-key/GithubHandler.hpp>
 #include <spacepi/setup-deploy-key/ServerConn.hpp>
 #include <spacepi/setup-deploy-key/Client.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <spacepi/log/LogLevel.hpp>
-#include <spacepi/log/AutoLog.hpp>
-#include <boost/property_tree/exceptions.hpp>
+#include <SpacePi.hpp>
 
 using namespace spacepi::target::deployKey;
 using namespace boost::property_tree;

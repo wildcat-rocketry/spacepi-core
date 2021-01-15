@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <SpacePi.hpp>
 #include <spacepi/setup-deploy-key/Client.hpp>
 #include <unordered_set>
 
