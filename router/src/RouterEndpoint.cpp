@@ -11,7 +11,8 @@ using namespace std;
 using namespace spacepi::router;
 using namespace spacepi::util::detail;
 
-RouterEndpoint RouterEndpoint::defaultEndpoint = RouterEndpoint(25401);
+RouterEndpoint RouterEndpoint::defaultTCPEndpoint(25401);
+RouterEndpoint RouterEndpoint::defaultUNIXEndpoint("/var/run/spacepi.sock");
 
 RouterEndpoint::RouterEndpoint() noexcept : type(RouterEndpoint::Invalid) {
 }
@@ -80,7 +81,7 @@ pair<vector<string>::const_iterator, string> CommandParser<RouterEndpoint>::pars
 
 template <>
 string CommandParser<RouterEndpoint>::example() const noexcept {
-    return "--" + name + "=" + RouterEndpoint::defaultEndpoint.toString();
+    return "--" + name + "=" + RouterEndpoint::defaultTCPEndpoint.toString();
 }
 
 template <>
@@ -90,5 +91,5 @@ pair<vector<string>::const_iterator, string> CommandParser<vector<RouterEndpoint
 
 template <>
 string CommandParser<vector<RouterEndpoint>>::example() const noexcept {
-    return "--" + name + "=" + RouterEndpoint::defaultEndpoint.toString() + "...";
+    return "--" + name + "=" + RouterEndpoint::defaultTCPEndpoint.toString() + "...";
 }

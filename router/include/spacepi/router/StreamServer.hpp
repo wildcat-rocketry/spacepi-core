@@ -6,15 +6,16 @@
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <spacepi/log/AutoLog.hpp>
-#include <spacepi/router/StreamClient.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
+#include <spacepi/router/RouterEndpoint.hpp>
+#include <spacepi/router/StreamClient.hpp>
 
 namespace spacepi {
     namespace router {
         template <typename Proto>
         class StreamServer : public StreamClientCallback, private spacepi::log::AutoLog<decltype("core:router"_autolog)> {
             public:
-                StreamServer(PubSubRouter &router, const typename Proto::endpoint &endpoint);
+                StreamServer(PubSubRouter &router, const RouterEndpoint &rEnd, const typename Proto::endpoint &endpoint);
 
                 StreamServer(const StreamServer<Proto> &) = delete;
                 StreamServer<Proto> &operator =(const StreamServer<Proto> &) = delete;

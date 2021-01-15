@@ -3,6 +3,7 @@
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/router/PubSubRouter.hpp>
+#include <spacepi/router/RouterEndpoint.hpp>
 #include <spacepi/router/StreamClient.hpp>
 #include <spacepi/router/StreamServer.hpp>
 #include <spacepi/util/Exception.hpp>
@@ -20,7 +21,8 @@ template class StreamServer<tcp>;
 template class StreamServer<stream_protocol>;
 
 template <typename Proto>
-StreamServer<Proto>::StreamServer(PubSubRouter &router, const typename Proto::endpoint &endpoint) : acceptor(NetworkThread::instance.getContext(), endpoint), router(router), client(nullptr) {
+StreamServer<Proto>::StreamServer(PubSubRouter &router, const RouterEndpoint &rEnd, const typename Proto::endpoint &endpoint) : acceptor(NetworkThread::instance.getContext(), endpoint), router(router), client(nullptr) {
+    log(LogLevel::Info) << "Listening on " << rEnd << "...";
     startAccept();
 }
 

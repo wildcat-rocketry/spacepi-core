@@ -7,6 +7,7 @@
 #include <spacepi/router/RouterEndpoint.hpp>
 #include <spacepi/router/StreamClient.hpp>
 #include <spacepi/router/StreamServer.hpp>
+#include <spacepi/router/UnixStreamServerWrapper.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 
@@ -23,24 +24,22 @@ Router::Router(Command &cmd) noexcept : CommandConfigurable("Router Options", cm
 
 void Router::runCommand() {
     if (routerEndpoints.empty()) {
-        routerEndpoints.push_back(RouterEndpoint::defaultEndpoint);
+        routerEndpoints.push_back(RouterEndpoint::defaultTCPEndpoint);
+        routerEndpoints.push_back(RouterEndpoint::defaultUNIXEndpoint);
     }
     for (vector<RouterEndpoint>::const_iterator it = routerEndpoints.begin(); it != routerEndpoints.end(); ++it) {
         bool valid = true;
         switch (it->getType()) {
             case RouterEndpoint::TCP:
-                servers.push_back(move(shared_ptr<StreamClientCallback>(new StreamServer<tcp>(pubsub, tcp::endpoint(tcp::v4(), it->getPort())))));
+                servers.push_back(move(shared_ptr<StreamClientCallback>(new StreamServer<tcp>(pubsub, *it, tcp::endpoint(tcp::v4(), it->getPort())))));
                 break;
             case RouterEndpoint::UNIX:
-            servers.push_back(move(shared_ptr<StreamClientCallback>(new StreamServer<stream_protocol>(pubsub, stream_protocol::endpoint(it->getPath())))));
+                servers.push_back(move(shared_ptr<StreamClientCallback>(new UnixStreamServerWrapper(pubsub, *it))));
                 break;
             default:
                 log(LogLevel::Warning) << "Skipping unknown endpoint '" << *it << "'";
                 valid = false;
                 break;
-        }
-        if (valid) {
-            log(LogLevel::Info) << "Listening on " << *it << "...";
         }
     }
 }

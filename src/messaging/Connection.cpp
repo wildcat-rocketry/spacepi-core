@@ -40,7 +40,7 @@ using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 using namespace spacepi::util::detail;
 
-ConnectionEndpoint ConnectionEndpoint::defaultEndpoint = ConnectionEndpoint(tcp::endpoint(address_v4(0x7F000001), 25401));
+ConnectionEndpoint ConnectionEndpoint::defaultEndpoint = ConnectionEndpoint(stream_protocol::endpoint("/var/run/spacepi.sock"));
 
 SubscriptionData::SubscriptionData() noexcept : count(0) {
 }
@@ -89,8 +89,8 @@ ConnectionEndpoint::ConnectionEndpoint(const stream_protocol::endpoint &endpoint
 
 bool ConnectionEndpoint::tryParse(const string &str, ConnectionEndpoint &endpoint) noexcept {
     try {
-        int colon = str.find_first_of(':');
-        if (colon) {
+        size_t colon = str.find_first_of(':');
+        if (colon != string::npos) {
             system::error_code ec;
             address ip = make_address(str.substr(0, colon), ec);
             if (ec) {

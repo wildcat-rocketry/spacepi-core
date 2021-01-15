@@ -14,7 +14,8 @@ namespace spacepi {
                     UNIX
                 };
 
-                static RouterEndpoint defaultEndpoint;
+                static RouterEndpoint defaultTCPEndpoint;
+                static RouterEndpoint defaultUNIXEndpoint;
 
                 RouterEndpoint() noexcept;
                 RouterEndpoint(int port) noexcept;
