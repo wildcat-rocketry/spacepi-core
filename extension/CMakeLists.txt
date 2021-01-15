@@ -19,6 +19,8 @@ spacepi_extension(
     src/DigitalIOFactory.cpp
     src/I2C.cpp
     src/I2CFactory.cpp
+    src/Memory.cpp
+    src/MemoryFactory.cpp
 )
 if (HAVE_LIBGPIOD_BIAS)
     spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
