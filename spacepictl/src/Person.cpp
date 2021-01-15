@@ -2,8 +2,8 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <spacepi/target/rpi/User.hpp>
-#include <spacepi/target/rpi/Person.hpp>
+#include <spacepi/spacepictl/User.hpp>
+#include <spacepi/spacepictl/Person.hpp>
 
 #include <unistd.h>
 
@@ -16,7 +16,7 @@
 #include <shadow.h>
 
 using namespace std;
-using namespace spacepi::target::rpi;
+using namespace spacepi::spacepictl;
 namespace fs = boost::filesystem;
 namespace bp = boost::process;
 

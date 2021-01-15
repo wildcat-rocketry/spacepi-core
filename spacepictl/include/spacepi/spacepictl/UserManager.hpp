@@ -8,12 +8,11 @@
 #include <shadow.h>
 
 #include <boost/property_tree/ptree.hpp>
-#include <spacepi/target/rpi/User.hpp>
-#include <spacepi/target/rpi/Person.hpp>
+#include <spacepi/spacepictl/User.hpp>
+#include <spacepi/spacepictl/Person.hpp>
 
 namespace spacepi {
-    namespace target {
-        namespace rpi {
+    namespace spacepictl {
             class UserManager {
                 public:
                     UserManager(boost::property_tree::ptree & users);
@@ -26,15 +25,14 @@ namespace spacepi {
                     bool update;
 
                 private:
-                    std::list<spacepi::target::rpi::User> system_users;
-                    std::list<spacepi::target::rpi::Person> human_users;
-                    spacepi::target::rpi::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t sudo_gid);
+                    std::list<spacepi::spacepictl::User> system_users;
+                    std::list<spacepi::spacepictl::Person> human_users;
+                    spacepi::spacepictl::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t sudo_gid);
 
                     std::list<uid_t> uids;
                     uid_t next_uid(uid_t start);
             };
         }
-    }
 }
 
 #endif

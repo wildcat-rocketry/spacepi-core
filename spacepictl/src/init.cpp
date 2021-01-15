@@ -1,8 +1,8 @@
 // This is the program for initializing the spacepi
 #include <iostream>
 
-#include <spacepi/target/rpi/UserManager.hpp>
-#include <spacepi/target/rpi/System.hpp>
+#include <spacepi/spacepictl/UserManager.hpp>
+#include <spacepi/spacepictl/System.hpp>
 #include <unistd.h> 
 #include <sys/mount.h>
 
