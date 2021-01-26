@@ -75,7 +75,7 @@ target_precompile_headers(spacepi_pch PUBLIC
 )
 
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in" "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
     add_custom_command(
         OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp"
