@@ -1,5 +1,5 @@
-spacepi namespace
-=================
+Core API Documentation
+======================
 
 .. toctree::
     spacepi/Concurrent

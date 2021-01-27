@@ -17,3 +17,7 @@ if os.environ.get("READTHEDOCS") == "True":
             for line in fin:
                 fout.write(line.replace("${CMAKE_CURRENT_SOURCE_DIR}", "..").replace("${CMAKE_CURRENT_BINARY_DIR}", "../docs"))
     subprocess.call("cd ../include; doxygen ../docs/Doxyfile", shell=True)
+else:
+    import sphinx_rtd_theme
+    html_theme      = "sphinx_rtd_theme"
+    html_theme_path = [ sphinx_rtd_theme.get_html_theme_path() ]

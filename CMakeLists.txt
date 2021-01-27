@@ -154,6 +154,8 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                 docs/conf.py
                 docs/index.rst
                 docs/requirements.txt
+                docs/detailed/architecture.rst
+                docs/detailed/getting-started.rst
                 docs/spacepi/concurrent/RWMutex.rst
                 docs/spacepi/concurrent/Semaphore.rst
                 docs/spacepi/concurrent/Sleep.rst
