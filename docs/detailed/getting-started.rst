@@ -61,19 +61,19 @@ Then, create a new folder to contain all of the build artifacts in:
 
 .. code-block:: text
 
-    $ mkdir -p build
+    spacepi-core$ mkdir -p build
 
 And enter the newly created :code:`build` folder:
 
 .. code-block:: text
 
-    $ cd build
+    spacepi-core$ cd build
 
 Finally, run CMake to configure the project:
 
 .. code-block:: text
 
-    $ cmake ..
+    spacepi-core/build$ cmake ..
 
 Building the Code
 -----------------
@@ -99,15 +99,13 @@ The following can be used to build the core example code (which is not built by 
 
 .. code-block:: text
 
-    $ cd spacepi-core/build/examples
-    $ make
+    spacepi-core/build/examples$ make
 
 Or, if a different repository from where :code:`spacepi-core` was cloned,
 
 .. code-block:: text
 
-    $ cd spacepi-other/build/core/examples
-    $ make
+    spacepi-other/build/core/examples$ make
 
 Opening Dashboard Project
 -------------------------
@@ -126,15 +124,13 @@ Windows commands:
 
 .. code-block:: text
 
-    > cd spacepi-core\dashboard
-    > .\gradlew.bat eclipse
+    spacepi-core\dashboard> .\gradlew.bat eclipse
 
 Linux commands:
 
 .. code-block:: text
 
-    $ cd spacepi-core/dashboard
-    $ ./gradlew eclipse
+    spacepi-core/dashboard$ ./gradlew eclipse
 
 Then, import the project into Eclipse by going to :code:`File` > :code:`Import...`, then select :code:`General` > :code:`Existing Projects into Workspace`, then select the :code:`spacepi-core/dashboard` folder as the project root directory and import the project.
 Now, the project can be built and run directly from Eclipse.
@@ -146,15 +142,13 @@ Windows commands:
 
 .. code-block:: text
 
-    > cd spacepi-core\dashboard
-    > .\gradlew.bat idea
+    spacepi-core\dashboard> .\gradlew.bat idea
 
 Linux commands:
 
 .. code-block:: text
 
-    $ cd spacepi-core/dashboard
-    $ ./gradlew idea
+    spacepi-core/dashboard$ ./gradlew idea
 
 Then, import the project into IDEA and select the :code:`spacepi-core/dashboard` folder as the project root directory.
 Now, the project can be built and run directly from IDEA.

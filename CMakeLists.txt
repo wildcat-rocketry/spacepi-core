@@ -155,7 +155,10 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                 docs/index.rst
                 docs/requirements.txt
                 docs/detailed/architecture.rst
+                docs/detailed/core-contrib.rst
                 docs/detailed/getting-started.rst
+                docs/detailed/networking.rst
+                docs/detailed/troubleshooting.rst
                 docs/spacepi/concurrent/RWMutex.rst
                 docs/spacepi/concurrent/Semaphore.rst
                 docs/spacepi/concurrent/Sleep.rst

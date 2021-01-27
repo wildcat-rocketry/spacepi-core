@@ -69,3 +69,14 @@ Template Repository
 
 The template repositories are intended as a starting point for creating new sets of modules, targets, and/or packages.
 When creating a new repository for the SpacePi system, GitHub can use one of these templates as a starting point to make development easier.
+
+Resource Control Inversion
+--------------------------
+
+As the modules repository should not have any direct references to the target repository, there is a problem with accessing hardware resources.
+Modules should not depend on any specific target, and targets should not have application-specific code, and neither should reference each other, so it could be problematic to have a module use a resource such as the I2C bus.
+
+To solve this problem, a concept known as a "resource" has been introduced into the core library.
+A base class for a variety of resources are provided in the core library, and more can be defined elsewhere if needed.
+References to these resources may be created by the core library's factory methods, and this allows the core library to connect the modules to the target at runtime.
+Therefore, the same module can be run with different targets, and the core library will ensure the modules and targets are properly connected in each instance.
