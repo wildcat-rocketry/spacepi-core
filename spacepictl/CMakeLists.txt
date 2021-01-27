@@ -1,4 +1,7 @@
 add_executable(spacepictl
+    src/FSOperation.cpp
+    src/FSOStream.cpp
+    src/FSTransaction.cpp
     src/init.cpp
 	src/Person.cpp
 	src/User.cpp
@@ -17,10 +20,16 @@ target_link_libraries(spacepictl
     Boost::system
     Boost::thread
 	Boost::filesystem
+    ${CMAKE_DL_LIBS}
+    spacepi
 )
 
 target_compile_definitions(spacepictl PUBLIC BOOST_NO_CXX11_SCOPED_ENUMS=0)
 
 target_include_directories(spacepictl PUBLIC include)
+
+target_precompile_headers(spacepictl PUBLIC
+    <SpacePi.hpp>
+)
 
 install(TARGETS spacepictl RUNTIME DESTINATION bin)
