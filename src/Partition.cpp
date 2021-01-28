@@ -1,6 +1,7 @@
 #include <string>
-#include <string>
 #include <spacepi/liblinux/Partition.hpp>
+#include <iomanip>
+#include <ios>
 
 using namespace spacepi::liblinux;
 
@@ -81,7 +82,7 @@ const std::string &Partition::getFSType() const noexcept{
 }
 
 Partition &Partition::setFSType(const std::string &fsType) noexcept{
-    this->fsType;
+    this->fsType = fsType;
     return *this;
 }
 
@@ -90,7 +91,7 @@ const std::string &Partition::getFormatOptions() const noexcept{
 }
 
 Partition &Partition::setFormatOptions(const std::string &formatOptions) noexcept{
-    this->formatOptions;
+    this->formatOptions = formatOptions;
     return *this;
 }
 
@@ -122,15 +123,44 @@ Partition &Partition::setPass(int pass) noexcept{
 }
 
 std::ostream &Partition::printSfdisk(std::ostream &os) const{
+    std::string prefix;
+    if(!start.empty()){
+        os << prefix << "start=" << start;
+        prefix = ", ";
+    }
+    if(!size.empty()){
+        os << prefix << "size=" << size;
+        prefix = ", ";
+    }
+    if(bootable){
+        os << prefix << "bootable";
+        prefix = ", ";
+    }
+    if(!attr.empty()){
+        os << prefix << "attrs=" << attr;
+        prefix = ", ";
+    }
+    if(!uuid.empty()){
+        os << prefix << "uuid=" << uuid;
+        prefix = ", ";
+    }
+    if(!name.empty()){
+        os << prefix << "name=" << name;
+        prefix = ", ";
+    }
+    if(!type.empty()){
+        os << prefix << "type=" << type;
+        prefix = ", ";
+    }
     return os;
 }
 
 std::ostream &Partition::printFstab(std::ostream &os) const{
-    os << "UUID=" << uuid << " ";
-    os << mountPoint << " ";
-    os << fsType << " ";
-    os << options << " ";
-    os << dump << " ";
+    os << std::left << "UUID=" << std::setw(14) << uuid << " ";
+    os << std::setw(19) << mountPoint << " ";
+    os << std::setw(7) << fsType << " ";
+    os << std::setw(27) << options << " ";
+    os << std::setw(7) << dump << " ";
     os << pass;
     return os;
 }

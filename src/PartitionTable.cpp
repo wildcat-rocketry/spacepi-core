@@ -88,10 +88,38 @@ PartitionTable &PartitionTable::addPartition(const Partition &partition) noexcep
 }
 
 std::ostream &PartitionTable::printSfdisk(std::ostream &os) const{
+    if(!unit.empty()){
+        os << "unit: " << unit << "\n";
+    }
+    if(!label.empty()){
+        os << "label: " << label << "\n";
+    }
+    if(!labelID.empty()){
+        os << "label-id: " << labelID << "\n";
+    }
+    if(!firstLBA.empty()){
+        os << "first-lba: " << firstLBA << "\n";
+    }
+    if(!lastLBA.empty()){
+        os << "last-lba: " << lastLBA << "\n";
+    }
+    if(!tableLength.empty()){
+        os << "table-length: " << tableLength << "\n";
+    }
+    if(!grain.empty()){
+        os << "grain: " << grain << "\n";
+    }
+    os << "\n";
+    for(int i = 0; i < partitions.size(); i++){
+        partitions[i].printSfdisk(os) << "\n";
+    }
     return os;
 }
 
 std::ostream &PartitionTable::printFstab(std::ostream &os) const{
+    os << "# /etc/fstab: static file system information.\n"
+          "#\n"
+          "# <file system>     <mount point>       <type>  <options>                   <dump>  <pass>\n";
     for(int i = 0; i < partitions.size(); i++){
         partitions[i].printFstab(os) << "\n";
     }
