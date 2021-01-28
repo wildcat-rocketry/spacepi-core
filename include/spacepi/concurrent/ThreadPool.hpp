@@ -6,7 +6,6 @@
 #include <thread>
 #include <vector>
 #include <utility>
-#include <boost/context/all.hpp>
 #include <boost/fiber/all.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
@@ -102,11 +101,7 @@ namespace spacepi {
                  * \param[in] fn The function to execute
                  * \param[in,out] arg The arguments to pass to the function when it is started
                  */
-                template <typename Fn,
-                          typename... Arg,
-                          typename = boost::context::detail::disable_overload<boost::fibers::fiber, Fn>,
-                          typename = boost::context::detail::disable_overload<boost::fibers::launch, Fn>,
-                          typename = boost::context::detail::disable_overload<std::allocator_arg_t, Fn>>
+                template <typename Fn, typename... Arg>
                 void add(Fn &&fn, Arg &&...arg) {
                     auto func = std::bind(fn, std::forward<Arg>(arg)...);
                     functions.emplace_back(new detail::WrappedFiber<decltype(func)>(func));
