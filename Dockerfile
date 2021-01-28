@@ -5,7 +5,7 @@ FROM alehaa/debian-systemd:buster
 RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y git libgps-dev build-essential mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev libgpiod-dev protobuf-compiler libi2c-dev && \
+    apt-get install -y autoconf-archive git libgps-dev build-essential mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev protobuf-compiler libi2c-dev && \
 	apt-get -t buster-backports install -y cmake
 	
 RUN bash -c "echo -e \"ALL ALL=(ALL) NOPASSWD:ALL\\nDefaults env_keep += \\\"QEMU_RESERVED_VA\\\"\" > /etc/sudoers"
@@ -21,6 +21,18 @@ RUN cd /opt ; \
 	cd /;\
 	rm -dRf /opt/paho.mqtt.c
 
+RUN cd /opt ; \
+	git clone https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git ; \
+	cd libgpiod ; \
+	git checkout v1.4 ; \
+	mkdir build ; cd build ; \
+	../autogen.sh --enable-bindings-cxx ; \
+	make ; \
+	make install ; \
+	ldconfig ; \
+	cd /; \
+	rm -dRf /opt/libgpiod
+
 RUN mkdir /opt/spacepi-target-docker
 COPY . /opt/spacepi-target-docker/
 
@@ -29,7 +41,10 @@ RUN cd /opt/spacepi-target-docker ; \
 	cd build ; \
 	cmake .. ; \
 	make install ; \
-	cd / ;
+	ldconfig ; \
+	cd / ; \
+	mkdir -p /etc/spacepi ; \
+	ln -s /opt/spacepi-target-docker/GroundStation.xml /etc/spacepi/new_conf.xml
 	
 
 # The host's cgroup filesystem need's to be mounted (read-only) in the
