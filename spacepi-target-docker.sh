@@ -40,7 +40,7 @@ function build {
 # Start with 4GB stack size instead of default
 function start {
 	docker run --cap-add SYS_ADMIN \
-		--rm --name spacepi-target-docker -d -it \
+		--name spacepi-target-docker -d -it \
 		-e USER_ID=$user_uuid \
 		-e QEMU_RESERVED_VA=0x7f000000 \
 		-e TERM=$TERM \
@@ -52,6 +52,7 @@ function start {
 
 function stop {
 	docker stop spacepi-target-docker
+	docker container rm spacepi-target-docker
 }
 
 case $1 in
@@ -73,6 +74,20 @@ case $1 in
 	cmake)
 		mkdir -p $spacepi_dir/build
 		docker exec -it -u user -w $rep/build spacepi-target-docker cmake ..
+		;;
+	debug)
+		docker run --cap-add SYS_ADMIN \
+			--name spacepi-target-docker -d -it \
+			-e USER_ID=$user_uuid \
+			-e QEMU_RESERVED_VA=0x7f000000 \
+			-e TERM=$TERM \
+			-v $spacepi_dir:$rep \
+			-v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+			--entrypoint /bin/bash \
+			ffaero:spacepi-target-docker
+		;;
+	kill)
+		docker kill spacepi-target-docker
 		;;
 	*)
 		docker exec -it -u user -w $rep/build spacepi "${@}"
