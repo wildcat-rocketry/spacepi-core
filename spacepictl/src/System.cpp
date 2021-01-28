@@ -2,10 +2,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <iostream>
-#include <fstream>
-#include <string>
-
+#include <regex>
 #include <spacepi/spacepictl/System.hpp>
+#include <string>
+#include <fstream>
+
 
 using boost::property_tree::ptree;
 using boost::optional;
@@ -87,13 +88,7 @@ void System::write_hostname(){
                        (std::istreambuf_iterator<char>()    ) );
     ifs.close();
 
-    size_t pos = 0;
-    while ((pos = content.find(old_hostname, pos)) != std::string::npos) {
-         content.replace(pos, old_hostname.length(), hostname);
-         pos += hostname.length();
-    }
-
     file.open("/etc/hosts");
-    file << content;
+    file << regex_replace(content, regex(old_hostname), hostname);
     file.close();
 }
