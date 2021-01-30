@@ -26,3 +26,7 @@ void SharedMount::mount(){
 void SharedMount::unmount(){
     unique->unmount();
 }
+
+void SharedMount::remount(const std::string &options) {
+    unique->remount(options);
+}
