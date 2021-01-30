@@ -6,6 +6,8 @@ add_library(spacepi-targetlib-linux
     src/main.cpp
     src/Partition.cpp
     src/PartitionTable.cpp
+    src/SharedMount.cpp
+    src/UniqueMount.cpp
 )
 
 target_link_libraries(spacepi-targetlib-linux
