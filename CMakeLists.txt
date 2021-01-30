@@ -4,6 +4,8 @@ include(core/cmake/SpacePi.cmake)
 
 add_library(spacepi-targetlib-linux
     src/main.cpp
+    src/Partition.cpp
+    src/PartitionTable.cpp
 )
 
 target_link_libraries(spacepi-targetlib-linux

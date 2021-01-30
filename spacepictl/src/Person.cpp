@@ -25,13 +25,7 @@ using boost::optional;
 Person::Person(const struct passwd* pw, const struct spwd* sh) : User(pw, sh) {
 }
 
-Person::Person(string uname, uid_t uid, gid_t gid){
-    // Create the default person info and build the default home
-    struct passwd* pw = new struct passwd;
-    struct spwd* sh = new struct spwd;
-    make_defualt_pw(pw, sh, uname, uid, gid);
-    this->add_pw(pw, sh);
-    
+Person::Person(string uname, uid_t uid, gid_t gid) : User(uname, uid, gid){
     build_home(uname, uid, gid);
 }
 
@@ -83,6 +77,7 @@ void Person::add_info(optional<string> new_name, optional<string> new_email, opt
 char * Person::set_string(string to_set){
     char * new_array = new char[to_set.length() + 1];
     to_set.copy(new_array, to_set.length());
+    new_array[to_set.length()] = '\0';
     return new_array;
 }
 

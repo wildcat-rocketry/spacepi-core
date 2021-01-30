@@ -27,7 +27,7 @@ UserManager::UserManager(ptree & users){
     struct spwd* cur_spwd;
 
     while( (cur_pwd = getpwent()) ){
-        if(User::uid_system(cur_pwd->pw_uid)){ 
+        if(User::is_system_user(cur_pwd)){ 
             cur_spwd = getspnam(cur_pwd->pw_name);
             if(cur_spwd){
                 system_users.push_back(User(cur_pwd, cur_spwd));
@@ -109,21 +109,33 @@ bool UserManager::needs_update(){
 
 void UserManager::write_users(){
     ofstream pwd_f, shadow_f;
+
+    cout << "Copying pasword files\n";
     fs::copy_file("/etc/passwd", "/etc/passwd~");
     fs::copy_file("/etc/shadow", "/etc/shadow~");
+
+
+    cout << "Opening password files\n";
     pwd_f.open("/etc/passwd");
     shadow_f.open("/etc/shadow");
 
-    for(User const& i : system_users){
+
+    cout << "Writing password files\n";
+    for(User& i : system_users){
         pwd_f << i.get_pw() << endl;
         shadow_f << i.get_spw() << endl;
     }
 
+    cout << "Writing human password files\n";
     for(Person const& i : human_users){
+        cout << "Start writing:" << i.get_uname() << "\n";
         pwd_f << i.get_pw() << endl;
         shadow_f << i.get_spw() << endl;
+        //i.update_user();
+        cout << "Done writing:" << i.get_uname() << "\n";
     }
 
+    cout << "Closing password files\n";
     pwd_f.close();
     shadow_f.close();
 }
