@@ -20,8 +20,11 @@ namespace spacepi {
                 bool isMounted() const noexcept;
                 void mount();
                 void unmount();
+                void remount(const std::string &options);
 
             private:
+                void flagSet(const std::string &options);
+
                 std::string blockDevice;
                 std::string mountPoint;
                 unsigned long flags;

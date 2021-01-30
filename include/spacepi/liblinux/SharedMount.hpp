@@ -15,6 +15,7 @@ namespace spacepi {
                 bool isMounted() const noexcept;
                 void mount();
                 void unmount();
+                void remount(const std::string &options);
 
             private:
                 std::shared_ptr<UniqueMount> unique;

@@ -12,11 +12,80 @@ using namespace spacepi::liblinux;
 UniqueMount::UniqueMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type){
     this->blockDevice = blockDevice;
     this->mountPoint = mountPoint;
+    flags = MS_RELATIME;
+    flagSet(options);
+    this->type = type;
+    mount();
+}
+
+UniqueMount::~UniqueMount(){
+    unmount();
+}
+
+UniqueMount::UniqueMount(UniqueMount &&move) noexcept{
+    this->blockDevice = move.blockDevice;
+    this->mountPoint = move.mountPoint;
+    this->flags = move.flags;
+    this->options = move.options;
+    this->type = move.type;
+    this->mounted = move.mounted;
+
+    move.mounted = false;
+}
+
+UniqueMount &UniqueMount::operator =(UniqueMount &&move) noexcept{
+    this->blockDevice = move.blockDevice;
+    this->mountPoint = move.mountPoint;
+    this->flags = move.flags;
+    this->options = move.options;
+    this->type = move.type;
+    this->mounted = move.mounted;
+
+    move.mounted = false;
+    return *this;
+}
+
+bool UniqueMount::isMounted() const noexcept{
+    return mounted;
+}
+
+void UniqueMount::mount(){
+    if(!mounted){
+        handle(::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str()))
+            << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+        mounted = true;
+        if ((flags & MS_BIND) != 0) {
+            handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+                << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+        }
+    }
+}
+
+void UniqueMount::unmount(){
+    if(mounted){
+        handle(umount(mountPoint.c_str()))
+            << "Failed to unmount '" << mountPoint << "': " << SyscallErrorString;
+    }
+}
+
+void UniqueMount::remount(const std::string &options){
+    this->options = options;
+    flagSet(options);
+    if (mounted) {
+        handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+            << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+    }
+}
+
+void UniqueMount::flagSet(const std::string &options){
     std::unique_ptr<char[]> buffer(new char[options.size()+1]);
     strcpy(buffer.get(), options.c_str());
-    flags = MS_RELATIME;
     std::ostringstream optionstream;
     bool written = false;
+    if (!this->options.empty()) {
+        optionstream << this->options;
+        written = true;
+    }
     for(char *ptr = strtok(buffer.get(), ","); ptr != nullptr; ptr = strtok(nullptr, ",")){
         std::string option(ptr);
         if(option == "async"){
@@ -135,58 +204,5 @@ UniqueMount::UniqueMount(const std::string &blockDevice, const std::string &moun
             }
         }
     }
-
     this->options = optionstream.str();
-    this->type = type;
-    mount();
-}
-
-UniqueMount::~UniqueMount(){
-    unmount();
-}
-
-UniqueMount::UniqueMount(UniqueMount &&move) noexcept{
-    this->blockDevice = move.blockDevice;
-    this->mountPoint = move.mountPoint;
-    this->flags = move.flags;
-    this->options = move.options;
-    this->type = move.type;
-    this->mounted = move.mounted;
-
-    move.mounted = false;
-}
-
-UniqueMount &UniqueMount::operator =(UniqueMount &&move) noexcept{
-    this->blockDevice = move.blockDevice;
-    this->mountPoint = move.mountPoint;
-    this->flags = move.flags;
-    this->options = move.options;
-    this->type = move.type;
-    this->mounted = move.mounted;
-
-    move.mounted = false;
-    return *this;
-}
-
-bool UniqueMount::isMounted() const noexcept{
-    return mounted;
-}
-
-void UniqueMount::mount(){
-    if(!mounted){
-        handle(::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str()))
-            << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
-        mounted = true;
-        if ((flags & MS_BIND) != 0) {
-            handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
-                << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
-        }
-    }
-}
-
-void UniqueMount::unmount(){
-    if(mounted){
-        handle(umount(mountPoint.c_str()))
-            << "Failed to unmount '" << mountPoint << "': " << SyscallErrorString;
-    }
 }
