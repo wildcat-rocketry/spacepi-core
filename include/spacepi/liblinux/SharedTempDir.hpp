@@ -1,0 +1,31 @@
+#ifndef SPACEPI_TARGETLIB_LINUX_SHAREDTEMPDIR_HPP
+#define SPACEPI_TARGETLIB_LINUX_SHAREDTEMPDIR_HPP
+
+#include <memory>
+#include <string>
+#include <spacepi/liblinux/UniqueTempDir.hpp>
+
+namespace spacepi {
+    namespace liblinux {
+        class SharedTempDir {
+            public:
+                SharedTempDir(const std::string &name);
+                SharedTempDir(UniqueTempDir &&dir);
+                ~SharedTempDir();
+
+                SharedTempDir(const SharedTempDir &copy) noexcept;
+                SharedTempDir &operator =(const SharedTempDir &copy) noexcept;
+
+                const std::string &getPath() const noexcept;
+
+                bool doesExist() const noexcept;
+                void mkdir();
+                void rmdir();
+
+            private:
+                std::shared_ptr<UniqueTempDir> unique;
+        };
+    }
+}
+
+#endif
