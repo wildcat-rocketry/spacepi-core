@@ -2,10 +2,11 @@
 #define SPACEPI_TARGETLIB_LINUX_UNIQUEMOUNT_HPP
 
 #include <string>
+#include <spacepi/liblinux/SystemCaller.hpp>
 
 namespace spacepi {
     namespace liblinux {
-        class UniqueMount {
+        class UniqueMount : private SystemCaller {
             public:
                 UniqueMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type);
                 ~UniqueMount();

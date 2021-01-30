@@ -174,36 +174,19 @@ bool UniqueMount::isMounted() const noexcept{
 
 void UniqueMount::mount(){
     if(!mounted){
-        int mountedval = ::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str());
-        if(mountedval == 0){
-            mounted = true;
-        }
-        else{
-            std::string error = strerror(errno);
-            throw EXCEPTION(spacepi::util::ResourceException("Failed to mount device: " + error ));
-        }
+        handle(::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str()))
+            << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+        mounted = true;
         if ((flags & MS_BIND) != 0) {
-            mountedval = ::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str());
-            if(mountedval == 0){
-                mounted = true;
-            }
-            else{
-                std::string error = strerror(errno);
-                throw EXCEPTION(spacepi::util::ResourceException("Failed to mount device: " + error ));
-            }
+            handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+                << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
         }
     }
 }
 
 void UniqueMount::unmount(){
     if(mounted){
-        int mountedval = umount(mountPoint.c_str());
-        if(mountedval == 0){
-            mounted = false;
-        }
-        else {
-            std::string error = strerror(errno);
-            throw EXCEPTION(spacepi::util::ResourceException("Failed to unmount device: " + error ));
-        }
+        handle(umount(mountPoint.c_str()))
+            << "Failed to unmount '" << mountPoint << "': " << SyscallErrorString;
     }
 }

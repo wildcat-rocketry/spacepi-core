@@ -7,6 +7,7 @@ add_library(spacepi-targetlib-linux
     src/Partition.cpp
     src/PartitionTable.cpp
     src/SharedMount.cpp
+    src/SystemCaller.cpp
     src/UniqueMount.cpp
 )
 
