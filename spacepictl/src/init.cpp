@@ -10,7 +10,10 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/filesystem.hpp>
 
-#define CONFIG_PATH "/etc/spacepi.xml"
+#define SPACEPI_ETC "/etc/spacepi"
+#define FIRSTTIME_SETUP_PATH "/usr/local/sbin/install-spacepi-boardsupport"
+#define NEW_CONF_PATH SPACEPI_ETC "/new_conf.xml"
+#define RUNNING_CONF SPACEPI_ETC "/running_conf.xml"
 
 using namespace std;
 
@@ -24,11 +27,9 @@ int initialize_system();
 int userspace_utility(int argc, char ** argv);
 int run_reconfiguration();
 bool points_to_file(fs::path& p);
-bool is_readonlyfs(string test_file_path = "/rwtest");
-void ensure_root_rw();
 
 int main(int argc, char ** argv){
-    if(getpid() == 1) {
+    if(getpid() == 1 || argc == 2 && strcmp(argv[1], "--force-init") == 0) {
         // Am da boss
         return initialize_system();
     }
@@ -44,23 +45,29 @@ int main(int argc, char ** argv){
 int initialize_system(){
     // Check for existence of setup program link
 
-    bool is_ro = is_readonlyfs();
-
-    fs::path setup_prog_path{"/etc/spacepi/setup"};
+    fs::path setup_prog_path{FIRSTTIME_SETUP_PATH};
     if(points_to_file(setup_prog_path)){
         bp::system(setup_prog_path);
-        if(is_ro) mount(NULL, "/", NULL, MS_REMOUNT, NULL);
-        fs::remove("/etc/spacepi/setup");
+        fs::remove(FIRSTTIME_SETUP_PATH);
     }
 
-    // Delete setup program link if setup doesn't fail
+    try{
+        // Check for existence of update flag
+        fs::path new_config_path{NEW_CONF_PATH};
+        if(points_to_file(new_config_path)){
+            run_reconfiguration();
+            if(fs::exists(RUNNING_CONF)) fs::remove(RUNNING_CONF);
+            fs::copy(NEW_CONF_PATH, RUNNING_CONF);
 
-    // Check for existence of update flag
-    // Delete update flag
+            // Delete update flag
+            fs::remove(NEW_CONF_PATH);
+        }
+    } catch (...){
+    }
 
-    if(is_ro) mount(NULL, "/", NULL, MS_REMOUNT | MS_RDONLY, NULL);
     // Boot into systemd
     execl("/sbin/init", "/sbin/init"); 
+
     return 0;
 }
 
@@ -79,17 +86,6 @@ bool points_to_file(fs::path& p){
     }
 }
 
-bool is_readonlyfs(string test_file_path){
-    ofstream testFile (test_file_path);
-    if(!testFile.is_open()){
-        return true;
-    }
-
-    testFile.close();
-
-    return false;
-}
-
 int userspace_utility(int argc, char ** argv){
     cerr << "Userspace utility not implemented yet\n";
     return 0;
@@ -98,35 +94,33 @@ int userspace_utility(int argc, char ** argv){
 int run_reconfiguration(){
     ptree pt;
     
-    read_xml(CONFIG_PATH, pt);
+    read_xml(NEW_CONF_PATH, pt);
 
     optional<ptree &> options = pt.get_child_optional("config.target.options");
     if(!options){
-        cerr << "config.target.options does not exist in " CONFIG_PATH "\n";
+        cerr << "config.target.options does not exist in " NEW_CONF_PATH "\n";
         return 1;
     }
 
-    optional<ptree &> users = (*options).get_child_optional("users");
-    if(!options){
-        cerr << "config.target.options does not exist in " CONFIG_PATH "\n";
-        return 1;
-    }
-
+    optional<ptree &> users = pt.get_child_optional("config.target.users");
     if(!users){
-        cerr << "config.target.options.users does not exist in " CONFIG_PATH "\n";
+        cerr << "config.target.users does not exist in " NEW_CONF_PATH "\n";
         return 1;
     }
 
     System system(*options);
     UserManager user_man(*users);
 
+    cout << "Done loading user changes\n";
     if(user_man.needs_update()){
         user_man.write_users();
     }
+    cout << "Done writing user changes\n";
 
     if(system.needs_update()){
         system.write_updates();
     }
+    cout << "Done writing system changes\n";
 
     return 0;
 }

@@ -2,6 +2,7 @@
 #define SPACEPI_TARGET_RPI_USER_HPP
 
 #include <string>
+#include <memory>
 #include <vector>
 #include <boost/program_options.hpp>
 #include <pwd.h>
@@ -11,39 +12,43 @@ namespace spacepi {
     namespace spacepictl {
         class User {
             public:
-                static struct passwd* copy_passwd(const struct passwd* pw);
-                static struct spwd* copy_spwd(const struct spwd* sh);
                 static bool is_system_user(const struct passwd* sh);
                 static bool is_system_user(User user);
-
-                static void destroy_passwd(struct passwd* pw);
-                static void destroy_shadow(struct spwd* sh);
+                static bool is_system_user(uid_t uid);
 
                 User(const struct passwd* pw, const struct spwd* sh);
-                User(); // Start with empty struct
+                User(std::string uname, uid_t uid, gid_t gid);
 
-                ~User(); // Free C type structs
-
-                std::string get_uname();
+                std::string get_uname() const;
 
                 std::string get_pw() const;
                 std::string get_spw() const;
 
-                uid_t get_uid();
-                uid_t get_gid();
-                std::string get_home_dir();
-
-                static bool uid_system(uid_t uid);
-
-            protected:
-                // Take pointers and keep them. (User now owns the pointers, don't free)
-                void add_pw(struct passwd* pw, struct spwd* sh);
+                uid_t get_uid() const;
+                uid_t get_gid() const;
+                std::string get_home_dir() const;
 
             private:
-                static std::string negative_blank(int num);
-                static char pw_buff[256];
-                struct passwd* passwd;
-                struct spwd* shadow;
+                static std::string negative_blank(long int num);
+
+                // Members of struct passwd
+                const uid_t pw_uid;
+                const gid_t pw_gid;
+                const std::string pw_passwd = "x";
+                const std::string pw_name;
+                const std::string pw_gecos = "From spacepictl";
+                const std::string pw_dir;
+                const std::string pw_shell = "/bin/bash";
+                
+                // Members of struct spwd
+                // sp_namp -> pw_name
+                const std::string sp_pwdp = "*";
+                const long int sp_lstchg = 18509;
+                const long int sp_min = 0;
+                const long int sp_max = 99999;
+                const long int sp_warn = 7;
+                const long int sp_inact = -1;
+                const long int sp_expire = -1;
         };
     }
 }
