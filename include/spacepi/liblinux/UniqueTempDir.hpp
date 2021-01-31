@@ -13,8 +13,8 @@ namespace spacepi {
                 UniqueTempDir(UniqueTempDir &) = delete;
                 UniqueTempDir &operator =(UniqueTempDir &) = delete;
 
-                UniqueTempDir(UniqueTempDir &&) noexcept = default;
-                UniqueTempDir &operator =(UniqueTempDir &&) noexcept = default;
+                UniqueTempDir(UniqueTempDir &&move) noexcept;
+                UniqueTempDir &operator =(UniqueTempDir &&move) noexcept;
 
                 const std::string &getPath() const noexcept;
 
@@ -23,6 +23,7 @@ namespace spacepi {
                 void rmdir();
 
             private:
+                std::string name;
                 std::string path;
                 bool exists;
         };
