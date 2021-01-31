@@ -13,9 +13,6 @@ namespace spacepi {
                 void runCommand();
 
             private:
-                std::string configFile;
-                std::string outFile;
-                std::string dataDir;
         };
     }
 }
