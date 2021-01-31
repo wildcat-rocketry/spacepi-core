@@ -22,6 +22,8 @@ add_library(spacepi-targetlib-linux
     src/SharedMount.cpp
     src/SystemCaller.cpp
     src/UniqueMount.cpp
+    src/SharedTempDir.cpp
+    src/UniqueTempDir.cpp
 )
 
 target_link_libraries(spacepi-targetlib-linux
