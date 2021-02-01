@@ -59,4 +59,4 @@ VOLUME [ "/spacepi/", "/sys/fs/cgroup", "/run", "/run/lock", "/tmp" ]
 # As this image should run systemd, the default command will be changed to start
 # the init system. CMD will be preferred in favor of ENTRYPOINT, so one may
 # override it when creating the container to e.g. to run a bash console instead.
-CMD [ "/usr/local/bin/spacepictl" ]
+CMD [ "/usr/local/sbin/spacepi-bootstrap" ]
