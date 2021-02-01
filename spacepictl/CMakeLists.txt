@@ -2,7 +2,7 @@ add_executable(spacepictl
     src/FSOperation.cpp
     src/FSOStream.cpp
     src/FSTransaction.cpp
-    src/init.cpp
+    src/SpacePiCTL.cpp
 	src/Person.cpp
 	src/User.cpp
 	src/UserManager.cpp

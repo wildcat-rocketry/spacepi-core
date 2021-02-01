@@ -4,6 +4,8 @@
 #include <iostream>
 #include <regex>
 #include <spacepi/spacepictl/System.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
+#include <spacepi/spacepictl/FSOStream.hpp>
 #include <string>
 #include <fstream>
 
@@ -14,7 +16,7 @@ namespace fs = boost::filesystem;
 using namespace spacepi::spacepictl;
 using namespace std;
 
-System::System(ptree & config){
+System::System(FSTransaction &fs, ptree & config) : fs(fs) {
     // Read from XML and find needed parameters
     // Get ip and hostname tags
     this->fetch_ip();
@@ -68,27 +70,23 @@ void System::fetch_hostname(){
     if(file.is_open()){
         getline(file, hostname);
     }
+    file.close();
 }
 
 void System::write_ip(){
-    ofstream file;
-    file.open("/etc/ip");
+    FSOStream file(fs, "/etc/ip");
     file << ip << "\n";
-    file.close();
 }
 
 void System::write_hostname(){
-    ofstream file;
-    file.open("/etc/hostname");
-    file << hostname << "\n";
-    file.close();
+    FSOStream hostname_file(fs, "/etc/hostname");
+    hostname_file << hostname << "\n";
 
     ifstream ifs("/etc/hosts");
     string content( (std::istreambuf_iterator<char>(ifs) ),
                        (std::istreambuf_iterator<char>()    ) );
     ifs.close();
 
-    file.open("/etc/hosts");
-    file << regex_replace(content, regex(old_hostname), hostname);
-    file.close();
+    FSOStream hosts_file(fs, "/etc/hosts");
+    hosts_file << regex_replace(content, regex(old_hostname), hostname);
 }

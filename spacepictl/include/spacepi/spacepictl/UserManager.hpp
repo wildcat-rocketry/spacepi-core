@@ -8,12 +8,13 @@
 #include <shadow.h>
 
 #include <boost/property_tree/ptree.hpp>
+#include <SpacePi.hpp>
 #include <spacepi/spacepictl/User.hpp>
 #include <spacepi/spacepictl/Person.hpp>
 
 namespace spacepi {
     namespace spacepictl {
-            class UserManager {
+            class UserManager : private spacepi::log::AutoLog<decltype("spacepictl:UserManager"_autolog)> {
                 public:
                     UserManager(boost::property_tree::ptree & users);
 

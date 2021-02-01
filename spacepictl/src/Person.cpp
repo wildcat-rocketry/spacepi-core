@@ -29,30 +29,10 @@ Person::Person(string uname, uid_t uid, gid_t gid) : User(uname, uid, gid){
     build_home(uname, uid, gid);
 }
 
-void Person::make_defualt_pw(struct passwd* pw, struct spwd* sh, string uname, uid_t uid, gid_t gid){
-    pw->pw_uid = uid;
-    pw->pw_gid = gid;
-    pw->pw_passwd = set_string("x");
-    pw->pw_gecos = set_string("From spacepi init");
-    pw->pw_name = set_string(uname);
-    pw->pw_dir = set_string("/home/" + uname);
-    pw->pw_shell = set_string("/bin/bash");
-
-    sh->sp_namp = set_string(uname);
-    sh->sp_pwdp = set_string("*");
-    sh->sp_lstchg = 18509;
-    sh->sp_min = 0;
-    sh->sp_max = 99999;
-    sh->sp_warn = 7;
-    sh->sp_inact = -1;
-    sh->sp_expire = -1;
-    sh->sp_flag = -1;
-}
-
 void Person::update_info(optional<string> &old_param, optional<string> &new_param, bool &update_flag){
     if(new_param){
         if(old_param){
-            if((*old_param).compare(*new_param)){
+            if(*old_param != *new_param){
                 update_flag = 1;
                 old_param = new_param;
             } else {
