@@ -8,12 +8,14 @@
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
+#include <SpacePi.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
 
 namespace spacepi {
     namespace spacepictl {
-        class System {
+        class System : private spacepi::log::AutoLog<decltype("spacepictl:System"_autolog)> {
             public:
-                System(boost::property_tree::ptree & config);
+                System(spacepi::spacepictl::FSTransaction &fs, boost::property_tree::ptree & config);
 
                 bool needs_update();
 
@@ -28,6 +30,7 @@ namespace spacepi {
                 std::string ip;
                 std::string hostname;
                 std::string old_hostname;
+                spacepi::spacepictl::FSTransaction &fs;
 
                 void fetch_ip();
                 void fetch_hostname();

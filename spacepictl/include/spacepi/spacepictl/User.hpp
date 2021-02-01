@@ -1,6 +1,7 @@
 #ifndef SPACEPI_TARGET_RPI_USER_HPP
 #define SPACEPI_TARGET_RPI_USER_HPP
 
+#include <SpacePi.hpp>
 #include <string>
 #include <memory>
 #include <vector>
@@ -10,7 +11,7 @@
 
 namespace spacepi {
     namespace spacepictl {
-        class User {
+        class User: private spacepi::log::AutoLog<decltype("spacepictl:User"_autolog)> {
             public:
                 static bool is_system_user(const struct passwd* sh);
                 static bool is_system_user(User user);

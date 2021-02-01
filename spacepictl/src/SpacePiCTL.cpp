@@ -1,8 +1,11 @@
 // This is the program for initializing the spacepi
-#include <iostream>
+#include <exception>
 
+#include <SpacePi.hpp>
 #include <spacepi/spacepictl/UserManager.hpp>
 #include <spacepi/spacepictl/System.hpp>
+#include <spacepi/spacepictl/SpacePiCTL.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
 #include <unistd.h> 
 #include <sys/mount.h>
 
@@ -20,29 +23,36 @@ using namespace std;
 using boost::property_tree::ptree;
 using boost::optional;
 using namespace spacepi::spacepictl;
+using namespace spacepi::log;
+using namespace spacepi::util;
 namespace fs = boost::filesystem;
 namespace bp = boost::process;
 
-int initialize_system();
-int userspace_utility(int argc, char ** argv);
-int run_reconfiguration();
-bool points_to_file(fs::path& p);
-
+// Main
 int main(int argc, char ** argv){
+    SpacePiCTL control;
+    Logger log("spacepictl");
+    try{
+        control.main(argc, argv);
+    } catch (const Exception &ex){
+        log(LogLevel::Error) << "Error running spacepictl: " << ex.what() << "\n" << Exception::getPointer();
+    }
+}
+
+int SpacePiCTL::main(int argc, char ** argv){
+
+    arg_count = argc;
+    arg_vector = argv;
+
     if(getpid() == 1 || argc == 2 && strcmp(argv[1], "--force-init") == 0) {
         // Am da boss
         return initialize_system();
     }
 
-    if(geteuid() != 0){
-        cerr << "Program should be run as root\n";
-        return 1;
-    }
-
-    return userspace_utility(argc, argv);
+    return userspace_utility();
 }
 
-int initialize_system(){
+int SpacePiCTL::initialize_system(){
     // Check for existence of setup program link
 
     fs::path setup_prog_path{FIRSTTIME_SETUP_PATH};
@@ -71,7 +81,7 @@ int initialize_system(){
     return 0;
 }
 
-bool points_to_file(fs::path& p){
+bool SpacePiCTL::points_to_file(fs::path& p){
     fs::path canon;
     if(fs::exists(p)){
         canon = fs::canonical(p);
@@ -86,41 +96,51 @@ bool points_to_file(fs::path& p){
     }
 }
 
-int userspace_utility(int argc, char ** argv){
-    cerr << "Userspace utility not implemented yet\n";
-    return 0;
+int SpacePiCTL::userspace_utility(){
+    throw EXCEPTION(StateException("User utility not implemented"));
+    return 1;
 }
 
-int run_reconfiguration(){
+int SpacePiCTL::run_reconfiguration(){
     ptree pt;
+    FSTransaction fs_transaction;
     
     read_xml(NEW_CONF_PATH, pt);
 
     optional<ptree &> options = pt.get_child_optional("config.target.options");
     if(!options){
-        cerr << "config.target.options does not exist in " NEW_CONF_PATH "\n";
+        throw EXCEPTION(StateException("config.target.options does not exist in " NEW_CONF_PATH ));
         return 1;
     }
 
     optional<ptree &> users = pt.get_child_optional("config.target.users");
     if(!users){
-        cerr << "config.target.users does not exist in " NEW_CONF_PATH "\n";
+        throw EXCEPTION(StateException("config.target.users does not exist in " NEW_CONF_PATH ));
         return 1;
     }
 
-    System system(*options);
+    System system(fs_transaction, *options);
     UserManager user_man(*users);
 
-    cout << "Done loading user changes\n";
+    log(LogLevel::Info) << "Done loading user changes\n";
     if(user_man.needs_update()){
         user_man.write_users();
     }
-    cout << "Done writing user changes\n";
+    log(LogLevel::Info) << "Done writing user changes\n";
 
     if(system.needs_update()){
         system.write_updates();
     }
-    cout << "Done writing system changes\n";
+    log(LogLevel::Info) << "Done writing system changes\n";
+
+    try{
+        log(LogLevel::Info) << "Start commiting changes\n";
+        fs_transaction.apply();
+        log(LogLevel::Info) << "Done commiting changes\n";
+    } catch (const Exception  &ex) {
+        log(LogLevel::Error) << "Error applying changes: " << ex.what() << "\n" << ex.getPointer();
+        return 1;
+    }
 
     return 0;
 }
