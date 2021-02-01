@@ -3,6 +3,19 @@ project(spacepi-targetlib-linux)
 include(core/cmake/SpacePi.cmake)
 
 add_library(spacepi-targetlib-linux
+    src/steps/BuildSpacePiStep.cpp
+    src/steps/CleanupStep.cpp
+    src/steps/CloneGitRepoStep.cpp
+    src/steps/FormatPartitionsStep.cpp
+    src/steps/InstallBaseSystemStep.cpp
+    src/steps/InstallSpacePiStep.cpp
+    src/steps/InstallSystemFilesStep.cpp
+    src/steps/MountPartitionsStep.cpp
+    src/DefaultInstallationConfig.cpp
+    src/DefaultInstallationPlan.cpp
+    src/Image.cpp
+    src/InstallationData.cpp
+    src/InstallationPlan.cpp
     src/main.cpp
     src/Partition.cpp
     src/PartitionTable.cpp
