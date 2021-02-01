@@ -90,6 +90,6 @@ case $1 in
 		docker kill spacepi-target-docker
 		;;
 	*)
-		docker exec -it -u user -w $rep/build spacepi "${@}"
+		docker exec -it -u user -w $rep/build spacepi-target-docker "${@}"
 		;;
 esac
