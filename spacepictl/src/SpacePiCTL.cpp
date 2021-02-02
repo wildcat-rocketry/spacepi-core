@@ -65,14 +65,20 @@ int SpacePiCTL::initialize_system(){
         // Check for existence of update flag
         fs::path new_config_path{NEW_CONF_PATH};
         if(points_to_file(new_config_path)){
-            run_reconfiguration();
-            if(fs::exists(RUNNING_CONF)) fs::remove(RUNNING_CONF);
-            fs::copy(NEW_CONF_PATH, RUNNING_CONF);
+            if(run_reconfiguration() == 0){
+                FSTransaction fs;
 
-            // Delete update flag
-            fs::remove(NEW_CONF_PATH);
+                if(fs::exists(RUNNING_CONF)) fs.remove(RUNNING_CONF);
+                fs.copy(NEW_CONF_PATH, RUNNING_CONF);
+
+                // Delete update flag
+                fs.remove(NEW_CONF_PATH);
+
+                fs.apply();
+            }
         }
-    } catch (...){
+    } catch (const Exception &ex){
+        log(LogLevel::Error) << "Error updating system: " << ex.what() << "\n" << ex.getPointer();
     }
 
     // Boot into systemd
@@ -120,17 +126,13 @@ int SpacePiCTL::run_reconfiguration(){
     }
 
     System system(fs_transaction, *options);
-    UserManager user_man(*users);
+    UserManager user_man(fs_transaction, *users);
 
     log(LogLevel::Info) << "Done loading user changes\n";
-    if(user_man.needs_update()){
-        user_man.write_users();
-    }
+    user_man.write_users();
     log(LogLevel::Info) << "Done writing user changes\n";
 
-    if(system.needs_update()){
-        system.write_updates();
-    }
+    system.write_updates();
     log(LogLevel::Info) << "Done writing system changes\n";
 
     try{

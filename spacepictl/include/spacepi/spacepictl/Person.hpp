@@ -5,6 +5,7 @@
 #include <vector>
 #include <boost/optional.hpp>
 #include <SpacePi.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
 #include <spacepi/spacepictl/User.hpp>
 #include <pwd.h>
 #include <shadow.h>
@@ -14,10 +15,10 @@ namespace spacepi {
         class Person: public spacepi::spacepictl::User , private spacepi::log::AutoLog<decltype("spacepictl:Person"_autolog)> {
             public:
                 // Makes a new person with defaults
-                Person(std::string uname, uid_t uid, gid_t gid);
+                Person(spacepi::spacepictl::FSTransaction &fs, std::string uname, uid_t uid, gid_t gid);
 
                 // Make a new person by copying data from C library
-                Person(const struct passwd* pw, const struct spwd* sh);
+                Person(spacepi::spacepictl::FSTransaction &fs, const struct passwd* pw, const struct spwd* sh);
 
 
                 void add_info(boost::optional<std::string> new_name, boost::optional<std::string> new_email, boost::optional<std::string> new_shell, boost::optional<std::string> new_keys);
@@ -30,7 +31,7 @@ namespace spacepi {
                 void update_info(boost::optional<std::string> &old_param, boost::optional<std::string> &new_param, bool &update_flag);
 
                 // Build a new default home dir for the listed user
-                static void build_home(std::string uname, uid_t uid, gid_t gid); 
+                void build_home(std::string uname, uid_t uid, gid_t gid); 
 
                 void write_keys();
                 void update_git();
@@ -46,6 +47,7 @@ namespace spacepi {
                 bool update_keys;
 
             private:
+                spacepi::spacepictl::FSTransaction &fs;
         };
     }
 }

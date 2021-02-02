@@ -29,22 +29,18 @@ System::System(FSTransaction &fs, ptree & config) : fs(fs) {
     optional<string> new_hostname = config.get_optional<string>("hostname");
 
     if(new_ip){
-        if(ip.compare(*new_ip) != 0){
+        if(old_ip != *new_ip){
             update_ip = true;
             ip = *new_ip;
         }
     }
 
     if(new_hostname){
-        if(hostname.compare(*new_hostname) != 0){
+        if(old_hostname != *new_hostname){
             update_hostname = true;
             hostname = *new_hostname;
         }
     }
-}
-
-bool System::needs_update(){
-    return update_hostname || update_ip;
 }
 
 void System::write_updates(){
@@ -60,15 +56,16 @@ void System::fetch_ip(){
     ifstream file;
     file.open("/etc/ip");
     if(file.is_open()){
-        getline(file, ip);
+        getline(file, old_ip);
     }
+    file.close();
 }
 
 void System::fetch_hostname(){
     ifstream file;
     file.open("/etc/hostname");
     if(file.is_open()){
-        getline(file, hostname);
+        getline(file, old_hostname);
     }
     file.close();
 }

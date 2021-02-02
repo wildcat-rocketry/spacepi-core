@@ -17,8 +17,6 @@ namespace spacepi {
             public:
                 System(spacepi::spacepictl::FSTransaction &fs, boost::property_tree::ptree & config);
 
-                bool needs_update();
-
                 void write_updates();
 
             protected:
@@ -29,7 +27,10 @@ namespace spacepi {
 
                 std::string ip;
                 std::string hostname;
+
+                std::string old_ip;
                 std::string old_hostname;
+
                 spacepi::spacepictl::FSTransaction &fs;
 
                 void fetch_ip();

@@ -1,7 +1,7 @@
-#include <fstream>
-#include <iostream>
 #include <string>
-#include <cstring>
+#include <SpacePi.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
+#include <spacepi/spacepictl/FSOStream.hpp>
 #include <spacepi/spacepictl/User.hpp>
 #include <spacepi/spacepictl/Person.hpp>
 
@@ -17,15 +17,16 @@
 
 using namespace std;
 using namespace spacepi::spacepictl;
+using namespace spacepi::util;
 namespace fs = boost::filesystem;
 namespace bp = boost::process;
 
 using boost::optional;
 
-Person::Person(const struct passwd* pw, const struct spwd* sh) : User(pw, sh) {
+Person::Person(FSTransaction &fs, const struct passwd* pw, const struct spwd* sh) : User(pw, sh), fs(fs) {
 }
 
-Person::Person(string uname, uid_t uid, gid_t gid) : User(uname, uid, gid){
+Person::Person(FSTransaction &fs, string uname, uid_t uid, gid_t gid) : User(uname, uid, gid), fs(fs){
     build_home(uname, uid, gid);
 }
 
@@ -65,9 +66,8 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
     fs::path home_dir_name("/home/" + uname); 
 
     if(!fs::exists(home_dir_name)){
-        create_directory(home_dir_name);
+        fs.mkdir(home_dir_name.native(), uid, gid);
     }
-    chown(home_dir_name.c_str(), uid, gid);
 
     // Loop through skell dir and 
     for(auto& entry : boost::make_iterator_range(fs::directory_iterator("/etc/skel"), {})){
@@ -75,9 +75,8 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
         fs::path new_file_path = home_dir_name.native() / fs::path("/") / old_file_path.filename();
         if(fs::is_regular_file(old_file_path)){
             if(!fs::exists(new_file_path)){
-                fs::copy_file(old_file_path, new_file_path);
+                fs.copy(old_file_path.native(), new_file_path.native(), uid, gid);
             }
-            chown(new_file_path.c_str(), uid, gid);
         }
     }
 
@@ -86,12 +85,13 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
 
 void Person::write_keys(){
     if(keys){
-        ofstream file;
-        fs::path key_file = this->get_home_dir() + "/.ssh/authorized_keys";
-        file.open(key_file.native());
+        string key_file = this->get_home_dir() + "/.ssh/authorized_keys";
+        if(!fs::exists(get_home_dir() + "/.ssh")){
+            fs.mkdir(get_home_dir() + "/.ssh");
+        }
+
+        FSOStream file(fs, key_file, get_uid(), get_gid());
         file << *keys << endl;
-        file.close();
-        chown(key_file.c_str(), this->get_uid(), this->get_gid());
     }
 }
 
@@ -116,7 +116,7 @@ void Person::update_git(){
         exit(0);
 
     } else if (pid == -1) { // Is error
-        cerr << "Error forking to update user: " << strerror(errno) << "\n";
+        throw EXCEPTION(ResourceException("Error forking to update user: " + string(strerror(errno)) + "\n"));
         return;
     } else { // Is parent
         wait(NULL);
