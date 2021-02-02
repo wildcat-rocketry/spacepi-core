@@ -2,6 +2,7 @@
 #include <spacepi/liblinux/steps/CleanupStep.hpp>
 #include <spacepi/liblinux/steps/CloneGitRepoStep.hpp>
 #include <spacepi/liblinux/steps/FormatPartitionsStep.hpp>
+#include <spacepi/liblinux/steps/InitStep.hpp>
 #include <spacepi/liblinux/steps/InstallBaseSystemStep.hpp>
 #include <spacepi/liblinux/steps/InstallSpacePiStep.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
@@ -12,6 +13,7 @@ using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::steps;
 
 DefaultInstallationPlan::DefaultInstallationPlan() noexcept {
+    appendStep<InitStep>();
     appendStep<FormatPartitionsStep>();
     appendStep<MountPartitionsStep>();
     appendStep<InstallBaseSystemStep>();
