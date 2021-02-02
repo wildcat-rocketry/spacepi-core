@@ -80,7 +80,7 @@ Person UserManager::create_person(const struct passwd * cur_pwd, const struct sp
     if(cur_pwd){
         cur_spwd = getspnam(cur_pwd->pw_name);
         if(!cur_spwd){
-            EXCEPTION(StateException("No shadow entry for user " + string(cur_pwd.pw_name)));
+            throw EXCEPTION(StateException("No shadow entry for user " + string(cur_pwd->pw_name)));
         }
         Person new_person(fs, cur_pwd, cur_spwd);
         human_users.push_back(new_person);
