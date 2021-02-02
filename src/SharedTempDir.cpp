@@ -16,7 +16,7 @@ SharedTempDir::SharedTempDir(UniqueTempDir &&dir){
 }
 
 const std::string &SharedTempDir::getPath() const noexcept{
-    unique->getPath();
+    return unique->getPath();
 }
 
 bool SharedTempDir::doesExist() const noexcept{
