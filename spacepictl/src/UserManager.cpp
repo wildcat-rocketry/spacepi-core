@@ -1,9 +1,11 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
-#include <iostream>
 #include <fstream>
 
+#include <SpacePi.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
+#include <spacepi/spacepictl/FSOStream.hpp>
 #include <spacepi/spacepictl/User.hpp>
 #include <spacepi/spacepictl/Person.hpp>
 #include <spacepi/spacepictl/UserManager.hpp>
@@ -16,9 +18,11 @@ using boost::property_tree::ptree;
 using boost::optional;
 namespace fs = boost::filesystem;
 using namespace spacepi::spacepictl;
+using namespace spacepi::log;
+using namespace spacepi::util;
 using namespace std;
 
-UserManager::UserManager(ptree & users){
+UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
     // Iterate through users, check if system user, then add user to list
     system_users = list<User>();
     uids = list<uid_t>();
@@ -39,7 +43,6 @@ UserManager::UserManager(ptree & users){
 
     human_users = list<Person>();
 
-    cout << "Start loading users\n";
     optional<string> uname;
     optional<string> name;
     optional<string> email;
@@ -48,8 +51,7 @@ UserManager::UserManager(ptree & users){
 
     struct group* sudo_grp = getgrnam("sudo");
     if(!sudo_grp){
-        cerr << "No sudo group found\n";
-        return;
+        throw EXCEPTION(StateException("No sudo group found\n"));
     }
 
     gid_t sudo_gid = sudo_grp->gr_gid;
@@ -58,7 +60,7 @@ UserManager::UserManager(ptree & users){
         const ptree & user = pair.second;
         uname = user.get_optional<string>("uname");
         if(!uname){
-            cerr << "User without username\n";
+            throw EXCEPTION(StateException("User without username\n"));
             continue;
         }
         name = user.get_optional<string>("name");
@@ -72,24 +74,22 @@ UserManager::UserManager(ptree & users){
         new_person.add_info(name, email, shell, keys);
         human_users.push_back(new_person);
     }
-
-    cout << "Done loading users\n";
 }
 
 Person UserManager::create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, string uname, gid_t sudo_gid){
     if(cur_pwd){
         cur_spwd = getspnam(cur_pwd->pw_name);
         if(!cur_spwd){
-            // No shadow entry somehow for user
+            EXCEPTION(StateException("No shadow entry for user " + string(cur_pwd.pw_name)));
         }
-        Person new_person(cur_pwd, cur_spwd);
+        Person new_person(fs, cur_pwd, cur_spwd);
         human_users.push_back(new_person);
         return new_person;
     } else {
         uid_t new_uid = next_uid(1000);
         uids.push_back(new_uid);
         update = true;
-        return Person(uname, new_uid, sudo_gid);
+        return Person(fs, uname, new_uid, sudo_gid);
     }
 }
 
@@ -103,39 +103,19 @@ uid_t UserManager::next_uid(uid_t start){
     return start;
 }
 
-bool UserManager::needs_update(){
-    return this->update;
-}
-
 void UserManager::write_users(){
-    ofstream pwd_f, shadow_f;
+    if(!update) return; // Don't update if not needed
 
-    cout << "Copying pasword files\n";
-    fs::copy_file("/etc/passwd", "/etc/passwd~");
-    fs::copy_file("/etc/shadow", "/etc/shadow~");
+    FSOStream pwd_f(fs, "/etc/passwd");
+    FSOStream shadow_f(fs, "/etc/shadow");
 
-
-    cout << "Opening password files\n";
-    pwd_f.open("/etc/passwd");
-    shadow_f.open("/etc/shadow");
-
-
-    cout << "Writing password files\n";
     for(User& i : system_users){
         pwd_f << i.get_pw() << endl;
         shadow_f << i.get_spw() << endl;
     }
 
-    cout << "Writing human password files\n";
     for(Person const& i : human_users){
-        cout << "Start writing:" << i.get_uname() << "\n";
         pwd_f << i.get_pw() << endl;
         shadow_f << i.get_spw() << endl;
-        //i.update_user();
-        cout << "Done writing:" << i.get_uname() << "\n";
     }
-
-    cout << "Closing password files\n";
-    pwd_f.close();
-    shadow_f.close();
 }

@@ -9,6 +9,7 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <SpacePi.hpp>
+#include <spacepi/spacepictl/FSTransaction.hpp>
 #include <spacepi/spacepictl/User.hpp>
 #include <spacepi/spacepictl/Person.hpp>
 
@@ -16,9 +17,7 @@ namespace spacepi {
     namespace spacepictl {
             class UserManager : private spacepi::log::AutoLog<decltype("spacepictl:UserManager"_autolog)> {
                 public:
-                    UserManager(boost::property_tree::ptree & users);
-
-                    bool needs_update();
+                    UserManager(spacepi::spacepictl::FSTransaction &fs, boost::property_tree::ptree & users);
 
                     void write_users();
 
@@ -26,6 +25,8 @@ namespace spacepi {
                     bool update;
 
                 private:
+                    spacepi::spacepictl::FSTransaction & fs;
+
                     std::list<spacepi::spacepictl::User> system_users;
                     std::list<spacepi::spacepictl::Person> human_users;
                     spacepi::spacepictl::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t sudo_gid);
