@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.0)
 project(spacepi-targetlib-linux)
 include(core/cmake/SpacePi.cmake)
 
+find_package(Boost
+    REQUIRED COMPONENTS
+    # asio
+    # process
+    system
+)
+
 add_library(spacepi-targetlib-linux
     src/steps/BuildSpacePiStep.cpp
     src/steps/CleanupStep.cpp
@@ -21,13 +28,16 @@ add_library(spacepi-targetlib-linux
     src/Partition.cpp
     src/PartitionTable.cpp
     src/SharedMount.cpp
+    src/SharedProcess.cpp
+    src/SharedTempDir.cpp
     src/SystemCaller.cpp
     src/UniqueMount.cpp
-    src/SharedTempDir.cpp
+    src/UniqueProcess.cpp
     src/UniqueTempDir.cpp
 )
 
 target_link_libraries(spacepi-targetlib-linux
+    Boost::system
     spacepi
 )
 target_include_directories(spacepi-targetlib-linux PUBLIC include)
