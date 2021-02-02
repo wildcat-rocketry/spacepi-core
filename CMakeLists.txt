@@ -7,6 +7,7 @@ add_library(spacepi-targetlib-linux
     src/steps/CleanupStep.cpp
     src/steps/CloneGitRepoStep.cpp
     src/steps/FormatPartitionsStep.cpp
+    src/steps/InitStep.cpp
     src/steps/InstallBaseSystemStep.cpp
     src/steps/InstallSpacePiStep.cpp
     src/steps/InstallSystemFilesStep.cpp
