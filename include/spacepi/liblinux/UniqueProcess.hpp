@@ -1,10 +1,8 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_UNIQUEPROCESS_HPP
 #define SPACEPI_TARGETLIB_LINUX_UNIQUEPROCESS_HPP
 
-#include <condition_variable>
 #include <cstddef>
 #include <istream>
-#include <mutex>
 #include <ostream>
 #include <queue>
 #include <streambuf>
@@ -55,8 +53,7 @@ namespace spacepi {
                     OutputStreamCallbacks cb;
                     std::queue<std::string> readQueue;
                     bool fail;
-                    std::mutex mtx;
-                    spacepi::concurrent::InterruptableConditionVariable<std::mutex, std::condition_variable> cond;
+                    spacepi::concurrent::ConditionVariable cond;
             };
 
             template <typename Type>
