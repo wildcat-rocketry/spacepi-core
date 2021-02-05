@@ -8,6 +8,7 @@
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/CommandInternals.hpp>
+#include <spacepi/util/Exception.hpp>
 
 using namespace std;
 using namespace spacepi::log;
@@ -68,7 +69,7 @@ bool Command::run() noexcept {
             try {
                 git->cmd.runCommand();
             } catch (const std::exception &e) {
-                log(LogLevel::Error) << "Error initializing commands from " << git->caption << ": " << e.what();
+                log(LogLevel::Error) << "Error initializing commands from " << git->caption << ": " << e.what() << "\n" << Exception::getPointer();
                 return false;
             }
         }
