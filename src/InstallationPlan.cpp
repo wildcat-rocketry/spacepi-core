@@ -1,5 +1,7 @@
 #include <list>
+#include <memory>
 #include <SpacePi.hpp>
+#include <spacepi/liblinux/InstallationData.hpp>
 #include <spacepi/liblinux/InstallationPlan.hpp>
 
 using namespace std;
@@ -10,6 +12,13 @@ using namespace spacepi::liblinux::detail;
 int GenericTypedInstaller::getNextID() {
     static int prev = -1;
     return ++prev;
+}
+
+void InstallationPlan::install(const InstallationData &data) {
+    InstallationData copy = data;
+    for (list<unique_ptr<GenericTypedInstaller>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
+        (*it)->run(copy);
+    }
 }
 
 list<unique_ptr<GenericTypedInstaller>>::const_iterator InstallationPlan::find(int id) const {

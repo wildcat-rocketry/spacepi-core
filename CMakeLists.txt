@@ -10,6 +10,18 @@ find_package(Boost
 )
 
 add_library(spacepi-targetlib-linux
+    src/DefaultInstallationConfig.cpp
+    src/DefaultInstallationPlan.cpp
+    src/Image.cpp
+    src/InstallationData.cpp
+    src/InstallationOptions.cpp
+    src/InstallationPlan.cpp
+    src/main.cpp
+    src/Partition.cpp
+    src/PartitionTable.cpp
+    src/SharedMount.cpp
+    src/SharedProcess.cpp
+    src/SharedTempDir.cpp
     src/steps/BuildSpacePiStep.cpp
     src/steps/CleanupStep.cpp
     src/steps/CloneGitRepoStep.cpp
@@ -19,17 +31,6 @@ add_library(spacepi-targetlib-linux
     src/steps/InstallSpacePiStep.cpp
     src/steps/InstallSystemFilesStep.cpp
     src/steps/MountPartitionsStep.cpp
-    src/DefaultInstallationConfig.cpp
-    src/DefaultInstallationPlan.cpp
-    src/Image.cpp
-    src/InstallationData.cpp
-    src/InstallationPlan.cpp
-    src/main.cpp
-    src/Partition.cpp
-    src/PartitionTable.cpp
-    src/SharedMount.cpp
-    src/SharedProcess.cpp
-    src/SharedTempDir.cpp
     src/SystemCaller.cpp
     src/UniqueMount.cpp
     src/UniqueProcess.cpp

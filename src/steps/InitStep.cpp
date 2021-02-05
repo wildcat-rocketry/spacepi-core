@@ -1,11 +1,12 @@
-#include <SpacePi.hpp>
-#include <spacepi/liblinux/steps/InitStep.hpp>
+#include <spacepi/liblinux/Image.hpp>
 #include <spacepi/liblinux/InstallationData.hpp>
+#include <spacepi/liblinux/InstallationOptions.hpp>
+#include <spacepi/liblinux/steps/InitStep.hpp>
 
-using namespace spacepi::util;
 using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::steps;
 
 void InitStep::run(InstallationData &data) {
-    throw EXCEPTION(StateException("Not implemented"));
+    InstallationOptions &installData = data.getData<InstallationOptions>();
+    data.initData<Image>(installData.getOutFile());
 }

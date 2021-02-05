@@ -1,8 +1,8 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_INSTALLATIONOPTIONS_HPP
 #define SPACEPI_TARGETLIB_LINUX_INSTALLATIONOPTIONS_HPP
 
-#include <string>
 #include <SpacePi.hpp>
+#include <string>
 
 namespace spacepi {
     namespace liblinux {
