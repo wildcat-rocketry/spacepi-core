@@ -17,6 +17,48 @@ using namespace spacepi::util;
 using namespace spacepi::spacepictl;
 using namespace spacepi::spacepictl::detail;
 
+FSMkSymlinkOperation::FSMkSymlinkOperation(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode) : path(path), target(target), uid(uid), gid(gid), mode(mode), hasBackup(false), wrote(false) {
+}
+
+void FSMkSymlinkOperation::perform() {
+    string tempName;
+    if (access(path.c_str(), W_OK) >= 0) {
+        hasBackup = true;
+        tempName = path + "$";
+    } else {
+        tempName = path;
+    }
+
+    handle("creating symling", symlink(target.c_str(), tempName.c_str()));
+    handle("setting file owner", chown(tempName.c_str(), uid, gid));
+    handle("setting file mode", chmod(tempName.c_str(), mode));
+
+    if (hasBackup) {
+        string backupName = path + "~";
+        handle("creating backup file", rename(path.c_str(), backupName.c_str()));
+        wrote = true;
+        handle("applying file changes", rename(tempName.c_str(), path.c_str()));
+    }
+}
+
+void FSMkSymlinkOperation::undo() {
+    if (hasBackup) {
+        if (wrote) {
+            string backupName = path + "~";
+            handle("reverting file change", rename(backupName.c_str(), path.c_str()));
+        }
+    } else {
+        handle("removing new file", unlink(path.c_str()));
+    }
+}
+
+void FSMkSymlinkOperation::finalize() {
+    if (hasBackup) {
+        string backupName = path + "~";
+        handle("removing backup file", unlink(backupName.c_str()));
+    }
+}
+
 FSRemoveOperation::FSRemoveOperation(const string &file) : file(file), didExist(false) {
 }
 
@@ -214,4 +256,8 @@ void FSTransaction::mkdir(const string &path, uid_t uid, gid_t gid, mode_t mode)
 
 void FSTransaction::copy(const string &from, const string &to, uid_t uid, gid_t gid, mode_t mode) {
     *this += make_shared<FSCopyOperation>(from, to, uid, gid, mode);
+}
+
+void FSTransaction::link(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode){
+    *this += make_shared<FSMkSymlinkOperation>(path, target, uid, gid, mode);
 }
