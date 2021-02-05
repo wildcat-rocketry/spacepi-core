@@ -50,8 +50,8 @@ namespace spacepi {
                  * requested by the user.
                  */
                 static inline void cancellationPoint() {
-                    if (isCancelled) {
-                        throwCancelled();
+                    if (instance.state == Cancelled) {
+                        instance.throwCancelled();
                     }
                 }
 
@@ -62,28 +62,29 @@ namespace spacepi {
                  */
                 static void cancel() noexcept;
 
-                /**
-                 * \brief Signal handler which handles the cancellation of this program
-                 * 
-                 * This signal handler is automatically installed on program start and should not need to be referenced
-                 * anywhere outside of the core library.
-                 * 
-                 * \param[in] sig The signal number
-                 */
+            private:
+                enum State {
+                    Running,
+                    Cancelling,
+                    Cancelled,
+                    Stopping
+                };
+
                 static void interruptSignalHandler(int sig) noexcept;
 
-            private:
-                static void throwCancelled();
-                static void cancellationThreadFunc() noexcept;
+                Interrupt() noexcept;
+                ~Interrupt() noexcept;
 
-                Interrupt() = default;
+                void throwCancelled();
+                void cancellationThreadFunc() noexcept;
 
-                static sig_atomic_t isCancelled;
-                static std::set<detail::ThreadID> cancelDispatched;
-                static std::mutex cancellationMutex;
-                static std::condition_variable cancellationCond;
-                static bool cancelling;
-                static std::thread cancellationThread;
+                static Interrupt instance;
+
+                sig_atomic_t state;
+                std::set<detail::ThreadID> dispatched;
+                std::mutex mtx;
+                std::condition_variable cond;
+                std::thread thread;
         };
     }
 }

@@ -15,14 +15,7 @@ using namespace spacepi::concurrent::detail;
 using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 
-
-static void (*interruptSignalRegistration)(int) = signal(SIGINT, &Interrupt::interruptSignalHandler);
-sig_atomic_t Interrupt::isCancelled = 0;
-set<ThreadID> Interrupt::cancelDispatched;
-mutex Interrupt::cancellationMutex;
-condition_variable Interrupt::cancellationCond;
-bool Interrupt::cancelling = false;
-thread Interrupt::cancellationThread(&Interrupt::cancellationThreadFunc);
+Interrupt Interrupt::instance;
 
 ThreadID::ThreadID() noexcept : tid(this_thread::get_id()), fid(this_fiber::get_id()) {
 }
@@ -38,29 +31,48 @@ bool ThreadID::operator <(const ThreadID &other) const noexcept {
 }
 
 void Interrupt::cancel() noexcept {
-    if (isCancelled) {
+    if (instance.state == Cancelled) {
         return;
     }
-    isCancelled = 1;
+    instance.state = Cancelled;
     ConditionVariable::notify_global();
     NetworkThread::instance.stop();
 }
 
-void Interrupt::throwCancelled() {
-    throw EXCEPTION(InterruptException("Program cancellation requested."));
+void Interrupt::interruptSignalHandler(int sig) noexcept {
+    unique_lock<mutex> lck(instance.mtx);
+    instance.state = Cancelling;
+    instance.cond.notify_all();
 }
 
-void Interrupt::interruptSignalHandler(int sig) noexcept {
-    unique_lock<mutex> lck(cancellationMutex);
-    cancelling = true;
-    cancellationCond.notify_all();
+Interrupt::Interrupt() noexcept : state(Running), thread(bind(&Interrupt::cancellationThreadFunc, this)) {
+    signal(SIGINT, &Interrupt::interruptSignalHandler);
+}
+
+Interrupt::~Interrupt() noexcept {
+    unique_lock<mutex> lck(mtx);
+    state = Stopping;
+    cond.notify_all();
+    lck.unlock();
+    thread.join();
+}
+
+void Interrupt::throwCancelled() {
+    ThreadID id;
+    set<ThreadID>::const_iterator it = dispatched.find(id);
+    if (it == dispatched.end()) {
+        dispatched.emplace_hint(it, id);
+        throw EXCEPTION(InterruptException("Program cancellation requested."));
+    }
 }
 
 void Interrupt::cancellationThreadFunc() noexcept {
-    unique_lock<mutex> lck(cancellationMutex);
-    while (!cancelling) {
-        cancellationCond.wait(lck);
+    unique_lock<mutex> lck(mtx);
+    while (state == Running) {
+        cond.wait(lck);
     }
     lck.unlock();
-    cancel();
+    if (state == Cancelling) {
+        cancel();
+    }
 }
