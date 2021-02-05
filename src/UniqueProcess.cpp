@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstring>
 #include <istream>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -20,7 +21,7 @@ using namespace spacepi::messaging::network;
 using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::detail;
 
-OutputStreamCallbacks::OutputStreamCallbacks(OutputStream *os) noexcept : os(os) {
+OutputStreamCallbacks::OutputStreamCallbacks(const std::shared_ptr<OutputStream> &os) noexcept : os(os) {
 }
 
 pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> OutputStreamCallbacks::operator ()(buffers_iterator<asio::streambuf::const_buffers_type> begin, buffers_iterator<asio::streambuf::const_buffers_type> end) {
@@ -33,10 +34,13 @@ pair<buffers_iterator<asio::streambuf::const_buffers_type>, bool> OutputStreamCa
 }
 
 void OutputStreamCallbacks::operator ()(const system::error_code &err, size_t count) {
-    os->handleRead(count);
+    std::shared_ptr<OutputStream> s = os.lock();
+    if (s) {
+        s->handleRead(count);
+    }
 }
 
-OutputStream::OutputStream(bool use, Logger &log, LogLevel level) : use(use), log(log), level(level), pipe(NetworkThread::instance.getContext()), cb(this), fail(false) {
+OutputStream::OutputStream(bool use, Logger &log, LogLevel level) : use(use), log(log), level(level), pipe(NetworkThread::instance.getContext()), fail(false) {
 }
 
 async_pipe &OutputStream::getPipe() noexcept {
@@ -69,6 +73,7 @@ void OutputStream::handleRead(size_t count) {
 }
 
 void OutputStream::start() {
+    OutputStreamCallbacks cb(shared_from_this());
     async_read_until(pipe, buf, cb, cb);
 }
 
@@ -132,6 +137,7 @@ istream &UniqueProcess::error() noexcept {
 }
 
 void UniqueProcess::closeInput() {
+    stdinStream.flush();
     stdinStream.pipe().close();
 }
 
@@ -160,7 +166,7 @@ void UniqueProcess::init(bool useInput) {
     if (!useInput) {
         closeInput();
     }
-    stdoutBuf.start();
-    stderrBuf.start();
+    stdoutBuf->start();
+    stderrBuf->start();
     NetworkThread::instance.start();
 }
