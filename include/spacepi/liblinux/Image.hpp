@@ -1,11 +1,11 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_IMAGE_HPP
 #define SPACEPI_TARGETLIB_LINUX_IMAGE_HPP
 
-#include <string>
-#include <vector>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
+#include <string>
+#include <vector>
 
 namespace spacepi {
     namespace liblinux {

@@ -1,6 +1,6 @@
 #include <SpacePi.hpp>
-#include <string>
 #include <spacepi/liblinux/InstallationOptions.hpp>
+#include <string>
 
 using namespace spacepi::liblinux;
 using namespace std;

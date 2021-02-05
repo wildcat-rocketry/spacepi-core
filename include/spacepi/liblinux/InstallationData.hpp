@@ -2,9 +2,9 @@
 #define SPACEPI_TARGETLIB_LINUX_INSTALLATIONDATA_HPP
 
 #include <memory>
+#include <SpacePi.hpp>
 #include <utility>
 #include <vector>
-#include <SpacePi.hpp>
 
 namespace spacepi {
     namespace liblinux {
@@ -19,10 +19,10 @@ namespace spacepi {
             };
 
             template <typename Type>
-            class InstallationDataAccessor : GenericInstallationDataAccessor {
+            class InstallationDataAccessor : public GenericInstallationDataAccessor {
                 public:
                     template <typename... Args>
-                    InstallationDataAccessor(Args... args) : obj(std::forward(args...)) {
+                    InstallationDataAccessor(Args... args) : obj(std::forward<Args>(args)...) {
                     }
 
                     void *getData() noexcept {
@@ -38,9 +38,12 @@ namespace spacepi {
                     }
 
                 private:
-                    static const int id = getNextID();
+                    static int id;
                     Type obj;
             };
+
+            template <typename Type>
+            int InstallationDataAccessor<Type>::id = getNextID();
         }
 
         class InstallationData {
@@ -51,7 +54,7 @@ namespace spacepi {
                     if (id >= data.size()) {
                         data.resize(id + 1);
                     }
-                    data[id].reset(new detail::InstallationDataAccessor<Type>(std::forward(args...)));
+                    data[id].reset(new detail::InstallationDataAccessor<Type>(std::forward<Args>(args)...));
                 }
 
                 template <typename Type>
