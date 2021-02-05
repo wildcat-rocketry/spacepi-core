@@ -77,6 +77,13 @@ void OutputStream::start() {
     async_read_until(pipe, buf, cb, cb);
 }
 
+void OutputStream::join() {
+    UniqueConditionVariableLock lck(cond);
+    while (!fail) {
+        cond.wait(lck);
+    }
+}
+
 streamsize OutputStream::showmanyc() {
     UniqueConditionVariableLock lck(cond);
     if (fail) {
@@ -147,6 +154,8 @@ bool UniqueProcess::running() {
 
 void UniqueProcess::wait() {
     proc.join();
+    stdoutBuf->join();
+    stderrBuf->join();
 }
 
 int UniqueProcess::getExitCode() const {
