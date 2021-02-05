@@ -38,6 +38,7 @@ namespace spacepi {
 
                     void handleRead(size_t count);
                     void start();
+                    void join();
 
                 protected:
                     std::streamsize showmanyc();
