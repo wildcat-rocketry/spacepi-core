@@ -3,6 +3,7 @@
 
 #include <string>
 #include <SpacePi.hpp>
+#include <spacepi/liblinux/InstallationOptions.hpp>
 
 namespace spacepi {
     namespace target {
@@ -13,6 +14,7 @@ namespace spacepi {
                 void runCommand();
 
             private:
+                spacepi::liblinux::InstallationOptions opts;
         };
     }
 }
