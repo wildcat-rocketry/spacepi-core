@@ -1,12 +1,13 @@
-#include <string>
-#include <vector>
 #include <fstream>
 #include <SpacePi.hpp>
+#include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/Image.hpp>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
+#include <string>
+#include <vector>
 
 using namespace spacepi::liblinux;
 using namespace spacepi::util;
@@ -21,15 +22,36 @@ const string &Image::getFilename() const noexcept {
 
 void Image::formatPartitions(const PartitionTable &tab) {
     std::ofstream ofs (getFilename(),std::ofstream::out | std::ostream::binary);
-    std::streampos bigBoi = 16L*1024*1024*1024-1; //16GB
+    std::string size = tab.getSize();
+    std::streampos bigBoi = stoull(size);
+    switch(size.back()){
+        case 'K':
+        case 'k':
+            bigBoi = bigBoi*1024-1;
+            break;
+        case 'M':
+        case 'm':
+            bigBoi = bigBoi*1024*1024-1;
+            break;
+        case 'G':
+        case 'g':
+            bigBoi = bigBoi*1024*1024*1024-1;
+            break;
+        default:
+            throw EXCEPTION(ArgumentException("Partition size invalid."));
+            break;
+    }
     ofs.seekp(bigBoi);
     ofs << '\0';
     ofs.close();
 
-    UniqueProcess sfdisk(true,false,false,"/sbin/sfdisk",getFilename());
+    UniqueProcess sfdisk(true,false,false,SFDISK_EXECUTABLE,getFilename());
     tab.printSfdisk(sfdisk.input());
     sfdisk.closeInput();
     sfdisk.wait();
+    if(sfdisk.getExitCode() != 0){
+        throw EXCEPTION(ResourceException("Error writing image."));
+    }
 }
 
 SharedMount Image::mountPartitionAt(int partNo, const string &fsType, const string &options, const string &mountDir) {

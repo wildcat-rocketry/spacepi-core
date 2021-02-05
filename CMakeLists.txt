@@ -9,6 +9,10 @@ find_package(Boost
     system
 )
 
+find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
+
+configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/liblinux/Config.hpp @ONLY)
+
 add_library(spacepi-targetlib-linux
     src/DefaultInstallationConfig.cpp
     src/DefaultInstallationPlan.cpp
@@ -41,7 +45,10 @@ target_link_libraries(spacepi-targetlib-linux
     Boost::system
     spacepi
 )
-target_include_directories(spacepi-targetlib-linux PUBLIC include)
+target_include_directories(spacepi-targetlib-linux PUBLIC
+    include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+)
 target_precompile_headers(spacepi-targetlib-linux REUSE_FROM spacepi)
 
 add_subdirectory(extension)
