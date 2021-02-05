@@ -11,6 +11,7 @@ spacepi_target(
 
 spacepi_target_link_libraries(PUBLIC
     spacepi-targetlib-linux
+    ${CMAKE_DL_LIBS}
 )
 spacepi_target_include_directories(PUBLIC include)
 
