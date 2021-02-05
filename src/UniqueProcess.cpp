@@ -1,7 +1,6 @@
 #include <cstddef>
 #include <cstring>
 #include <istream>
-#include <mutex>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -56,14 +55,14 @@ void OutputStream::handleRead(size_t count) {
         }
         log(level) << string(payload, newline - 1);
         if (use) {
-            unique_lock<mutex> lck(mtx);
+            UniqueConditionVariableLock lck(cond);
             readQueue.emplace(payload, newline);
             cond.notify_all();
         }
         buf.consume(count);
         start();
     } else {
-        unique_lock<mutex> lck(mtx);
+        UniqueConditionVariableLock lck(cond);
         fail = true;
         cond.notify_all();
     }
@@ -74,7 +73,7 @@ void OutputStream::start() {
 }
 
 streamsize OutputStream::showmanyc() {
-    unique_lock<mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     if (fail) {
         return -1;
     }
@@ -82,7 +81,7 @@ streamsize OutputStream::showmanyc() {
 }
 
 streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
-    unique_lock<mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
     }
@@ -102,7 +101,7 @@ streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
 }
 
 int OutputStream::underflow() {
-    unique_lock<mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
     }
