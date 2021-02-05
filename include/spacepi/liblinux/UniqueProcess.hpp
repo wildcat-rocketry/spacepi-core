@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <istream>
+#include <memory>
 #include <ostream>
 #include <queue>
 #include <streambuf>
@@ -20,16 +21,16 @@ namespace spacepi {
 
             class OutputStreamCallbacks {
                 public:
-                    OutputStreamCallbacks(OutputStream *os) noexcept;
+                    OutputStreamCallbacks(const std::shared_ptr<OutputStream> &os) noexcept;
 
                     std::pair<boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type>, bool> operator ()(boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> begin, boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> end);
                     void operator ()(const boost::system::error_code &err, size_t count);
 
                 private:
-                    OutputStream *os;
+                    std::weak_ptr<OutputStream> os;
             };
 
-            class OutputStream : public std::streambuf {
+            class OutputStream : public std::streambuf, public std::enable_shared_from_this<OutputStream> {
                 public:
                     OutputStream(bool use, spacepi::log::Logger &log, spacepi::log::LogLevel level);
 
@@ -50,7 +51,6 @@ namespace spacepi {
                     spacepi::log::LogLevel level;
                     boost::process::async_pipe pipe;
                     boost::asio::streambuf buf;
-                    OutputStreamCallbacks cb;
                     std::queue<std::string> readQueue;
                     bool fail;
                     spacepi::concurrent::ConditionVariable cond;
@@ -80,9 +80,9 @@ namespace spacepi {
                 template <typename... Args>
                 UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const Args &... args) :
                     log(getLogName(exe)),
-                    stdoutBuf(useOutput, log, spacepi::log::LogLevel::Info), stderrBuf(useError, log, spacepi::log::LogLevel::Warning),
-                    stdoutStream(&stdoutBuf), stderrStream(&stderrBuf),
-                    proc(exe, detail::MustBeString<Args>::toString(args)..., boost::process::std_in < stdinStream, boost::process::std_out > stdoutBuf.getPipe(), boost::process::std_err > stderrBuf.getPipe()) {
+                    stdoutBuf(new detail::OutputStream(useOutput, log, spacepi::log::LogLevel::Info)), stderrBuf(new detail::OutputStream(useError, log, spacepi::log::LogLevel::Warning)),
+                    stdoutStream(stdoutBuf.get()), stderrStream(stderrBuf.get()),
+                    proc(exe, detail::MustBeString<Args>::toString(args)..., boost::process::std_in < stdinStream, boost::process::std_out > stdoutBuf->getPipe(), boost::process::std_err > stderrBuf->getPipe()) {
                     init(useInput);
                 }
 
@@ -104,8 +104,8 @@ namespace spacepi {
                 void init(bool useInput);
 
                 spacepi::log::Logger log;
-                detail::OutputStream stdoutBuf;
-                detail::OutputStream stderrBuf;
+                std::shared_ptr<detail::OutputStream> stdoutBuf;
+                std::shared_ptr<detail::OutputStream> stderrBuf;
                 boost::process::opstream stdinStream;
                 std::istream stdoutStream;
                 std::istream stderrStream;

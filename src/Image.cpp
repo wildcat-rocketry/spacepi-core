@@ -26,13 +26,8 @@ void Image::formatPartitions(const PartitionTable &tab) {
     ofs << '\0';
     ofs.close();
 
-    //UniqueProcess sfdisk(true,false,false,"/sbin/sfdisk",getFilename());
-    UniqueProcess sfdisk(true,false,false,"/bin/cat", "--");
+    UniqueProcess sfdisk(true,false,false,"/sbin/sfdisk",getFilename());
     tab.printSfdisk(sfdisk.input());
-    /*{
-    spacepi::log::LogStream s = spacepi::log::Logger("test")(spacepi::log::LogLevel::Info);
-    tab.printSfdisk(s);
-    }*/
     sfdisk.closeInput();
     sfdisk.wait();
 }
