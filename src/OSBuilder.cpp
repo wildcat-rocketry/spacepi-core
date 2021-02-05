@@ -22,7 +22,7 @@ void OSBuilder::runCommand() {
         .setLabel("dos").setSize("4G")
         .addPartition(Partition().setSize("256M").setType("0C").setFSType("vfat").setFormatOptions("-F32").setMountPoint("/boot"))
         .addPartition(Partition().setSize("2G").setType("83").setFSType("ext4").setMountPoint("/var"))
-        .addPartition(Partition().setSize("1.75G").setType("83").setFSType("ext4").setMountPoint("/")));
+        .addPartition(Partition().setType("83").setFSType("ext4").setMountPoint("/")));
     InstallationPlan p = DefaultInstallationPlan();
     p.install(d);
 }
