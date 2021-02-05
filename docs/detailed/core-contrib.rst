@@ -39,7 +39,21 @@ Adding New Classes
            namespace {module} {}
        }
 
-4. Create new documentation wrapper for the class under :code:`/docs/spacepi/{module}/{ClassName}.rst`:
+4. Register class documentation with Doxygen in :code:`/docs/Doxygen.in`:
+
+   .. code-block:: rst
+
+       # ...
+
+       INPUT = \
+       spacepi/{firstAlphabeticModule}/{FirstAlphabeticFile}.hpp \
+       spacepi/{firstAlphabeticModule}/{NextAlphabeticFile}.hpp \
+       # ...
+       spacepi/{module}/{ClassName}.hpp \
+       # ...
+       spacepi/{lastAlphabeticModule}/{LastAlphabeticFile}.hpp \
+
+5. Create new documentation wrapper for the class under :code:`/docs/spacepi/{module}/{ClassName}.rst`:
 
    .. code-block:: rst
 
@@ -50,7 +64,7 @@ Adding New Classes
            :members:
            :protected-members:
 
-5. Register class documentation with namespace in :code:`/docs/spacepi/{Module}.rst`:
+6. Register class documentation with namespace in :code:`/docs/spacepi/{Module}.rst`:
 
    .. code-block:: rst
 
@@ -65,7 +79,7 @@ Adding New Classes
            {...}
            {module}/{LastAlphabeticFile}
 
-5. Edit :code:`/CMakeLists.txt` to register the new class:
+7. Edit :code:`/CMakeLists.txt` to register the new class:
 
    .. code-block:: cmake
 

@@ -23,7 +23,11 @@ find_package(Boost
 find_package(Protobuf)
 
 add_library(spacepi SHARED
+    src/concurrent/ConditionVariable.cpp
+    src/concurrent/Interrupt.cpp
+    src/concurrent/Sleep.cpp
     src/concurrent/ThreadPool.cpp
+    src/concurrent/UniqueConditionVariableLock.cpp
     src/log/ConsoleTarget.cpp
     src/log/Entry.cpp
     src/log/LogFilter.cpp
@@ -85,10 +89,13 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
         ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp"
         DEPENDS
             "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+            include/spacepi/concurrent/ConditionVariable.hpp
+            include/spacepi/concurrent/Interrupt.hpp
             include/spacepi/concurrent/RWMutex.hpp
             include/spacepi/concurrent/Semaphore.hpp
             include/spacepi/concurrent/Sleep.hpp
             include/spacepi/concurrent/ThreadPool.hpp
+            include/spacepi/concurrent/UniqueConditionVariableLock.hpp
             include/spacepi/log/AutoLog.hpp
             include/spacepi/log/ConsoleTarget.hpp
             include/spacepi/log/Entry.hpp
@@ -159,10 +166,13 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                 docs/detailed/getting-started.rst
                 docs/detailed/networking.rst
                 docs/detailed/troubleshooting.rst
+                docs/spacepi/concurrent/ConditionVariable.rst
+                docs/spacepi/concurrent/Interrupt.rst
                 docs/spacepi/concurrent/RWMutex.rst
                 docs/spacepi/concurrent/Semaphore.rst
                 docs/spacepi/concurrent/Sleep.rst
                 docs/spacepi/concurrent/ThreadPool.rst
+                docs/spacepi/concurrent/UniqueConditionVariableLock.rst
                 docs/spacepi/log/AutoLog.rst
                 docs/spacepi/log/ConsoleTarget.rst
                 docs/spacepi/log/Entry.rst

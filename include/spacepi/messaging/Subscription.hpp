@@ -29,6 +29,8 @@ namespace spacepi {
                  * \param[out] message The message that will be received
                  * 
                  * \return The Subscription to allow \c >> chaining
+                 * 
+                 * This method is a cancellation point (see spacepi::concurrent::Interrupt).
                  */
                 GenericSubscription &operator >>(google::protobuf::Message &message);
 

@@ -2,7 +2,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <tuple>
 #include <utility>
@@ -10,9 +9,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <boost/asio.hpp>
-#include <boost/fiber/all.hpp>
 #include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
+#include <spacepi/concurrent/Interrupt.hpp>
+#include <spacepi/concurrent/UniqueConditionVariableLock.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/messaging/Connection.hpp>
 #include <spacepi/messaging/MessageID.pb.h>
@@ -34,6 +34,7 @@ using namespace boost::asio::ip;
 using namespace boost::asio::local;
 using namespace google::protobuf;
 using namespace spacepi;
+using namespace spacepi::concurrent;
 using namespace spacepi::messaging;
 using namespace spacepi::messaging::detail;
 using namespace spacepi::messaging::network;
@@ -54,7 +55,7 @@ bool SubscriptionData::sub() {
 }
 
 string SubscriptionData::get() {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     while (messages.empty()) {
         cond.wait(lck);
     }
@@ -64,7 +65,7 @@ string SubscriptionData::get() {
 }
 
 void SubscriptionData::put(const string &msg) {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     messages.push(msg);
     if (messages.size() == 1) {
         cond.notify_one();
@@ -147,8 +148,9 @@ Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
 }
 
 void ImmovableConnection::subscribe(GenericSubscription &sub) {
+    Interrupt::cancellationPoint();
     const network::SubscriptionID &id = sub.getID();
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
     if (it == subscriptions.end()) {
         std::shared_ptr<SubscriptionData> ptr(new SubscriptionData());
@@ -161,8 +163,9 @@ void ImmovableConnection::subscribe(GenericSubscription &sub) {
 }
 
 void ImmovableConnection::unsubscribe(GenericSubscription &sub) {
+    Interrupt::cancellationPoint();
     const network::SubscriptionID &id = sub.getID();
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
     if (it != subscriptions.end() && it->second->sub()) {
         subscriptions.erase(it);
@@ -173,7 +176,7 @@ void ImmovableConnection::unsubscribe(GenericSubscription &sub) {
 }
 
 string ImmovableConnection::recieve(GenericSubscription &sub) {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(sub.getID());
     if (it != subscriptions.end()) {
         std::shared_ptr<SubscriptionData> ptr = it->second;
@@ -190,7 +193,7 @@ void ImmovableConnection::runCommand() {
 }
 
 void ImmovableConnection::handleMessage(const network::SubscriptionID &id, const std::string &msg) {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     unordered_map<network::SubscriptionID, std::shared_ptr<SubscriptionData>>::iterator it = subscriptions.find(id);
     if (it != subscriptions.end()) {
         std::shared_ptr<SubscriptionData> ptr = it->second;
@@ -201,7 +204,7 @@ void ImmovableConnection::handleMessage(const network::SubscriptionID &id, const
 
 void ImmovableConnection::handleConnect() {
     log(log::LogLevel::Info) << "Connected to router.";
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     SubscribeRequest req;
     switch (state) {
         case Connecting:
@@ -221,7 +224,7 @@ void ImmovableConnection::handleConnect() {
 }
 
 void ImmovableConnection::handleError(const Exception::pointer &err) {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     switch (state) {
         case Connecting:
             log(log::LogLevel::Warning) << "Error connecting to router: " << Exception::what(err) << "\n"
@@ -244,7 +247,7 @@ void ImmovableConnection::handleError(const Exception::pointer &err) {
 }
 
 void ImmovableConnection::connect() {
-    std::unique_lock<fibers::mutex> lck(mtx);
+    UniqueConditionVariableLock lck(cond);
     switch (state) {
         case Created:
             state = Connecting;
@@ -289,7 +292,7 @@ void ImmovableConnection::updateSubscriptions() {
 }
 
 const Publisher &Publisher::operator <<(const Message &message) const {
-    std::unique_lock<fibers::mutex> lck(conn->mtx);
+    UniqueConditionVariableLock lck(conn->cond);
     while (conn->state != ImmovableConnection::Connected) {
         conn->cond.wait(lck);
     }

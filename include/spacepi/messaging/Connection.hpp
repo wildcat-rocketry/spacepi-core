@@ -10,9 +10,9 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <boost/asio.hpp>
-#include <boost/fiber/all.hpp>
 #include <boost/system/error_code.hpp>
 #include <google/protobuf/message.h>
+#include <spacepi/concurrent/ConditionVariable.hpp>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/messaging/network/MessagingCallback.hpp>
 #include <spacepi/messaging/network/MessagingSocket.hpp>
@@ -45,8 +45,7 @@ namespace spacepi {
                 private:
                     int count;
                     std::queue<std::string> messages;
-                    boost::fibers::mutex mtx;
-                    boost::fibers::condition_variable cond;
+                    spacepi::concurrent::ConditionVariable cond;
             };
 
             class ReconnectTimerCallback {
@@ -128,8 +127,7 @@ namespace spacepi {
                     std::unordered_set<network::SubscriptionID> toUnsubscribe;
                     std::unique_ptr<spacepi::messaging::network::MessagingSocket> socket;
                     enum State state;
-                    boost::fibers::mutex mtx;
-                    boost::fibers::condition_variable cond;
+                    spacepi::concurrent::ConditionVariable cond;
                     boost::asio::steady_timer timer;
                     ConnectionEndpoint endpoint;
             };
@@ -148,6 +146,8 @@ namespace spacepi {
                  * \param[in] message The message to publish
                  * 
                  * \return The Publisher to allow \c << chaining
+                 * 
+                 * This method is a cancellation point (see spacepi::concurrent::Interrupt).
                  */
                 const Publisher &operator <<(const google::protobuf::Message &message) const;
 

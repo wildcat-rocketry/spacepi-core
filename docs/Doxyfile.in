@@ -12,10 +12,13 @@ QUIET                  = YES
 SORT_MEMBERS_CTORS_1ST = YES
 TYPEDEF_HIDES_STRUCT   = YES
 INPUT                  = \
+    spacepi/concurrent/ConditionVariable.hpp \
+    spacepi/concurrent/Interrupt.hpp \
     spacepi/concurrent/RWMutex.hpp \
     spacepi/concurrent/Semaphore.hpp \
     spacepi/concurrent/Sleep.hpp \
     spacepi/concurrent/ThreadPool.hpp \
+    spacepi/concurrent/UniqueConditionVariableLock.hpp \
     spacepi/log/AutoLog.hpp \
     spacepi/log/ConsoleTarget.hpp \
     spacepi/log/Entry.hpp \
