@@ -17,6 +17,7 @@ find_package(Boost
     exception
     fiber
     # format
+    # property_tree
     stacktrace_backtrace
     system
 )
@@ -43,6 +44,10 @@ add_library(spacepi SHARED
     src/messaging/network/SubscriptionID.cpp
     src/messaging/Connection.cpp
     src/messaging/Subscription.cpp
+    src/package/Module.cpp
+    src/package/Options.cpp
+    src/package/PackageConfig.cpp
+    src/package/User.cpp
     src/resource/ADC.cpp
     src/resource/BusTransaction.cpp
     src/resource/DigitalIO.cpp
@@ -115,6 +120,10 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
             include/spacepi/messaging/Connection.hpp
             include/spacepi/messaging/Network.hpp
             include/spacepi/messaging/Subscription.hpp
+            include/spacepi/package/Module.hpp
+            include/spacepi/package/Options.hpp
+            include/spacepi/package/PackageConfig.hpp
+            include/spacepi/package/User.hpp
             include/spacepi/resource/ADC.hpp
             include/spacepi/resource/BusTransaction.hpp
             include/spacepi/resource/DigitalIO.hpp
@@ -136,6 +145,7 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
             include/spacepi/Concurrent.hpp
             include/spacepi/Log.hpp
             include/spacepi/Messaging.hpp
+            include/spacepi/Package.hpp
             include/spacepi/Resource.hpp
             include/spacepi/Util.hpp
             include/SpacePi.hpp
@@ -195,6 +205,10 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                 docs/spacepi/messaging/Network.rst
                 docs/spacepi/messaging/Publisher.rst
                 docs/spacepi/messaging/Subscription.rst
+                docs/spacepi/package/Module.rst
+                docs/spacepi/package/Options.rst
+                docs/spacepi/package/PackageConfig.rst
+                docs/spacepi/package/User.rst
                 docs/spacepi/resource/ADC.rst
                 docs/spacepi/resource/Bus.rst
                 docs/spacepi/resource/BusTransaction.rst
@@ -219,6 +233,7 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                 docs/spacepi/Concurrent.rst
                 docs/spacepi/Log.rst
                 docs/spacepi/Messaging.rst
+                docs/spacepi/Package.rst
                 docs/spacepi/Resource.rst
                 docs/spacepi/Util.rst
                 docs/SpacePi.rst

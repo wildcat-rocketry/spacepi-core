@@ -1,6 +1,7 @@
 #include <spacepi/Concurrent.hpp>
 #include <spacepi/Log.hpp>
 #include <spacepi/Messaging.hpp>
+#include <spacepi/Package.hpp>
 #include <spacepi/Resource.hpp>
 #include <spacepi/Util.hpp>
 

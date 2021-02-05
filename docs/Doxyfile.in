@@ -38,6 +38,10 @@ INPUT                  = \
     spacepi/messaging/Connection.hpp \
     spacepi/messaging/Network.hpp \
     spacepi/messaging/Subscription.hpp \
+    spacepi/package/Module.hpp \
+    spacepi/package/Options.hpp \
+    spacepi/package/PackageConfig.hpp \
+    spacepi/package/User.hpp \
     spacepi/resource/ADC.hpp \
     spacepi/resource/BusTransaction.hpp \
     spacepi/resource/DigitalIO.hpp \
@@ -59,6 +63,7 @@ INPUT                  = \
     spacepi/Concurrent.hpp \
     spacepi/Log.hpp \
     spacepi/Messaging.hpp \
+    spacepi/Package.hpp \
     spacepi/Resource.hpp \
     spacepi/Util.hpp \
     SpacePi.hpp \

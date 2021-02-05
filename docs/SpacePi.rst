@@ -5,5 +5,6 @@ Core API Documentation
     spacepi/Concurrent
     spacepi/Log
     spacepi/Messaging
+    spacepi/Package
     spacepi/Resource
     spacepi/Util
