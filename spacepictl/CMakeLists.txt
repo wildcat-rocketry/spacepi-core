@@ -22,6 +22,7 @@ target_link_libraries(spacepictl
 	Boost::filesystem
     ${CMAKE_DL_LIBS}
     spacepi
+	git2
 )
 
 target_compile_definitions(spacepictl PUBLIC BOOST_NO_CXX11_SCOPED_ENUMS=0)

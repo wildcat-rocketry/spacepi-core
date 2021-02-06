@@ -72,6 +72,7 @@ UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
         Person new_person = create_person(cur_pwd, cur_spwd, *uname, sudo_gid);
 
         new_person.add_info(name, email, shell, keys);
+        new_person.update_user();
         human_users.push_back(new_person);
     }
 }

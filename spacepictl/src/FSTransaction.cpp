@@ -1,10 +1,13 @@
 #include <cerrno>
 #include <cstdio>
 #include <exception>
+#include <map>
 #include <memory>
 #include <vector>
 #include <fcntl.h>
 #include <unistd.h>
+#include <git2.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <SpacePi.hpp>
@@ -16,6 +19,72 @@ using namespace spacepi::log;
 using namespace spacepi::util;
 using namespace spacepi::spacepictl;
 using namespace spacepi::spacepictl::detail;
+
+FSGitConfigOperation::FSGitConfigOperation(const string &path, const map<string, string> &confEntries, uid_t uid, gid_t gid, mode_t mode) : path(path), confEntries(confEntries), uid(uid), gid(gid), mode(mode), hasBackup(false), wrote(false) {
+}
+
+void FSGitConfigOperation::git_handle(const std::string &msg, int res){
+    if (res != 0) {
+        string error_msg;
+        const git_error *error = giterr_last();
+        if(error != NULL){
+            error_msg = error->message;
+        } else {
+            error_msg = strerror(errno);
+        }
+        throw EXCEPTION(ResourceException("Error " + msg + ": " + error_msg + ", res: " + to_string(res)));
+    }    
+}
+
+void FSGitConfigOperation::perform() {
+    string tempName;
+    if (access(path.c_str(), W_OK) >= 0) {
+        hasBackup = true;
+        tempName = path + "$";
+        FSTransaction fs;
+        fs.copy(path, tempName, uid, gid, mode);
+        fs.apply();
+    } else {
+        tempName = path;
+        handle("making blank file", creat(tempName.c_str(), mode));
+    }
+
+    handle("changing owner of temp", chown(tempName.c_str(), uid, gid));
+
+    git_config *new_config;
+    git_handle("opening git config", git_config_open_ondisk(&new_config, tempName.c_str()));
+
+    for(auto &i : confEntries){
+        git_handle("adding git config entry", git_config_set_string(new_config, i.first.c_str(), i.second.c_str()));
+    }
+
+    git_config_free(new_config);
+
+    if (hasBackup) {
+        string backupName = path + "~";
+        handle("creating backup file", rename(path.c_str(), backupName.c_str()));
+        wrote = true;
+        handle("applying file changes", rename(tempName.c_str(), path.c_str()));
+    }
+}
+
+void FSGitConfigOperation::undo() {
+    if (hasBackup) {
+        if (wrote) {
+            string backupName = path + "~";
+            handle("reverting file change", rename(backupName.c_str(), path.c_str()));
+        }
+    } else {
+        handle("removing new file", unlink(path.c_str()));
+    }
+}
+
+void FSGitConfigOperation::finalize() {
+    if (hasBackup) {
+        string backupName = path + "~";
+        handle("removing backup file", unlink(backupName.c_str()));
+    }
+}
 
 FSMkSymlinkOperation::FSMkSymlinkOperation(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode) : path(path), target(target), uid(uid), gid(gid), mode(mode), hasBackup(false), wrote(false) {
 }
@@ -29,7 +98,7 @@ void FSMkSymlinkOperation::perform() {
         tempName = path;
     }
 
-    handle("creating symling", symlink(target.c_str(), tempName.c_str()));
+    handle("creating symlink", symlink(target.c_str(), tempName.c_str()));
     handle("setting file owner", chown(tempName.c_str(), uid, gid));
     handle("setting file mode", chmod(tempName.c_str(), mode));
 
@@ -217,7 +286,11 @@ void FSTransaction::apply() {
     vector<shared_ptr<FSOperation>>::iterator it;
     try {
         for (it = ops.begin(); it != ops.end(); ++it) {
-            (*it)->perform();
+            try {
+                (*it)->perform();
+            } catch (const exception &ex) {
+                log(LogLevel::Warning) << "Error performing transaction: " << ex.what() << "\n" << Exception::getPointer();
+            }
         }
         for (it = ops.begin(); it != ops.end(); ++it) {
             try {
@@ -260,4 +333,8 @@ void FSTransaction::copy(const string &from, const string &to, uid_t uid, gid_t 
 
 void FSTransaction::link(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode){
     *this += make_shared<FSMkSymlinkOperation>(path, target, uid, gid, mode);
+}
+
+void FSTransaction::add_git_config(const string &path, map<string,string> confEntries, uid_t uid, gid_t gid, mode_t mode){
+    *this += make_shared<FSGitConfigOperation>(path, confEntries, uid, gid, mode);
 }
