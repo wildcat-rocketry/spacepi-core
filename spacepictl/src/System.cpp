@@ -80,10 +80,16 @@ void System::write_hostname(){
     hostname_file << hostname << "\n";
 
     ifstream ifs("/etc/hosts");
-    string content( (std::istreambuf_iterator<char>(ifs) ),
-                       (std::istreambuf_iterator<char>()    ) );
-    ifs.close();
-
     FSOStream hosts_file(fs, "/etc/hosts");
-    hosts_file << regex_replace(content, regex(old_hostname), hostname);
+
+    string line;
+    while(getline(ifs, line)){
+        for( size_t p = line.find(old_hostname); p != string::npos; p = line.find( old_hostname, p)){
+            line.replace( p, old_hostname.length(), hostname);
+        }
+
+        hosts_file << line << endl;
+    }
+
+    ifs.close();
 }

@@ -35,7 +35,7 @@ int main(int argc, char ** argv){
     try{
         control.main(argc, argv);
     } catch (const Exception &ex){
-        log(LogLevel::Error) << "Error running spacepictl: " << ex.what() << "\n" << Exception::getPointer();
+        log(LogLevel::Error) << "Error running spacepictl: " << ex.what() << "\n" << ex.getPointer();
     }
 }
 
@@ -81,10 +81,11 @@ int SpacePiCTL::initialize_system(){
         log(LogLevel::Error) << "Error updating system: " << ex.what() << "\n" << ex.getPointer();
     }
 
+    log(LogLevel::Info) << "Starting /sbin/init" << endl;
     // Boot into systemd
-    execl("/sbin/init", "/sbin/init"); 
-
-    return 0;
+    execl("/sbin/init", "/sbin/init", nullptr); 
+    log(LogLevel::Error) << "Error executing /sbin/init: " << strerror(errno) << "!" << endl;
+    return 1;
 }
 
 bool SpacePiCTL::points_to_file(fs::path& p){

@@ -1,4 +1,5 @@
 #include <string>
+#include <map>
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/FSTransaction.hpp>
 #include <spacepi/spacepictl/FSOStream.hpp>
@@ -96,32 +97,19 @@ void Person::write_keys(){
 }
 
 void Person::update_git(){
-    // Become user and update GIT
-    int pid = fork();
-    if(pid == 0){ // Am child
-        // Become child
-        setuid(this->get_uid());
-        setgid(this->get_gid());
+    map<string,string> confEntries;
 
-        setenv("HOME", this->get_home_dir().c_str(), 1); // Set home to child home
-
-        if(name){
-            bp::system("git config --global user.name " + *name);
-        }
-
-        if(email){
-            bp::system("git config --global user.email " + *email);
-        }
-
-        exit(0);
-
-    } else if (pid == -1) { // Is error
-        throw EXCEPTION(ResourceException("Error forking to update user: " + string(strerror(errno)) + "\n"));
-        return;
-    } else { // Is parent
-        wait(NULL);
+    if(name){
+        confEntries.insert({"user.name", *name});
     }
 
+    if(email){
+        confEntries.insert({"user.email", *email});
+    }
+
+    if(confEntries.size() > 0){
+        fs.add_git_config(get_home_dir() + "/.gitconfig", confEntries, get_uid(), get_gid());
+    }
 }
 
 void Person::update_user(){
