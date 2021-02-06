@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <unistd.h>
 #include <sys/mount.h>
 
@@ -19,13 +20,18 @@ int main() {
 }
 
 static void fixFile(const std::string &filename) {
-    ifstream ifs(filename);
-    string content(istreambuf_iterator<char>(ifs), istreambuf_iterator<char>());
+    ifstream ifs(filename, ios::binary | ios::ate);
+    ifstream::pos_type pos = ifs.tellg();
+    vector<char> content(pos);
+    ifs.seekg(0, ios::beg);
+    ifs.read(&content[0], pos);
     ifs.close();
+
     if (umount(filename.c_str()) < 0) {
         cerr << "Failure to umount " << filename << ": " << strerror(errno) << "!" << endl;
     }
+
     ofstream ofs(filename);
-    ofs << content;
+    for (const auto &e : content) ofs << e;
     ofs.close();
 }
