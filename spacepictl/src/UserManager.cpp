@@ -51,7 +51,7 @@ UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
 
     struct group* sudo_grp = getgrnam("sudo");
     if(!sudo_grp){
-        throw EXCEPTION(StateException("No sudo group found\n"));
+        throw EXCEPTION(StateException("No sudo group found"));
     }
 
     gid_t sudo_gid = sudo_grp->gr_gid;
@@ -60,7 +60,7 @@ UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
         const ptree & user = pair.second;
         uname = user.get_optional<string>("uname");
         if(!uname){
-            throw EXCEPTION(StateException("User without username\n"));
+            throw EXCEPTION(StateException("User without username"));
             continue;
         }
         name = user.get_optional<string>("name");
