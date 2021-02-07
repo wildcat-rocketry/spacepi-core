@@ -13,43 +13,43 @@ find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
 
 configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/liblinux/Config.hpp @ONLY)
 
-#   add_library(spacepi-targetlib-linux
-#       src/DefaultInstallationConfig.cpp
-#       src/DefaultInstallationPlan.cpp
-#       src/Image.cpp
-#       src/InstallationData.cpp
-#       src/InstallationOptions.cpp
-#       src/InstallationPlan.cpp
-#       src/main.cpp
-#       src/Partition.cpp
-#       src/PartitionTable.cpp
-#       src/SharedMount.cpp
-#       src/SharedProcess.cpp
-#       src/SharedTempDir.cpp
-#       src/steps/BuildSpacePiStep.cpp
-#       src/steps/CleanupStep.cpp
-#       src/steps/CloneGitRepoStep.cpp
-#       src/steps/FormatPartitionsStep.cpp
-#       src/steps/InitStep.cpp
-#       src/steps/InstallBaseSystemStep.cpp
-#       src/steps/InstallSpacePiStep.cpp
-#       src/steps/InstallSystemFilesStep.cpp
-#       src/steps/MountPartitionsStep.cpp
-#       src/SystemCaller.cpp
-#       src/UniqueMount.cpp
-#       src/UniqueProcess.cpp
-#       src/UniqueTempDir.cpp
-#   )
+add_library(spacepi-targetlib-linux
+    src/DefaultInstallationConfig.cpp
+    src/DefaultInstallationPlan.cpp
+    src/Image.cpp
+    src/InstallationData.cpp
+    src/InstallationOptions.cpp
+    src/InstallationPlan.cpp
+    src/main.cpp
+    src/Partition.cpp
+    src/PartitionTable.cpp
+    src/SharedMount.cpp
+    src/SharedProcess.cpp
+    src/SharedTempDir.cpp
+    src/steps/BuildSpacePiStep.cpp
+    src/steps/CleanupStep.cpp
+    src/steps/CloneGitRepoStep.cpp
+    src/steps/FormatPartitionsStep.cpp
+    src/steps/InitStep.cpp
+    src/steps/InstallBaseSystemStep.cpp
+    src/steps/InstallSpacePiStep.cpp
+    src/steps/InstallSystemFilesStep.cpp
+    src/steps/MountPartitionsStep.cpp
+    src/SystemCaller.cpp
+    src/UniqueMount.cpp
+    src/UniqueProcess.cpp
+    src/UniqueTempDir.cpp
+)
 
-#   target_link_libraries(spacepi-targetlib-linux
-#       Boost::system
-#       spacepi
-#   )
-#   target_include_directories(spacepi-targetlib-linux PUBLIC
-#       include
-#       ${CMAKE_CURRENT_BINARY_DIR}/include
-#   )
-#   target_precompile_headers(spacepi-targetlib-linux REUSE_FROM spacepi)
+target_link_libraries(spacepi-targetlib-linux
+    Boost::system
+    spacepi
+)
+target_include_directories(spacepi-targetlib-linux PUBLIC
+    include
+    ${CMAKE_CURRENT_BINARY_DIR}/include
+)
+target_precompile_headers(spacepi-targetlib-linux REUSE_FROM spacepi)
 
 add_subdirectory(extension)
 add_subdirectory(setup-deploy-key)
