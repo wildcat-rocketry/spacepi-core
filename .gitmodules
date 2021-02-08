@@ -1,6 +1,8 @@
 [submodule "core"]
 	path = core
 	url = ../spacepi-core.git
+	branch = master
 [submodule "spacepi-targetlib-linux"]
 	path = spacepi-targetlib-linux
 	url = ../spacepi-targetlib-linux.git
+	branch = master
