@@ -1,16 +1,19 @@
 #include <iostream>
 #include <regex>
+#include <algorithm>
+#include <boost/filesystem.hpp>
 #include <spacepi/spacepictl/System.hpp>
 #include <spacepi/spacepictl/FSTransaction.hpp>
 #include <spacepi/spacepictl/FSOStream.hpp>
 #include <string>
 #include <fstream>
 
-
 using namespace spacepi::spacepictl;
 using namespace std;
+namespace fs = boost::filesystem;
 
-System::System(FSTransaction &fs, const spacepi::package::Options &config) : fs(fs) {
+
+System::System(FSTransaction &fs, const spacepi::package::Options &options, const unordered_map<string, spacepi::package::Module> &modules) : fs(fs), modules(modules) {
     // Read from XML and find needed parameters
     // Get ip and hostname tags
     this->fetch_ip();
@@ -19,8 +22,8 @@ System::System(FSTransaction &fs, const spacepi::package::Options &config) : fs(
     update_hostname = false;
     update_ip = false;
     
-    const string new_ip = config.getOption("ip");
-    const string new_hostname = config.getOption("hostname");
+    const string new_ip = options.getOption("ip");
+    const string new_hostname = options.getOption("hostname");
 
     if(new_ip != ""){
         if(old_ip != new_ip){
@@ -44,6 +47,8 @@ void System::write_updates(){
     if(update_hostname){
         this->write_hostname();
     }
+
+    this->write_services();
 }
 
 void System::fetch_ip(){
@@ -86,4 +91,53 @@ void System::write_hostname(){
     }
 
     ifs.close();
+}
+
+void System::delete_service_from_dir(string dir){
+    for(auto i = fs::directory_iterator(dir); i != fs::directory_iterator(); i++){
+        if(!fs::is_directory(i->path())){
+            if(isServiceName(i->path().filename().native())){
+                fs.remove(i->path().native());
+            }
+        }
+    }
+}
+
+void System::write_services(){
+    delete_service_from_dir("/etc/systemd/system/multi-user.target.wants");
+    delete_service_from_dir("/lib/systemd/system");
+
+    for(const auto& module_pair : modules){
+        spacepi::package::Module module = module_pair.second;
+        const string service_file_name = "/lib/systemd/system/" + moduleServiceName(module) + ".service";
+        FSOStream service(fs, service_file_name);
+        service << "[Unit]" << endl
+                << "Description=SpacePi Service " << module.getName() << endl
+                << endl
+                << "[Service]" << endl
+                << "ExecStart=/usr/local/bin/spacepictl exec " << module.getName() << endl;
+        
+        if(module.hasAutomaticStart()){
+            service << endl
+                    << "[Install]" << endl
+                    << "WantedBy=multi-user.target" << endl;
+
+            fs.link("/etc/systemd/system/multi-user.target.wants/" + moduleServiceName(module) + ".service", service_file_name);
+        }
+    }
+}
+
+string System::moduleBin(spacepi::package::Module &module){
+    string module_type = module.getType();
+    replace(module_type.begin(), module_type.end(), '/', '_');
+    return "/usr/local/bin/spacepi-mod_modules_" + module_type;
+}
+
+string System::moduleServiceName(spacepi::package::Module &module){
+    return "spacepi_module_" + module.getName();
+}
+
+bool System::isServiceName(const std::string &name){
+    // Does string start with this
+    return name.rfind("spacepi_module_", 0) == 0;
 }
