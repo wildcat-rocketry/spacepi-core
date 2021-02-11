@@ -81,10 +81,10 @@ int SpacePiCTL::initialize_system(){
         log(LogLevel::Error) << "Error updating system: " << ex.what() << "\n" << ex.getPointer();
     }
 
-    log(LogLevel::Info) << "Starting /sbin/init" << endl;
+    log(LogLevel::Info) << "Starting /sbin/init";
     // Boot into systemd
     execl("/sbin/init", "/sbin/init", nullptr); 
-    log(LogLevel::Error) << "Error executing /sbin/init: " << strerror(errno) << "!" << endl;
+    log(LogLevel::Error) << "Error executing /sbin/init: " << strerror(errno) << "!";
     return 1;
 }
 
@@ -108,6 +108,8 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
         try{
             if(argv[1] == "exec"){
                 return spacepictl_exec(argv);
+            } else if(argv[1] == "list") {
+                return spacepictl_list(argv);
             } else {
                 cerr << "No action \"" << argv[1] << "\"\n\n";
             }
@@ -122,20 +124,19 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
     cerr << "USAGE: " << argv[0] << " <action> [[options] ... ]\n";
     cerr << "Available actions:\n";
     cerr << "    exec     Execute a SpacePi service\n";
+    cerr << "    list     List SpacePi services\n";
     return 1;
 }
 
-bool SpacePiCTL::get_module(string module_name, ptree& module_config){
-    ptree pt;
-    read_xml(RUNNING_CONF, pt);
+bool SpacePiCTL::get_module(string module_name, spacepi::package::Module &module_config){
+    unordered_map<string, spacepi::package::Module> modules = (spacepi::package::PackageConfig(RUNNING_CONF)).getModules();
 
-    BOOST_FOREACH(const ptree::value_type &pair, pt.get_child("config")){
-        if(pair.first == "module"){
-            const ptree & module = pair.second;
-            if(module.get<string>("type") == module_name){
-                module_config = module;
-                return true;
-            }
+
+    for( const auto &module_pair : modules){
+        spacepi::package::Module module = module_pair.second;
+        if(module.getName() == module_name){
+            module_config = module;
+            return true;
         }
     }
 
@@ -144,16 +145,19 @@ bool SpacePiCTL::get_module(string module_name, ptree& module_config){
 
 int SpacePiCTL::spacepictl_exec(vector<string> argv){
     if(argv.size() == 3){
-        ptree module;
+        spacepi::package::Module module;
         if(get_module(argv[2], module)){
             cout << "Found module \"" << argv[2] << "\"\n";
             vector<char*> args;
             vector<string> str_args;
-            args.push_back(const_cast<char*>(argv[2].c_str()));
-            BOOST_FOREACH(const ptree::value_type &pair, module.get_child("options")){
-                str_args.push_back("--" + pair.first);
-                str_args.push_back(pair.second.get_value<string>());
+            args.push_back(const_cast<char*>(module.getType().c_str()));
+
+            spacepi::package::Options options = module.getOptions();
+            for( const auto& option : options){
+                str_args.push_back("--" + option.getKey());
+                str_args.push_back(option.getValue());
             }
+
             for(const auto &arg : str_args){
                 args.push_back(const_cast<char*>(arg.c_str()));
             }
@@ -164,7 +168,9 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
             stringstream ss;
             ss << "Error executing";
             for(auto &arg : args) ss << " " << arg;
-            ss << ": " << strerror(errno) << "!" << endl;
+
+            ss << ": " << strerror(errno) << "!";
+
             log(LogLevel::Error) << ss.str();
             return 1;
         } else {
@@ -178,26 +184,32 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
     return 1;
 }
 
+// List the modules in the config by name
+int SpacePiCTL::spacepictl_list(vector<string> argv){
+    if(argv.size() == 2){
+        unordered_map<string, spacepi::package::Module> modules = (spacepi::package::PackageConfig(RUNNING_CONF)).getModules();
+        for(const auto& module_pair : modules){
+            cout << module_pair.second.getName() << endl;
+        }
+        return 0;
+    } else {
+        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 2.\n\n";
+    }
+
+    cerr << "USAGE: " << argv[0] << " " << argv[1] << "\n";
+    return 1;
+}
+
 int SpacePiCTL::run_reconfiguration(){
     ptree pt;
     FSTransaction fs_transaction;
     
     read_xml(NEW_CONF_PATH, pt);
 
-    optional<ptree &> options = pt.get_child_optional("config.target.options");
-    if(!options){
-        throw EXCEPTION(StateException("config.target.options does not exist in " NEW_CONF_PATH ));
-        return 1;
-    }
+    spacepi::package::PackageConfig config(NEW_CONF_PATH);
 
-    optional<ptree &> users = pt.get_child_optional("config.target.users");
-    if(!users){
-        throw EXCEPTION(StateException("config.target.users does not exist in " NEW_CONF_PATH ));
-        return 1;
-    }
-
-    System system(fs_transaction, *options);
-    UserManager user_man(fs_transaction, *users);
+    System system(fs_transaction, config.getTargetOptions());
+    UserManager user_man(fs_transaction, config.getUsers());
 
     log(LogLevel::Info) << "Done loading user changes\n";
     user_man.write_users();

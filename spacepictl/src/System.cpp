@@ -1,6 +1,3 @@
-#include <boost/property_tree/ptree.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <iostream>
 #include <regex>
 #include <spacepi/spacepictl/System.hpp>
@@ -10,13 +7,10 @@
 #include <fstream>
 
 
-using boost::property_tree::ptree;
-using boost::optional;
-namespace fs = boost::filesystem;
 using namespace spacepi::spacepictl;
 using namespace std;
 
-System::System(FSTransaction &fs, ptree & config) : fs(fs) {
+System::System(FSTransaction &fs, const spacepi::package::Options &config) : fs(fs) {
     // Read from XML and find needed parameters
     // Get ip and hostname tags
     this->fetch_ip();
@@ -25,20 +19,20 @@ System::System(FSTransaction &fs, ptree & config) : fs(fs) {
     update_hostname = false;
     update_ip = false;
     
-    optional<string> new_ip = config.get_optional<string>("ip");
-    optional<string> new_hostname = config.get_optional<string>("hostname");
+    const string new_ip = config.getOption("ip");
+    const string new_hostname = config.getOption("hostname");
 
-    if(new_ip){
-        if(old_ip != *new_ip){
+    if(new_ip != ""){
+        if(old_ip != new_ip){
             update_ip = true;
-            ip = *new_ip;
+            ip = new_ip;
         }
     }
 
-    if(new_hostname){
-        if(old_hostname != *new_hostname){
+    if(new_hostname != ""){
+        if(old_hostname != new_hostname){
             update_hostname = true;
-            hostname = *new_hostname;
+            hostname = new_hostname;
         }
     }
 }
