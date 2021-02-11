@@ -36,10 +36,12 @@ int main(int argc, char* argv[]){
     SpacePiCTL control;
     Logger log("spacepictl");
     try{
-        control.main(vector<string>(&argv[0], &argv[argc]));
+        return control.main(vector<string>(&argv[0], &argv[argc]));
     } catch (const Exception &ex){
         log(LogLevel::Error) << "Error running spacepictl: " << ex.what() << "\n" << ex.getPointer();
     }
+
+    return 0;
 }
 
 int SpacePiCTL::main(vector<string> argv){
@@ -150,7 +152,8 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
             cout << "Found module \"" << argv[2] << "\"\n";
             vector<char*> args;
             vector<string> str_args;
-            args.push_back(const_cast<char*>(module.getType().c_str()));
+            string executable = System::moduleBin(module);
+            args.push_back(const_cast<char*>(executable.c_str()));
 
             spacepi::package::Options options = module.getOptions();
             for( const auto& option : options){
@@ -163,15 +166,13 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
             }
             args.push_back(NULL);
 
-            execvp(argv[2].c_str(), &args[0]);
+            execvp(executable.c_str(), &args[0]);
 
             stringstream ss;
             ss << "Error executing";
             for(auto &arg : args) ss << " " << arg;
-
-            ss << ": " << strerror(errno) << "!";
-
             log(LogLevel::Error) << ss.str();
+
             return 1;
         } else {
             cerr << "Module \"" << argv[2] << "\" not found\n";
@@ -208,7 +209,7 @@ int SpacePiCTL::run_reconfiguration(){
 
     spacepi::package::PackageConfig config(NEW_CONF_PATH);
 
-    System system(fs_transaction, config.getTargetOptions());
+    System system(fs_transaction, config.getTargetOptions(), config.getModules());
     UserManager user_man(fs_transaction, config.getUsers());
 
     log(LogLevel::Info) << "Done loading user changes\n";
