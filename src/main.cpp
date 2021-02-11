@@ -32,6 +32,6 @@ static void fixFile(const std::string &filename) {
     }
 
     ofstream ofs(filename);
-    for (const auto &e : content) ofs << e;
+    ofs.write(&content[0], content.size());
     ofs.close();
 }
