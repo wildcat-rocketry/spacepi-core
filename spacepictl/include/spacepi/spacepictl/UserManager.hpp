@@ -2,7 +2,7 @@
 #define SPACEPI_TARGET_RPI_USERMANAGER_HPP
 
 #include <string>
-#include <vector>
+#include <list>
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
@@ -17,7 +17,7 @@ namespace spacepi {
     namespace spacepictl {
             class UserManager : private spacepi::log::AutoLog<decltype("spacepictl:UserManager"_autolog)> {
                 public:
-                    UserManager(spacepi::spacepictl::FSTransaction &fs, boost::property_tree::ptree & users);
+                    UserManager(spacepi::spacepictl::FSTransaction &fs, const std::unordered_map<std::string, spacepi::package::User> &users);
 
                     void write_users();
 

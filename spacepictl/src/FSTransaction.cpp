@@ -286,11 +286,7 @@ void FSTransaction::apply() {
     vector<shared_ptr<FSOperation>>::iterator it;
     try {
         for (it = ops.begin(); it != ops.end(); ++it) {
-            try {
-                (*it)->perform();
-            } catch (const exception &ex) {
-                log(LogLevel::Warning) << "Error performing transaction: " << ex.what() << "\n" << Exception::getPointer();
-            }
+            (*it)->perform();
         }
         for (it = ops.begin(); it != ops.end(); ++it) {
             try {
@@ -300,6 +296,7 @@ void FSTransaction::apply() {
             }
         }
     } catch (const exception &ex) {
+        log(LogLevel::Warning) << "Error performing transaction: " << ex.what() << "\n" << Exception::getPointer();
         for (; it >= ops.begin(); --it) {
             try {
                 (*it)->undo();

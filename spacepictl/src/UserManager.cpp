@@ -1,6 +1,3 @@
-#include <boost/property_tree/ptree.hpp>
-#include <boost/foreach.hpp>
-#include <boost/filesystem.hpp>
 #include <fstream>
 
 #include <SpacePi.hpp>
@@ -16,13 +13,12 @@
 
 using boost::property_tree::ptree;
 using boost::optional;
-namespace fs = boost::filesystem;
 using namespace spacepi::spacepictl;
 using namespace spacepi::log;
 using namespace spacepi::util;
 using namespace std;
 
-UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
+UserManager::UserManager(FSTransaction &fs, const std::unordered_map<std::string, spacepi::package::User> &users) : fs(fs) {
     // Iterate through users, check if system user, then add user to list
     system_users = list<User>();
     uids = list<uid_t>();
@@ -43,12 +39,6 @@ UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
 
     human_users = list<Person>();
 
-    optional<string> uname;
-    optional<string> name;
-    optional<string> email;
-    optional<string> shell;
-    optional<string> keys;
-
     struct group* sudo_grp = getgrnam("sudo");
     if(!sudo_grp){
         throw EXCEPTION(StateException("No sudo group found"));
@@ -56,22 +46,22 @@ UserManager::UserManager(FSTransaction &fs, ptree & users) : fs(fs) {
 
     gid_t sudo_gid = sudo_grp->gr_gid;
 
-    BOOST_FOREACH(const ptree::value_type &pair, users.get_child("")){
-        const ptree & user = pair.second;
-        uname = user.get_optional<string>("uname");
-        if(!uname){
+    for( const auto &user_pair : users){
+        spacepi::package::User user = user_pair.second;
+        
+        const string uname = user.getUsername();
+        if(uname == ""){
             throw EXCEPTION(StateException("User without username"));
             continue;
         }
-        name = user.get_optional<string>("name");
-        email = user.get_optional<string>("email");
-        shell = user.get_optional<string>("shell");
-        keys = user.get_optional<string>("keys");
+        const string name = user.getName();
+        const string email = user.getEmail();
+        vector<string> keys = user.getKeys();
 
-        cur_pwd = getpwnam((*uname).c_str());
-        Person new_person = create_person(cur_pwd, cur_spwd, *uname, sudo_gid);
+        cur_pwd = getpwnam(uname.c_str());
+        Person new_person = create_person(cur_pwd, cur_spwd, uname, sudo_gid);
 
-        new_person.add_info(name, email, shell, keys);
+        new_person.add_info(name, email, keys);
         new_person.update_user();
         human_users.push_back(new_person);
     }

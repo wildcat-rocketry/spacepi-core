@@ -11,7 +11,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/process.hpp>
-#include <boost/optional.hpp>
 
 #include <pwd.h>
 #include <shadow.h>
@@ -31,36 +30,10 @@ Person::Person(FSTransaction &fs, string uname, uid_t uid, gid_t gid) : User(una
     build_home(uname, uid, gid);
 }
 
-void Person::update_info(optional<string> &old_param, optional<string> &new_param, bool &update_flag){
-    if(new_param){
-        if(old_param){
-            if(*old_param != *new_param){
-                update_flag = 1;
-                old_param = new_param;
-            } else {
-                update_flag = 0;
-            }
-        } else {
-            old_param = new_param;
-            update_flag = 1;
-        }
-    } else {
-        update_flag = 0;
-    }
-}
-
-void Person::add_info(optional<string> new_name, optional<string> new_email, optional<string> new_shell, optional<string> new_keys){
-    update_info(name, new_name, update_name);    
-    update_info(email, new_email, update_email);    
-    update_info(shell, new_shell, update_shell);    
-    update_info(keys, new_keys, update_keys);    
-}
-
-char * Person::set_string(string to_set){
-    char * new_array = new char[to_set.length() + 1];
-    to_set.copy(new_array, to_set.length());
-    new_array[to_set.length()] = '\0';
-    return new_array;
+void Person::add_info(const std::string &new_name, const std::string &new_email, std::vector<std::string> new_keys){
+    name = new_name;
+    email = new_email;
+    keys = new_keys;
 }
 
 void Person::build_home(string uname, uid_t uid, gid_t gid){
@@ -85,26 +58,26 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
 }
 
 void Person::write_keys(){
-    if(keys){
-        string key_file = this->get_home_dir() + "/.ssh/authorized_keys";
-        if(!fs::exists(get_home_dir() + "/.ssh")){
-            fs.mkdir(get_home_dir() + "/.ssh");
-        }
+    string key_file = this->get_home_dir() + "/.ssh/authorized_keys";
+    if(!fs::exists(get_home_dir() + "/.ssh")){
+        fs.mkdir(get_home_dir() + "/.ssh");
+    }
 
-        FSOStream file(fs, key_file, get_uid(), get_gid());
-        file << *keys << endl;
+    FSOStream file(fs, key_file, get_uid(), get_gid());
+    for(const auto& key : keys){
+        file << key << endl;
     }
 }
 
 void Person::update_git(){
     map<string,string> confEntries;
 
-    if(name){
-        confEntries.insert({"user.name", *name});
+    if(name != ""){
+        confEntries.insert({"user.name", name});
     }
 
-    if(email){
-        confEntries.insert({"user.email", *email});
+    if(email != ""){
+        confEntries.insert({"user.email", email});
     }
 
     if(confEntries.size() > 0){
@@ -113,11 +86,6 @@ void Person::update_git(){
 }
 
 void Person::update_user(){
-    if(update_keys){
-        this->write_keys();
-    }
-
-    if(update_name || update_email){
-        this->update_git();
-    }
+    this->write_keys();
+    this->update_git();
 }

@@ -20,9 +20,10 @@ namespace spacepi {
             private:
 
                 bool points_to_file(boost::filesystem::path& p);
-                int spacepictl_exec(std::vector<std::string> argv);
-                bool get_module(std::string module_name, boost::property_tree::ptree& module_config);
+                bool get_module(std::string module_name, spacepi::package::Module &module_config);
 
+                int spacepictl_exec(std::vector<std::string> argv);
+                int spacepictl_list(std::vector<std::string> argv);
                 std::vector<std::string> arg_vector;
         };
     }

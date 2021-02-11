@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/optional.hpp>
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/FSTransaction.hpp>
 #include <spacepi/spacepictl/User.hpp>
@@ -21,30 +20,19 @@ namespace spacepi {
                 Person(spacepi::spacepictl::FSTransaction &fs, const struct passwd* pw, const struct spwd* sh);
 
 
-                void add_info(boost::optional<std::string> new_name, boost::optional<std::string> new_email, boost::optional<std::string> new_shell, boost::optional<std::string> new_keys);
+                void add_info(const std::string &new_name, const std::string &new_email, std::vector<std::string> new_keys);
 
                 void update_user();
-
-                static char *set_string(std::string to_set);
-
             protected:
-                void update_info(boost::optional<std::string> &old_param, boost::optional<std::string> &new_param, bool &update_flag);
-
                 // Build a new default home dir for the listed user
                 void build_home(std::string uname, uid_t uid, gid_t gid); 
 
                 void write_keys();
                 void update_git();
 
-                boost::optional<std::string> name;
-                boost::optional<std::string> email;
-                boost::optional<std::string> shell;
-                boost::optional<std::string> keys;
-
-                bool update_name;
-                bool update_email;
-                bool update_shell;
-                bool update_keys;
+                std::string name;
+                std::string email;
+                std::vector<std::string> keys;
 
             private:
                 spacepi::spacepictl::FSTransaction &fs;

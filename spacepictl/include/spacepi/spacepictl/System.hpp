@@ -3,8 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/program_options.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <pwd.h>
 #include <grp.h>
 #include <shadow.h>
@@ -15,7 +13,7 @@ namespace spacepi {
     namespace spacepictl {
         class System : private spacepi::log::AutoLog<decltype("spacepictl:System"_autolog)> {
             public:
-                System(spacepi::spacepictl::FSTransaction &fs, boost::property_tree::ptree & config);
+                System(spacepi::spacepictl::FSTransaction &fs, const spacepi::package::Options &config);
 
                 void write_updates();
 
