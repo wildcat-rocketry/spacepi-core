@@ -89,6 +89,9 @@ case $1 in
 	kill)
 		docker kill spacepi-target-docker
 		;;
+	logs)
+		docker container logs spacepi-target-docker
+		;;
 	*)
 		docker exec -it -u user -w $rep/build spacepi-target-docker "${@}"
 		;;
