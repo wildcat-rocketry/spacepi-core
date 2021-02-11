@@ -92,7 +92,7 @@ void PackageConfig::load(const string &filename) {
                                     if (mit->first == "name") {
                                         mod.setName(mit->second.data());
                                     } else if (mit->first == "type") {
-                                        mod.setName(mit->second.data());
+                                        mod.setType(mit->second.data());
                                     } else if (mit->first == "start") {
                                         if (mit->second.data() == "manual") {
                                             mod.setAutomaticStart(false);
