@@ -33,7 +33,7 @@ Instead, the following can be used:
 .. code-block:: text
 
     $ git pull
-    $ git submoudle update --init --recursive --remote
+    $ git submodule update --init --recursive --remote
 
 The options to :code:`git submodule update` are explained below:
 
@@ -45,7 +45,7 @@ This can be short-cutted using the following command:
 
 .. code-block:: text
 
-    $ git config --global alias.update '!f(){ git pull "$@" && git submoudle update --init --recursive --remote; };f'
+    $ git config --global alias.update '!f(){ git pull "$@" && git submodule update --init --recursive --remote; };f'
 
 Then, to pull and update all submodules, simply run this:
 
