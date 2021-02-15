@@ -10,6 +10,8 @@ find_package(Boost
 )
 
 find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
+find_program(KPARTX_EXECUTABLE NAMES kpartx REQUIRED)
+find_program(MKFS_EXECUTABLE NAMES mkfs REQUIRED)
 
 configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/liblinux/Config.hpp @ONLY)
 
@@ -36,6 +38,7 @@ add_library(spacepi-targetlib-linux
     src/steps/InstallSystemFilesStep.cpp
     src/steps/MountPartitionsStep.cpp
     src/SystemCaller.cpp
+    src/UniqueLoopDevice.cpp
     src/UniqueMount.cpp
     src/UniqueProcess.cpp
     src/UniqueTempDir.cpp
