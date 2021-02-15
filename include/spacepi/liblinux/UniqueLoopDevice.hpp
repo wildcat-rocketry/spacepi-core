@@ -25,6 +25,7 @@ namespace spacepi {
             private:
                 std::string imageFile;
                 std::string baseDevice;
+                bool mounted;
         };
     }
 }

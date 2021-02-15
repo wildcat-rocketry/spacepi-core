@@ -1,10 +1,12 @@
 #include <fstream>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/Config.hpp>
+#include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/Image.hpp>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
+#include <spacepi/liblinux/UniqueLoopDevice.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
 #include <string>
 #include <vector>
@@ -51,6 +53,10 @@ void Image::formatPartitions(const PartitionTable &tab) {
     sfdisk.wait();
     if(sfdisk.getExitCode() != 0){
         throw EXCEPTION(ResourceException("Error writing image."));
+    }
+    UniqueLoopDevice loopDevice(getFilename());
+    for(int i = 0; i < tab.getPartitions().size(); i++){
+        
     }
 }
 
