@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <exception>
 #include <iomanip>
 #include <string>
@@ -88,7 +89,21 @@ bool Command::run() noexcept {
             if (!git->caption.empty()) {
             l << "\n" << git->caption << ":\n";
                 for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
-                    l << "    " << left << setw(longest) << (*oit)->example() << setw(0) << "  " << (*oit)->desc << "\n";
+                    for (size_t start = 0, end; start < (*oit)->desc.size(); start = end + 1) {
+                        l << "    " << left << setw(longest);
+                        if (start == 0) {
+                            l << (*oit)->example();
+                        } else {
+                            l << " ";
+                        }
+                        l << setw(0) << "  ";
+                        end = (*oit)->desc.find_first_of('\n', start);
+                        l << (*oit)->desc.substr(start, end - start);
+                        l << "\n";
+                        if (end == string::npos) {
+                            break;
+                        }
+                    }
                 }
             }
         }
