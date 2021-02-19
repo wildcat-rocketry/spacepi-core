@@ -20,5 +20,4 @@ spacepi_module_link_libraries(PUBLIC
     Boost::filesystem
     Boost::system
     core-messages
-    ${CMAKE_DL_LIBS}
 )

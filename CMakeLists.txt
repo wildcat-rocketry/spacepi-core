@@ -69,6 +69,7 @@ target_link_libraries(spacepi
     Boost::stacktrace_backtrace
     Boost::system
     ${Protobuf_LIBRARIES}
+    ${CMAKE_DL_LIBS}
     core-messages
 )
 target_precompile_headers(spacepi PUBLIC
