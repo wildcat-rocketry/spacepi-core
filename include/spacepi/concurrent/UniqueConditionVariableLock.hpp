@@ -94,9 +94,9 @@ namespace spacepi {
                 template <typename Clock, typename Duration>
                 bool try_lock_until(const std::chrono::time_point<Clock, Duration> &absTime) {
                     if (slck.mutex()) {
-                        slck.try_lock_until(absTime);
+                        return slck.try_lock_until(absTime);
                     } else if (blck.mutex()) {
-                        blck.try_lock_until(absTime);
+                        return blck.try_lock_until(absTime);
                     }
                 }
 
