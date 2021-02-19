@@ -1,5 +1,5 @@
-#ifndef SPACEPI_TARGET_SERVER_HPP
-#define SPACEPI_TARGET_SERVER_HPP
+#ifndef SPACEPI_TARGETLIB_LINUX_SETUP_DEPLOY_KEY_SERVER_HPP
+#define SPACEPI_TARGETLIB_LINUX_SETUP_DEPLOY_KEY_SERVER_HPP
 
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
