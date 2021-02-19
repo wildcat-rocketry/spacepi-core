@@ -12,6 +12,8 @@ check_cxx_source_compiles("
 
 find_library(LibI2C NAMES libi2c.so REQUIRED)
 
+configure_file(include/spacepi/target/extension/Config.hpp.in "${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/target/extension/Config.hpp" @ONLY)
+
 spacepi_extension(
     src/detail/UniqueDir.cpp
     src/detail/UniqueFD.cpp
@@ -29,11 +31,9 @@ spacepi_extension(
     src/UART.cpp
     src/UARTFactory.cpp
 )
-if (HAVE_LIBGPIOD_BIAS)
-    spacepi_extension_add_definitions(HAVE_LIBGPIOD_BIAS=1)
-endif()
 spacepi_extension_include_directories(PUBLIC
     include
+    "${CMAKE_CURRENT_BINARY_DIR}/include"
 )
 spacepi_extension_link_libraries(PUBLIC
     ${LibGPIOd}

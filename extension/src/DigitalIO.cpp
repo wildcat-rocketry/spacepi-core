@@ -4,6 +4,7 @@
 #include <utility>
 #include <gpiod.hpp>
 #include <SpacePi.hpp>
+#include <spacepi/target/extension/Config.hpp>
 #include <spacepi/target/extension/DigitalIO.hpp>
 #include <spacepi/target/extension/DigitalIOChip.hpp>
 #include <spacepi/target/extension/DigitalIOFactory.hpp>
