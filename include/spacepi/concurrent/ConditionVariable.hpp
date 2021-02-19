@@ -101,7 +101,7 @@ namespace spacepi {
                         boost::fibers::cv_status s;
                         ++bwait;
                         try {
-                            s = bcond.wait_until(lck, absTime);
+                            s = bcond.wait_until(lck, std::chrono::time_point_cast<std::chrono::nanoseconds>(absTime));
                             --bwait;
                         } catch (...) {
                             --bwait;
