@@ -85,7 +85,7 @@ function (spacepi_message_library)
         ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
         COMMAND ${CMAKE_COMMAND}
         ARGS "-Droot_dir=${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}" "-Dexts=java,pb.cc,pb.h" "-Dcomp_file=${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.begin" -P "${SPACEPI_CORE_SOURCE_DIR}/cmake/CleanProtobuf.cmake"
-        DEPENDS protobuf::protoc ${dependencies}
+        DEPENDS protobuf::protoc ${dependencies} ${SPACEPI_CORE_MESSAGES_DEPENDS}
         COMMENT "Running protocol buffer compiler on ${ARGV0}"
         VERBATIM
         COMMAND_EXPAND_LISTS
@@ -96,6 +96,14 @@ function (spacepi_message_library)
         set(SPACEPI_CORE_MESSAGES_INCLUDE
             "${SPACEPI_CORE_SOURCE_DIR}/include"
             "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}"
+            CACHE INTERNAL ""
+        )
+        add_custom_target(
+            spacepi-core-messages-target
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/protobuf.end"
+        )
+        set(SPACEPI_CORE_MESSAGES_DEPENDS
+            spacepi-core-messages-target
             CACHE INTERNAL ""
         )
     endif()
