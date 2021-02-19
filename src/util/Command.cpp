@@ -55,7 +55,7 @@ bool Command::run() noexcept {
             ++ait;
         }
     }
-    if (success) {
+    if (success && !helpWrapper.showHelp) {
         for (vector<CommandGroup>::const_iterator git = groups.begin(); git != groups.end(); ++git) {
             for (vector<shared_ptr<GenericCommandParser>>::const_iterator oit = git->options.begin(); oit != git->options.end(); ++oit) {
                 if (!**oit) {
