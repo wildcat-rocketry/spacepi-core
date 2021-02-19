@@ -20,7 +20,6 @@ target_link_libraries(spacepictl
     Boost::system
     Boost::thread
 	Boost::filesystem
-    ${CMAKE_DL_LIBS}
     spacepi
 	git2
 )
