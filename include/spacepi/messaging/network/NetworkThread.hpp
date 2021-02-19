@@ -56,7 +56,10 @@ namespace spacepi {
 
                 private:
                     enum State {
-                        Starting,
+                        Init,
+                        FirstStart,
+                        Waiting,
+                        MultipleStart,
                         Running,
                         Stopping
                     };

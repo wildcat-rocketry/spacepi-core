@@ -13,6 +13,7 @@ spacepi_message_library(core-messages ${SPACEPI_CORE_SOURCE_DIR}/include
 find_package(Boost
     REQUIRED COMPONENTS
     # asio
+    # config
     context
     exception
     fiber
