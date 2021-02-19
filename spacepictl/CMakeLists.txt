@@ -24,12 +24,8 @@ target_link_libraries(spacepictl
 	git2
 )
 
-target_compile_definitions(spacepictl PUBLIC BOOST_NO_CXX11_SCOPED_ENUMS=0)
-
 target_include_directories(spacepictl PUBLIC include)
 
-target_precompile_headers(spacepictl PUBLIC
-    <SpacePi.hpp>
-)
+target_precompile_headers(spacepictl REUSE_FROM spacepi_pch)
 
 install(TARGETS spacepictl RUNTIME DESTINATION bin)
