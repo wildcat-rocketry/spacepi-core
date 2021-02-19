@@ -67,3 +67,30 @@ If working on a submodule, there are a few things to remember, however:
    If testing in one repository and changing code in another like the above example, maybe open two terminals: one for testing and one for Git.
 3. One build folder in the root of the packages repository can function as build folders for each individual submodule also.
    The directory structure in the repository is mirrored in the build folder, and one can run :code:`make` in a subdirectory of the build folder to build a smaller amount of code rather than the whole repo tree.
+
+Common Issues
+-------------
+
+If one is not careful, a commit may be made on a detached :code:`HEAD`, breaking Git's pull/push system.
+If this is done, the local :code:`master` branch can be reset to the current :code:`HEAD` using the following:
+
+.. code-block:: text
+
+    $ git tag tmp master
+    $ git branch -d master
+    $ git checkout -b master
+    $ git merge tmp
+    $ git tag -d tmp
+    $ git branch -u origin master
+
+Or, this can be short-cutted using the following command:
+
+.. code-block:: text
+
+    $ git config --global alias.set-master '!f(){ git tag tmp master && git branch -d master && git checkout -b master && git merge tmp && git tag -d tmp && git branch -u origin master; };f'
+
+Then, to reset the current :code:`HEAD` to :code:`master`, simply run this:
+
+.. code-block:: text
+
+    $ git set-master
