@@ -99,16 +99,19 @@ void NetworkThread::run() {
                 BOOST_FALLTHROUGH;
             case MultipleStart:
                 state = Running;
+                log(LogLevel::Debug) << "Network thread waking...";
                 lck.unlock();
                 try {
                     ctx.run();
                 } catch (const std::exception &) {
                     log(LogLevel::Error) << Exception::getPointer();
                 }
+                ctx.restart();
                 lck.lock();
                 if (state != Stopping) {
                     state = Waiting;
                 }
+                log(LogLevel::Debug) << "Network thread sleeping...";
                 break;
             case Stopping:
                 break;
