@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 #include <spacepi/liblinux/UniqueMount.hpp>
 
 namespace spacepi {
@@ -25,7 +26,33 @@ namespace spacepi {
             private:
                 std::shared_ptr<UniqueMount> unique;
         };
+
+        namespace detail {
+            class SharedMountAllocator : public std::allocator<SharedMount> {
+                public:
+                    SharedMountAllocator() noexcept = default;
+                    SharedMountAllocator(const SharedMountAllocator &) noexcept = default;
+
+                    template <typename Type>
+                    SharedMountAllocator(const std::allocator<Type> &alloc) : std::allocator<SharedMount>(alloc) {
+                    }
+            };
+        }
     }
+}
+
+namespace std {
+    template <>
+    class vector<spacepi::liblinux::SharedMount> : public vector<spacepi::liblinux::SharedMount, spacepi::liblinux::detail::SharedMountAllocator> {
+        public:
+            vector() noexcept = default;
+            vector(const vector<spacepi::liblinux::SharedMount> &copy) noexcept;
+            vector<spacepi::liblinux::SharedMount> &operator =(const vector<spacepi::liblinux::SharedMount> &) = default;
+            vector(vector<spacepi::liblinux::SharedMount> &&move) noexcept;
+            vector<spacepi::liblinux::SharedMount> &operator =(vector<spacepi::liblinux::SharedMount> &&) = default;
+
+            ~vector() noexcept(false);
+    };
 }
 
 #endif
