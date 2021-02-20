@@ -17,6 +17,11 @@ namespace spacepi {
 
             public:
                 /**
+                 * \brief Destroy this Bus resource
+                 */
+                virtual ~Bus() = default;
+
+                /**
                  * \brief Transmit an 8-bit field to the end of the BusTransaction
                  * 
                  * \param[in] data The data to transmit
@@ -105,7 +110,7 @@ namespace spacepi {
         /**
          * \brief A temporary helper class which allows readable syntax for forming packets on a Bus
          */
-        class BusTransaction {
+        class BusTransaction final {
             public:
                 /**
                  * \brief Create a new, empty BusTransaction

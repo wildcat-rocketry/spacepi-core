@@ -12,7 +12,7 @@ namespace spacepi {
          * 
          * It is preferred to use the Logger class instead of this class directly.
          */
-        class Entry {
+        class Entry final {
             public:
                 /**
                  * \brief Creates an invalid logging entry

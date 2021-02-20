@@ -10,7 +10,7 @@
 namespace spacepi {
     namespace concurrent {
         namespace detail {
-            class SleepPredicate {
+            class SleepPredicate final {
                 public:
                     static SleepPredicate instance;
 
@@ -21,7 +21,7 @@ namespace spacepi {
         /**
          * \brief A set of \c static methods which allow sleeping when using a ThreadPool
          */
-        class Sleep {
+        class Sleep final {
             public:
                 /**
                  * \brief Sleep for at least a given duration

@@ -14,7 +14,7 @@ namespace spacepi {
         /**
          * \brief Data class to represent a package configuration
          */
-        class PackageConfig {
+        class PackageConfig final {
             public:
                 /**
                  * \brief Create an empty package configuration

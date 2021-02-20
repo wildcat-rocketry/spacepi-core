@@ -11,7 +11,7 @@ namespace spacepi {
         /**
          * \brief Data class for storing information about running processes
          */
-        class ProcessInfo {
+        class ProcessInfo final {
             public:
                 /**
                  * \brief Create a new ProcessInfo
@@ -63,6 +63,11 @@ namespace spacepi {
          */
         class Processor {
             public:
+                /**
+                 * \brief Destroys this Processor resource
+                 */
+                virtual ~Processor() = default;
+
                 /**
                  * \brief Get a pointer to a Processor object by its resource name
                  * 

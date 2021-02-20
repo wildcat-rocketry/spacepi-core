@@ -23,6 +23,11 @@ namespace spacepi {
                 Semaphore(uint32_t locks = 0) noexcept : locksAvailable(locks), locksRequested(0), locksServed(0) {
                 }
 
+                /**
+                 * \brief Destroy a Semaphore
+                 */
+                virtual ~Semaphore() = default;
+
                 Semaphore(Semaphore &) = delete;
                 Semaphore &operator =(Semaphore &) = delete;
 

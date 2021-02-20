@@ -18,7 +18,7 @@ namespace spacepi {
                 /**
                  * \brief Cancel the Subscription
                  */
-                ~GenericSubscription();
+                virtual ~GenericSubscription();
 
                 GenericSubscription(GenericSubscription &) = delete;
                 GenericSubscription &operator =(GenericSubscription &) = delete;
@@ -59,7 +59,7 @@ namespace spacepi {
          * \brief The main class which is used to subscribe to messages received by a Connection
          */
         template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type * = nullptr>
-        class Subscription : public GenericSubscription {
+        class Subscription final : public GenericSubscription {
             public:
                 /**
                  * \brief Initialize a Subscription

@@ -15,7 +15,7 @@ namespace spacepi {
              * \brief Represents an ID which contains both the format of the encoded data and an instance for which the
              * packet is intended
              */
-            class SubscriptionID {
+            class SubscriptionID final {
                 public:
                     /**
                      * \brief Initialize an invalid SubscriptionID

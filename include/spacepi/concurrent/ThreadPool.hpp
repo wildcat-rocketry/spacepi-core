@@ -15,11 +15,13 @@ namespace spacepi {
         namespace detail {
             class GenericFiber {
                 public:
+                    virtual ~GenericFiber() = default;
+
                     virtual void start(std::vector<boost::fibers::fiber> &vec) const = 0;
             };
 
             template <typename Func>
-            class WrappedFiber : public GenericFiber {
+            class WrappedFiber final : public GenericFiber {
                 public:
                     explicit WrappedFiber(Func fn) noexcept : fn(fn) {
                     }

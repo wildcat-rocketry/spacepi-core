@@ -9,7 +9,7 @@ namespace spacepi {
         /**
          * \brief Data class to represent a user account configuration
          */
-        class User {
+        class User final {
             public:
                 /**
                  * \brief Gets the name of the person

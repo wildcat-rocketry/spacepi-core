@@ -16,6 +16,8 @@ namespace spacepi {
                 friend class spacepi::util::Command;
 
                 public:
+                    ~GenericCommandParser() = default;
+
                     operator bool() const noexcept;
 
                     virtual std::pair<std::vector<std::string>::const_iterator, std::string> parse(const std::vector<std::string> &args, const std::vector<std::string>::const_iterator &start) noexcept = 0;
@@ -66,7 +68,7 @@ namespace spacepi {
                 return res;
             }
 
-            class CommandGroup {
+            class CommandGroup final {
                 friend class spacepi::util::Command;
 
                 public:

@@ -22,7 +22,7 @@ namespace spacepi {
 
             namespace detail {
 
-                class GenericSocketReader {
+                class GenericSocketReader final {
                     template <typename Proto>
                     friend class network::SocketWrapper;
 
@@ -37,7 +37,7 @@ namespace spacepi {
                         spacepi::util::SharedOrRef<SocketWrapperCallback> callback;
                 };
 
-                class GenericSocketWriter {
+                class GenericSocketWriter final {
                     template <typename Proto>
                     friend class network::SocketWrapper;
 
@@ -66,6 +66,11 @@ namespace spacepi {
                      * \param[in] callback The callback to call when events occur
                      */
                     explicit GenericSocketWrapper(const spacepi::util::WeakOrRef<SocketWrapperCallback> &callback);
+
+                    /**
+                     * \brief Destroy this GenericSocketWrapper
+                     */
+                    virtual ~GenericSocketWrapper() = default;
 
                     GenericSocketWrapper(GenericSocketWrapper &) = delete;
                     GenericSocketWrapper &operator =(GenericSocketWrapper &) = delete;
@@ -123,7 +128,7 @@ namespace spacepi {
              * \li \c boost::asio::local::stream_protocol
              */
             template <typename Proto>
-            class SocketWrapper : public GenericSocketWrapper {
+            class SocketWrapper final : public GenericSocketWrapper {
                 public:
                     /**
                      * \brief Initialize the SocketWrapper

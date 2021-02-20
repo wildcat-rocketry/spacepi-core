@@ -13,7 +13,7 @@ namespace spacepi {
          * Filtering is done based on a map of levels specific to different logging tags, along with a default level
          * which is used when none of the specific tags are matched.
          */
-        class LogFilter {
+        class LogFilter final {
             public:
                 /**
                  * \brief Creates a new LogFilter which passes all entries with a level at least LogLevel::Info

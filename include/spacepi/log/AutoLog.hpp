@@ -24,11 +24,18 @@ namespace spacepi {
          * \tparam tag The tag to create the logger with
          */
         template <typename>
-        class AutoLog {
+        class AutoLog final {
+            public:
         };
 
         template <char... tag>
         class AutoLog<std::integer_sequence<char, tag...>> {
+            public:
+                /**
+                 * \brief Default virtual destructor
+                 */
+                virtual ~AutoLog() = default;
+
             protected:
                 /**
                  * \brief Creates the logger with the tag given in the class template parameter

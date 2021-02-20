@@ -26,6 +26,11 @@ namespace spacepi {
                 CommandConfigurable(const std::string &caption, Command &cmd) noexcept;
 
                 /**
+                 * \brief Destroys this CommandConfigurable
+                 */
+                virtual ~CommandConfigurable() = default;
+
+                /**
                  * \brief Initialize a variable from the Command's command-line arguments
                  * 
                  * Note: this method does not set \c var, but \c var will be set before runCommand() is called

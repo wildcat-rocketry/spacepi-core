@@ -16,6 +16,11 @@ namespace spacepi {
         class I2C : public Bus {
             public:
                 /**
+                 * \brief Destroys this I2C resource
+                 */
+                virtual ~I2C() = default;
+
+                /**
                  * \brief Get a pointer to an I2C object by its resource name
                  * 
                  * \param[in] name The resource name for which to get the I2C object

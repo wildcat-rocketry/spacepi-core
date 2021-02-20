@@ -20,7 +20,7 @@ namespace spacepi {
          * log(LogLevel::Debug) << "This is 2+2: " << (2 + 2) << "!";
          * \endcode
          */
-        class Logger {
+        class Logger final {
             public:
                 /**
                  * \brief Initialize a new Logger

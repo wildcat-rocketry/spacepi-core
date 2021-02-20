@@ -11,6 +11,11 @@ namespace spacepi {
         class LogTarget {
             public:
                 /**
+                 * \brief Destroy this LogTarget
+                 */
+                virtual ~LogTarget() = default;
+
+                /**
                  * \brief Writes a new Entry to the log
                  * 
                  * \param[in] entry The new logging Entry

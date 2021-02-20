@@ -29,7 +29,7 @@ namespace spacepi {
                 /**
                  * \brief Destroys the ConditionVariable
                  */
-                ~ConditionVariable() noexcept;
+                virtual ~ConditionVariable() noexcept;
 
                 ConditionVariable(ConditionVariable &) = delete;
                 ConditionVariable &operator =(ConditionVariable &) = delete;

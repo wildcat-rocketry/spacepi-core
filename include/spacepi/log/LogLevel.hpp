@@ -9,7 +9,7 @@ namespace spacepi {
         /**
          * \brief A level of severity for a given logging entry
          */
-        class LogLevel {
+        class LogLevel final {
             public:
                 /**
                  * \brief Register a new LogLevel

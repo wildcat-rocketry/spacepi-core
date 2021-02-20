@@ -13,7 +13,7 @@ namespace spacepi {
             /**
              * \brief Singleton class which manages a helper thread to perform networking operations
              */
-            class NetworkThread : private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
+            class NetworkThread final : private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
                 public:
                     /**
                      * \brief Global instance of the NetworkThread singleton

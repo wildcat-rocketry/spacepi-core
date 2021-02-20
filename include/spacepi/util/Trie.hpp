@@ -53,6 +53,11 @@ namespace spacepi {
                         }
 
                         /**
+                         * \brief Destroy the ConstFindResult
+                         */
+                        virtual ~ConstFindResult() = default;
+
+                        /**
                          * \brief Get the value from the data node this result points to
                          * 
                          * Do not call this method if hasData() returns \c false
@@ -109,7 +114,7 @@ namespace spacepi {
                  * This may either point to a data node (if the key matches exactly), a child node (if the key matches a
                  * prefix), or nothing if the key was not found.
                  */
-                class FindResult : public ConstFindResult {
+                class FindResult final : public ConstFindResult {
                     public:
                         /**
                          * \brief Initialize an empty ConstFindResult
@@ -184,6 +189,11 @@ namespace spacepi {
                  * \param[in,out] move The Trie to move from
                  */
                 Trie(Trie<Type, KeyElement, Min, Max> &&move) = default;
+
+                /**
+                 * \brief Destroy a Trie
+                 */
+                virtual ~Trie() = default;
 
                 /**
                  * \brief Copy-assign a Trie

@@ -17,7 +17,7 @@ namespace spacepi {
          * \tparam Type The type of resource
          */
         template <typename Type>
-        class ResourcePtr {
+        class ResourcePtr final {
             public:
                 /**
                  * \brief Copy-assign a ResourcePtr from a \c std::shared_ptr

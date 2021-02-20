@@ -26,6 +26,11 @@ namespace spacepi {
                 UART(const UART &copy);
 
                 /**
+                 * \brief Destroys this UART resource
+                 */
+                virtual ~UART() = default;
+
+                /**
                  * \brief Copy-assign the UART
                  * 
                  * \param[in] copy The original object
