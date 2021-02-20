@@ -1,6 +1,7 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_INSTALLATIONDATA_HPP
 #define SPACEPI_TARGETLIB_LINUX_INSTALLATIONDATA_HPP
 
+#include <exception>
 #include <memory>
 #include <SpacePi.hpp>
 #include <utility>
@@ -11,8 +12,11 @@ namespace spacepi {
         namespace detail {
             class GenericInstallationDataAccessor {
                 public:
+                    virtual ~GenericInstallationDataAccessor() = default;
+
                     virtual void *getData() noexcept = 0;
                     virtual const void *getData() const noexcept = 0;
+                    virtual void deleteData() = 0;
 
                 protected:
                     static int getNextID();
@@ -22,15 +26,31 @@ namespace spacepi {
             class InstallationDataAccessor : public GenericInstallationDataAccessor {
                 public:
                     template <typename... Args>
-                    InstallationDataAccessor(Args... args) : obj(std::forward<Args>(args)...) {
+                    InstallationDataAccessor(Args... args) : obj(new Type(std::forward<Args>(args)...)) {
+                    }
+
+                    ~InstallationDataAccessor() {
+                        deleteData();
                     }
 
                     void *getData() noexcept {
-                        return &obj;
+                        return obj;
                     }
 
                     const void *getData() const noexcept {
-                        return &obj;
+                        return obj;
+                    }
+
+                    void deleteData() {
+                        if (obj) {
+                            try {
+                                delete obj;
+                            } catch (const std::exception &) {
+                                obj = nullptr;
+                                throw;
+                            }
+                            obj = nullptr;
+                        }
                     }
 
                     static int getID() noexcept {
@@ -39,7 +59,7 @@ namespace spacepi {
 
                 private:
                     static int id;
-                    Type obj;
+                    Type *obj;
             };
 
             template <typename Type>
@@ -48,6 +68,12 @@ namespace spacepi {
 
         class InstallationData {
             public:
+                InstallationData() noexcept = default;
+                ~InstallationData() noexcept(false);
+
+                InstallationData(const InstallationData &) = default;
+                InstallationData &operator =(const InstallationData &) = default;
+
                 template <typename Type, typename... Args>
                 void initData(Args... args) {
                     int id = detail::InstallationDataAccessor<Type>::getID();
@@ -80,6 +106,9 @@ namespace spacepi {
                     int id = detail::InstallationDataAccessor<Type>::getID();
                     if (id >= data.size()) {
                         data.resize(id + 1);
+                    }
+                    if (data[id] && data[id].unique()) {
+                        data[id]->deleteData();
                     }
                     data[id].reset();
                 }

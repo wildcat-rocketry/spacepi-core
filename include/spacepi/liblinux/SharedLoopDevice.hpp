@@ -12,6 +12,10 @@ namespace spacepi {
                 SharedLoopDevice() = default;
                 SharedLoopDevice(const std::string &imageFile);
                 SharedLoopDevice(UniqueLoopDevice &&loop);
+                ~SharedLoopDevice() noexcept(false);
+
+                SharedLoopDevice(const SharedLoopDevice &) noexcept = default;
+                SharedLoopDevice &operator =(const SharedLoopDevice &) noexcept = default;
 
                 operator bool() const noexcept;
 

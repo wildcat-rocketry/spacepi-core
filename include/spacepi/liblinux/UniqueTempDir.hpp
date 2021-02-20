@@ -9,7 +9,7 @@ namespace spacepi {
         class UniqueTempDir : private SystemCaller {
             public:
                 UniqueTempDir(const std::string &name);
-                ~UniqueTempDir();
+                ~UniqueTempDir() noexcept(false);
 
                 UniqueTempDir(UniqueTempDir &) = delete;
                 UniqueTempDir &operator =(UniqueTempDir &) = delete;
@@ -23,6 +23,7 @@ namespace spacepi {
                 void mkdir();
 
                 void rmdir();
+                void forceRmdir();
 
             private:
                 std::string name;

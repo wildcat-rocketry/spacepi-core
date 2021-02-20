@@ -14,6 +14,12 @@ SharedMount::SharedMount(UniqueMount &&mount){
     unique.reset(new UniqueMount(std::move(mount)));
 }
 
+SharedMount::~SharedMount() noexcept(false) {
+    if (unique && unique.unique()) {
+        unique->forceUnmount();
+    }
+}
+
 bool SharedMount::isMounted() const noexcept{
     bool mounted = unique->isMounted();
     return mounted;
@@ -25,6 +31,10 @@ void SharedMount::mount(){
 
 void SharedMount::unmount(){
     unique->unmount();
+}
+
+void SharedMount::forceUnmount() {
+    unique->forceUnmount();
 }
 
 void SharedMount::remount(const std::string &options) {

@@ -13,6 +13,12 @@ SharedLoopDevice::SharedLoopDevice(UniqueLoopDevice &&loop){
     unique.reset(new UniqueLoopDevice(std::move(loop)));
 }
 
+SharedLoopDevice::~SharedLoopDevice() noexcept(false) {
+    if (unique && unique.unique()) {
+        unique->forceUnmount();
+    }
+}
+
 SharedLoopDevice::operator bool() const noexcept {
     return (bool) unique;
 }
