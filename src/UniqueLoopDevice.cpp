@@ -1,3 +1,4 @@
+#include <exception>
 #include <string>
 #include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/UniqueLoopDevice.hpp>
@@ -13,7 +14,7 @@ UniqueLoopDevice::UniqueLoopDevice(const std::string &imageFile){
     mounted = true;
 }
 
-UniqueLoopDevice::~UniqueLoopDevice(){
+UniqueLoopDevice::~UniqueLoopDevice() noexcept(false) {
     unmount();
 }
 
@@ -70,5 +71,14 @@ void UniqueLoopDevice::unmount(){
             throw EXCEPTION(ResourceException("Error unmounting loop device."));
         }
         mounted = false;
+    }
+}
+
+void UniqueLoopDevice::forceUnmount() {
+    try {
+        unmount();
+    } catch (const std::exception &) {
+        mounted = false;
+        throw;
     }
 }

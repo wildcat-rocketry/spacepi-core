@@ -1,5 +1,6 @@
 #include <cerrno>
 #include <cstring>
+#include <exception>
 #include <memory>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/UniqueMount.hpp>
@@ -18,7 +19,7 @@ UniqueMount::UniqueMount(const std::string &blockDevice, const std::string &moun
     mount();
 }
 
-UniqueMount::~UniqueMount(){
+UniqueMount::~UniqueMount() noexcept(false) {
     unmount();
 }
 
@@ -65,6 +66,16 @@ void UniqueMount::unmount(){
     if(mounted){
         handle(umount(mountPoint.c_str()))
             << "Failed to unmount '" << mountPoint << "': " << SyscallErrorString;
+        mounted = false;
+    }
+}
+
+void UniqueMount::forceUnmount() {
+    try {
+        unmount();
+    } catch (const std::exception &) {
+        mounted = false;
+        throw;
     }
 }
 

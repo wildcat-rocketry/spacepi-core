@@ -11,6 +11,10 @@ namespace spacepi {
             public:
                 SharedTempDir(const std::string &name);
                 SharedTempDir(UniqueTempDir &&dir);
+                ~SharedTempDir() noexcept(false);
+
+                SharedTempDir(const SharedTempDir &) noexcept = default;
+                SharedTempDir &operator =(const SharedTempDir &) noexcept = default;
 
                 const std::string &getPath() const noexcept;
 

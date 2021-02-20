@@ -9,7 +9,7 @@ namespace spacepi {
         class UniqueMount : private SystemCaller {
             public:
                 UniqueMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type);
-                ~UniqueMount();
+                ~UniqueMount() noexcept(false);
 
                 UniqueMount(UniqueMount &) = delete;
                 UniqueMount &operator =(UniqueMount &) = delete;
@@ -20,6 +20,7 @@ namespace spacepi {
                 bool isMounted() const noexcept;
                 void mount();
                 void unmount();
+                void forceUnmount();
                 void remount(const std::string &options);
 
             private:

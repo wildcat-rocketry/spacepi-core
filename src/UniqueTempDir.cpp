@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <ctime>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <spacepi/liblinux/SystemCaller.hpp>
@@ -18,7 +19,7 @@ UniqueTempDir::UniqueTempDir(const std::string &name){
     mkdir();
 }
 
-UniqueTempDir::~UniqueTempDir(){
+UniqueTempDir::~UniqueTempDir() noexcept(false) {
     rmdir();
 }
 
@@ -64,6 +65,15 @@ void UniqueTempDir::rmdir(){
     if (exists) {
         remove_all(path);
         exists = false;
+    }
+}
+
+void UniqueTempDir::forceRmdir() {
+    try {
+        rmdir();
+    } catch (const std::exception &) {
+        exists = false;
+        throw;
     }
 }
 

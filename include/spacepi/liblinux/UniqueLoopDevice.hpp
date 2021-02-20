@@ -8,7 +8,7 @@ namespace spacepi {
         class UniqueLoopDevice {
             public:
                 UniqueLoopDevice(const std::string &imageFile);
-                ~UniqueLoopDevice();
+                ~UniqueLoopDevice() noexcept(false);
 
                 UniqueLoopDevice(UniqueLoopDevice &) = delete;
                 UniqueLoopDevice &operator =(UniqueLoopDevice &) = delete;
@@ -21,6 +21,7 @@ namespace spacepi {
                 bool isMounted() const noexcept;
                 void mount();
                 void unmount();
+                void forceUnmount();
 
             private:
                 std::string imageFile;
