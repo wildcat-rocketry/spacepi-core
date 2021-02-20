@@ -11,12 +11,12 @@ namespace spacepi {
         /**
          * \brief Data class to represent a list of repeatable, ordered, string-keyed, string-valued options
          */
-        class Options {
+        class Options final {
             public:
                 /**
                  * \brief Node which represents a single option
                  */
-                class Node {
+                class Node final {
                     friend class Options;
 
                     public:
@@ -73,6 +73,11 @@ namespace spacepi {
                         ConstIterator(const std::shared_ptr<Node> &node) noexcept;
 
                         /**
+                         * \brief Destroy this ConstIterator
+                         */
+                        virtual ~ConstIterator() = default;
+
+                        /**
                          * \brief Advance the iterator
                          * 
                          * \return \c this
@@ -122,7 +127,7 @@ namespace spacepi {
                 /**
                  * \brief An iterator to iterate over the list of options
                  */
-                class Iterator : public ConstIterator {
+                class Iterator final : public ConstIterator {
                     public:
                         /**
                          * \copydoc ConstIterator::ConstIterator()

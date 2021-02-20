@@ -30,7 +30,7 @@ namespace spacepi {
         namespace detail {
             class ImmovableConnection;
 
-            class SubscriptionData {
+            class SubscriptionData final {
                 public:
                     SubscriptionData() noexcept;
 
@@ -48,7 +48,7 @@ namespace spacepi {
                     spacepi::concurrent::ConditionVariable cond;
             };
 
-            class ReconnectTimerCallback {
+            class ReconnectTimerCallback final {
                 friend class ImmovableConnection;
 
                 public:
@@ -60,7 +60,7 @@ namespace spacepi {
                     const std::shared_ptr<ImmovableConnection> conn;
             };
 
-            class ConnectionEndpoint {
+            class ConnectionEndpoint final {
                 public:
                     enum Type {
                         Invalid,
@@ -87,7 +87,7 @@ namespace spacepi {
                     boost::asio::local::stream_protocol::endpoint unixEndpoint;
             };
 
-            class ImmovableConnection : public std::enable_shared_from_this<ImmovableConnection>, public spacepi::util::CommandConfigurable, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
+            class ImmovableConnection final : public std::enable_shared_from_this<ImmovableConnection>, public spacepi::util::CommandConfigurable, public spacepi::messaging::network::MessagingCallback, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
                 friend class messaging::Connection;
                 friend class messaging::Publisher;
                 friend class ReconnectTimerCallback;
@@ -136,7 +136,7 @@ namespace spacepi {
         /**
          * \brief Temporary helper class to assist syntax for publishing messages
          */
-        class Publisher {
+        class Publisher final {
             friend class detail::ImmovableConnection;
 
             public:
@@ -169,7 +169,7 @@ namespace spacepi {
         /**
          * \brief The main class which is used to handle a connection to the router, and therefore other modules
          */
-        class Connection {
+        class Connection final {
             template <typename MessageType, typename std::enable_if<std::is_base_of<google::protobuf::Message, MessageType>::value>::type *>
             friend class Subscription;
 

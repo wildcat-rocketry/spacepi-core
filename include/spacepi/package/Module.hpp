@@ -9,7 +9,7 @@ namespace spacepi {
         /**
          * \brief Data class to represent a module configuration
          */
-        class Module {
+        class Module final {
             public:
                 /**
                  * \brief Gets the name of the module instance

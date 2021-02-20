@@ -76,6 +76,11 @@ namespace spacepi {
                 };
 
                 /**
+                 * \brief Destroy this DigitalIO resource
+                 */
+                virtual ~DigitalIO() = default;
+
+                /**
                  * \brief Get a pointer to the DigitalIO object by its resource name
                  * 
                  * \param[in] name The resource name for which to get the DigitalIO object

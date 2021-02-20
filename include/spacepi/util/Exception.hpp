@@ -37,6 +37,11 @@ namespace spacepi {
                 explicit Exception(const std::string &message) noexcept;
 
                 /**
+                 * \brief Destroys this Exception
+                 */
+                virtual ~Exception() = default;
+
+                /**
                  * \brief Get a description of the Exception
                  * 
                  * \return The description

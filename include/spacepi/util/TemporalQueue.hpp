@@ -50,7 +50,7 @@ namespace spacepi {
                 /**
                  * \brief Deconstruct all objects contained within the queue
                  */
-                ~TemporalQueue() noexcept {
+                virtual ~TemporalQueue() noexcept {
                     while (!empty()) {
                         pop();
                     }

@@ -18,7 +18,7 @@ namespace spacepi {
         /**
          * \brief The top-level class of the logging package
          */
-        class LogManager {
+        class LogManager final {
             public:
                 /**
                  * \brief The default, global LogManager instance

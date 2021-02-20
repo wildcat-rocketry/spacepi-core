@@ -10,7 +10,7 @@ namespace spacepi {
         /**
          * \brief Data class for storing information about memory usage
          */
-        class MemoryInfo {
+        class MemoryInfo final {
             public:
                 /**
                  * \brief Create a new MemoryInfo
@@ -49,7 +49,7 @@ namespace spacepi {
         /**
          * \brief Data class for storing information about all random-access memories on a system
          */
-        class RAMInfo {
+        class RAMInfo final {
             public:
                 /**
                  * \brief Create a new RAMInfo
@@ -84,6 +84,11 @@ namespace spacepi {
          */
         class Memory {
             public:
+                /**
+                 * \brief Destroys this Memory resource
+                 */
+                virtual ~Memory() = default;
+
                 /**
                  * \brief Get a pointer to a Memory object by its resource name
                  * 

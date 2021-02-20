@@ -25,7 +25,7 @@ namespace spacepi {
                 /**
                  * \brief Helper class that allows locking the RWMutex for reads using \c std::unique_lock
                  */
-                class ReadSide {
+                class ReadSide final {
                     friend class RWMutex;
 
                     public:
@@ -56,7 +56,7 @@ namespace spacepi {
                 /**
                  * \brief Helper class that allows locking the RWMutex for writes using \c std::unique_lock
                  */
-                class WriteSide {
+                class WriteSide final {
                     friend class RWMutex;
 
                     public:

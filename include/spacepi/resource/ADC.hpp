@@ -12,6 +12,11 @@ namespace spacepi {
         class ADC {
             public:
                 /**
+                 * \brief Destroy this ADC resource
+                 */
+                virtual ~ADC() = default;
+
+                /**
                  * \brief Get a pointer to an ADC object by its resource name
                  * 
                  * \param[in] name The resource name for which to get the ADC object

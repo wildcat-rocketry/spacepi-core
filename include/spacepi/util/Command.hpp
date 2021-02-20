@@ -15,7 +15,7 @@ namespace spacepi {
         class Command;
 
         namespace detail {
-            class CommandHelpWrapper : private CommandConfigurable {
+            class CommandHelpWrapper final : private CommandConfigurable {
                 friend class spacepi::util::Command;
 
                 public:
@@ -31,7 +31,7 @@ namespace spacepi {
         /**
          * \brief Representation of command-line arguments which can be used to configure a set of CommandConfigurable's
          */
-        class Command : private spacepi::log::AutoLog<decltype("core"_autolog)> {
+        class Command final : private spacepi::log::AutoLog<decltype("core"_autolog)> {
             friend class CommandConfigurable;
 
             public:

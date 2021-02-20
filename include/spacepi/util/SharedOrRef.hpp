@@ -106,6 +106,11 @@ namespace spacepi {
                 SharedOrRef &operator =(SharedOrRef &&move) = default;
 
                 /**
+                 * \brief Destroy this SharedOrRef
+                 */
+                virtual ~SharedOrRef() = default;
+
+                /**
                  * \brief Determines if this pointer points to a valid object
                  * 
                  * \return If it does

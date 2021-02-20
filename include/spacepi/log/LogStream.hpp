@@ -15,7 +15,7 @@ namespace spacepi {
          * 
          * It is preferred to use the Logger class instead of this class directly.
          */
-        class LogStream : public std::ostream {
+        class LogStream final : public std::ostream {
             public:
                 /**
                  * \brief Create a new LogStream

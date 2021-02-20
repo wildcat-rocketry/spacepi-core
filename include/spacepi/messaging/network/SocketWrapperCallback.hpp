@@ -19,6 +19,12 @@ namespace spacepi {
                 friend class detail::GenericSocketReader;
                 friend class detail::GenericSocketWriter;
 
+                public:
+                    /**
+                     * \brief Destroy this SocketWrapperCallback
+                     */
+                    virtual ~SocketWrapperCallback() = default;
+
                 protected:
                     /**
                      * \brief Called after a message from the other end of the socket is received

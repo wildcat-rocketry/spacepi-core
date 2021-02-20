@@ -69,6 +69,11 @@ namespace spacepi {
                 };
 
                 /**
+                 * \brief Destroys this SPI resource
+                 */
+                virtual ~SPI() = default;
+
+                /**
                  * \brief Get a pointer to a SPI object by its resource name
                  * 
                  * \param[in] name The resource name for which to get the SPI object

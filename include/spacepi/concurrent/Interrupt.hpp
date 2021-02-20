@@ -11,7 +11,7 @@
 namespace spacepi {
     namespace concurrent {
         namespace detail {
-            class ThreadID {
+            class ThreadID final {
                 public:
                     ThreadID() noexcept;
 
@@ -40,7 +40,7 @@ namespace spacepi {
          * A cancellation exception will only be thrown once per thread, so once it is caught, it must be handled and
          * stop any long-running loops on that thread.
          */
-        class Interrupt {
+        class Interrupt final {
             public:
                 /**
                  * \brief Call this function at various points in the code to allow the cancellation exception to be

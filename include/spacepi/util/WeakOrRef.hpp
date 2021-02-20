@@ -120,6 +120,11 @@ namespace spacepi {
                 WeakOrRef &operator =(WeakOrRef &&move) = default;
 
                 /**
+                 * \brief Destroy a WeakOrRef
+                 */
+                virtual ~WeakOrRef() = default;
+
+                /**
                  * \brief Get a SharedOrRef for this WeakOrRef
                  * 
                  * If this is a reference, it returns a SharedOrRef which contains the same reference.

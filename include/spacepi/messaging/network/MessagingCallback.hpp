@@ -23,6 +23,12 @@ namespace spacepi {
                 friend class detail::MessagingSocketAcceptor;
                 friend class detail::MessagingSocketConnector;
 
+                public:
+                    /**
+                     * \brief Destroy this MessagingCallback
+                     */
+                    virtual ~MessagingCallback() = default;
+
                 protected:
                     /**
                      * \brief Called after a message from the other end of the socket is received

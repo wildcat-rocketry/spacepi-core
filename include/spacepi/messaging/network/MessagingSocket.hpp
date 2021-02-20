@@ -18,7 +18,7 @@ namespace spacepi {
             class MessagingSocket;
 
             namespace detail {
-                class MessagingSocketAcceptor {
+                class MessagingSocketAcceptor final {
                     friend class network::MessagingSocket;
 
                     public:
@@ -30,7 +30,7 @@ namespace spacepi {
                         spacepi::util::SharedOrRef<MessagingSocket> socket;
                 };
 
-                class MessagingSocketConnector {
+                class MessagingSocketConnector final {
                     friend class network::MessagingSocket;
 
                     public:
@@ -57,6 +57,11 @@ namespace spacepi {
                      * \param[in,out] callback The callback to call when events occur
                      */
                     explicit MessagingSocket(MessagingCallback &callback) noexcept;
+
+                    /**
+                     * \brief Destroys the MessagingSocket
+                     */
+                    virtual ~MessagingSocket() = default;
 
                     MessagingSocket(MessagingSocket &) = delete;
                     MessagingSocket &operator =(MessagingSocket &) = delete;

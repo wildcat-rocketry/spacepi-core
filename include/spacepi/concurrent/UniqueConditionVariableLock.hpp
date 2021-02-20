@@ -57,6 +57,11 @@ namespace spacepi {
                     try_lock_until(absTime);
                 }
 
+                /**
+                 * \brief Same as \c std::unique_lock<Mutex>::~unique_lock()
+                 */
+                virtual ~UniqueConditionVariableLock() = default;
+
                 UniqueConditionVariableLock(UniqueConditionVariableLock &) = delete;
                 UniqueConditionVariableLock &operator =(UniqueConditionVariableLock &) = delete;
 

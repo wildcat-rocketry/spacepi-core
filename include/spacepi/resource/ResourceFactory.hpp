@@ -34,6 +34,11 @@ namespace spacepi {
                 ResourceFactory<Type> &operator =(ResourceFactory<Type> &) = delete;
 
                 /**
+                 * \brief Destroy a ResourceFactory
+                 */
+                virtual ~ResourceFactory() = default;
+
+                /**
                  * \brief Get a pointer to a hardware resource object by its resource name
                  * 
                  * \param[in] name The resource name for which to get the hardware resource object

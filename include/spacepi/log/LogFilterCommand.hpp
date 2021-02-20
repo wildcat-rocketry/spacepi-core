@@ -15,7 +15,7 @@ namespace spacepi {
         /**
          * \brief A command which is used to configure the logging system based on command-line arguments
          */
-        class LogFilterCommand : private spacepi::util::CommandConfigurable {
+        class LogFilterCommand final : private spacepi::util::CommandConfigurable {
             public:
                 /**
                  * \brief Initializes a new LogFilterCommand
