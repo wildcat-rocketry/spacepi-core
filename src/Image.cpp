@@ -47,7 +47,7 @@ void Image::formatPartitions(const PartitionTable &tab) {
     ofs << '\0';
     ofs.close();
 
-    UniqueProcess sfdisk(true,false,false,SFDISK_EXECUTABLE,getFilename());
+    UniqueProcess sfdisk(true,false,false,SFDISK_EXECUTABLE,{ getFilename() });
     tab.printSfdisk(sfdisk.input());
     sfdisk.closeInput();
     sfdisk.wait();

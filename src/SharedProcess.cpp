@@ -1,10 +1,19 @@
+#include <initializer_list>
 #include <istream>
 #include <memory>
 #include <ostream>
+#include <string>
+#include <vector>
 #include <spacepi/liblinux/SharedProcess.hpp>
 
 using namespace std;
 using namespace spacepi::liblinux;
+
+SharedProcess::SharedProcess(bool useInput, bool useOutput, bool useError, const string &exe, const initializer_list<string> &args) : unique(new UniqueProcess(useInput, useOutput, useError, exe, args)) {
+}
+
+SharedProcess::SharedProcess(bool useInput, bool useOutput, bool useError, const string &exe, const vector<string> &args) : unique(new UniqueProcess(useInput, useOutput, useError, exe, args)) {
+}
 
 ostream &SharedProcess::input() noexcept {
     return unique->input();

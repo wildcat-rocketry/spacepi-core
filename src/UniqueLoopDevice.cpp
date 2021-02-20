@@ -43,7 +43,7 @@ bool UniqueLoopDevice::isMounted() const noexcept{
 }
 
 void UniqueLoopDevice::mount(){
-    UniqueProcess process(false,true,false,KPARTX_EXECUTABLE,"-asv",imageFile);
+    UniqueProcess process(false,true,false,KPARTX_EXECUTABLE,{ "-asv",imageFile });
     while (!process.output().eof()) {
         std::string word;
         process.output() >> word;
@@ -61,7 +61,7 @@ void UniqueLoopDevice::mount(){
 }
 
 void UniqueLoopDevice::unmount(){
-    UniqueProcess process(false,false,false,KPARTX_EXECUTABLE,"-d",imageFile);
+    UniqueProcess process(false,false,false,KPARTX_EXECUTABLE,{ "-d",imageFile });
     process.wait();
     if (process.getExitCode() != 0) {
         throw EXCEPTION(ResourceException("Error unmounting loop device."));

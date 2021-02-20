@@ -1,10 +1,12 @@
 #include <cstddef>
 #include <cstring>
+#include <initializer_list>
 #include <istream>
 #include <memory>
 #include <ostream>
 #include <string>
 #include <utility>
+#include <vector>
 #include <boost/asio.hpp>
 #include <boost/process.hpp>
 #include <boost/system/error_code.hpp>
@@ -131,6 +133,22 @@ int OutputStream::uflow() {
     return EOF;
 }
 
+UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const string &exe, const initializer_list<string> &args) : UniqueProcess(useInput, useOutput, useError, exe, vector<string>(args)) {
+}
+
+UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const string &exe, const vector<string> &args) :
+    log(getLogName(exe)),
+    stdoutBuf(new OutputStream(useOutput, log, LogLevel::Info)), stderrBuf(new OutputStream(useError, log, LogLevel::Warning)),
+    stdoutStream(stdoutBuf.get()), stderrStream(stderrBuf.get()),
+    proc(exe, argv = args, std_in < stdinStream, std_out > stdoutBuf->getPipe(), std_err > stderrBuf->getPipe()) {
+    if (!useInput) {
+        closeInput();
+    }
+    stdoutBuf->start();
+    stderrBuf->start();
+    NetworkThread::instance.start();
+}
+
 ostream &UniqueProcess::input() noexcept {
     return stdinStream;
 }
@@ -169,13 +187,4 @@ string UniqueProcess::getLogName(const string &exe) noexcept {
     } else {
         return "spacepi:liblinux:proc:" + exe.substr(slash + 1);
     }
-}
-
-void UniqueProcess::init(bool useInput) {
-    if (!useInput) {
-        closeInput();
-    }
-    stdoutBuf->start();
-    stderrBuf->start();
-    NetworkThread::instance.start();
 }
