@@ -3,6 +3,7 @@
 
 #include <ostream>
 #include <string>
+#include <vector>
 
 namespace spacepi {
     namespace liblinux {
@@ -35,8 +36,8 @@ namespace spacepi {
                 const std::string &getFSType() const noexcept;
                 Partition &setFSType(const std::string &fsType) noexcept;
 
-                const std::string &getFormatOptions() const noexcept;
-                Partition &setFormatOptions(const std::string &formatOptions) noexcept;
+                const std::vector<std::string> &getFormatOptions() const noexcept;
+                Partition &setFormatOptions(const std::vector<std::string> &formatOptions) noexcept;
 
                 const std::string &getOptions() const noexcept;
                 Partition &setOptions(const std::string &options) noexcept;
@@ -60,7 +61,7 @@ namespace spacepi {
                 std::string type;
                 std::string mountPoint;
                 std::string fsType;
-                std::string formatOptions;
+                std::vector<std::string> formatOptions;
                 std::string options;
                 int dump;
                 int pass;

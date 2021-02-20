@@ -2,6 +2,7 @@
 #include <spacepi/liblinux/Partition.hpp>
 #include <iomanip>
 #include <ios>
+#include <vector>
 
 using namespace spacepi::liblinux;
 
@@ -86,11 +87,11 @@ Partition &Partition::setFSType(const std::string &fsType) noexcept{
     return *this;
 }
 
-const std::string &Partition::getFormatOptions() const noexcept{
+const std::vector<std::string> &Partition::getFormatOptions() const noexcept{
     return formatOptions;
 }
 
-Partition &Partition::setFormatOptions(const std::string &formatOptions) noexcept{
+Partition &Partition::setFormatOptions(const std::vector<std::string> &formatOptions) noexcept{
     this->formatOptions = formatOptions;
     return *this;
 }
