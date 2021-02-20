@@ -61,7 +61,17 @@ void Image::formatPartitions(const PartitionTable &tab) {
     }
     loopDevice = SharedLoopDevice(getFilename());
     for(int i = 0; i < tab.getPartitions().size(); i++){
-        UniqueProcess process(false,false,false,MKFS_EXECUTABLE,{"-t",tab.getPartitions()[i].getFSType(),loopDevice.getBlockDevice(i)});
+        const Partition &part = tab.getPartitions()[i];
+        vector<string> args;
+        const vector<string> &formatOpts = part.getFormatOptions();
+        args.reserve(3 + formatOpts.size());
+        args.push_back("-t");
+        args.push_back(part.getFSType());
+        for (vector<string>::const_iterator it = formatOpts.begin(); it != formatOpts.end(); ++it) {
+            args.push_back(*it);
+        }
+        args.push_back(loopDevice.getBlockDevice(i));
+        UniqueProcess process(false,false,false,MKFS_EXECUTABLE,args);
         process.wait();
         if(process.getExitCode() != 0){
             throw EXCEPTION(ResourceException("Error formatting."));
