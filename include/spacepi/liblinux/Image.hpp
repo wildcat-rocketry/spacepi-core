@@ -6,6 +6,7 @@
 #include <spacepi/liblinux/SharedMount.hpp>
 #include <spacepi/liblinux/SharedLoopDevice.hpp>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace spacepi {
@@ -24,6 +25,8 @@ namespace spacepi {
                 std::vector<SharedMount> mountPartitions(const PartitionTable &tab, const std::string &rootDir);
 
             private:
+                static bool sortMountOrder(const std::pair<Partition, int> &a, const std::pair<Partition, int> &b) noexcept;
+
                 std::string filename;
                 SharedLoopDevice loopDevice;
         };

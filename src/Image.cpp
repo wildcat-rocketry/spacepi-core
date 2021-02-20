@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/Config.hpp>
@@ -10,6 +11,7 @@
 #include <spacepi/liblinux/UniqueLoopDevice.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace spacepi::liblinux;
@@ -82,12 +84,21 @@ SharedMount Image::mountPartition(int partNo, const Partition &part, const std::
 
 vector<SharedMount> Image::mountPartitions(const PartitionTable &tab, const std::string &rootDir) {
     vector<SharedMount> mounts;
-    const vector<Partition> &parts = tab.getPartitions();
-    mounts.reserve(parts.size());
+    const vector<Partition> &rawParts = tab.getPartitions();
+    vector<pair<Partition, int>> parts;
+    parts.reserve(rawParts.size());
     int i = 0;
-    for (vector<Partition>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
-        mounts.push_back(mountPartition(i, *it, rootDir));
-        ++i;
+    for (vector<Partition>::const_iterator it = rawParts.begin(); it != rawParts.end(); ++it) {
+        parts.emplace_back(*it, i++);
+    }
+    sort(parts.begin(), parts.end(), sortMountOrder);
+    mounts.reserve(parts.size());
+    for (vector<pair<Partition, int>>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        mounts.push_back(mountPartition(it->second, it->first, rootDir));
     }
     return mounts;
+}
+
+bool Image::sortMountOrder(const pair<Partition, int> &a, const pair<Partition, int> &b) noexcept {
+    return a.first.getMountPoint().size() < b.first.getMountPoint().size();
 }
