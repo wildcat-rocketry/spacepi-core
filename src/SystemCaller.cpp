@@ -9,7 +9,7 @@ using namespace spacepi::util;
 using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::detail;
 
-SyscallErrorStreamImpl::~SyscallErrorStreamImpl() {
+void SyscallErrorStreamImpl::doThrow() {
     std::string val = str();
     if (val.empty()) {
         val = "Unhandled error running syscall.";
@@ -20,6 +20,12 @@ SyscallErrorStreamImpl::~SyscallErrorStreamImpl() {
 SyscallErrorStream::SyscallErrorStream(bool error) noexcept : err(errno) {
     if (error) {
         stream.reset(new SyscallErrorStreamImpl());
+    }
+}
+
+SyscallErrorStream::~SyscallErrorStream() noexcept(false) {
+    if (stream.unique()) {
+        stream->doThrow();
     }
 }
 
