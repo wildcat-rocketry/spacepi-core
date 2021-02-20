@@ -68,7 +68,7 @@ void Image::formatPartitions(const PartitionTable &tab) {
 }
 
 SharedMount Image::mountPartitionAt(int partNo, const string &fsType, const string &options, const string &mountDir) {
-    if(loopDevice){
+    if(!loopDevice){
         loopDevice = SharedLoopDevice(getFilename());
     }
     return SharedMount(loopDevice.getBlockDevice(partNo),mountDir,options,fsType);
