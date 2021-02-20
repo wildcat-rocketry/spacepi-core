@@ -4,6 +4,7 @@
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
+#include <spacepi/liblinux/SharedLoopDevice.hpp>
 #include <string>
 #include <vector>
 
@@ -24,6 +25,7 @@ namespace spacepi {
 
             private:
                 std::string filename;
+                SharedLoopDevice loopDevice;
         };
     }
 }
