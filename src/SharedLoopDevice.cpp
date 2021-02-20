@@ -13,6 +13,10 @@ SharedLoopDevice::SharedLoopDevice(UniqueLoopDevice &&loop){
     unique.reset(new UniqueLoopDevice(std::move(loop)));
 }
 
+SharedLoopDevice::operator bool() const noexcept {
+    return (bool) unique;
+}
+
 std::string SharedLoopDevice::getBlockDevice(int partNo) const{
     return unique->getBlockDevice(partNo);
 }

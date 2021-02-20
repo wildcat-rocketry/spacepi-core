@@ -5,6 +5,7 @@
 #include <spacepi/liblinux/Image.hpp>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
+#include <spacepi/liblinux/SharedLoopDevice.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
 #include <spacepi/liblinux/UniqueLoopDevice.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
@@ -54,14 +55,21 @@ void Image::formatPartitions(const PartitionTable &tab) {
     if(sfdisk.getExitCode() != 0){
         throw EXCEPTION(ResourceException("Error writing image."));
     }
-    UniqueLoopDevice loopDevice(getFilename());
+    loopDevice = SharedLoopDevice(getFilename());
     for(int i = 0; i < tab.getPartitions().size(); i++){
-        
+        UniqueProcess process(false,false,false,MKFS_EXECUTABLE,{"-t",tab.getPartitions()[i].getFSType(),loopDevice.getBlockDevice(i)});
+        process.wait();
+        if(process.getExitCode() != 0){
+            throw EXCEPTION(ResourceException("Error formatting."));
+        }
     }
 }
 
 SharedMount Image::mountPartitionAt(int partNo, const string &fsType, const string &options, const string &mountDir) {
-    throw EXCEPTION(StateException("Not implemented."));
+    if(loopDevice){
+        loopDevice = SharedLoopDevice(getFilename());
+    }
+    return SharedMount(loopDevice.getBlockDevice(partNo),mountDir,options,fsType);
 }
 
 SharedMount Image::mountPartitionAt(int partNo, const Partition &part, const std::string &mountDir) {

@@ -9,8 +9,11 @@ namespace spacepi {
     namespace liblinux {
         class SharedLoopDevice {
             public:
+                SharedLoopDevice() = default;
                 SharedLoopDevice(const std::string &imageFile);
                 SharedLoopDevice(UniqueLoopDevice &&loop);
+
+                operator bool() const noexcept;
 
                 std::string getBlockDevice(int partNo) const;
 

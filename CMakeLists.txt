@@ -25,6 +25,7 @@ add_library(spacepi-targetlib-linux
     src/main.cpp
     src/Partition.cpp
     src/PartitionTable.cpp
+    src/SharedLoopDevice.cpp
     src/SharedMount.cpp
     src/SharedProcess.cpp
     src/SharedTempDir.cpp
