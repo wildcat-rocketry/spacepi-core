@@ -10,7 +10,7 @@ namespace spacepi {
         namespace detail {
             class SyscallErrorStreamImpl : public std::ostringstream {
                 public:
-                    ~SyscallErrorStreamImpl();
+                    void doThrow();
             };
         }
 
@@ -22,6 +22,7 @@ namespace spacepi {
         class SyscallErrorStream {
             public:
                 SyscallErrorStream(bool error) noexcept;
+                ~SyscallErrorStream() noexcept(false);
 
                 template <typename Type>
                 SyscallErrorStream &operator <<(Type data) noexcept {
