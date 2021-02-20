@@ -5,6 +5,7 @@ include(core/cmake/SpacePi.cmake)
 find_package(Boost
     REQUIRED COMPONENTS
     # asio
+    filesystem
     # process
     system
 )
@@ -46,6 +47,7 @@ add_library(spacepi-targetlib-linux
 )
 
 target_link_libraries(spacepi-targetlib-linux
+    Boost::filesystem
     Boost::system
     spacepi
 )

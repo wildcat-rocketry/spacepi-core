@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/Config.hpp>
@@ -14,6 +15,7 @@
 #include <utility>
 #include <vector>
 
+using namespace boost::filesystem;
 using namespace spacepi::liblinux;
 using namespace spacepi::util;
 using namespace std;
@@ -71,6 +73,7 @@ SharedMount Image::mountPartitionAt(int partNo, const string &fsType, const stri
     if(!loopDevice){
         loopDevice = SharedLoopDevice(getFilename());
     }
+    create_directories(mountDir);
     return SharedMount(loopDevice.getBlockDevice(partNo),mountDir,options,fsType);
 }
 
