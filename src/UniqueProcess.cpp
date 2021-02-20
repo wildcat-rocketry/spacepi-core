@@ -88,8 +88,11 @@ void OutputStream::join() {
 
 streamsize OutputStream::showmanyc() {
     UniqueConditionVariableLock lck(cond);
-    if (fail) {
-        return -1;
+    if (readQueue.empty()) {
+        if (fail) {
+            return -1;
+        }
+        return 0;
     }
     return readQueue.front().size();
 }
@@ -99,7 +102,7 @@ streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
     }
-    if (fail) {
+    if (readQueue.empty()) {
         return 0;
     }
     string &line = readQueue.front();
@@ -119,7 +122,7 @@ int OutputStream::underflow() {
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
     }
-    if (fail) {
+    if (readQueue.empty()) {
         return EOF;
     }
     return readQueue.front().front();
