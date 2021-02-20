@@ -1,9 +1,12 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_SHAREDPROCESS_HPP
 #define SPACEPI_TARGETLIB_LINUX_SHAREDPROCESS_HPP
 
+#include <initializer_list>
 #include <istream>
 #include <memory>
 #include <ostream>
+#include <string>
+#include <vector>
 #include <spacepi/liblinux/UniqueProcess.hpp>
 
 namespace spacepi {
@@ -12,9 +15,8 @@ namespace spacepi {
             public:
                 SharedProcess() = default;
 
-                template <typename... Args>
-                SharedProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const Args &... args) : unique(new UniqueProcess(useInput, useOutput, useError, exe, args...)) {
-                }
+                SharedProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::initializer_list<std::string> &args);
+                SharedProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::vector<std::string> &args);
 
                 std::ostream &input() noexcept;
                 std::istream &output() noexcept;

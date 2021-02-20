@@ -2,6 +2,7 @@
 #define SPACEPI_TARGETLIB_LINUX_UNIQUEPROCESS_HPP
 
 #include <cstddef>
+#include <initializer_list>
 #include <istream>
 #include <memory>
 #include <ostream>
@@ -9,6 +10,7 @@
 #include <streambuf>
 #include <string>
 #include <utility>
+#include <vector>
 #include <boost/asio.hpp>
 #include <boost/process.hpp>
 #include <boost/system/error_code.hpp>
@@ -56,36 +58,12 @@ namespace spacepi {
                     bool fail;
                     spacepi::concurrent::ConditionVariable cond;
             };
-
-            template <typename Type>
-            struct MustBeString {
-            };
-
-            template <>
-            struct MustBeString<std::string> {
-                static inline constexpr const std::string &toString(const std::string &str) {
-                    return str;
-                }
-            };
-
-            template <int Length>
-            struct MustBeString<char [Length]> {
-                static inline std::string toString(const char *str) {
-                    return std::string(str);
-                }
-            };
         }
 
         class UniqueProcess {
             public:
-                template <typename... Args>
-                UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const Args &... args) :
-                    log(getLogName(exe)),
-                    stdoutBuf(new detail::OutputStream(useOutput, log, spacepi::log::LogLevel::Info)), stderrBuf(new detail::OutputStream(useError, log, spacepi::log::LogLevel::Warning)),
-                    stdoutStream(stdoutBuf.get()), stderrStream(stderrBuf.get()),
-                    proc(exe, detail::MustBeString<Args>::toString(args)..., boost::process::std_in < stdinStream, boost::process::std_out > stdoutBuf->getPipe(), boost::process::std_err > stderrBuf->getPipe()) {
-                    init(useInput);
-                }
+                UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::initializer_list<std::string> &args);
+                UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::vector<std::string> &args);
 
                 UniqueProcess(UniqueProcess &) = delete;
                 UniqueProcess &operator =(UniqueProcess &) = delete;
@@ -102,7 +80,6 @@ namespace spacepi {
 
             private:
                 static std::string getLogName(const std::string &exe) noexcept;
-                void init(bool useInput);
 
                 spacepi::log::Logger log;
                 std::shared_ptr<detail::OutputStream> stdoutBuf;
