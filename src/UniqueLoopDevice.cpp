@@ -43,28 +43,32 @@ bool UniqueLoopDevice::isMounted() const noexcept{
 }
 
 void UniqueLoopDevice::mount(){
-    UniqueProcess process(false,true,false,KPARTX_EXECUTABLE,{ "-asv",imageFile });
-    while (!process.output().eof()) {
-        std::string word;
-        process.output() >> word;
-        if (word.size() > 4 && word.substr(0, 4) == "loop") {
-            baseDevice = "/dev/mapper/" + word.substr(0, word.size() - 1);
-            process.wait();
-            if (process.getExitCode() != 0) {
-                throw EXCEPTION(ResourceException("Error mounting loop device."));
+    if (!mounted) {
+        UniqueProcess process(false,true,false,KPARTX_EXECUTABLE,{ "-asv",imageFile });
+        while (!process.output().eof()) {
+            std::string word;
+            process.output() >> word;
+            if (word.size() > 4 && word.substr(0, 4) == "loop") {
+                baseDevice = "/dev/mapper/" + word.substr(0, word.size() - 1);
+                process.wait();
+                if (process.getExitCode() != 0) {
+                    throw EXCEPTION(ResourceException("Error mounting loop device."));
+                }
+                mounted = true;
+                return;
             }
-            mounted = true;
-            return;
         }
+        throw EXCEPTION(ResourceException("Error mounting loop device."));
     }
-    throw EXCEPTION(ResourceException("Error mounting loop device."));
 }
 
 void UniqueLoopDevice::unmount(){
-    UniqueProcess process(false,false,false,KPARTX_EXECUTABLE,{ "-d",imageFile });
-    process.wait();
-    if (process.getExitCode() != 0) {
-        throw EXCEPTION(ResourceException("Error unmounting loop device."));
+    if (mounted) {
+        UniqueProcess process(false,false,false,KPARTX_EXECUTABLE,{ "-d",imageFile });
+        process.wait();
+        if (process.getExitCode() != 0) {
+            throw EXCEPTION(ResourceException("Error unmounting loop device."));
+        }
+        mounted = false;
     }
-    mounted = false;
 }
