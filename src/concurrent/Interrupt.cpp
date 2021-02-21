@@ -3,16 +3,14 @@
 #include <mutex>
 #include <thread>
 #include <boost/fiber/all.hpp>
-#include <spacepi/concurrent/ConditionVariable.hpp>
+#include <spacepi/concurrent/AsyncInterrupt.hpp>
 #include <spacepi/concurrent/Interrupt.hpp>
-#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/util/Exception.hpp>
 
 using namespace std;
 using namespace boost;
 using namespace spacepi::concurrent;
 using namespace spacepi::concurrent::detail;
-using namespace spacepi::messaging::network;
 using namespace spacepi::util;
 
 Interrupt Interrupt::instance;
@@ -35,8 +33,7 @@ void Interrupt::cancel() noexcept {
         return;
     }
     instance.state = Cancelled;
-    ConditionVariable::notify_global();
-    NetworkThread::instance.stop();
+    AsyncInterrupt::fire();
 }
 
 void Interrupt::interruptSignalHandler(int sig) noexcept {

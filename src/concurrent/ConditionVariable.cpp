@@ -6,32 +6,12 @@
 #include <spacepi/concurrent/Interrupt.hpp>
 #include <spacepi/concurrent/UniqueConditionVariableLock.hpp>
 
-#include <spacepi/Log.hpp>
-
 using namespace std;
 using namespace boost;
 using namespace boost::fibers;
 using namespace spacepi::concurrent;
 
-std::mutex ConditionVariable::gmtx;
-ConditionVariable *ConditionVariable::head = nullptr;
-
-ConditionVariable::ConditionVariable() noexcept : prev(nullptr), bwait(0) {
-    unique_lock<std::mutex> lck(gmtx);
-    next = head;
-    head = this;
-}
-
-ConditionVariable::~ConditionVariable() noexcept {
-    unique_lock<std::mutex> lck(gmtx);
-    if (next) {
-        next->prev = prev;
-    }
-    if (prev) {
-        prev->next = next;
-    } else {
-        head = next;
-    }
+ConditionVariable::ConditionVariable() noexcept : bwait(0) {
 }
 
 void ConditionVariable::notify_all() noexcept {
@@ -103,10 +83,7 @@ pair<std::mutex *, fibers::mutex *> ConditionVariable::mutex() noexcept {
     }
 }
 
-void ConditionVariable::notify_global() noexcept {
-    unique_lock<std::mutex> lck(gmtx);
-    for (ConditionVariable *it = head; it; it = it->next) {
-        UniqueConditionVariableLock clck(*it);
-        it->notify_all();
-    }
+void ConditionVariable::onCancel() noexcept {
+    UniqueConditionVariableLock lck(*this);
+    notify_all();
 }

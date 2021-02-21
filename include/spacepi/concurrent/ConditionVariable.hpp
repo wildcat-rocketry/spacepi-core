@@ -6,6 +6,7 @@
 #include <mutex>
 #include <utility>
 #include <boost/fiber/all.hpp>
+#include <spacepi/concurrent/AsyncInterrupt.hpp>
 #include <spacepi/concurrent/Interrupt.hpp>
 #include <spacepi/util/Exception.hpp>
 
@@ -19,7 +20,7 @@ namespace spacepi {
          * 
          * \see UniqueConditionVariableLock
          */
-        class ConditionVariable {
+        class ConditionVariable : private AsyncInterrupt {
             public:
                 /**
                  * \brief Creates a new ConditionVariable
@@ -29,7 +30,7 @@ namespace spacepi {
                 /**
                  * \brief Destroys the ConditionVariable
                  */
-                virtual ~ConditionVariable() noexcept;
+                virtual ~ConditionVariable() noexcept = default;
 
                 ConditionVariable(ConditionVariable &) = delete;
                 ConditionVariable &operator =(ConditionVariable &) = delete;
@@ -161,18 +162,9 @@ namespace spacepi {
                  */
                 std::pair<std::mutex *, boost::fibers::mutex *> mutex() noexcept;
 
-                /**
-                 * \brief Equivalent to calling notify_all() on all ConditionVariable's currently allocated in the
-                 * program
-                 */
-                static void notify_global() noexcept;
-
             private:
-                static std::mutex gmtx;
-                static ConditionVariable *head;
+                void onCancel() noexcept;
 
-                ConditionVariable *next;
-                ConditionVariable *prev;
                 std::mutex smtx;
                 boost::fibers::mutex bmtx;
                 std::condition_variable scond;

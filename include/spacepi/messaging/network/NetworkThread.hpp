@@ -5,6 +5,7 @@
 #include <mutex>
 #include <thread>
 #include <boost/asio.hpp>
+#include <spacepi/concurrent/AsyncInterrupt.hpp>
 #include <spacepi/log/AutoLog.hpp>
 
 namespace spacepi {
@@ -13,7 +14,7 @@ namespace spacepi {
             /**
              * \brief Singleton class which manages a helper thread to perform networking operations
              */
-            class NetworkThread final : private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
+            class NetworkThread final : private spacepi::concurrent::AsyncInterrupt, private spacepi::log::AutoLog<decltype("core:messaging"_autolog)> {
                 public:
                     /**
                      * \brief Global instance of the NetworkThread singleton
@@ -67,7 +68,8 @@ namespace spacepi {
                     NetworkThread();
                     ~NetworkThread();
 
-                    void run();
+                    void onCancel() noexcept;
+                    void run() noexcept;
 
                     boost::asio::io_context ctx;
                     std::mutex mtx;

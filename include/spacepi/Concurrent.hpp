@@ -1,3 +1,4 @@
+#include <spacepi/concurrent/AsyncInterrupt.hpp>
 #include <spacepi/concurrent/ConditionVariable.hpp>
 #include <spacepi/concurrent/Interrupt.hpp>
 #include <spacepi/concurrent/RWMutex.hpp>
