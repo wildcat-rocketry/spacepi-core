@@ -9,6 +9,8 @@
 namespace spacepi {
     namespace liblinux {
         class SharedMount {
+            friend class std::vector<SharedMount>;
+
             public:
                 SharedMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type);
                 SharedMount(UniqueMount &&mount);
