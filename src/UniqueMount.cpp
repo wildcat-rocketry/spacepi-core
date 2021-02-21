@@ -64,6 +64,7 @@ void UniqueMount::mount(){
 
 void UniqueMount::unmount(){
     if(mounted){
+        sync();
         handle(umount(mountPoint.c_str()))
             << "Failed to unmount '" << mountPoint << "': " << SyscallErrorString;
         mounted = false;
