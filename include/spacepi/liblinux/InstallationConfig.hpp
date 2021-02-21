@@ -2,6 +2,7 @@
 #define SPACEPI_TARGETLIB_LINUX_INSTALLATIONCONFIG_HPP
 
 #include <string>
+#include <vector>
 
 namespace spacepi {
     namespace liblinux {
@@ -12,6 +13,8 @@ namespace spacepi {
                 std::string components;
                 std::string osRelease;
                 std::string aptURL;
+                std::string dpkgArch;
+                std::vector<std::string> emulationBin;
         };
     }
 }
