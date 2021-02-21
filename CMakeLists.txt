@@ -23,7 +23,6 @@ add_library(spacepi-targetlib-linux
     src/InstallationData.cpp
     src/InstallationOptions.cpp
     src/InstallationPlan.cpp
-    src/main.cpp
     src/Partition.cpp
     src/PartitionTable.cpp
     src/SharedLoopDevice.cpp
