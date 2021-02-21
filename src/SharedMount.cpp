@@ -52,18 +52,20 @@ vector<SharedMount>::vector(vector<SharedMount> &&move) noexcept : vector<Shared
 }
 
 vector<SharedMount>::~vector() noexcept(false) {
-    reverse_iterator it;
-    try {
-        for (it = rbegin(); it != rend(); ++it) {
-            it->forceUnmount();
-        }
-    } catch (const exception &) {
-        for (; it != rend(); ++it) {
-            try {
+    if (!empty() && front().unique.unique()) {
+        reverse_iterator it;
+        try {
+            for (it = rbegin(); it != rend(); ++it) {
                 it->forceUnmount();
-            } catch (const exception &) {
             }
+        } catch (const exception &) {
+            for (; it != rend(); ++it) {
+                try {
+                    it->forceUnmount();
+                } catch (const exception &) {
+                }
+            }
+            throw;
         }
-        throw;
     }
 }
