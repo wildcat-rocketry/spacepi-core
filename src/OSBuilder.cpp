@@ -7,6 +7,7 @@
 #include <spacepi/liblinux/InstallationPlan.hpp>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
+#include <spacepi/target/Config.hpp>
 #include <spacepi/target/OSBuilder.hpp>
 
 using namespace std;
@@ -19,8 +20,11 @@ OSBuilder::OSBuilder(Command &cmd) : CommandConfigurable("OS Builder", cmd), opt
 
 void OSBuilder::runCommand() {
     InstallationData d;
+    InstallationConfig cfg = DefaultInstallationConfig();
+    cfg.dpkgArch = "armel";
+    cfg.emulationBin = { QEMU_ARM_STATIC_EXECUTABLE };
     d.initData<InstallationOptions>(opts);
-    d.initData<InstallationConfig>(DefaultInstallationConfig());
+    d.initData<InstallationConfig>(cfg);
     d.initData<PartitionTable>(PartitionTable()
         .setLabel("dos").setSize("4G")
         .addPartition(Partition().setSize("256M").setType("0C").setFSType("vfat").setFormatOptions(vector<string> { "-F", "32" }).setMountPoint("/boot"))
