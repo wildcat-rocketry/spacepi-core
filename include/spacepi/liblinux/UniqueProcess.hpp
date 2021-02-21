@@ -60,7 +60,7 @@ namespace spacepi {
             };
         }
 
-        class UniqueProcess {
+        class UniqueProcess : private spacepi::concurrent::AsyncInterrupt {
             public:
                 UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::initializer_list<std::string> &args);
                 UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::vector<std::string> &args);
@@ -80,6 +80,7 @@ namespace spacepi {
 
             private:
                 static std::string getLogName(const std::string &exe) noexcept;
+                void onCancel() noexcept;
 
                 spacepi::log::Logger log;
                 std::shared_ptr<detail::OutputStream> stdoutBuf;

@@ -98,6 +98,7 @@ streamsize OutputStream::showmanyc() {
 }
 
 streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
+    Interrupt::cancellationPoint();
     UniqueConditionVariableLock lck(cond);
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
@@ -118,6 +119,7 @@ streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
 }
 
 int OutputStream::underflow() {
+    Interrupt::cancellationPoint();
     UniqueConditionVariableLock lck(cond);
     while (!fail && readQueue.empty()) {
         cond.wait(lck);
@@ -174,6 +176,7 @@ bool UniqueProcess::running() {
 }
 
 void UniqueProcess::wait() {
+    Interrupt::cancellationPoint();
     proc.join();
     stdoutBuf->join();
     stderrBuf->join();
@@ -184,10 +187,17 @@ int UniqueProcess::getExitCode() const {
 }
 
 string UniqueProcess::getLogName(const string &exe) noexcept {
+    Interrupt::cancellationPoint();
     size_t slash = exe.find_last_of('/');
     if (slash == string::npos) {
         return "spacepi:liblinux:proc:" + exe;
     } else {
         return "spacepi:liblinux:proc:" + exe.substr(slash + 1);
     }
+}
+
+void UniqueProcess::onCancel() noexcept {
+    proc.terminate();
+    stdoutBuf->handleRead(-1);
+    stderrBuf->handleRead(-1);
 }
