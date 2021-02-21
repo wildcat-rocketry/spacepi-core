@@ -12,6 +12,7 @@ QUIET                  = YES
 SORT_MEMBERS_CTORS_1ST = YES
 TYPEDEF_HIDES_STRUCT   = YES
 INPUT                  = \
+    spacepi/concurrent/AsyncInterrupt.hpp \
     spacepi/concurrent/ConditionVariable.hpp \
     spacepi/concurrent/Interrupt.hpp \
     spacepi/concurrent/RWMutex.hpp \

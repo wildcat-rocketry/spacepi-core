@@ -2,6 +2,7 @@ spacepi::concurrent namespace
 =============================
 
 .. toctree::
+    concurrent/AsyncInterrupt
     concurrent/ConditionVariable
     concurrent/Interrupt
     concurrent/RWMutex

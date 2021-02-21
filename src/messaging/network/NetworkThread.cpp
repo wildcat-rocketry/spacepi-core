@@ -21,7 +21,7 @@ io_context &NetworkThread::getContext() noexcept {
     return ctx;
 }
 
-void NetworkThread::start() {
+void NetworkThread::start() noexcept {
     std::unique_lock<mutex> lck(mtx);
     switch (state) {
         case Init:
@@ -44,12 +44,12 @@ void NetworkThread::start() {
     cond.notify_one();
 }
 
-void NetworkThread::join() {
+void NetworkThread::join() noexcept {
     start();
     thread.join();
 }
 
-void NetworkThread::stop() {
+void NetworkThread::stop() noexcept {
     std::unique_lock<mutex> lck(mtx);
     enum State oldState = state;
     state = Stopping;
@@ -86,7 +86,11 @@ NetworkThread::~NetworkThread() {
     stop();
 }
 
-void NetworkThread::run() {
+void NetworkThread::onCancel() noexcept {
+    stop();
+}
+
+void NetworkThread::run() noexcept {
     std::unique_lock<mutex> lck(mtx);
     while (state != Stopping) {
         switch (state) {

@@ -25,6 +25,7 @@ find_package(Boost
 find_package(Protobuf)
 
 add_library(spacepi SHARED
+    src/concurrent/AsyncInterrupt.cpp
     src/concurrent/ConditionVariable.cpp
     src/concurrent/Interrupt.cpp
     src/concurrent/Sleep.cpp
@@ -96,6 +97,7 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
         ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/doxygen.stamp"
         DEPENDS
             "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile"
+            include/spacepi/concurrent/AsyncInterrupt.hpp
             include/spacepi/concurrent/ConditionVariable.hpp
             include/spacepi/concurrent/Interrupt.hpp
             include/spacepi/concurrent/RWMutex.hpp
@@ -187,6 +189,7 @@ if (DOXYGEN_FOUND AND TARGET Doxygen::dot)
                     docs/detailed/networking.rst
                     docs/detailed/submodules.rst
                     docs/detailed/troubleshooting.rst
+                    docs/spacepi/concurrent/AsyncInterrupt.rst
                     docs/spacepi/concurrent/ConditionVariable.rst
                     docs/spacepi/concurrent/Interrupt.rst
                     docs/spacepi/concurrent/RWMutex.rst
