@@ -3,9 +3,9 @@
 
 #include <exception>
 #include <memory>
-#include <SpacePi.hpp>
 #include <utility>
 #include <vector>
+#include <SpacePi.hpp>
 
 namespace spacepi {
     namespace liblinux {
@@ -68,7 +68,7 @@ namespace spacepi {
 
         class InstallationData {
             public:
-                InstallationData() noexcept = default;
+                InstallationData() noexcept;
                 ~InstallationData() noexcept(false);
 
                 InstallationData(const InstallationData &) = default;
@@ -80,7 +80,7 @@ namespace spacepi {
                     if (id >= data.size()) {
                         data.resize(id + 1);
                     }
-                    data[id].reset(new detail::InstallationDataAccessor<Type>(std::forward<Args>(args)...));
+                    data[id] = std::make_pair(++numObjs, std::shared_ptr<detail::GenericInstallationDataAccessor>(new detail::InstallationDataAccessor<Type>(std::forward<Args>(args)...)));
                 }
 
                 template <typename Type>
@@ -89,7 +89,7 @@ namespace spacepi {
                     if (id >= data.size()) {
                         throw EXCEPTION(spacepi::util::StateException("Cannot get data that has not been initialized."));
                     }
-                    return *(Type *) data[id]->getData();
+                    return *(Type *) data[id].second->getData();
                 }
 
                 template <typename Type>
@@ -98,7 +98,7 @@ namespace spacepi {
                     if (id >= data.size()) {
                         throw EXCEPTION(spacepi::util::StateException("Cannot get data that has not been initialized."));
                     }
-                    return *(const Type *) data[id]->getData();
+                    return *(const Type *) data[id].second->getData();
                 }
 
                 template <typename Type>
@@ -107,14 +107,17 @@ namespace spacepi {
                     if (id >= data.size()) {
                         data.resize(id + 1);
                     }
-                    if (data[id] && data[id].unique()) {
-                        data[id]->deleteData();
+                    if (data[id].second && data[id].second.unique()) {
+                        data[id].second->deleteData();
                     }
-                    data[id].reset();
+                    data[id] = std::make_pair(0, std::shared_ptr<detail::GenericInstallationDataAccessor>());
                 }
 
             private:
-                std::vector<std::shared_ptr<detail::GenericInstallationDataAccessor>> data;
+                static bool sortDtorOrder(const std::pair<int, std::shared_ptr<detail::GenericInstallationDataAccessor>> &a, const std::pair<int, std::shared_ptr<detail::GenericInstallationDataAccessor>> &b);
+
+                std::vector<std::pair<int, std::shared_ptr<detail::GenericInstallationDataAccessor>>> data;
+                int numObjs;
         };
     }
 }
