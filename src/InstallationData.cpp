@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <memory>
+#include <utility>
 #include <vector>
 #include <spacepi/liblinux/InstallationData.hpp>
 
@@ -11,10 +13,18 @@ int GenericInstallationDataAccessor::getNextID() {
     return ++prev;
 }
 
+InstallationData::InstallationData() noexcept : numObjs(0) {
+}
+
 InstallationData::~InstallationData() noexcept(false) {
-    for (vector<shared_ptr<GenericInstallationDataAccessor>>::iterator it = data.begin(); it != data.end(); ++it) {
-        if (*it && it->unique()) {
-            (*it)->deleteData();
+    sort(data.begin(), data.end(), sortDtorOrder);
+    for (vector<pair<int, shared_ptr<GenericInstallationDataAccessor>>>::iterator it = data.begin(); it != data.end(); ++it) {
+        if (it->second && it->second.unique()) {
+            it->second->deleteData();
         }
     }
+}
+
+bool InstallationData::sortDtorOrder(const pair<int, shared_ptr<GenericInstallationDataAccessor>> &a, const pair<int, shared_ptr<GenericInstallationDataAccessor>> &b) {
+    return a.first > b.first;
 }
