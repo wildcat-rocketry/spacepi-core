@@ -95,7 +95,7 @@ SharedMount Image::mountPartition(int partNo, const Partition &part, const std::
     return mountPartitionAt(partNo, part, rootDir + part.getMountPoint());
 }
 
-vector<SharedMount> Image::mountPartitions(const PartitionTable &tab, const std::string &rootDir) {
+vector<SharedMount> Image::mountPartitions(const PartitionTable &tab, const std::string &rootDir, bool forceRW) {
     vector<SharedMount> mounts;
     const vector<Partition> &rawParts = tab.getPartitions();
     vector<pair<Partition, int>> parts;
@@ -107,7 +107,11 @@ vector<SharedMount> Image::mountPartitions(const PartitionTable &tab, const std:
     sort(parts.begin(), parts.end(), sortMountOrder);
     mounts.reserve(parts.size());
     for (vector<pair<Partition, int>>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
-        mounts.push_back(mountPartition(it->second, it->first, rootDir));
+        SharedMount mnt = mountPartition(it->second, it->first, rootDir);
+        if (forceRW) {
+            mnt.remount("rw");
+        }
+        mounts.push_back(mnt);
     }
     return mounts;
 }

@@ -15,6 +15,6 @@ void MountPartitionsStep::run(InstallationData &data) {
     SharedTempDir &root = data.getData<SharedTempDir>();
     Image &image = data.getData<Image>();
     PartitionTable &pt = data.getData<PartitionTable>();
-    std::vector<SharedMount> mounts = image.mountPartitions(pt, root.getPath());
+    std::vector<SharedMount> mounts = image.mountPartitions(pt, root.getPath(), true);
     data.initData<std::vector<SharedMount>>(mounts);
 }

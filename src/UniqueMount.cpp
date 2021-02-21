@@ -81,10 +81,9 @@ void UniqueMount::forceUnmount() {
 }
 
 void UniqueMount::remount(const std::string &options){
-    this->options = options;
     flagSet(options);
     if (mounted) {
-        handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+        handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,this->options.c_str()))
             << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
     }
 }
