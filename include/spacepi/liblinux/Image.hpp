@@ -22,7 +22,7 @@ namespace spacepi {
                 SharedMount mountPartitionAt(int partNo, const std::string &fsType, const std::string &options, const std::string &mountDir);
                 SharedMount mountPartitionAt(int partNo, const Partition &part, const std::string &mountDir);
                 SharedMount mountPartition(int partNo, const Partition &part, const std::string &rootDir);
-                std::vector<SharedMount> mountPartitions(const PartitionTable &tab, const std::string &rootDir);
+                std::vector<SharedMount> mountPartitions(const PartitionTable &tab, const std::string &rootDir, bool forceRW = false);
 
             private:
                 static bool sortMountOrder(const std::pair<Partition, int> &a, const std::pair<Partition, int> &b) noexcept;
