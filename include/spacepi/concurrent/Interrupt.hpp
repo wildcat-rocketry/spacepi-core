@@ -7,6 +7,7 @@
 #include <set>
 #include <thread>
 #include <boost/fiber/all.hpp>
+#include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
     namespace concurrent {
@@ -42,6 +43,11 @@ namespace spacepi {
          */
         class Interrupt final {
             public:
+                /**
+                 * \brief The exception which is thrown when a cancellation is requested
+                 */
+                static const spacepi::util::InterruptException cancelException;
+
                 /**
                  * \brief Call this function at various points in the code to allow the cancellation exception to be
                  * thrown.

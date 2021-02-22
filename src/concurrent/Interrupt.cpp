@@ -13,6 +13,7 @@ using namespace spacepi::concurrent;
 using namespace spacepi::concurrent::detail;
 using namespace spacepi::util;
 
+const InterruptException Interrupt::cancelException("Program cancellation requested.");
 Interrupt Interrupt::instance;
 
 ThreadID::ThreadID() noexcept : tid(this_thread::get_id()), fid(this_fiber::get_id()) {
@@ -59,7 +60,7 @@ void Interrupt::throwCancelled() {
     set<ThreadID>::const_iterator it = dispatched.find(id);
     if (it == dispatched.end()) {
         dispatched.emplace_hint(it, id);
-        throw EXCEPTION(InterruptException("Program cancellation requested."));
+        throw EXCEPTION(InterruptException(cancelException));
     }
 }
 
