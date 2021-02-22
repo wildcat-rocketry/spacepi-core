@@ -1,14 +1,20 @@
 #ifndef SPACEPI_CORE_CONCURRENT_THREADPOOL_HPP
 #define SPACEPI_CORE_CONCURRENT_THREADPOOL_HPP
 
+#include <cstring>
+#include <exception>
 #include <initializer_list>
 #include <memory>
 #include <thread>
 #include <vector>
 #include <utility>
 #include <boost/fiber/all.hpp>
+#include <spacepi/concurrent/Interrupt.hpp>
+#include <spacepi/log/Logger.hpp>
+#include <spacepi/log/LogLevel.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
+#include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
     namespace concurrent {
@@ -27,10 +33,20 @@ namespace spacepi {
                     }
 
                     void start(std::vector<boost::fibers::fiber> &vec) const {
-                        vec.emplace_back(fn);
+                        vec.emplace_back(fiberEntry, fn);
                     }
 
                 private:
+                    static void fiberEntry(Func fn) noexcept {
+                        try {
+                            fn();
+                        } catch (const std::exception &e) {
+                            if (strcmp(e.what(), Interrupt::cancelException.what())) {
+                                spacepi::log::Logger("core:threadpool")(spacepi::log::LogLevel::Error) << "Thread crashed: " << e.what() << ": " << spacepi::util::Exception::getPointer();
+                            }
+                        }
+                    }
+
                     const Func fn;
             };
         }
