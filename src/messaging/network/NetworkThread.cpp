@@ -18,7 +18,7 @@ using namespace spacepi::util;
 NetworkThread NetworkThread::instance;
 
 io_context &NetworkThread::getContext() noexcept {
-    return ctx;
+    return *ctx;
 }
 
 void NetworkThread::start() noexcept {
@@ -35,55 +35,74 @@ void NetworkThread::start() noexcept {
         case Running:
             return;
         case Stopping:
+        case Stopped:
             log(LogLevel::Error) << "NetworkThread start requested after thread has been shut down.";
             return;
         default:
             log(LogLevel::Error) << "Invalid NetworkThread state while starting: " << state;
             return;
     }
-    cond.notify_one();
+    cond.notify_all();
 }
 
 void NetworkThread::join() noexcept {
-    start();
-    thread.join();
+    std::unique_lock<mutex> lck(mtx);
+    while (true) {
+        switch (state) {
+            case Init:
+            case Waiting:
+                state = Stopping;
+                cond.notify_all();
+                break;
+            case FirstStart:
+            case MultipleStart:
+            case Running:
+            case Stopping:
+                cond.wait(lck);
+                break;
+            case Stopped:
+                return;
+            default:
+                log(LogLevel::Error) << "Invalid NetworkThread state while joining: " << state;
+                return;
+        }
+    }
 }
 
 void NetworkThread::stop() noexcept {
     std::unique_lock<mutex> lck(mtx);
     enum State oldState = state;
     state = Stopping;
+    cond.notify_all();
+    lck.unlock();
     switch (oldState) {
         case Init:
         case FirstStart:
         case Waiting:
         case MultipleStart:
-            cond.notify_one();
-            lck.unlock();
+        case Stopping:
             break;
         case Running:
-            lck.unlock();
-            ctx.stop();
+            ctx->stop();
             break;
-        case Stopping:
+        case Stopped:
             return;
         default:
             log(LogLevel::Error) << "Invalid NetworkThread state while stopping: " << state;
-            cond.notify_one();
-            lck.unlock();
-            ctx.stop();
+            ctx->stop();
             break;
     }
-    if (thread.joinable()) {
-        join();
-    }
+    join();
 }
 
-NetworkThread::NetworkThread() : state(Init), thread(bind(&NetworkThread::run, this)) {
+NetworkThread::NetworkThread() : ctx(new io_context()), state(Init), thread(bind(&NetworkThread::run, this)) {
 }
 
 NetworkThread::~NetworkThread() {
     stop();
+    if (thread.joinable()) {
+        thread.join();
+    }
 }
 
 void NetworkThread::onCancel() noexcept {
@@ -106,14 +125,15 @@ void NetworkThread::run() noexcept {
                 log(LogLevel::Debug) << "Network thread waking...";
                 lck.unlock();
                 try {
-                    ctx.run();
-                } catch (const std::exception &) {
-                    log(LogLevel::Error) << Exception::getPointer();
+                    ctx->run();
+                } catch (const std::exception &e) {
+                    log(LogLevel::Error) << e.what() << ": " << Exception::getPointer();
                 }
-                ctx.restart();
+                ctx->restart();
                 lck.lock();
                 if (state != Stopping) {
                     state = Waiting;
+                    cond.notify_all();
                 }
                 log(LogLevel::Debug) << "Network thread sleeping...";
                 break;
@@ -125,4 +145,7 @@ void NetworkThread::run() noexcept {
         }
     }
     log(LogLevel::Info) << "Network thread shutting down.";
+    ctx.reset();
+    state = Stopped;
+    cond.notify_all();
 }

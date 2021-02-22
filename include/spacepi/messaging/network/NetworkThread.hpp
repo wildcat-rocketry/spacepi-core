@@ -2,6 +2,7 @@
 #define SPACEPI_MESSAGING_NETWORK_NETWORKTHREAD_HPP
 
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <thread>
 #include <boost/asio.hpp>
@@ -62,7 +63,8 @@ namespace spacepi {
                         Waiting,
                         MultipleStart,
                         Running,
-                        Stopping
+                        Stopping,
+                        Stopped
                     };
 
                     NetworkThread();
@@ -71,7 +73,7 @@ namespace spacepi {
                     void onCancel() noexcept;
                     void run() noexcept;
 
-                    boost::asio::io_context ctx;
+                    std::unique_ptr<boost::asio::io_context> ctx;
                     std::mutex mtx;
                     std::condition_variable cond;
                     enum State state;
