@@ -4,16 +4,26 @@ include(core/cmake/TargetRepo.cmake)
 
 add_subdirectory(spacepi-targetlib-linux)
 
+find_package(Boost
+    REQUIRED COMPONENTS
+    filesystem
+)
+
 find_program(QEMU_ARM_STATIC_EXECUTABLE NAMES qemu-arm-static REQUIRED)
+find_program(GIT_EXECUTABLE NAMES git REQUIRED)
 
 configure_file(include/spacepi/target/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/target/Config.hpp @ONLY)
 
 spacepi_target(
+    src/DownloadFirmwareStep.cpp
+    src/Firmware.cpp
+    src/InstallFirmwareStep.cpp
     src/main.cpp
     src/OSBuilder.cpp
 )
 
 spacepi_target_link_libraries(PUBLIC
+    Boost::filesystem
     spacepi-targetlib-linux
 )
 spacepi_target_include_directories(PUBLIC
