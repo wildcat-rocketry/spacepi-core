@@ -82,6 +82,10 @@ const std::vector<Partition> &PartitionTable::getPartitions() const noexcept{
     return partitions;
 }
 
+std::vector<Partition> &PartitionTable::getPartitions() noexcept {
+    return partitions;
+}
+
 PartitionTable &PartitionTable::addPartition(const Partition &partition) noexcept{
     partitions.push_back(partition);
     return *this;

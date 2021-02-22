@@ -35,6 +35,7 @@ namespace spacepi {
                 PartitionTable &setGrain(const std::string &grain) noexcept;
 
                 const std::vector<Partition> &getPartitions() const noexcept;
+                std::vector<Partition> &getPartitions() noexcept;
                 PartitionTable &addPartition(const Partition &partition) noexcept;
 
                 std::ostream &printSfdisk(std::ostream &os) const;
