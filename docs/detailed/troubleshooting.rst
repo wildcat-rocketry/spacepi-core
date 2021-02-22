@@ -57,3 +57,13 @@ make: \*\*\* No targets specified and no makefile found.  Stop.
 
 This is caused by not being inside a configured build folder.
 Ensure that the current directory *is* in fact a build folder, and it has been configured with :code:`cmake` (without error).
+
+[ERROR] [core] std::exception::what: bind: Permission denied
+************************************************************
+
+This error can be generated if the router cannot create a UNIX socket due to directory permissions.
+To fix this, use the following command:
+
+.. code-block:: text
+
+    # chmod 1777 /run /var/run
