@@ -130,6 +130,7 @@ namespace spacepi {
                     spacepi::concurrent::ConditionVariable cond;
                     boost::asio::steady_timer timer;
                     ConnectionEndpoint endpoint;
+                    bool debugPublishes;
             };
         }
 
