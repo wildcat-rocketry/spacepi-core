@@ -157,10 +157,10 @@ std::ostream &Partition::printSfdisk(std::ostream &os) const{
 }
 
 std::ostream &Partition::printFstab(std::ostream &os) const{
-    os << std::left << "UUID=" << std::setw(14) << uuid << " ";
-    os << std::setw(19) << mountPoint << " ";
+    os << std::left << "UUID=" << std::setw(44) << uuid << " ";
+    os << std::setw(31) << mountPoint << " ";
     os << std::setw(7) << fsType << " ";
-    os << std::setw(27) << options << " ";
+    os << std::setw(49) << options << " ";
     os << std::setw(7) << dump << " ";
     os << pass;
     return os;

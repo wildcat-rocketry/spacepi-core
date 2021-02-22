@@ -123,7 +123,7 @@ std::ostream &PartitionTable::printSfdisk(std::ostream &os) const{
 std::ostream &PartitionTable::printFstab(std::ostream &os) const{
     os << "# /etc/fstab: static file system information.\n"
           "#\n"
-          "# <file system>     <mount point>       <type>  <options>                   <dump>  <pass>\n";
+          "# <file system>                                   <mount point>                   <type>  <options>                                         <dump>  <pass>\n";
     for(int i = 0; i < partitions.size(); i++){
         partitions[i].printFstab(os) << "\n";
     }
