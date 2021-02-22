@@ -37,7 +37,7 @@ namespace spacepi {
                      * There must be work scheduled on the \c io_context from getContext(), otherwise the thread will
                      * exit immediately.
                      */
-                    void start();
+                    void start() noexcept;
 
                     /**
                      * \brief Block until the NetworkThread stops running
@@ -45,7 +45,7 @@ namespace spacepi {
                      * The thread will not stop running until the queue of work for the NetworkThread to perform has
                      * become empty.
                      */
-                    void join();
+                    void join() noexcept;
 
                     /**
                      * \brief Stop the NetworkThread before all work is complete
@@ -53,7 +53,7 @@ namespace spacepi {
                      * This method will block until the next "good" time in which the NetworkThread can be interrupted,
                      * then will stop the thread.  Once this method returns, the NetworkThread will have been stopped.
                      */
-                    void stop();
+                    void stop() noexcept;
 
                 private:
                     enum State {
