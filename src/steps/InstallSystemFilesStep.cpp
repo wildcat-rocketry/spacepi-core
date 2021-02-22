@@ -77,7 +77,7 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     // /home
     remove(root / "home");
     create_directory_symlink("/var/local/home", root / "home");
-    // /lib/systemd/system/getty
+    // /lib/systemd/system/getty@.service
     create_directories(root / "lib/systemd/system");
     {
         std::ifstream in((root / "lib/systemd/system/getty@.service").native());
