@@ -3,6 +3,7 @@
 #include <vector>
 #include <boost/asio.hpp>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/messaging/network/NetworkThread.hpp>
 #include <spacepi/router/Router.hpp>
 #include <spacepi/router/RouterEndpoint.hpp>
 #include <spacepi/router/StreamClient.hpp>
@@ -15,6 +16,7 @@ using namespace std;
 using namespace boost::asio::ip;
 using namespace boost::asio::local;
 using namespace spacepi::log;
+using namespace spacepi::messaging::network;
 using namespace spacepi::router;
 using namespace spacepi::util;
 
@@ -42,4 +44,5 @@ void Router::runCommand() {
                 break;
         }
     }
+    NetworkThread::instance.start();
 }
