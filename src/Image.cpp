@@ -86,6 +86,7 @@ void Image::formatPartitions(PartitionTable &tab) {
         const char *uuid;
         blkid_probe_lookup_value(pr, "UUID", &uuid, NULL);
         part.setUUID(string(uuid));
+        blkid_free_probe(pr);
     }
 }
 
