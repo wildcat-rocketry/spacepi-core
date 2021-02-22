@@ -31,9 +31,9 @@ void OSBuilder::runCommand() {
     d.initData<InstallationConfig>(cfg);
     d.initData<PartitionTable>(PartitionTable()
         .setLabel("dos").setSize("4G")
-        .addPartition(Partition().setSize("256M").setType("0C").setFSType("vfat").setFormatOptions(vector<string> { "-F", "32" }).setMountPoint("/boot"))
-        .addPartition(Partition().setSize("2G").setType("83").setFSType("ext4").setMountPoint("/var"))
-        .addPartition(Partition().setType("83").setFSType("ext4").setMountPoint("/").setOptions("ro")));
+        .addPartition(Partition().setSize("256M").setType("0C").setFSType("vfat").setFormatOptions(vector<string> { "-F", "32" }).setMountPoint("/boot").setOptions("defaults"))
+        .addPartition(Partition().setSize("2G").setType("83").setFSType("ext4").setMountPoint("/var").setOptions("defaults"))
+        .addPartition(Partition().setType("83").setFSType("ext4").setMountPoint("/").setOptions("defaults,ro")));
     InstallationPlan p = DefaultInstallationPlan();
     p.prependStep<DownloadFirmwareStep>();
     p.insertStepAfter<InstallBaseSystemStep, InstallFirmwareStep>();
