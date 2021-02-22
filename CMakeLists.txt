@@ -10,6 +10,12 @@ find_package(Boost
     system
 )
 
+find_library(
+    LibBlkId
+    NAMES blkid
+    REQUIRED
+)
+
 find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
 find_program(KPARTX_EXECUTABLE NAMES kpartx REQUIRED)
 find_program(MKFS_EXECUTABLE NAMES mkfs REQUIRED)
@@ -50,6 +56,7 @@ add_library(spacepi-targetlib-linux
 target_link_libraries(spacepi-targetlib-linux
     Boost::filesystem
     Boost::system
+    ${LibBlkId}
     spacepi
 )
 target_include_directories(spacepi-targetlib-linux PUBLIC

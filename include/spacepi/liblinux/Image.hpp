@@ -17,7 +17,7 @@ namespace spacepi {
 
                 const std::string &getFilename() const noexcept;
 
-                void formatPartitions(const PartitionTable &tab);
+                void formatPartitions(PartitionTable &tab);
 
                 SharedMount mountPartitionAt(int partNo, const std::string &fsType, const std::string &options, const std::string &mountDir);
                 SharedMount mountPartitionAt(int partNo, const Partition &part, const std::string &mountDir);

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <blkid/blkid.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
 #include <SpacePi.hpp>
@@ -27,7 +28,7 @@ const string &Image::getFilename() const noexcept {
     return filename;
 }
 
-void Image::formatPartitions(const PartitionTable &tab) {
+void Image::formatPartitions(PartitionTable &tab) {
     std::ofstream ofs (getFilename(),std::ofstream::out | std::ostream::binary);
     std::string size = tab.getSize();
     std::streampos bigBoi = stoull(size);
@@ -61,7 +62,8 @@ void Image::formatPartitions(const PartitionTable &tab) {
     }
     loopDevice = SharedLoopDevice(getFilename());
     for(int i = 0; i < tab.getPartitions().size(); i++){
-        const Partition &part = tab.getPartitions()[i];
+        Partition &part = tab.getPartitions()[i];
+        string block = loopDevice.getBlockDevice(i);
         vector<string> args;
         const vector<string> &formatOpts = part.getFormatOptions();
         args.reserve(3 + formatOpts.size());
@@ -70,12 +72,20 @@ void Image::formatPartitions(const PartitionTable &tab) {
         for (vector<string>::const_iterator it = formatOpts.begin(); it != formatOpts.end(); ++it) {
             args.push_back(*it);
         }
-        args.push_back(loopDevice.getBlockDevice(i));
+        args.push_back(block);
         UniqueProcess process(false,false,false,MKFS_EXECUTABLE,args);
         process.wait();
         if(process.getExitCode() != 0){
             throw EXCEPTION(ResourceException("Error formatting."));
         }
+        blkid_probe pr = blkid_new_probe_from_filename(block.c_str());
+        if (!pr) {
+            throw EXCEPTION(ResourceException("Unable to create BLKID probe for " + block));
+        }
+        blkid_do_probe(pr);
+        const char *uuid;
+        blkid_probe_lookup_value(pr, "UUID", &uuid, NULL);
+        part.setUUID(string(uuid));
     }
 }
 
