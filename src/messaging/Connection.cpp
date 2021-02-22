@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <ios>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -14,6 +15,7 @@
 #include <spacepi/concurrent/Interrupt.hpp>
 #include <spacepi/concurrent/UniqueConditionVariableLock.hpp>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/log/LogStream.hpp>
 #include <spacepi/messaging/Connection.hpp>
 #include <spacepi/messaging/MessageID.pb.h>
 #include <spacepi/messaging/SubscribeRequest.pb.h>
@@ -141,6 +143,7 @@ const stream_protocol::endpoint &ConnectionEndpoint::getUNIXEndpoint() const noe
 
 ImmovableConnection::ImmovableConnection(Command &cmd) : CommandConfigurable("Connection Options", cmd), state(ImmovableConnection::Created), timer(NetworkThread::instance.getContext()) {
     fromCommand(endpoint, ConnectionEndpoint::defaultEndpoint, "router", "The address of the router to connect to");
+    fromCommand(debugPublishes, false, "debugPublish", "Enable printing all published messages to the debug log");
 }
 
 Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
@@ -296,7 +299,17 @@ const Publisher &Publisher::operator <<(const Message &message) const {
     while (conn->state != ImmovableConnection::Connected) {
         conn->cond.wait(lck);
     }
-    conn->socket->sendMessage(network::SubscriptionID(message.GetDescriptor()->options().GetExtension(MessageID), instanceID), message.SerializeAsString());
+    uint64_t messageID = message.GetDescriptor()->options().GetExtension(MessageID);
+    if (conn->debugPublishes) {
+        log::LogStream str = conn->log(log::LogLevel::Debug);
+        str << "Publish " << message.GetDescriptor()->name() << "(" << showbase << hex << messageID << dec << "/" << instanceID << "):";
+        string msg = message.DebugString();
+        for (size_t start = 0, end = 0; start < msg.size() && end != string::npos; start = end + 1) {
+            end = msg.find_first_of('\n', start);
+            str << "\n    " << msg.substr(start, end - start);
+        }
+    }
+    conn->socket->sendMessage(network::SubscriptionID(messageID, instanceID), message.SerializeAsString());
     lck.unlock();
     return *this;
 }
