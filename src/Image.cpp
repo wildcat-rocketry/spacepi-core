@@ -79,13 +79,20 @@ void Image::formatPartitions(PartitionTable &tab) {
             throw EXCEPTION(ResourceException("Error formatting."));
         }
         blkid_probe pr = blkid_new_probe_from_filename(block.c_str());
-        if (!pr) {
-            throw EXCEPTION(ResourceException("Unable to create BLKID probe for " + block));
-        }
-        blkid_do_probe(pr);
-        const char *uuid;
-        blkid_probe_lookup_value(pr, "UUID", &uuid, NULL);
+        handle(!!pr)
+            << "Unable to create BLKID probe for " << block << ": " << SyscallErrorString;
+        handle(blkid_probe_enable_partitions(pr, 1))
+            << "Unable to enable partitions on BLKID probe for " << block << ": " << SyscallErrorString;
+        handle(blkid_probe_set_partitions_flags(pr, BLKID_PARTS_ENTRY_DETAILS))
+            << "Unable to set partition flags on BLKID probe for " << block << ": " << SyscallErrorString;
+        handle(blkid_do_fullprobe(pr))
+            << "Unable to run BLKID probe for " << block << ": " << SyscallErrorString;
+        const char *uuid = "";
+        blkid_probe_lookup_value(pr, "UUID", &uuid, nullptr);
         part.setUUID(string(uuid));
+        uuid = "";
+        blkid_probe_lookup_value(pr, "PART_ENTRY_UUID", &uuid, nullptr);
+        part.setPartUUID(string(uuid));
         blkid_free_probe(pr);
     }
 }
