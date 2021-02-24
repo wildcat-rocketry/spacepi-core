@@ -21,7 +21,7 @@ void InstallFirmwareStep::run(InstallationData &data) {
     string rootUUID;
     for (vector<Partition>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
         if (it->getMountPoint() == "/") {
-            rootUUID = it->getUUID();
+            rootUUID = it->getPartUUID();
             break;
         }
     }
@@ -32,7 +32,7 @@ void InstallFirmwareStep::run(InstallationData &data) {
     }
     // /boot/cmdline.txt
     std::ofstream((root / "boot/cmdline.txt").native()) <<
-        "root=UUID=" << rootUUID << " rootwait fsck.repair=yes ro console=tty0 elevator=deadline init=/usr/local/sbin/spacepictl\n";
+        "root=PARTUUID=" << rootUUID << " rootwait fsck.repair=yes ro console=tty0 elevator=deadline init=/usr/local/sbin/spacepictl\n";
     // /boot/config.txt
     std::ofstream((root / "boot/config.txt").native()) <<
         "dtparam=i2c_arm=on\n"
