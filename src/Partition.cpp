@@ -51,6 +51,15 @@ Partition &Partition::setUUID(const std::string &uuid) noexcept{
     return *this;
 }
 
+const std::string &Partition::getPartUUID() const noexcept {
+    return partUUID;
+}
+
+Partition &Partition::setPartUUID(const std::string &partUUID) noexcept {
+    this->partUUID = partUUID;
+    return *this;
+}
+
 const std::string &Partition::getName() const noexcept{
     return name;
 }

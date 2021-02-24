@@ -5,13 +5,14 @@
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedMount.hpp>
 #include <spacepi/liblinux/SharedLoopDevice.hpp>
+#include <spacepi/liblinux/SystemCaller.hpp>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace spacepi {
     namespace liblinux {
-        class Image {
+        class Image : private SystemCaller {
             public:
                 Image(const std::string &filename) noexcept;
 

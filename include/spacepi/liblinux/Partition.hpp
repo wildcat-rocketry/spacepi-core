@@ -24,6 +24,9 @@ namespace spacepi {
                 const std::string &getUUID() const noexcept;
                 Partition &setUUID(const std::string &uuid) noexcept;
 
+                const std::string &getPartUUID() const noexcept;
+                Partition &setPartUUID(const std::string &partUUID) noexcept;
+
                 const std::string &getName() const noexcept;
                 Partition &setName(const std::string &name) noexcept;
 
@@ -57,6 +60,7 @@ namespace spacepi {
                 bool bootable;
                 std::string attr;
                 std::string uuid;
+                std::string partUUID;
                 std::string name;
                 std::string type;
                 std::string mountPoint;
