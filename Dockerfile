@@ -5,7 +5,7 @@ FROM alehaa/debian-systemd:buster
 RUN echo 'deb http://deb.debian.org/debian buster-backports main' >> /etc/apt/sources.list
 
 RUN apt-get update && apt-get upgrade -y && \
-    apt-get install -y autoconf-archive git libgps-dev build-essential mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev protobuf-compiler libi2c-dev libgit2-dev && \
+    apt-get install -y autoconf-archive git libgps-dev build-essential mosquitto debootstrap qemu-user-static dosfstools kpartx sudo libboost-all-dev libprotobuf-dev default-jdk libssl-dev protobuf-compiler libi2c-dev libgit2-dev libblkid-dev && \
 	apt-get -t buster-backports install -y cmake
 	
 RUN bash -c "echo -e \"ALL ALL=(ALL) NOPASSWD:ALL\\nDefaults env_keep += \\\"QEMU_RESERVED_VA\\\"\" > /etc/sudoers"
