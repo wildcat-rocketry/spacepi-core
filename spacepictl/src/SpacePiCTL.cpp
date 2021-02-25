@@ -112,6 +112,9 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
                 return spacepictl_exec(argv);
             } else if(argv[1] == "list") {
                 return spacepictl_list(argv);
+            } else if(argv[1] == "start" || argv[1] == "stop" || argv[1] == "status" || argv[1] == "enable" ||
+                      argv[1] == "disable" || argv[1] == "restart" || argv[1] == "reenable") {
+                return spacepictl_systemctl(argv);
             } else {
                 cerr << "No action \"" << argv[1] << "\"\n\n";
             }
@@ -123,10 +126,13 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
         cerr << "Not enough arguments.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " <action> [[options] ... ]\n";
-    cerr << "Available actions:\n";
-    cerr << "    exec     Execute a SpacePi service\n";
-    cerr << "    list     List SpacePi services\n";
+    cerr << "USAGE: " << argv[0] << " <action> [[options] ... ]\n"
+            "Available actions:\n"
+            "    exec     Execute a SpacePi service\n"
+            "    list     List SpacePi services\n"
+            "\n"
+            "    The following are passed directly to systemctl:\n"
+            "    start, stop, status, enable, disable, restart, reenable\n";
     return 1;
 }
 
@@ -172,6 +178,29 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
             ss << "Error executing";
             for(auto &arg : args) ss << " " << arg;
             log(LogLevel::Error) << ss.str();
+
+            return 1;
+        } else {
+            cerr << "Module \"" << argv[2] << "\" not found\n";
+        }
+    } else {
+        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
+    }
+
+    cerr << "USAGE: " << argv[0] << " " << argv[1] << " UNIT_NAME\n";
+    return 1;
+}
+
+int SpacePiCTL::spacepictl_systemctl(vector<string> argv){
+    if(argv.size() == 3){
+        spacepi::package::Module module;
+        if(get_module(argv[2], module)){
+            cout << "Found module \"" << argv[2] << "\"\n";
+
+            argv[0] = bp::search_path("systemctl").native();
+            argv[2] = System::moduleServiceName(module);
+
+            bp::system(argv);
 
             return 1;
         } else {

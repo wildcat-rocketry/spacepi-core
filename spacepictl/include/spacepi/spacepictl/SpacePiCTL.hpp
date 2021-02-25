@@ -24,6 +24,7 @@ namespace spacepi {
 
                 int spacepictl_exec(std::vector<std::string> argv);
                 int spacepictl_list(std::vector<std::string> argv);
+                int spacepictl_systemctl(std::vector<std::string> argv);
 
                 std::vector<std::string> arg_vector;
         };
