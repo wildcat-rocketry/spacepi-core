@@ -21,16 +21,24 @@ void InstallBaseSystemStep::run(InstallationData &data) {
     SharedTempDir &root = data.getData<SharedTempDir>();
     path cacheDir = read_symlink("/proc/self/exe").parent_path() / ".debootstrap-cache";
     create_directories(cacheDir);
-    UniqueProcess debootstrapStage1(false, false, false, DEBOOTSTRAP_EXECUTABLE, {
-        "--foreign",
-        "--arch", cfg.dpkgArch,
-        "--include", cfg.packages,
-        "--components", cfg.components,
-        "--cache-dir", cacheDir.native(),
-        cfg.osRelease, root.getPath(), cfg.aptURL
-    });
-    debootstrapStage1.wait();
-    if (debootstrapStage1.getExitCode() != 0) {
+    bool installedStage1 = false;
+    for (int tries = 0; tries < 3; ++tries) {
+        UniqueProcess debootstrapStage1(false, false, false, DEBOOTSTRAP_EXECUTABLE, {
+            "--foreign",
+            "--arch", cfg.dpkgArch,
+            "--include", cfg.packages,
+            "--components", cfg.components,
+            "--cache-dir", cacheDir.native(),
+            "--no-merged-usr",
+            cfg.osRelease, root.getPath(), cfg.aptURL
+        });
+        debootstrapStage1.wait();
+        if (debootstrapStage1.getExitCode() == 0) {
+            installedStage1 = true;
+            break;
+        }
+    }
+    if (!installedStage1) {
         throw EXCEPTION(ResourceException("Failed to install base system (stage 1)."));
     }
     for (vector<string>::const_iterator it = cfg.emulationBin.begin(); it != cfg.emulationBin.end(); ++it) {
