@@ -17,6 +17,9 @@ if (NOT TARGET protobuf::protoc)
 endif()
 find_package(Java 1.8 COMPONENTS Development)
 
+add_custom_target(package)
+set_target_properties(package PROPERTIES SOURCES "")
+
 function (spacepi_message_library)
     set(sources ${ARGV})
     list(REMOVE_AT sources 0 1)
@@ -203,18 +206,28 @@ function (spacepi_target_link_libraries)
     target_link_libraries("${targetName}" ${ARGV})
 endfunction()
 
+function (spacepi_package_config)
+    get_target_property(package_list package SOURCES)
+    list(APPEND package_list "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV0}")
+    set_target_properties(package PROPERTIES SOURCES "${package_list}")
+endfunction()
+
 function (spacepi_package)
     set(args ${ARGV})
     list(REMOVE_AT args 0 1 2 3)
 
     spacepi_target_in_dir(targetName "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV1}")
 
-    add_custom_target(${ARGV0} ALL
+    add_custom_target("${ARGV0}"
         COMMAND "$<TARGET_FILE:${targetName}>" --config-file "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV2}" --out "${CMAKE_CURRENT_BINARY_DIR}/${ARGV3}" --data-dir "${CMAKE_CURRENT_SOURCE_DIR}/${ARGV1}" ${args}
         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         COMMENT "Updating package ${ARGV0}"
         VERBATIM
     )
+
+    spacepi_package_config("${ARGV2}")
+
+    add_dependencies(package "${ARGV0}")
 endfunction()
 
 function (spacepi_current_extension)
