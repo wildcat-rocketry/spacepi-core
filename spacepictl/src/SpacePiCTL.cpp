@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include <SpacePi.hpp>
+#include <spacepi/spacepictl/Config.hpp>
 #include <spacepi/spacepictl/UserManager.hpp>
 #include <spacepi/spacepictl/System.hpp>
 #include <spacepi/spacepictl/SpacePiCTL.hpp>
