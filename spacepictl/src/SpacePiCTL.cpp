@@ -1,6 +1,7 @@
 // This is the program for initializing the spacepi
 #include <exception>
 #include <vector>
+#include <algorithm>
 
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/UserManager.hpp>
@@ -17,6 +18,7 @@
 #include <boost/foreach.hpp>
 
 #define SPACEPI_ETC "/etc/spacepi"
+#define SPACEPI_CONFIGS "/usr/local/src/spacepi/configs"
 #define FIRSTTIME_SETUP_PATH "/usr/local/sbin/install-spacepi-boardsupport"
 #define NEW_CONF_PATH SPACEPI_ETC "/new_conf.xml"
 #define RUNNING_CONF SPACEPI_ETC "/running_conf.xml"
@@ -115,6 +117,8 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
             } else if(argv[1] == "start" || argv[1] == "stop" || argv[1] == "status" || argv[1] == "enable" ||
                       argv[1] == "disable" || argv[1] == "restart" || argv[1] == "reenable") {
                 return spacepictl_systemctl(argv);
+            } else if(argv[1] == "config-set") {
+                return spacepictl_config_set(argv);
             } else {
                 cerr << "No action \"" << argv[1] << "\"\n\n";
             }
@@ -128,8 +132,9 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
 
     cerr << "USAGE: " << argv[0] << " <action> [[options] ... ]\n"
             "Available actions:\n"
-            "    exec     Execute a SpacePi service\n"
-            "    list     List SpacePi services\n"
+            "    exec           Execute a SpacePi service\n"
+            "    list           List SpacePi services\n"
+            "    config-set     Set the next config file\n"
             "\n"
             "    The following are passed directly to systemctl:\n"
             "    start, stop, status, enable, disable, restart, reenable\n";
@@ -191,6 +196,7 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
     return 1;
 }
 
+
 int SpacePiCTL::spacepictl_systemctl(vector<string> argv){
     if(argv.size() == 3){
         spacepi::package::Module module;
@@ -227,6 +233,100 @@ int SpacePiCTL::spacepictl_list(vector<string> argv){
     }
 
     cerr << "USAGE: " << argv[0] << " " << argv[1] << "\n";
+    return 1;
+}
+
+// Do a prefix match on the filename for a path and return matches
+vector<fs::path> SpacePiCTL::resolve_path(const fs::path& p){
+    fs::path directory = p.parent_path();
+    string name = p.filename().native();
+    vector<fs::path> matching_paths = {};
+
+    if(fs::exists(directory)){
+        for(const fs::path &p2 : fs::directory_iterator(directory)){
+            if(!fs::is_directory(p2)){
+                string name2 = p2.filename().native();
+                const auto &match = std::mismatch(name.begin(), name.end(), name2.begin(), name2.end());
+                if(match.first == name.end()){
+                    // Given name is prefix to other path
+                    if(match.second == name2.end()){
+                        // Given name exactly matches given path
+                        return {p2};
+                    }
+
+                    matching_paths.push_back(p2);
+                }
+            }
+        }
+    }
+
+    return matching_paths;
+}
+
+vector<string> SpacePiCTL::resolve_config(const string name){
+    vector<string> matches = {};
+    #ifdef SPACEPI_PACKAGES_FILES
+        for(const string &item : {SPACEPI_PACKAGES_FILES}){
+            const auto &match = std::mismatch(name.begin(), name.end(), item.begin(), item.end());
+            if(match.first == name.end()){
+                if(match.second == item.end()){
+                    return {item};
+                }
+
+                matches.push_back(item);
+            }
+        }
+    #endif
+    return matches;
+} 
+
+int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
+    if(argv.size() == 3){
+        vector<fs::path> paths = resolve_path(fs::path(argv[2]));
+        if(paths.size() > 1){
+            cerr << "Ambiguous path. Matches:\n";
+            for(const auto &match : paths){
+                cerr << match.native() << "\n";
+            }
+            return 1;
+        }
+
+        fs::path config_path;
+
+        if(paths.size() == 1){
+            config_path = paths[0];
+        } else {
+            vector<string> configs = resolve_config(argv[2]);
+            if(configs.size() > 1){
+                cerr << "Ambiguous config name. Matches:\n";
+                for(const auto &match : configs){
+                    cerr << match << "\n";
+                }
+                return 1;
+            } else if(configs.size() == 0){
+                cerr << "Argument does not match any configs\n";
+                return 1;
+            } else {
+                config_path =  fs::path(SPACEPI_CONFIGS).append(configs[0]);
+            }
+        }
+
+        string config = fs::canonical(config_path).native();
+
+        cout << "Linking " << NEW_CONF_PATH << " -> " << config << "\n";
+        cout << "New configuration will activate on next boot\n";
+
+        FSTransaction fs;
+        fs.link(NEW_CONF_PATH, config);
+        fs.apply();
+
+        return 0;
+
+    } else {
+        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
+    }
+
+    cerr << "USAGE: " << argv[0] << " " << argv[1] << " [ CONFIG_PATH | CONFIG_NAME ]" << "\n";
     return 1;
 }
 
