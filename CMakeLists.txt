@@ -16,6 +16,12 @@ find_library(
     REQUIRED
 )
 
+find_library(
+    LibGit2
+    NAMES git2
+    REQUIRED
+)
+
 find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
 find_program(KPARTX_EXECUTABLE NAMES kpartx REQUIRED)
 find_program(MKFS_EXECUTABLE NAMES mkfs REQUIRED)
@@ -61,6 +67,7 @@ target_link_libraries(spacepi-targetlib-linux
     Boost::filesystem
     Boost::system
     ${LibBlkId}
+    ${LibGit2}
     spacepi
 )
 target_include_directories(spacepi-targetlib-linux PUBLIC
