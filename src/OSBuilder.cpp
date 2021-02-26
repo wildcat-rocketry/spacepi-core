@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <SpacePi.hpp>
+#include <spacepi/liblinux/steps/EnsureRootStep.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
 #include <spacepi/liblinux/DefaultInstallationConfig.hpp>
 #include <spacepi/liblinux/DefaultInstallationPlan.hpp>
@@ -35,7 +36,7 @@ void OSBuilder::runCommand() {
         .addPartition(Partition().setSize("2G").setType("83").setFSType("ext4").setMountPoint("/var").setOptions("defaults"))
         .addPartition(Partition().setType("83").setFSType("ext4").setMountPoint("/").setOptions("defaults,ro")));
     InstallationPlan p = DefaultInstallationPlan();
-    p.prependStep<DownloadFirmwareStep>();
+    p.insertStepAfter<EnsureRootStep, DownloadFirmwareStep>();
     p.insertStepBefore<InstallSystemFilesStep, InstallFirmwareStep>();
     p.install(d);
 }
