@@ -20,6 +20,7 @@ find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
 find_program(KPARTX_EXECUTABLE NAMES kpartx REQUIRED)
 find_program(MKFS_EXECUTABLE NAMES mkfs REQUIRED)
 find_program(DEBOOTSTRAP_EXECUTABLE NAMES debootstrap REQUIRED)
+find_program(USERADD_EXECUTABLE NAMES useradd REQUIRED)
 find_program(SUDO_EXECUTABLE NAMES sudo)
 find_program(SU_EXECUTABLE NAMES su)
 
