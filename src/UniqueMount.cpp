@@ -13,6 +13,7 @@ using namespace spacepi::liblinux;
 UniqueMount::UniqueMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type){
     this->blockDevice = blockDevice;
     this->mountPoint = mountPoint;
+    this->mounted = false;
     flags = MS_RELATIME;
     flagSet(options);
     this->type = type;
