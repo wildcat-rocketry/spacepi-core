@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 namespace spacepi {
     namespace liblinux {
@@ -15,6 +16,8 @@ namespace spacepi {
                 std::string aptURL;
                 std::string dpkgArch;
                 std::vector<std::string> emulationBin;
+                uid_t sourceUid;
+                gid_t sourceGid;
         };
     }
 }

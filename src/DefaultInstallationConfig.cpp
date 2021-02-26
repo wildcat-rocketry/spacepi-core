@@ -8,4 +8,6 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
     components = "main,contrib,non-free";
     osRelease = "stable";
     aptURL = "http://deb.debian.org/debian";
+    sourceUid = 0;
+    sourceGid = 0;
 }

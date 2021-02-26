@@ -1,20 +1,28 @@
+#include <cstddef>
+#include <cstdio>
 #include <fstream>
 #include <ios>
 #include <string>
 #include <boost/filesystem.hpp>
+#include <SpacePi.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
+#include <spacepi/liblinux/Config.hpp>
+#include <spacepi/liblinux/InstallationConfig.hpp>
 #include <spacepi/liblinux/InstallationData.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedTempDir.hpp>
+#include <spacepi/liblinux/UniqueProcess.hpp>
 
 using namespace std;
 using namespace boost::filesystem;
+using namespace spacepi::util;
 using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::steps;
 
 void InstallSystemFilesStep::run(InstallationData &data) {
     path root = data.getData<SharedTempDir>().getPath();
     PartitionTable &tab = data.getData<PartitionTable>();
+    InstallationConfig &config = data.getData<InstallationConfig>();
     // /bin/sh
     create_directories(root / "bin");
     remove(root / "bin/sh");
@@ -56,6 +64,32 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         "[ipv6]\n"
         "method=auto\n"
         "ip6-privacy=2\n";
+    // /etc/passwd
+    UniqueProcess useradd(false, false, false, USERADD_EXECUTABLE, { "-d", "/", "-M", "-r", "-R", root.native(), "-U", "spacepi" });
+    useradd.wait();
+    if (useradd.getExitCode() != 0) {
+        throw EXCEPTION(ResourceException("Could not create SpacePi user."));
+    }
+    {
+        std::ifstream pwd((root / "etc/passwd").native());
+        string line;
+        bool found = false;
+        while (getline(pwd, line)) {
+            if (line.substr(0, 8) == "spacepi:") {
+                int uid, gid;
+                if (sscanf(line.c_str(), "spacepi:%*[^:]:%d:%d:", &uid, &gid) != 2) {
+                    throw EXCEPTION(ResourceException("Incorrect format in /etc/passwd"));
+                }
+                config.sourceUid = (uid_t) uid;
+                config.sourceGid = (gid_t) gid;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            throw EXCEPTION(ResourceException("Could not find spacepi user in /etc/passwd"));
+        }
+    }
     // /etc/resolv.conf
     std::ofstream((root / "etc/resolv.conf").native()) <<
         "nameserver 1.1.1.1\n"
