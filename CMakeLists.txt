@@ -57,6 +57,7 @@ add_library(spacepi-targetlib-linux
     src/steps/MountPartitionsStep.cpp
     src/SystemCaller.cpp
     src/UniqueChroot.cpp
+    src/UniqueEID.cpp
     src/UniqueLoopDevice.cpp
     src/UniqueMount.cpp
     src/UniqueProcess.cpp
