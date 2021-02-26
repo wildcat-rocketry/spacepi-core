@@ -20,6 +20,8 @@ find_program(SFDISK_EXECUTABLE NAMES sfdisk REQUIRED)
 find_program(KPARTX_EXECUTABLE NAMES kpartx REQUIRED)
 find_program(MKFS_EXECUTABLE NAMES mkfs REQUIRED)
 find_program(DEBOOTSTRAP_EXECUTABLE NAMES debootstrap REQUIRED)
+find_program(SUDO_EXECUTABLE NAMES sudo)
+find_program(SU_EXECUTABLE NAMES su)
 
 configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/liblinux/Config.hpp @ONLY)
 
@@ -39,6 +41,7 @@ add_library(spacepi-targetlib-linux
     src/steps/BuildSpacePiStep.cpp
     src/steps/CleanupStep.cpp
     src/steps/CloneGitRepoStep.cpp
+    src/steps/EnsureRootStep.cpp
     src/steps/FormatPartitionsStep.cpp
     src/steps/InitStep.cpp
     src/steps/InstallBaseSystemStep.cpp
