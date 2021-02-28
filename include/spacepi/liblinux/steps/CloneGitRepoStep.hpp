@@ -101,13 +101,33 @@ namespace spacepi {
                             bool valid;
                     };
 
-#if LIBGIT2_VER_MAJOR <= 0 && LIBGIT2_VER_MINOR < 28
+#if LIBGIT2_VER_MAJOR == 0 && LIBGIT2_VER_MINOR < 28
                     static inline void git_buf_dispose(git_buf *buffer) noexcept {
                         git_buf_free(buffer);
                     }
+
+                    static inline void git_error_set_str(int error_class, const char *string) noexcept {
+                        giterr_set_str(error_class, string);
+                    }
+
+                    static inline const git_error *git_error_last() noexcept {
+                        return giterr_last();
+                    }
+
+                    static inline void git_error_clear() noexcept {
+                        giterr_clear();
+                    }
+
+#define GIT_OBJECT_COMMIT GIT_OBJ_COMMIT
+#define GIT_ERROR_SUBMODULE GITERR_SUBMODULE
 #endif
-#if LIBGIT2_VER_MAJOR <= 0 && LIBGIT2_VER_MINOR < 99
+#if LIBGIT2_VER_MAJOR == 0 && LIBGIT2_VER_MINOR < 99
                     using git_indexer_progress = git_transfer_progress;
+#endif
+#if (LIBGIT2_VER_MAJOR == 1 && LIBGIT2_VER_MINOR < 1) || LIBGIT2_VER_MAJOR < 1
+                    static inline void git_strarray_dispose(git_strarray *array) noexcept {
+                        git_strarray_free(array);
+                    }
 #endif
 
                     static int sidebandProgress(const char *str, int len, void *payload) noexcept;
