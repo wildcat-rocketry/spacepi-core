@@ -28,7 +28,7 @@ file(GLOB_RECURSE files
     "${SPACEPI_MLIB_OUTDIR}/*.pb.h"
 )
 foreach (file IN LISTS files)
-    if ("${SPACEPI_MLIB_OUTDIR}/protobuf.test" IS_NEWER_THAN "${file}")
+    if (NOT "${file}" IS_NEWER_THAN "${SPACEPI_MLIB_OUTDIR}/protobuf.test")
         file(REMOVE "${file}")
     endif()
 endforeach()
