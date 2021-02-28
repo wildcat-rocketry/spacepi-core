@@ -13,13 +13,14 @@ function (spacepi_dependency_message SPACEPI_DEP_MSG_TYPE SPACEPI_DEP_MSG_COMPON
         set(stat "not found")
     endif()
 
+    list(LENGTH SPACEPI_DEP_MSG_STACK stackSize)
+    math(EXPR stackEnd "${stackSize} - 1")
+
     if (stat)
-        list(POP_BACK SPACEPI_DEP_MSG_QUIET quiet)
-        list(POP_BACK SPACEPI_DEP_MSG_STACK)
+        list(GET SPACEPI_DEP_MSG_QUIET "${stackEnd}" quiet)
+        list(REMOTE_AT SPACEPI_DEP_MSG_QUIET "${stackEnd}")
+        list(REMOTE_AT SPACEPI_DEP_MSG_STACK "${stackEnd}")
     else()
-        list(LENGTH SPACEPI_DEP_MSG_STACK stackSize)
-        math(EXPR stackEnd "${stackSize} - 1")
-        
         if (stackEnd GREATER_EQUAL 0)
             list(GET SPACEPI_DEP_MSG_STACK "${stackEnd}" lastName)
             if (lastName STREQUAL firstName)
@@ -34,13 +35,15 @@ function (spacepi_dependency_message SPACEPI_DEP_MSG_TYPE SPACEPI_DEP_MSG_COMPON
         list(APPEND SPACEPI_DEP_MSG_QUIET "${quiet}")
         list(APPEND SPACEPI_DEP_MSG_STACK "${firstName}")
     endif()
-    
+
     set(SPACEPI_DEP_MSG_QUIET "${SPACEPI_DEP_MSG_QUIET}" PARENT_SCOPE)
     set(SPACEPI_DEP_MSG_STACK "${SPACEPI_DEP_MSG_STACK}" PARENT_SCOPE)
 
     if (NOT quiet)
         if (stat)
-            list(POP_BACK CMAKE_MESSAGE_INDENT)
+            list(LENGTH CMAKE_MESSAGE_INDENT indentSize)
+            math(EXPR indentEnd "${indentSize} - 1")
+            list(REMOTE_AT CMAKE_MESSAGE_INDENT "${indentEnd}")
         endif()
 
         if (CMAKE_VERSION VERSION_LESS "3.17")
