@@ -1,3 +1,14 @@
-set(SPACEPI_BUILDING_CORE TRUE)
-include(${CMAKE_CURRENT_LIST_DIR}/SpacePi.cmake)
-set(SPACEPI_BUILDING_CORE FALSE)
+include(${CMAKE_CURRENT_LIST_DIR}/components/SpacePi.cmake)
+
+spacepi_once(CORE_CMAKE_REPO)
+
+add_custom_target(
+    default ALL
+    DEPENDS
+        docs
+        extensions
+        libraries
+        modules
+        programs
+        targets
+)

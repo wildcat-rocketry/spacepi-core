@@ -1,6 +1,6 @@
 spacepi_module(
-    src/main.cpp
-)
-spacepi_module_link_libraries(PUBLIC
-    example-simplepubsub-messages
+    SOURCES
+        src/main.cpp
+    LINK example-simplepubsub-messages
+    EXAMPLE
 )
