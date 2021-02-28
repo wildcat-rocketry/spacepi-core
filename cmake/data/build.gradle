@@ -2,14 +2,16 @@ apply plugin: "java"
 
 dependencies {
     implementation "com.google.protobuf:protobuf-java:3.13.0"
-    if ("${SPACEPI_CORE_MESSAGES_JAR}" != "") {
-        implementation files("${SPACEPI_CORE_MESSAGES_JAR}")
+    "${depJars}".split(";").each { jar ->
+        if (jar.length() > 0) {
+            implementation files(jar)
+        }
     }
 }
 
 jar {
-    archiveFileName = "${ARGV0}.jar"
-    destinationDirectory = file("${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}")
+    archiveFileName = "${SPACEPI_MLIB_NAME}.jar"
+    destinationDirectory = file("${CMAKE_CURRENT_BINARY_DIR}/${SPACEPI_MLIB_NAME}")
 }
 
 java {
@@ -24,7 +26,7 @@ repositories {
 sourceSets {
     main {
         java {
-            srcDir "${CMAKE_CURRENT_BINARY_DIR}/${ARGV0}/java"
+            srcDir "${CMAKE_CURRENT_BINARY_DIR}/${SPACEPI_MLIB_NAME}/java"
         }
     }
 }

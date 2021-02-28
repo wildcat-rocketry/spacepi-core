@@ -1,7 +1,7 @@
 spacepi_module(
-    src/App.cpp
-    src/main.cpp
-)
-spacepi_module_include_directories(PUBLIC
-    include
+    SOURCES
+        src/App.cpp
+        src/main.cpp
+    INCLUDE include
+    EXAMPLE
 )

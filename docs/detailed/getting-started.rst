@@ -84,13 +84,19 @@ However, make sure the :code:`make` command is run inside the :code:`build` fold
 Documentation Outputs
 *********************
 
-The core project creates a few additional outputs besides just the built code.
+The core project can create a few additional outputs besides just the built code.
 These are:
 
 * :code:`build/html/index.html`: API Documentation
 * :code:`build/sphinx/html/index.html`: Full Documenation
 
 If the project being built was not the :code:`spacepi-core`, these may instead be under :code:`build/core` instead of just :code:`build`.
+
+The following can be used to build the documentations (which is not built by default unless the build root is :code:`spacepi-core`):
+
+.. code-block:: text
+
+    spacepi-core/build$ make docs
 
 Building Core Examples
 **********************
@@ -99,13 +105,7 @@ The following can be used to build the core example code (which is not built by 
 
 .. code-block:: text
 
-    spacepi-core/build/examples$ make
-
-Or, if a different repository from where :code:`spacepi-core` was cloned,
-
-.. code-block:: text
-
-    spacepi-other/build/core/examples$ make
+    spacepi-core/build$ make examples
 
 Opening Dashboard Project
 -------------------------

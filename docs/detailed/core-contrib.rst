@@ -85,12 +85,15 @@ Adding New Classes
 
        # ...
 
-       add_library(spacepi SHARED
-           src/{firstAlphabeticModule}/{FirstAlphabeticFile}.cpp
+       spacepi_aux_library(
+           spacepi SHARED
+           SOURCES
+               src/{firstAlphabeticModule}/{FirstAlphabeticFile}.cpp
+               # ...
+               src/{module}/{ClassName}.cpp
+               # ...
+               src/{lastAlphabeticModule}/{LastAlphabeticFile}.cpp
            # ...
-           src/{module}/{ClassName}.cpp
-           # ...
-           src/{lastAlphabeticModule}/{LastAlphabeticFile}.cpp
        )
 
        # ...
@@ -110,18 +113,18 @@ Adding New Classes
 
            # ...
 
-                   add_custom_command(
-                       OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sphinx.stamp"
+               add_custom_command(
+                   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/sphinx.stamp"
+                   # ...
+                   DEPENDS
                        # ...
-                       DEPENDS
-                           # ...
-                           docs/spacepi/{firstAlphabeticModule}/{FirstAlphabeticFile}.rst
-                           # ...
-                           docs/spacepi/{module}/ClassName}.rst
-                           # ...
-                           docs/spacepi/{lastAlphabeticModule}/{LastAlphabeticFile}.rst
-                        # ...
-                   )
+                       docs/spacepi/{firstAlphabeticModule}/{FirstAlphabeticFile}.rst
+                       # ...
+                       docs/spacepi/{module}/ClassName}.rst
+                       # ...
+                       docs/spacepi/{lastAlphabeticModule}/{LastAlphabeticFile}.rst
+                    # ...
+               )
 
        # ...
 
@@ -197,5 +200,5 @@ Tags should be of the format :code:`vXX.XX.XX`.
 Before Committing
 -----------------
 
-Before committing to core, the project should be built with :code:`make` to ensure nothing is broken.
+Before committing to core, the project should be built with :code:`make full` to ensure nothing is broken.
 In order to ensure full compilation, all optional packages should be installed, and example code should also be built.
