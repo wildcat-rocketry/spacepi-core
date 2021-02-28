@@ -4,7 +4,6 @@
 #include <exception>
 #include <string>
 #include <boost/exception/all.hpp>
-#include <boost/format.hpp>
 #include <boost/stacktrace.hpp>
 
 namespace spacepi {
@@ -28,11 +27,6 @@ namespace spacepi {
                  * \brief Creates a new Exception with a given message
                  * 
                  * \param[in] message A description of the Exception
-                 */
-                explicit Exception(const boost::format &message) noexcept;
-
-                /**
-                 * \copydoc Exception()
                  */
                 explicit Exception(const std::string &message) noexcept;
 
@@ -86,7 +80,6 @@ namespace spacepi {
 #define SPACEPI_CORE_UTIL_EXCEPTION_INSTANCE(name) \
         class name : public Exception { \
             public: \
-                explicit name(const boost::format &message) noexcept; \
                 explicit name(const std::string &message) noexcept; \
         };
 #include <spacepi/util/Exception.hpp>
