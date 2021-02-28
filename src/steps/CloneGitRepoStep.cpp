@@ -15,6 +15,7 @@
 #include <git2.h>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/steps/CloneGitRepoStep.hpp>
+#include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/InstallationConfig.hpp>
 #include <spacepi/liblinux/InstallationData.hpp>
 #include <spacepi/liblinux/InstallationOptions.hpp>
@@ -49,9 +50,8 @@ void CloneGitRepoStep::run(InstallationData &data) {
     {
         GitContext gitCtx;
         {
-            path localRepoPath = data.getData<InstallationOptions>().getDataDir();
             UniqueGitPtr<git_repository *, git_repository_free> localRepo;
-            handle("opening local repo", git_repository_open(&localRepo, localRepoPath.c_str()));
+            handle("opening local repo", git_repository_open(&localRepo, CMAKE_SOURCE_DIR));
             localRepo.take();
 
             create_directories(remoteRepoPath);
