@@ -7,8 +7,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <sys/types.h>
+#include <unistd.h>
 #include <boost/asio.hpp>
 #include <boost/process.hpp>
+#include <boost/process/extend.hpp>
 #include <boost/system/error_code.hpp>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
@@ -17,6 +20,7 @@ using namespace std;
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::process;
+using namespace boost::process::extend;
 using namespace spacepi::concurrent;
 using namespace spacepi::log;
 using namespace spacepi::messaging::network;
@@ -138,6 +142,14 @@ int OutputStream::uflow() {
     return EOF;
 }
 
+template <typename Exec>
+void ExecSetup::operator ()(Exec &exec) const noexcept {
+    uid_t euid = geteuid();
+    seteuid(getuid());
+    setgid(getegid());
+    setuid(euid);
+}
+
 UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const string &exe, const initializer_list<string> &args) : UniqueProcess(useInput, useOutput, useError, exe, vector<string>(args)) {
 }
 
@@ -145,7 +157,7 @@ UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const
     log(getLogName(exe)),
     stdoutBuf(new OutputStream(useOutput, log, LogLevel::Info)), stderrBuf(new OutputStream(useError, log, LogLevel::Warning)),
     stdoutStream(stdoutBuf.get()), stderrStream(stderrBuf.get()),
-    proc(exe, argv = args, std_in < stdinStream, std_out > stdoutBuf->getPipe(), std_err > stderrBuf->getPipe()) {
+    proc(exe, argv = args, std_in < stdinStream, std_out > stdoutBuf->getPipe(), std_err > stderrBuf->getPipe(), on_exec_setup = ExecSetup()) {
     if (!useInput) {
         closeInput();
     }

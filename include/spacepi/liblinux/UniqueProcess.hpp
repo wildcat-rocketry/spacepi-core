@@ -58,6 +58,12 @@ namespace spacepi {
                     bool fail;
                     spacepi::concurrent::ConditionVariable cond;
             };
+
+            class ExecSetup {
+                public:
+                    template <typename Exec>
+                    void operator ()(Exec &exec) const noexcept;
+            };
         }
 
         class UniqueProcess : private spacepi::concurrent::AsyncInterrupt {
