@@ -54,7 +54,7 @@ function (spacepi_aux_program SPACEPI_PROG_NAME)
 
     spacepi_aux_target(${args})
 
-    if (NOT SPACEPI_PROG_NO_INSTALL)
+    if (NOT SPACEPI_PROG_NO_INSTALL AND NOT SPACEPI_PROG_EXAMPLE)
         install(TARGETS "${SPACEPI_PROG_NAME}" RUNTIME DESTINATION "bin")
     endif()
 endfunction()
