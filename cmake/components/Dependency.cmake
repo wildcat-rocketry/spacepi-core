@@ -18,8 +18,8 @@ function (spacepi_dependency_message SPACEPI_DEP_MSG_TYPE SPACEPI_DEP_MSG_COMPON
 
     if (stat)
         list(GET SPACEPI_DEP_MSG_QUIET "${stackEnd}" quiet)
-        list(REMOTE_AT SPACEPI_DEP_MSG_QUIET "${stackEnd}")
-        list(REMOTE_AT SPACEPI_DEP_MSG_STACK "${stackEnd}")
+        list(REMOVE_AT SPACEPI_DEP_MSG_QUIET "${stackEnd}")
+        list(REMOVE_AT SPACEPI_DEP_MSG_STACK "${stackEnd}")
     else()
         if (stackEnd GREATER_EQUAL 0)
             list(GET SPACEPI_DEP_MSG_STACK "${stackEnd}" lastName)
@@ -43,7 +43,7 @@ function (spacepi_dependency_message SPACEPI_DEP_MSG_TYPE SPACEPI_DEP_MSG_COMPON
         if (stat)
             list(LENGTH CMAKE_MESSAGE_INDENT indentSize)
             math(EXPR indentEnd "${indentSize} - 1")
-            list(REMOTE_AT CMAKE_MESSAGE_INDENT "${indentEnd}")
+            list(REMOVE_AT CMAKE_MESSAGE_INDENT "${indentEnd}")
         endif()
 
         if (CMAKE_VERSION VERSION_LESS "3.17")
