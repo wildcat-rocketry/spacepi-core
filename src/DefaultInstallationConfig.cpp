@@ -8,6 +8,9 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",automake"
         ",build-essential"
         ",cmake"
+        ",debootstrap"
+        ",git"
+        ",kpartx"
         ",libblkid-dev"
         ",libboost-all-dev"
         ",libgit2-dev"
@@ -16,6 +19,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",libprotobuf-dev"
         ",libssl-dev"
         ",protobuf-compiler"
+        ",sudo"
             + 1;
     components = "main,contrib,non-free";
     osRelease = "stable";
