@@ -14,12 +14,10 @@ namespace spacepi {
 
                 const std::string &getConfigFile() const noexcept;
                 const std::string &getOutFile() const noexcept;
-                const std::string &getDataDir() const noexcept;
 
             private:
                 std::string configFile;
                 std::string outFile;
-                std::string dataDir;
         };
     }
 }
