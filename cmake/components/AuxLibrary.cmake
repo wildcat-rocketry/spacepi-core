@@ -57,6 +57,6 @@ function (spacepi_aux_library SPACEPI_LIB_NAME SPACEPI_LIB_TYPE)
     spacepi_aux_target(${args})
 
     if (NOT SPACEPI_LIB_NO_INSTALL)
-        install(TARGETS "${SPACEPI_LIB_NAME}" RUNTIME DESTINATION "lib")
+        install(TARGETS "${SPACEPI_LIB_NAME}" LIBRARY DESTINATION "lib")
     endif()
 endfunction()
