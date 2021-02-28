@@ -101,6 +101,15 @@ namespace spacepi {
                             bool valid;
                     };
 
+#if LIBGIT2_VER_MAJOR <= 0 && LIBGIT2_VER_MINOR < 28
+                    static inline void git_buf_dispose(git_buf *buffer) noexcept {
+                        git_buf_free(buffer);
+                    }
+#endif
+#if LIBGIT2_VER_MAJOR <= 0 && LIBGIT2_VER_MINOR < 99
+                    using git_indexer_progress = git_transfer_progress;
+#endif
+
                     static int sidebandProgress(const char *str, int len, void *payload) noexcept;
                     static int transferProgress(const git_indexer_progress *stats, void *payload) noexcept;
                     static void checkoutProgress(const char *path, size_t completedSteps, size_t totalSteps, void *payload) noexcept;

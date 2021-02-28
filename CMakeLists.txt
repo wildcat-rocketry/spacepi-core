@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(spacepi-targetlib-linux)
 include(core/cmake/TargetRepo.cmake)
+include(CheckCXXSourceCompiles)
 
 spacepi_once(TARGETLIB_LINUX_REPO)
 
@@ -23,6 +24,22 @@ spacepi_dependencies(
     SU
     SUDO
 )
+
+set(CMAKE_REQUIRED_LIBRARIES GIT_LIB)
+check_cxx_source_compiles("
+    #include <git2/version.h>
+
+    #if LIBGIT2_VER_MAJOR <= 0 && LIBGIT2_VER_MINOR < 23
+    #error outdated libgit2 version!
+    #endif
+
+    int main() {
+        return 0;
+    }
+" HAVE_NEW_LIBGIT2)
+if (NOT HAVE_NEW_LIBGIT2)
+    message(SEND_ERROR "Libgit2 version >= 0.23 required but not found.")
+endif()
 
 get_target_property(SFDISK_EXECUTABLE SFDISK IMPORTED_LOCATION)
 get_target_property(KPARTX_EXECUTABLE KPARTX IMPORTED_LOCATION)
