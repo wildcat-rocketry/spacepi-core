@@ -1,6 +1,6 @@
 #include <fstream>
+#include <set>
 #include <string>
-#include <vector>
 #include <boost/filesystem.hpp>
 #include <spacepi/liblinux/InstallationData.hpp>
 #include <spacepi/liblinux/Partition.hpp>
@@ -12,14 +12,15 @@
 using namespace std;
 using namespace boost::filesystem;
 using namespace spacepi::liblinux;
+using namespace spacepi::liblinux::detail;
 using namespace spacepi::target;
 
 void InstallFirmwareStep::run(InstallationData &data) {
     path fwRoot = data.getData<Firmware>().getDownloadRepo();
     path root = data.getData<SharedTempDir>().getPath();
-    const vector<Partition> &parts = data.getData<PartitionTable>().getPartitions();
+    const set<Partition, PartitionSorter> &parts = data.getData<PartitionTable>().getPartitions();
     string rootUUID;
-    for (vector<Partition>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+    for (set<Partition, PartitionSorter>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
         if (it->getMountPoint() == "/") {
             rootUUID = it->getPartUUID();
             break;
@@ -32,7 +33,7 @@ void InstallFirmwareStep::run(InstallationData &data) {
     }
     // /boot/cmdline.txt
     std::ofstream((root / "boot/cmdline.txt").native()) <<
-        "root=PARTUUID=" << rootUUID << " rootwait fsck.repair=yes ro console=tty0 elevator=deadline init=/usr/local/sbin/spacepictl\n";
+        "root=PARTUUID=" << rootUUID << " rootwait fsck.repair=yes ro console=tty0 elevator=deadline init=/usr/local/bin/spacepictl\n";
     // /boot/config.txt
     std::ofstream((root / "boot/config.txt").native()) <<
         "dtparam=i2c_arm=on\n"
