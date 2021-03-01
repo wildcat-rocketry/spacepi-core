@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(spacepi-target-rpi)
 include(core/cmake/TargetRepo.cmake)
 
+add_subdirectory(core)
 add_subdirectory(spacepi-targetlib-linux)
 add_subdirectory(install-spacepi-boardsupport)
 
