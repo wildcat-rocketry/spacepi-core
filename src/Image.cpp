@@ -1,7 +1,7 @@
-#include <algorithm>
 #include <blkid/blkid.h>
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <set>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/Config.hpp>
@@ -61,9 +61,13 @@ void Image::formatPartitions(PartitionTable &tab) {
         throw EXCEPTION(ResourceException("Error writing image."));
     }
     loopDevice = SharedLoopDevice(getFilename());
-    for(int i = 0; i < tab.getPartitions().size(); i++){
-        Partition &part = tab.getPartitions()[i];
-        string block = loopDevice.getBlockDevice(i);
+    set<Partition, detail::PartitionSorter> &parts = tab.getPartitions();
+    for (set<Partition, detail::PartitionSorter>::iterator it = parts.begin(); it != parts.end(); ++it) {
+        Partition part = *it;
+        if (part.getNumber() < 0) {
+            continue;
+        }
+        string block = loopDevice.getBlockDevice(part.getNumber());
         vector<string> args;
         const vector<string> &formatOpts = part.getFormatOptions();
         args.reserve(3 + formatOpts.size());
@@ -94,46 +98,31 @@ void Image::formatPartitions(PartitionTable &tab) {
         blkid_probe_lookup_value(pr, "PART_ENTRY_UUID", &uuid, nullptr);
         part.setPartUUID(string(uuid));
         blkid_free_probe(pr);
+        it = parts.insert(parts.erase(it), part);
     }
-}
-
-SharedMount Image::mountPartitionAt(int partNo, const string &fsType, const string &options, const string &mountDir) {
-    if(!loopDevice){
-        loopDevice = SharedLoopDevice(getFilename());
-    }
-    create_directories(mountDir);
-    return SharedMount(loopDevice.getBlockDevice(partNo),mountDir,options,fsType);
-}
-
-SharedMount Image::mountPartitionAt(int partNo, const Partition &part, const std::string &mountDir) {
-    return mountPartitionAt(partNo, part.getFSType(), part.getOptions(), mountDir);
-}
-
-SharedMount Image::mountPartition(int partNo, const Partition &part, const std::string &rootDir) {
-    return mountPartitionAt(partNo, part, rootDir + part.getMountPoint());
 }
 
 vector<SharedMount> Image::mountPartitions(const PartitionTable &tab, const std::string &rootDir, bool forceRW) {
-    vector<SharedMount> mounts;
-    const vector<Partition> &rawParts = tab.getPartitions();
-    vector<pair<Partition, int>> parts;
-    parts.reserve(rawParts.size());
-    int i = 0;
-    for (vector<Partition>::const_iterator it = rawParts.begin(); it != rawParts.end(); ++it) {
-        parts.emplace_back(*it, i++);
+    if(!loopDevice){
+        loopDevice = SharedLoopDevice(getFilename());
     }
-    sort(parts.begin(), parts.end(), sortMountOrder);
+    vector<SharedMount> mounts;
+    const set<Partition, detail::PartitionSorter> &parts = tab.getPartitions();
     mounts.reserve(parts.size());
-    for (vector<pair<Partition, int>>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
-        SharedMount mnt = mountPartition(it->second, it->first, rootDir);
+    for (set<Partition, detail::PartitionSorter>::const_iterator it = parts.begin(); it != parts.end(); ++it) {
+        std::string source;
+        if (it->getNumber() >= 0) {
+            source = loopDevice.getBlockDevice(it->getNumber());
+        } else {
+            source = it->getSource();
+        }
+        string mountDir = rootDir + it->getMountPoint();
+        create_directories(mountDir);
+        SharedMount mnt(source, mountDir, it->getOptions(), it->getFSType());
         if (forceRW) {
             mnt.remount("rw");
         }
         mounts.push_back(mnt);
     }
     return mounts;
-}
-
-bool Image::sortMountOrder(const pair<Partition, int> &a, const pair<Partition, int> &b) noexcept {
-    return a.first.getMountPoint().size() < b.first.getMountPoint().size();
 }

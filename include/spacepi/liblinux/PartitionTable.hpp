@@ -2,14 +2,28 @@
 #define SPACEPI_TARGETLIB_LINUX_PARTITIONTABLE_HPP
 
 #include <ostream>
+#include <set>
 #include <string>
-#include <vector>
 #include <spacepi/liblinux/Partition.hpp>
 
 namespace spacepi {
     namespace liblinux {
+        namespace detail {
+            class PartitionSorter {
+                public:
+                    bool operator ()(const Partition &a, const Partition &b) const noexcept;
+            };
+
+            class PartitionDiskOrderSorter {
+                public:
+                    bool operator ()(const Partition &a, const Partition &b) const noexcept;
+            };
+        }
+
         class PartitionTable {
             public:
+                PartitionTable() noexcept;
+
                 const std::string &getSize() const noexcept;
                 PartitionTable &setSize(const std::string &size) noexcept;
 
@@ -34,8 +48,8 @@ namespace spacepi {
                 const std::string &getGrain() const noexcept;
                 PartitionTable &setGrain(const std::string &grain) noexcept;
 
-                const std::vector<Partition> &getPartitions() const noexcept;
-                std::vector<Partition> &getPartitions() noexcept;
+                const std::set<Partition, detail::PartitionSorter> &getPartitions() const noexcept;
+                std::set<Partition, detail::PartitionSorter> &getPartitions() noexcept;
                 PartitionTable &addPartition(const Partition &partition) noexcept;
 
                 std::ostream &printSfdisk(std::ostream &os) const;
@@ -50,7 +64,8 @@ namespace spacepi {
                 std::string lastLBA;
                 std::string tableLength;
                 std::string grain;
-                std::vector<Partition> partitions;
+                std::set<Partition, detail::PartitionSorter> partitions;
+                int lastPartitionNumber;
         };
     }
 }
