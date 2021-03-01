@@ -267,14 +267,26 @@ vector<fs::path> SpacePiCTL::resolve_path(const fs::path& p){
 vector<string> SpacePiCTL::resolve_config(const string name){
     vector<string> matches = {};
     #ifdef SPACEPI_PACKAGES_FILES
-        for(const string &item : {SPACEPI_PACKAGES_FILES}){
-            const auto &match = std::mismatch(name.begin(), name.end(), item.begin(), item.end());
-            if(match.first == name.end()){
-                if(match.second == item.end()){
-                    return {item};
+        for(const fs::path &item : {SPACEPI_PACKAGES_FILES}){
+            if(item.has_stem() && name == item.stem().native()){
+                matches.push_back(item.native());
+            } else {
+                fs::path name_path(name);
+                string reduced_name;
+                if(name_path.has_stem()){
+                    reduced_name = name_path.parent_path().append(name_path.stem().native()).native();
+                } else {
+                    reduced_name = name;
                 }
+                string item_str = item.parent_path().append(item.stem().native()).native();
+                const auto &match = std::mismatch(reduced_name.rbegin(), reduced_name.rend(), item_str.rbegin(), item_str.rend());
+                if(match.first == reduced_name.rend()){
+                    if(match.second == item_str.rend()){
+                        return {item.native()};
+                    }
 
-                matches.push_back(item);
+                    matches.push_back(item.native());
+                }
             }
         }
     #endif
@@ -308,7 +320,8 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
                 cerr << "Argument does not match any configs\n";
                 return 1;
             } else {
-                config_path =  fs::path(SPACEPI_CONFIGS).append(configs[0]);
+                //config_path =  fs::path(SPACEPI_CONFIGS).append(configs[0]);
+                config_path =  configs[0];
             }
         }
 
@@ -360,3 +373,4 @@ int SpacePiCTL::run_reconfiguration(){
 
     return 0;
 }
+
