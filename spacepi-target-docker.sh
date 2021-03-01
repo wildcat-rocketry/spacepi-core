@@ -26,7 +26,7 @@ function get_git_top(){
 
 spacepi_dir=$(get_git_top $script_dir)
 user_uuid=$(id -u)
-rep=/spacepi
+rep="/usr/local/src/spacepi"
 
 function build {
 	old_pwd=$PWD

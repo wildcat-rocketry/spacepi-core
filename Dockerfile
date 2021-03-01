@@ -54,7 +54,7 @@ RUN cd /opt/spacepi-target-docker ; \
 # NOTE: For running Debian stretch, 'CAP_SYS_ADMIN' still needs to be added, as
 #       stretch's version of systemd is not recent enough. Buster will run just
 #       fine without 'CAP_SYS_ADMIN'.
-VOLUME [ "/spacepi/", "/sys/fs/cgroup", "/run", "/run/lock", "/tmp" ]
+VOLUME [ "/usr/local/src/spacepi", "/sys/fs/cgroup", "/run", "/run/lock", "/tmp" ]
 
 # As this image should run systemd, the default command will be changed to start
 # the init system. CMD will be preferred in favor of ENTRYPOINT, so one may
