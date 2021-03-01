@@ -56,5 +56,6 @@ function (spacepi_aux_program SPACEPI_PROG_NAME)
 
     if (NOT SPACEPI_PROG_NO_INSTALL AND NOT SPACEPI_PROG_EXAMPLE)
         install(TARGETS "${SPACEPI_PROG_NAME}" RUNTIME DESTINATION "bin")
+        add_dependencies(installable "${SPACEPI_PROG_NAME}")
     endif()
 endfunction()

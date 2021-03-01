@@ -12,6 +12,7 @@ get_filename_component(SPACEPI_CORE_SOURCE_DIR "${parent}" DIRECTORY CACHE)
 
 add_custom_target(docs)
 add_custom_target(full DEPENDS docs)
+add_custom_target(installable)
 
 include("${CMAKE_CURRENT_LIST_DIR}/Compat.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/Options.cmake")
