@@ -8,6 +8,7 @@
 #include <spacepi/liblinux/SharedTempDir.hpp>
 #include <spacepi/liblinux/UniqueChroot.hpp>
 #include <spacepi/liblinux/UniqueEID.hpp>
+#include <spacepi/liblinux/UniqueMount.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
 
 using namespace std;
@@ -19,6 +20,12 @@ using namespace spacepi::liblinux::steps;
 void BuildSpacePiStep::run(InstallationData &data) {
     string rootDir = data.getData<SharedTempDir>().getPath();
     InstallationConfig &config = data.getData<InstallationConfig>();
+    path procfs = rootDir / "proc";
+    create_directories(procfs);
+    UniqueMount procfsMount("none", procfs.native(), "nosuid,nodev,noexec,noatime", "proc");
+    path sysfs = rootDir / "sys";
+    create_directories(sysfs);
+    UniqueMount sysfsMount("none", sysfs.native(), "nosuid,nodev,noexec,noatime", "sysfs");
     UniqueChroot chroot(rootDir);
     UniqueEID eid(config.sourceUid, config.sourceGid);
     path buildDir = config.sourceDir / "build";
