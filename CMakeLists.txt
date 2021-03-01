@@ -3,6 +3,8 @@ project(spacepi-targetlib-linux)
 include(core/cmake/TargetRepo.cmake)
 include(CheckCXXSourceCompiles)
 
+add_subdirectory(core)
+
 spacepi_once(TARGETLIB_LINUX_REPO)
 
 spacepi_dependencies(
