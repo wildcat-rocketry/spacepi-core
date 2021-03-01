@@ -1,4 +1,5 @@
 #include <string>
+#include <sys/sysinfo.h>
 #include <boost/filesystem.hpp>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/steps/BuildSpacePiStep.hpp>
@@ -27,7 +28,15 @@ void BuildSpacePiStep::run(InstallationData &data) {
     if (cmake.getExitCode() != 0) {
         throw EXCEPTION(ResourceException("Unable to configure SpacePi"));
     }
-    UniqueProcess make(false, false, false, "/usr/bin/env", { "make", "-C", buildDir.native() });
+    int maxThreads = get_nprocs_conf();
+    float maxLoad = ((float) maxThreads) * 0.75f;
+    if (maxThreads < 1) {
+        maxThreads = 1;
+    }
+    if (maxLoad < 1.f) {
+        maxLoad = 1.f;
+    }
+    UniqueProcess make(false, false, false, "/usr/bin/env", { "make", "-C", buildDir.native(), "-j", to_string(maxThreads), "-l", to_string(maxLoad) });
     make.wait();
     if (make.getExitCode() != 0) {
         throw EXCEPTION(ResourceException("Unable to build SpacePi"));
