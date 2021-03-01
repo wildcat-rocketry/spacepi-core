@@ -1,10 +1,28 @@
 #include <ostream>
+#include <set>
 #include <string>
-#include <vector>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 
 using namespace spacepi::liblinux;
+using namespace spacepi::liblinux::detail;
+
+bool PartitionSorter::operator ()(const Partition &a, const Partition &b) const noexcept {
+    if (a.getMountPoint().size() == b.getMountPoint().size()) {
+        return a.getMountPoint() < b.getMountPoint();
+    }
+    return a.getMountPoint().size() < b.getMountPoint().size();
+}
+
+bool PartitionDiskOrderSorter::operator ()(const Partition &a, const Partition &b) const noexcept {
+    if (a.getNumber() == b.getNumber()) {
+        return a.getMountPoint() < b.getMountPoint();
+    }
+    return a.getNumber() < b.getNumber();
+}
+
+PartitionTable::PartitionTable() noexcept : lastPartitionNumber(0) {
+}
 
 const std::string &PartitionTable::getSize() const noexcept{
     return size;
@@ -78,16 +96,20 @@ PartitionTable &PartitionTable::setGrain(const std::string &grain) noexcept{
     return *this;
 }
 
-const std::vector<Partition> &PartitionTable::getPartitions() const noexcept{
+const std::set<Partition, PartitionSorter> &PartitionTable::getPartitions() const noexcept{
     return partitions;
 }
 
-std::vector<Partition> &PartitionTable::getPartitions() noexcept {
+std::set<Partition, PartitionSorter> &PartitionTable::getPartitions() noexcept {
     return partitions;
 }
 
 PartitionTable &PartitionTable::addPartition(const Partition &partition) noexcept{
-    partitions.push_back(partition);
+    Partition part = partition;
+    if (part.getSource().empty()) {
+        part.setNumber(lastPartitionNumber++);
+    }
+    partitions.insert(part);
     return *this;
 }
 
@@ -114,8 +136,9 @@ std::ostream &PartitionTable::printSfdisk(std::ostream &os) const{
         os << "grain: " << grain << "\n";
     }
     os << "\n";
-    for(int i = 0; i < partitions.size(); i++){
-        partitions[i].printSfdisk(os) << "\n";
+    std::set<Partition, PartitionDiskOrderSorter> parts(partitions.begin(), partitions.end());
+    for(std::set<Partition, PartitionDiskOrderSorter>::const_iterator it = parts.begin(); it != parts.end(); ++it){
+        it->printSfdisk(os) << "\n";
     }
     return os;
 }
@@ -124,8 +147,9 @@ std::ostream &PartitionTable::printFstab(std::ostream &os) const{
     os << "# /etc/fstab: static file system information.\n"
           "#\n"
           "# <file system>                                   <mount point>                   <type>  <options>                                         <dump>  <pass>\n";
-    for(int i = 0; i < partitions.size(); i++){
-        partitions[i].printFstab(os) << "\n";
+    std::set<Partition, PartitionDiskOrderSorter> parts(partitions.begin(), partitions.end());
+    for(std::set<Partition, PartitionDiskOrderSorter>::const_iterator it = parts.begin(); it != parts.end(); ++it){
+        it->printFstab(os) << "\n";
     }
     return os;
 }

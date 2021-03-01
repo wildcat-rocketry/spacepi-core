@@ -6,6 +6,27 @@
 
 using namespace spacepi::liblinux;
 
+Partition::Partition() noexcept : number(-1), bootable(false), dump(0), pass(0) {
+}
+
+int Partition::getNumber() const noexcept {
+    return number;
+}
+
+Partition &Partition::setNumber(int number) noexcept {
+    this->number = number;
+    return *this;
+}
+
+const std::string &Partition::getSource() const noexcept {
+    return source;
+}
+
+Partition &Partition::setSource(const std::string &source) noexcept {
+    this->source = source;
+    return *this;
+}
+
 const std::string &Partition::getStart() const noexcept{
     return start;
 }
@@ -133,6 +154,9 @@ Partition &Partition::setPass(int pass) noexcept{
 }
 
 std::ostream &Partition::printSfdisk(std::ostream &os) const{
+    if (number < 0) {
+        return os;
+    }
     std::string prefix;
     if(!start.empty()){
         os << prefix << "start=" << start;
@@ -166,7 +190,11 @@ std::ostream &Partition::printSfdisk(std::ostream &os) const{
 }
 
 std::ostream &Partition::printFstab(std::ostream &os) const{
-    os << std::left << "UUID=" << std::setw(44) << uuid << " ";
+    if (number < 0) {
+        os << std::left << std::setw(49) << source << " ";
+    } else {
+        os << std::left << "UUID=" << std::setw(44) << uuid << " ";
+    }
     os << std::setw(31) << mountPoint << " ";
     os << std::setw(7) << fsType << " ";
     os << std::setw(49) << options << " ";

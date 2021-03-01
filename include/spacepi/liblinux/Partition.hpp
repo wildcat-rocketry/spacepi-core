@@ -9,6 +9,14 @@ namespace spacepi {
     namespace liblinux {
         class Partition {
             public:
+                Partition() noexcept;
+
+                int getNumber() const noexcept;
+                Partition &setNumber(int number) noexcept;
+
+                const std::string &getSource() const noexcept;
+                Partition &setSource(const std::string &source) noexcept;
+
                 const std::string &getStart() const noexcept;
                 Partition &setStart(const std::string &start) noexcept;
 
@@ -55,6 +63,8 @@ namespace spacepi {
                 std::ostream &printFstab(std::ostream &os) const;
 
             private:
+                int number;
+                std::string source;
                 std::string start;
                 std::string size;
                 bool bootable;
