@@ -19,7 +19,7 @@ using namespace spacepi::liblinux::steps;
 void InstallSpacePiStep::run(InstallationData &data) {
     string rootDir = data.getData<SharedTempDir>().getPath();
     InstallationConfig &config = data.getData<InstallationConfig>();
-    path configFile = relative(canonical(data.getData<InstallationOptions>().getConfigFile(), CMAKE_SOURCE_DIR), CMAKE_SOURCE_DIR);
+    path configFile = relative(data.getData<InstallationOptions>().getConfigFile(), CMAKE_SOURCE_DIR);
     UniqueChroot chroot(rootDir);
     path buildDir = config.sourceDir / "build";
     UniqueProcess make(false, false, false, "/usr/bin/env", { "make", "-C", buildDir.native(), "install" });
