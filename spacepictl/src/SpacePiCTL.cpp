@@ -121,17 +121,17 @@ int SpacePiCTL::userspace_utility(vector<string> argv){
             } else if(argv[1] == "config-set") {
                 return spacepictl_config_set(argv);
             } else {
-                cerr << "No action \"" << argv[1] << "\"\n\n";
+                log(LogLevel::Error) << "No action \"" << argv[1] << "\"\n\n";
             }
         } catch (const Exception &ex){
             log(LogLevel::Error) << "Error running spacepictl " << argv[1] << ": " << ex.what() << "\n" << ex.getPointer();
         }
 
     } else {
-        cerr << "Not enough arguments.\n\n";
+        log(LogLevel::Error) << "Not enough arguments.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " <action> [[options] ... ]\n"
+    log(LogLevel::Info) << "USAGE: " << argv[0] << " <action> [[options] ... ]\n"
             "Available actions:\n"
             "    exec           Execute a SpacePi service\n"
             "    list           List SpacePi services\n"
@@ -161,7 +161,6 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
     if(argv.size() == 3){
         spacepi::package::Module module;
         if(get_module(argv[2], module)){
-            cout << "Found module \"" << argv[2] << "\"\n";
             vector<char*> args;
             vector<string> str_args;
             string executable = System::moduleBin(module);
@@ -187,13 +186,13 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
 
             return 1;
         } else {
-            cerr << "Module \"" << argv[2] << "\" not found\n";
+            log(LogLevel::Error) << "Module \"" << argv[2] << "\" not found\n";
         }
     } else {
-        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
+        log(LogLevel::Error) << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " " << argv[1] << " UNIT_NAME\n";
+    log(LogLevel::Info) << "USAGE: " << argv[0] << " " << argv[1] << " UNIT_NAME\n";
     return 1;
 }
 
@@ -202,8 +201,6 @@ int SpacePiCTL::spacepictl_systemctl(vector<string> argv){
     if(argv.size() == 3){
         spacepi::package::Module module;
         if(get_module(argv[2], module)){
-            cout << "Found module \"" << argv[2] << "\"\n";
-
             argv[0] = bp::search_path("systemctl").native();
             argv[2] = System::moduleServiceName(module);
 
@@ -211,13 +208,13 @@ int SpacePiCTL::spacepictl_systemctl(vector<string> argv){
 
             return 1;
         } else {
-            cerr << "Module \"" << argv[2] << "\" not found\n";
+            log(LogLevel::Error) << "Module \"" << argv[2] << "\" not found\n";
         }
     } else {
-        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
+        log(LogLevel::Error) << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " " << argv[1] << " UNIT_NAME\n";
+    log(LogLevel::Info) << "USAGE: " << argv[0] << " " << argv[1] << " UNIT_NAME\n";
     return 1;
 }
 
@@ -230,10 +227,10 @@ int SpacePiCTL::spacepictl_list(vector<string> argv){
         }
         return 0;
     } else {
-        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 2.\n\n";
+        log(LogLevel::Error) << "Incorrect number of arguments (" << argv.size() << "). Expects 2.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " " << argv[1] << "\n";
+    log(LogLevel::Info) << "USAGE: " << argv[0] << " " << argv[1] << "\n";
     return 1;
 }
 
@@ -297,9 +294,9 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
     if(argv.size() == 3){
         vector<fs::path> paths = resolve_path(fs::path(argv[2]));
         if(paths.size() > 1){
-            cerr << "Ambiguous path. Matches:\n";
+            log(LogLevel::Error) << "Ambiguous path. Matches:\n";
             for(const auto &match : paths){
-                cerr << match.native() << "\n";
+                log(LogLevel::Error) << match.native() << "\n";
             }
             return 1;
         }
@@ -311,13 +308,13 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
         } else {
             vector<string> configs = resolve_config(argv[2]);
             if(configs.size() > 1){
-                cerr << "Ambiguous config name. Matches:\n";
+                log(LogLevel::Error) << "Ambiguous config name. Matches:\n";
                 for(const auto &match : configs){
-                    cerr << match << "\n";
+                    log(LogLevel::Error) << match << "\n";
                 }
                 return 1;
             } else if(configs.size() == 0){
-                cerr << "Argument does not match any configs\n";
+                log(LogLevel::Error) << "Argument does not match any configs\n";
                 return 1;
             } else {
                 //config_path =  fs::path(SPACEPI_CONFIGS).append(configs[0]);
@@ -327,8 +324,8 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
 
         string config = fs::canonical(config_path).native();
 
-        cout << "Linking " << NEW_CONF_PATH << " -> " << config << "\n";
-        cout << "New configuration will activate on next boot\n";
+        log(LogLevel::Info) << "Linking " << NEW_CONF_PATH << " -> " << config << "\n";
+        log(LogLevel::Info) << "New configuration will activate on next boot\n";
 
         FSTransaction fs;
         fs.link(NEW_CONF_PATH, config);
@@ -337,10 +334,10 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
         return 0;
 
     } else {
-        cerr << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
+        log(LogLevel::Error) << "Incorrect number of arguments (" << argv.size() << "). Expects 3.\n\n";
     }
 
-    cerr << "USAGE: " << argv[0] << " " << argv[1] << " [ CONFIG_PATH | CONFIG_NAME ]" << "\n";
+    log(LogLevel::Info) << "USAGE: " << argv[0] << " " << argv[1] << " [ CONFIG_PATH | CONFIG_NAME ]" << "\n";
     return 1;
 }
 
