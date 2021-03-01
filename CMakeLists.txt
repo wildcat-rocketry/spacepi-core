@@ -98,6 +98,7 @@ spacepi_aux_library(
         BOOST_PROCESS
         BOOST_SYSTEM
         GIT_LIB
+    NO_INSTALL
 )
 
 add_subdirectory(extension)
