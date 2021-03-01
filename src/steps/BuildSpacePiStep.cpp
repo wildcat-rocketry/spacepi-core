@@ -22,7 +22,7 @@ void BuildSpacePiStep::run(InstallationData &data) {
     UniqueEID eid(config.sourceUid, config.sourceGid);
     path buildDir = config.sourceDir / "build";
     create_directories(buildDir);
-    UniqueProcess cmake(false, false, false, "/usr/bin/env", { "cmake", "-S", config.sourceDir, "-B", buildDir.native() });
+    UniqueProcess cmake(false, false, false, "/usr/bin/env", { "cmake", "-DBUILD_MINIMAL=ON", "-S", config.sourceDir, "-B", buildDir.native() });
     cmake.wait();
     if (cmake.getExitCode() != 0) {
         throw EXCEPTION(ResourceException("Unable to configure SpacePi"));
