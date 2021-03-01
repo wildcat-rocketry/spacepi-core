@@ -154,7 +154,7 @@ UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const
 }
 
 UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const string &exe, const vector<string> &args) :
-    log(getLogName(exe)),
+    log(getLogName(exe, args)),
     stdoutBuf(new OutputStream(useOutput, log, LogLevel::Info)), stderrBuf(new OutputStream(useError, log, LogLevel::Warning)),
     stdoutStream(stdoutBuf.get()), stderrStream(stderrBuf.get()),
     proc(exe, argv = args, std_in < stdinStream, std_out > stdoutBuf->getPipe(), std_err > stderrBuf->getPipe(), on_exec_setup = ExecSetup()) {
@@ -198,14 +198,19 @@ int UniqueProcess::getExitCode() const {
     return proc.exit_code();
 }
 
-string UniqueProcess::getLogName(const string &exe) noexcept {
+string UniqueProcess::getLogName(const string &exe, const vector<string> &args) noexcept {
     Interrupt::cancellationPoint();
     size_t slash = exe.find_last_of('/');
+    string name;
     if (slash == string::npos) {
-        return "spacepi:liblinux:proc:" + exe;
+        name = exe;
     } else {
-        return "spacepi:liblinux:proc:" + exe.substr(slash + 1);
+        name = exe.substr(slash + 1);
     }
+    if (name == "env" && !args.empty()) {
+        name = args.front();
+    }
+    return "spacepi:liblinux:proc:" + name;
 }
 
 void UniqueProcess::onCancel() noexcept {

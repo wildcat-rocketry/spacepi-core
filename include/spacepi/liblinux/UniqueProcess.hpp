@@ -85,7 +85,7 @@ namespace spacepi {
                 int getExitCode() const;
 
             private:
-                static std::string getLogName(const std::string &exe) noexcept;
+                static std::string getLogName(const std::string &exe, const std::vector<std::string> &args) noexcept;
                 void onCancel() noexcept;
 
                 spacepi::log::Logger log;
