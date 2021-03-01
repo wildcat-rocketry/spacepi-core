@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <cstdlib>
 #include <ctime>
 #include <exception>
 #include <functional>
@@ -14,6 +15,12 @@ using namespace spacepi::liblinux;
 using namespace boost::filesystem;
 
 UniqueTempDir::UniqueTempDir(const std::string &name){
+    static bool seeded = false;
+    if (!seeded) {
+        srand(time(nullptr));
+        seeded = true;
+    }
+
     this->name = name;
     exists = false;
     mkdir();
