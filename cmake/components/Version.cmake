@@ -17,8 +17,8 @@ if (NOT version VERSION_EQUAL coreVersion)
 
     message(FATAL_ERROR
         "SpacePi Core version mismatch!\n"
-        "Loaded build script version: ${version} (from ${SPACEPI_CORE_SOURCE_DIR})\n"
-        "Conflicting build script version: ${coreVersion} (from ${parent2})"
+        "Loaded build script version: ${coreVersion} (from ${SPACEPI_CORE_SOURCE_DIR})\n"
+        "Conflicting build script version: ${version} (from ${parent2})"
     )
 endif()
 
