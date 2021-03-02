@@ -362,6 +362,7 @@ int SpacePiCTL::run_reconfiguration(){
 
     try{
         log(LogLevel::Info) << "Start commiting changes\n";
+        mount("", "/", NULL, MS_REMOUNT, NULL);
         fs_transaction.apply();
         log(LogLevel::Info) << "Done commiting changes\n";
     } catch (const Exception  &ex) {
