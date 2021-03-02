@@ -328,6 +328,7 @@ int SpacePiCTL::spacepictl_config_set(std::vector<std::string> argv){
         log(LogLevel::Info) << "New configuration will activate on next boot\n";
 
         FSTransaction fs;
+        if(!fs::exists(SPACEPI_ETC)) fs.mkdir(SPACEPI_ETC);
         fs.link(NEW_CONF_PATH, config);
         fs.apply();
 
