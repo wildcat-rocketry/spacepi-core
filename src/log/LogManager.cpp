@@ -31,7 +31,7 @@ void LogManager::operator <<(const Entry &entry) {
     unique_lock<mutex> lck(entryMutex);
     if (running && filter(entry.getTag(), entry.getLevel())) {
         entries.emplace(entry);
-        cond.notify_one();
+        cond.notify_all();
     }
 }
 
@@ -47,6 +47,13 @@ LogFilter &LogManager::getFilter() noexcept {
 
 const LogFilter &LogManager::getFilter() const noexcept {
     return filter;
+}
+
+void LogManager::flush() noexcept {
+    unique_lock<mutex> lck(entryMutex);
+    while (!entries.empty()) {
+        cond.wait(lck);
+    }
 }
 
 void LogManager::run() {
