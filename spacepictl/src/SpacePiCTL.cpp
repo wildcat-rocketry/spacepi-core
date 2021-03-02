@@ -70,6 +70,8 @@ int SpacePiCTL::initialize_system(){
         // Check for existence of update flag
         fs::path new_config_path{NEW_CONF_PATH};
         if(points_to_file(new_config_path)){
+            bp::system("mount -a");
+            mount("", "/", NULL, MS_REMOUNT, NULL);
             if(run_reconfiguration() == 0){
                 FSTransaction fs;
 
@@ -362,7 +364,6 @@ int SpacePiCTL::run_reconfiguration(){
 
     try{
         log(LogLevel::Info) << "Start commiting changes\n";
-        mount("", "/", NULL, MS_REMOUNT, NULL);
         fs_transaction.apply();
         log(LogLevel::Info) << "Done commiting changes\n";
     } catch (const Exception  &ex) {
