@@ -28,7 +28,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint8_t &data);
+                BusTransaction operator <<(uint8_t data);
 
                 /**
                  * \brief Transmit a 16-bit field to the end of the BusTransaction
@@ -37,7 +37,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint16_t &data);
+                BusTransaction operator <<(uint16_t data);
 
                 /**
                  * \brief Transmit a 32-bit field to the end of the BusTransaction
@@ -46,7 +46,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint32_t &data);
+                BusTransaction operator <<(uint32_t data);
 
                 /**
                  * \brief Receive an 8-bit field to the end of the BusTransaction
@@ -93,7 +93,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow chaining
                  */
-                BusTransaction write(uint8_t *data, uint16_t length);
+                BusTransaction write(const uint8_t *data, uint16_t length);
 
             private:
                 /**
@@ -151,7 +151,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction &operator <<(uint8_t &data);
+                BusTransaction &operator <<(uint8_t data);
                 
                 /**
                  * \brief Transmit a 16-bit field to the end of the BusTransaction
@@ -160,7 +160,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction &operator <<(uint16_t &data);
+                BusTransaction &operator <<(uint16_t data);
                 
                 /**
                  * \brief Transmit a 32-bit field to the end of the BusTransaction
@@ -169,7 +169,7 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction &operator <<(uint32_t &data);
+                BusTransaction &operator <<(uint32_t data);
 
                 /**
                  * \brief Receive an 8-bit field to the end of the BusTransaction
@@ -216,11 +216,12 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow chaining
                  */
-                BusTransaction &write(uint8_t *data, uint16_t length);
+                BusTransaction &write(const uint8_t *data, uint16_t length);
 
             private:
                 Bus &bus;
                 std::vector<std::pair<uint8_t *, int16_t>> steps;
+                std::vector<std::vector<uint8_t>> alloc;
         };
     }
 }
