@@ -66,6 +66,11 @@ namespace spacepi {
                  */
                 const LogFilter &getFilter() const noexcept;
 
+                /**
+                 * \brief Blocks until all log messages have been written to the console
+                 */
+                void flush() noexcept;
+
             private:
                 void run();
 

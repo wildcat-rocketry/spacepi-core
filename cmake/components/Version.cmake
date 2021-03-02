@@ -1,4 +1,4 @@
-set(version 2.1.0)
+set(version 2.1.1)
 set(build_compat 2.1.0)
 
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_VERSION DEFINED)
@@ -18,7 +18,7 @@ if (NOT version VERSION_EQUAL coreVersion)
     message(FATAL_ERROR
         "SpacePi Core version mismatch!\n"
         "Loaded build script version: ${version} (from ${SPACEPI_CORE_SOURCE_DIR})\n"
-        "Conflicting build script version: ${version} (from ${parent2})"
+        "Conflicting build script version: ${coreVersion} (from ${parent2})"
     )
 endif()
 
