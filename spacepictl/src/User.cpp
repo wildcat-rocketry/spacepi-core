@@ -57,7 +57,6 @@ string User::get_pw() const {
     ss << pw_shell;
     pwd = ss.str();
 
-    cout << "Passwd line for " << get_uname() << ": " << pwd << "\n";
     return pwd;
 }
 
@@ -75,7 +74,6 @@ string User::get_spw() const {
     ss << negative_blank(sp_expire) << ":"; // Trailing : for flag
     spw = ss.str();
 
-    cout << "Shadow line for " << get_uname() << ": " << spw << "\n";
     return spw;
 }
 

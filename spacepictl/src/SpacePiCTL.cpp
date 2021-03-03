@@ -20,7 +20,7 @@
 
 #define SPACEPI_ETC "/etc/spacepi"
 #define SPACEPI_CONFIGS "/usr/local/src/spacepi/configs"
-#define FIRSTTIME_SETUP_PATH "/usr/local/sbin/install-spacepi-boardsupport"
+#define FIRSTTIME_SETUP_PATH "/usr/local/bin/install-spacepi-boardsupport"
 #define NEW_CONF_PATH SPACEPI_ETC "/new_conf.xml"
 #define RUNNING_CONF SPACEPI_ETC "/running_conf.xml"
 
@@ -61,17 +61,20 @@ int SpacePiCTL::initialize_system(){
     // Check for existence of setup program link
 
     fs::path setup_prog_path{FIRSTTIME_SETUP_PATH};
-    if(points_to_file(setup_prog_path)){
+    if(!fs::exists(RUNNING_CONF) && points_to_file(setup_prog_path)){
+        //bp::system("mount -a"); // Does not work
+        mount("", "/", NULL, MS_REMOUNT, NULL);
+        mount("/dev/mmcblk0p3", "/var", "ext4", MS_SYNCHRONOUS | MS_NOATIME, NULL);
         bp::system(setup_prog_path);
-        fs::remove(FIRSTTIME_SETUP_PATH);
     }
 
     try{
         // Check for existence of update flag
         fs::path new_config_path{NEW_CONF_PATH};
         if(points_to_file(new_config_path)){
-            bp::system("mount -a");
+            //bp::system("mount -a"); // Does not work
             mount("", "/", NULL, MS_REMOUNT, NULL);
+            mount("/dev/mmcblk0p3", "/var", "ext4", MS_SYNCHRONOUS | MS_NOATIME, NULL);
             if(run_reconfiguration() == 0){
                 FSTransaction fs;
 
@@ -90,6 +93,15 @@ int SpacePiCTL::initialize_system(){
 
     log(LogLevel::Info) << "Starting /sbin/init";
     // Boot into systemd
+
+/*
+    try{
+        LogManager::instance.flush();
+    } catch (const Exception &ex) {
+        log(LogLevel::Error) << "Failed to flush log: " << ex.what() << "\n" << ex.getPointer();
+    }
+*/
+
     execl("/sbin/init", "/sbin/init", nullptr); 
     log(LogLevel::Error) << "Error executing /sbin/init: " << strerror(errno) << "!";
     return 1;

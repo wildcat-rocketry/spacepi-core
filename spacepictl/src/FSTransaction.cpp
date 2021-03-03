@@ -175,7 +175,7 @@ void FSMkdirOperation::perform() {
             handle("changing directory mode", chmod(path.c_str(), mode));
         }
     } else {
-        handle("making new directory", mkdir(path.c_str(), mode));
+        handle("making new directory: " + path, mkdir(path.c_str(), mode));
         made = true;
         handle("changing new directory owner", chown(path.c_str(), uid, gid));
     }
