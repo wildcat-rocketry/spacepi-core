@@ -182,8 +182,7 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
 
             spacepi::package::Options options = module.getOptions();
             for( const auto& option : options){
-                str_args.push_back("--" + option.getKey());
-                str_args.push_back(option.getValue());
+                str_args.push_back("--" + option.getKey() + "=" + option.getValue());
             }
 
             for(const auto &arg : str_args){
