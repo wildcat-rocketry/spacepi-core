@@ -98,3 +98,21 @@ UART &UART::operator =(const UART &copy) {
 shared_ptr<UART> UART::get(const string &name) {
     return ResourceFactory<UART>::get(name);
 }
+
+int UART::underflow() {
+    char buff[1];
+    int len = xsgetn(buff, 1);
+    if(len == 0) return EOF;
+    else {
+        last = buff[0];
+        return last;
+    }
+}
+
+int UART::uflow() {
+    char c;
+    if (xsgetn(&c, 1) == 1) {
+        return c;
+    }
+    return EOF;
+}
