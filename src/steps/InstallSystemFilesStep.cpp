@@ -3,6 +3,7 @@
 #include <fstream>
 #include <ios>
 #include <string>
+#include <vector>
 #include <boost/filesystem.hpp>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
@@ -101,6 +102,18 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     std::ofstream((root / "etc/resolv.conf").native()) <<
         "nameserver 1.1.1.1\n"
         "nameserver 8.8.8.8\n";
+    // /etc/ssh/ssh_host_*
+    {
+        vector<path> files;
+        for (directory_iterator it(root / "etc/ssh"); it != directory_iterator(); ++it) {
+            if (it->path().filename().native().substr(0, 9) == "ssh_host_") {
+                files.push_back(it->path());
+            }
+        }
+        for (vector<path>::const_iterator it = files.begin(); it != files.end(); ++it) {
+            remove(*it);
+        }
+    }
     // /etc/sudoers
     {
         std::ifstream in((root / "etc/sudoers").native());
