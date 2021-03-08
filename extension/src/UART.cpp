@@ -181,28 +181,6 @@ streamsize UART::xsputn(char *buffer, streamsize count) {
     return r;
 }
 
-int UART::underflow() {
-    if(last != 0){
-       return last;
-    }
-
-    char buff[1];
-    int len = xsgetn(buff, 1);
-    if(len == 0) return EOF;
-    else {
-        last = buff[0];
-        return last;
-    }
-}
-
-int UART::uflow() {
-    char c;
-    if (xsgetn(&c, 1) == 1) {
-        return c;
-    }
-    return EOF;
-}
-
 void UART::throwError(int returnCode) {
     if (returnCode < 0) {
         throw EXCEPTION(ResourceException("UART operation failed."));

@@ -27,7 +27,6 @@ namespace spacepi {
 
                     detail::UniqueFD fd;
                     int baud;
-                    char last = 0;
             };
         }
     }
