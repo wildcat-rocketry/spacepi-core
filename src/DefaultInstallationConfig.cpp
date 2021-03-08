@@ -18,6 +18,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",libi2c-dev"
         ",libprotobuf-dev"
         ",libssl-dev"
+        ",openssh-server"
         ",protobuf-compiler"
         ",sudo"
             + 1;
