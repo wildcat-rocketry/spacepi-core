@@ -10,6 +10,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",cmake"
         ",debootstrap"
         ",git"
+        ",i2c-tools"
         ",kpartx"
         ",libblkid-dev"
         ",libboost-all-dev"
