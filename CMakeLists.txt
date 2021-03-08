@@ -4,7 +4,6 @@ include(core/cmake/TargetRepo.cmake)
 
 add_subdirectory(core)
 add_subdirectory(spacepi-targetlib-linux)
-add_subdirectory(install-spacepi-boardsupport)
 
 spacepi_dependencies(
     BOOST_FILESYSTEM
