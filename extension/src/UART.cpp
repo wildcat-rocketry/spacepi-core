@@ -1,3 +1,4 @@
+#include <cerrno>
 #include <streambuf>
 #include <string>
 #include <fcntl.h>
@@ -10,6 +11,7 @@
 
 using namespace std;
 using namespace spacepi::util;
+using namespace spacepi::concurrent;
 using namespace spacepi::target::extension;
 
 UART::UART(const string &deviceName) : fd(open(("/dev/" + deviceName).c_str(), O_RDWR)) {
@@ -149,11 +151,26 @@ void UART::setBAUDRate(int baud) {
     struct termios tios;
     throwError(tcgetattr(fd, &tios));
     cfsetspeed(&tios, speed);
+    cfmakeraw(&tios);
     throwError(tcsetattr(fd, TCSANOW, &tios));
 }
 
 streamsize UART::xsgetn(char *buffer, streamsize count) {
+    if(last != 0 && count > 0){
+        buffer[0] = last;
+        last = 0;
+        buffer++;
+        count--;
+	if(count == 0) return 1;
+    }
+
     ssize_t r = ::read(fd, buffer, count);
+
+    while(r == 0){
+	Interrupt::cancellationPoint();
+        r = ::read(fd, buffer, count);
+    }
+
     throwError(r);
     return r;
 }
@@ -162,6 +179,28 @@ streamsize UART::xsputn(char *buffer, streamsize count) {
     ssize_t r = ::write(fd, buffer, count);
     throwError(r);
     return r;
+}
+
+int UART::underflow() {
+    if(last != 0){
+       return last;
+    }
+
+    char buff[1];
+    int len = xsgetn(buff, 1);
+    if(len == 0) return EOF;
+    else {
+        last = buff[0];
+        return last;
+    }
+}
+
+int UART::uflow() {
+    char c;
+    if (xsgetn(&c, 1) == 1) {
+        return c;
+    }
+    return EOF;
 }
 
 void UART::throwError(int returnCode) {

@@ -19,12 +19,15 @@ namespace spacepi {
                 protected:
                     std::streamsize xsgetn(char *buffer, std::streamsize count);
                     std::streamsize xsputn(char *buffer, std::streamsize count);
+                    int uflow();
+                    int underflow();
 
                 private:
                     void throwError(int returnCode);
 
                     detail::UniqueFD fd;
                     int baud;
+                    char last = 0;
             };
         }
     }
