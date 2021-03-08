@@ -3,6 +3,7 @@
 
 #include <streambuf>
 #include <string>
+#include <chrono>
 #include <SpacePi.hpp>
 #include <spacepi/target/extension/detail/UniqueFD.hpp>
 
@@ -19,14 +20,14 @@ namespace spacepi {
                 protected:
                     std::streamsize xsgetn(char *buffer, std::streamsize count);
                     std::streamsize xsputn(char *buffer, std::streamsize count);
-                    int uflow();
-                    int underflow();
 
                 private:
+                    void set_baud(int baud);
                     void throwError(int returnCode);
 
                     detail::UniqueFD fd;
                     int baud;
+                    std::chrono::duration<double> baud_period;
             };
         }
     }

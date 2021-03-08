@@ -1,4 +1,5 @@
 #include <cerrno>
+#include <chrono>
 #include <streambuf>
 #include <string>
 #include <fcntl.h>
@@ -10,6 +11,7 @@
 #include <spacepi/target/extension/UART.hpp>
 
 using namespace std;
+using namespace std::chrono;
 using namespace spacepi::util;
 using namespace spacepi::concurrent;
 using namespace spacepi::target::extension;
@@ -20,61 +22,61 @@ UART::UART(const string &deviceName) : fd(open(("/dev/" + deviceName).c_str(), O
     throwError(tcgetattr(fd, &tios));
     switch (cfgetospeed(&tios)) {
         case B0:
-            baud = 0;
+            set_baud(0);
             break;
         case B50:
-            baud = 50;
+            set_baud(50);
             break;
         case B75:
-            baud = 75;
+            set_baud(75);
             break;
         case B110:
-            baud = 110;
+            set_baud(110);
             break;
         case B134:
-            baud = 134;
+            set_baud(134);
             break;
         case B150:
-            baud = 150;
+            set_baud(150);
             break;
         case B200:
-            baud = 200;
+            set_baud(200);
             break;
         case B300:
-            baud = 300;
+            set_baud(300);
             break;
         case B600:
-            baud = 600;
+            set_baud(600);
             break;
         case B1200:
-            baud = 1200;
+            set_baud(1200);
             break;
         case B1800:
-            baud = 1800;
+            set_baud(1800);
             break;
         case B2400:
-            baud = 2400;
+            set_baud(2400);
             break;
         case B4800:
-            baud = 4800;
+            set_baud(4800);
             break;
         case B9600:
-            baud = 9600;
+            set_baud(9600);
             break;
         case B19200:
-            baud = 19200;
+            set_baud(19200);
             break;
         case B38400:
-            baud = 38400;
+            set_baud(38400);
             break;
         case B57600:
-            baud = 57600;
+            set_baud(57600);
             break;
         case B115200:
-            baud = 115200;
+            set_baud(115200);
             break;
         case B230400:
-            baud = 230400;
+            set_baud(230400);
             break;
         default:
             throw EXCEPTION(ResourceException("Unknown UART BAUD rate reported by device."));
@@ -153,6 +155,7 @@ void UART::setBAUDRate(int baud) {
     cfsetspeed(&tios, speed);
     cfmakeraw(&tios);
     throwError(tcsetattr(fd, TCSANOW, &tios));
+    set_baud(baud);
 }
 
 streamsize UART::xsgetn(char *buffer, streamsize count) {
@@ -167,7 +170,7 @@ streamsize UART::xsgetn(char *buffer, streamsize count) {
     ssize_t r = ::read(fd, buffer, count);
 
     while(r == 0){
-	Interrupt::cancellationPoint();
+        Sleep::duration(baud_period);
         r = ::read(fd, buffer, count);
     }
 
@@ -185,4 +188,9 @@ void UART::throwError(int returnCode) {
     if (returnCode < 0) {
         throw EXCEPTION(ResourceException("UART operation failed."));
     }
+}
+
+void UART::set_baud(int baud) {
+    this->baud = baud;
+    this->baud_period = seconds(1) / double(baud);
 }
