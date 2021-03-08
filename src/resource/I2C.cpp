@@ -8,6 +8,7 @@
 #include <vector>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/log/LogStream.hpp>
 #include <spacepi/resource/I2C.hpp>
 #include <spacepi/resource/ResourceFactory.hpp>
 
@@ -133,22 +134,24 @@ void MockI2C::readBlockSMBus(uint8_t command, uint8_t *data) {
 }
 
 void MockI2C::writeBlockSMBus(uint8_t command, uint8_t *data, uint8_t length) {
-    ostream &os = log(LogLevel::Debug) << "Block write (command 0x" << hex << setw(2) << command << setw(0) << " to SMBUs '" << name << "':";
+    LogStream os = log(LogLevel::Debug);
+    os << "Block write (command 0x" << hex << setw(2) << command << setw(0) << " to SMBUs '" << name << "':";
     for (int i = 0; i < length; ++i) {
         if (i % 8 == 0) {
             os << "\n   ";
         }
-        os << " 0x" << setw(2) << data[i] << setw(0);
+        os << " 0x" << setw(2) << (int) data[i] << setw(0);
     }
 }
 
 void MockI2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
-    ostream &os = log(LogLevel::Debug) << "I2C transaction:";
+    LogStream os = log(LogLevel::Debug);
+    os << "I2C transaction:";
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
         if (it->second < 0) {
-            os << "\n    Write of " << -it->second << " bytes:" << hex << setw(2);
+            os << "\n    Write of " << -it->second << " bytes:" << hex << setfill('0');
             for (int i = 0; i < -it->second; ++i) {
-                os << " 0x" << it->first[i];
+                os << " 0x" << setw(2) << (int) it->first[i];
             }
             os << setw(0) << dec << ".";
         } else {
