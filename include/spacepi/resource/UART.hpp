@@ -82,6 +82,10 @@ namespace spacepi {
                  * \return The actual amount of data which was written
                  */
                 virtual std::streamsize xsputn(char *buffer, std::streamsize count) = 0;
+
+                virtual int underflow() = 0;
+
+                virtual int uflow() = 0;
         };
     }
 }
