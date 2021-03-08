@@ -64,7 +64,7 @@ namespace spacepi {
 
             protected:
                 /**
-                 * \brief Read some data from the UART bus
+                 * \brief Read some data from the UART bus.
                  * 
                  * \param[out] buffer The data which was read
                  * \param[in] count The maximum amount of data to read
@@ -76,16 +76,31 @@ namespace spacepi {
                 /**
                  * \brief Write some data to the UART bus
                  * 
-                 * \param[in] buffer THe data to write
+                 * \param[in] buffer The data to write
                  * \param[in] count The maximum amount of data to write
                  * 
                  * \return The actual amount of data which was written
                  */
                 virtual std::streamsize xsputn(char *buffer, std::streamsize count) = 0;
 
-                virtual int underflow() = 0;
+                /**
+                 * \brief Peek the next character to read but don't remove
+                 * 
+                 * \return The next character to read or EOL
+                 */
+                virtual int underflow();
 
-                virtual int uflow() = 0;
+                /**
+                 * \brief Take the next character off the UART
+                 * 
+                 * \return The next character on the UART or EOL
+                 */
+                virtual int uflow();
+
+                /**
+                 * \brief Character taken off the UART but not processed.
+                 */
+                char last = 0;
         };
     }
 }
