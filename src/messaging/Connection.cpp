@@ -146,6 +146,12 @@ ImmovableConnection::ImmovableConnection(Command &cmd) : CommandConfigurable("Co
     fromCommand(debugPublishes, false, "debugPublish", "Enable printing all published messages to the debug log");
 }
 
+ImmovableConnection::~ImmovableConnection() noexcept {
+    UniqueConditionVariableLock lck(cond);
+    state = ShutDown;
+    cond.notify_all();
+}
+
 Publisher ImmovableConnection::operator ()(uint64_t instanceID) {
     return Publisher(shared_from_this(), instanceID);
 }
@@ -218,6 +224,8 @@ void ImmovableConnection::handleConnect() {
                 toSubscribe.insert(it->first);
             }
             break;
+        case ShutDown:
+            return;
         default:
             throw EXCEPTION(StateException("Invalid state for socket connect to occur"));
     }
@@ -240,6 +248,8 @@ void ImmovableConnection::handleError(const Exception::pointer &err) {
         case Reconnecting:
             log(log::LogLevel::Debug) << "Connection attempt failed.";
             break;
+        case ShutDown:
+            return;
         default:
             throw EXCEPTION(StateException("Invalid state for socket error to occur"));
     }

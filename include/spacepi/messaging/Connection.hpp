@@ -94,6 +94,7 @@ namespace spacepi {
 
                 public:
                     explicit ImmovableConnection(spacepi::util::Command &cmd);
+                    ~ImmovableConnection() noexcept;
 
                     ImmovableConnection(ImmovableConnection &) = delete;
                     ImmovableConnection &operator =(ImmovableConnection &) = delete;
@@ -116,7 +117,8 @@ namespace spacepi {
                         Connecting,
                         Connected,
                         Disconnected,
-                        Reconnecting
+                        Reconnecting,
+                        ShutDown
                     };
 
                     void connect();
