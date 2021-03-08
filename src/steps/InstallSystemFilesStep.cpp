@@ -45,6 +45,13 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     // /etc/hostname
     std::ofstream((root / "etc/hostname").native()) <<
         "spacepi-unconfigured\n";
+    // /etc/hosts
+    std::ofstream((root / "etc/hosts").native()) <<
+        "# /etc/hosts: static DNS resolution information.\n"
+        "#\n"
+        "# <ip address>  <host name>\n"
+        "127.0.0.1       localhost\n"
+        "127.0.0.1       spacepi-unconfigured\n";
     // /etc/mtab
     remove(root / "etc/mtab");
     create_symlink("/proc/self/mounts", root / "etc/mtab");
