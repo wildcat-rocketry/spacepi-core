@@ -6,6 +6,7 @@
 #include <vector>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/log/LogStream.hpp>
 #include <spacepi/resource/ResourceFactory.hpp>
 #include <spacepi/resource/SPI.hpp>
 
@@ -74,12 +75,13 @@ void MockSPI::setSpeed(int speed) {
 }
 
 void MockSPI::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
-    ostream &os = log(LogLevel::Debug) << "SPI transaction:";
+    LogStream os = log(LogLevel::Debug);
+    os << "SPI transaction:";
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
         if (it->second < 0) {
-            os << "\n    Write of " << -it->second << " bytes:" << hex << setw(2);
+            os << "\n    Write of " << -it->second << " bytes:" << hex << setfill('0');
             for (int i = 0; i < -it->second; ++i) {
-                os << " 0x" << it->first[i];
+                os << " 0x" << setw(2) << (int) it->first[i];
             }
             os << setw(0) << dec << ".";
         } else {

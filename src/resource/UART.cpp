@@ -7,6 +7,7 @@
 #include <string>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/log/LogStream.hpp>
 #include <spacepi/resource/ResourceFactory.hpp>
 #include <spacepi/resource/UART.hpp>
 
@@ -68,12 +69,13 @@ streamsize MockUART::xsgetn(char *buffer, streamsize count) {
 }
 
 streamsize MockUART::xsputn(char *buffer, streamsize count) {
-    ostream &os = log(LogLevel::Debug) << "Writing UART '" << name << "': " << count << "bytes:" << hex;
+    LogStream os = log(LogLevel::Debug);
+    os << "Writing UART '" << name << "': " << count << "bytes:" << hex << setfill('0');
     for (int i = 0; i < count; ++i) {
         if (i % 8 == 0) {
             os << "\n   ";
         }
-        os << " 0x" << setw(2) << (uint8_t) buffer[i] << setw(0);
+        os << " 0x" << setw(2) << (int) buffer[i] << setw(0);
     }
     return count;
 }
