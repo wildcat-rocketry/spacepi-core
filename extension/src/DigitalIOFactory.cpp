@@ -45,7 +45,7 @@ shared_ptr<resource::DigitalIO> DigitalIOFactory::create(const string &name) {
         throw EXCEPTION(ResourceException("Invalid GPIO resource name."));
     }
     string chipName = name.substr(0, colon);
-    string lineName = name.substr(colon);
+    string lineName = name.substr(colon + 1);
     unordered_map<string, weak_ptr<DigitalIOChip>>::iterator it = chips.find(name);
     shared_ptr<DigitalIOChip> chip;
     if (it == chips.end()) {

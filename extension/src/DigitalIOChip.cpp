@@ -53,7 +53,7 @@ shared_ptr<DigitalIO> DigitalIOChip::addLine(const string &name) {
     if (off >= resources.size()) {
         throw EXCEPTION(ResourceException("Got a line with an offset larger than the number of lines"));
     }
-    shared_ptr<DigitalIO> ptr(new DigitalIO(move(shared_from_this()), move(l)));
+    shared_ptr<DigitalIO> ptr(new DigitalIO(shared_from_this(), move(l)));
     resources[off] = weak_ptr<DigitalIO>(ptr);
     resourceIDs.emplace_hint(it, name, off);
     return ptr;

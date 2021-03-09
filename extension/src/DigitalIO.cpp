@@ -16,7 +16,7 @@ using namespace spacepi::util;
 using namespace spacepi::target;
 using namespace spacepi::target::extension;
 
-extension::DigitalIO::DigitalIO(shared_ptr<DigitalIOChip> &&chip, gpiod::line &&line) : chip(move(chip)), line(move(line)), edge(resource::DigitalIO::Disable), isr(nullptr) {
+extension::DigitalIO::DigitalIO(shared_ptr<DigitalIOChip> &&chip, gpiod::line &&line) : chip(chip), line(line), edge(resource::DigitalIO::Disable), isr(nullptr) {
     line_request req;
     req.consumer = chip->getFactory().getConsumerName();
     switch (line.direction()) {
@@ -78,12 +78,15 @@ extension::DigitalIO::operator bool() {
 }
 
 resource::DigitalIO &extension::DigitalIO::operator =(bool value) {
-    if (value) {
-        this->value = 1;
-    } else {
-        this->value = 0;
+    if (mode & Output){
+	if (value) {
+	    this->value = 1;
+	} else {
+	    this->value = 0;
+	}
+	line.set_value(this->value);
     }
-    line.set_value(this->value);
+
     return *this;
 }
 
