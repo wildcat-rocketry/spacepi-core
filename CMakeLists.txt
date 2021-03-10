@@ -57,6 +57,13 @@ spacepi_aux_library(
         src/package/Options.cpp
         src/package/PackageConfig.cpp
         src/package/User.cpp
+        src/resource/detail/MockADC.cpp
+        src/resource/detail/MockDigitalIO.cpp
+        src/resource/detail/MockI2C.cpp
+        src/resource/detail/MockMemory.cpp
+        src/resource/detail/MockProcessor.cpp
+        src/resource/detail/MockSPI.cpp
+        src/resource/detail/MockUART.cpp
         src/resource/ADC.cpp
         src/resource/BusTransaction.cpp
         src/resource/DigitalIO.cpp
