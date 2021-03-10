@@ -23,7 +23,7 @@ extension::DigitalIO::DigitalIO(shared_ptr<DigitalIOChip> &&chip, gpiod::line &&
         case gpiod::line::DIRECTION_OUTPUT:
             mode = Output;
             req.request_type = line_request::DIRECTION_OUTPUT;
-            value = line.get_value();
+            value = 0;
             if (line.is_open_drain()) {
                 mode |= OpenDrain;
                 req.flags |= line_request::FLAG_OPEN_DRAIN;
@@ -78,12 +78,13 @@ extension::DigitalIO::operator bool() {
 }
 
 resource::DigitalIO &extension::DigitalIO::operator =(bool value) {
-    if (mode & Output){
-	if (value) {
-	    this->value = 1;
-	} else {
-	    this->value = 0;
-	}
+    if (value) {
+        this->value = 1;
+    } else {
+        this->value = 0;
+    }
+
+    if (mode == Output){
 	line.set_value(this->value);
     }
 
@@ -97,11 +98,11 @@ enum resource::DigitalIO::Mode extension::DigitalIO::getMode() const noexcept {
 void extension::DigitalIO::setMode(enum resource::DigitalIO::Mode mode) {
     if (mode != this->mode) {
         line_request req;
-        req.consumer = chip->getFactory().getConsumerName();
-        switch (mode & (Input | Output)) {
+	req.consumer = chip->getFactory().getConsumerName();
+        switch (mode & ((int)Input | (int)Output)) {
             case Output:
                 req.request_type = line_request::DIRECTION_OUTPUT;
-                switch (mode & (OpenDrain | OpenSource)) {
+                switch (mode & ((int)OpenDrain | (int)OpenSource)) {
                     case 0:
                         break;
                     case OpenDrain:
@@ -117,7 +118,7 @@ void extension::DigitalIO::setMode(enum resource::DigitalIO::Mode mode) {
             case Input:
                 req.request_type = line_request::DIRECTION_INPUT;
 #ifdef HAVE_LIBGPIOD_BIAS
-                switch (mode & (PullUp | PullDown)) {
+                switch (mode & ((int)PullUp | (int)PullDown)) {
                     case 0:
                         break;
                     case PullUp:
@@ -134,6 +135,7 @@ void extension::DigitalIO::setMode(enum resource::DigitalIO::Mode mode) {
             default:
                 throw EXCEPTION(ResourceException("Unknown mode."));
         }
+	line.release();
         line.request(req, value);
     }
 }
@@ -152,7 +154,7 @@ void extension::DigitalIO::setISR(const function<void(void)> &isr, enum resource
     this->edge = edge;
     line_request req;
     req.consumer = chip->getFactory().getConsumerName();
-    if ((mode & (Input | Output)) == Output) {
+    if ((mode & ((int)Input | (int)Output)) == Output) {
         setMode(Input);
     }
     switch (edge) {
@@ -175,6 +177,7 @@ void extension::DigitalIO::setISR(const function<void(void)> &isr, enum resource
         default:
             throw EXCEPTION(ResourceException("Unknown edge."));
     }
+    line.release();
     line.request(req);
     if (oldEdge == Disable) {
         chip->addInterrupt(line);
