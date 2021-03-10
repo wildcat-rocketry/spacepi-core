@@ -120,8 +120,8 @@ namespace spacepi {
                                     throw std::exception();
                                 }
                                 valid = true;
-                            } catch (const std::exception &) {
-                                return std::make_pair(res.second.first, "Unknown resource " + res.first);
+                            } catch (const std::exception &e) {
+                                return std::make_pair(res.second.first, "Unknown resource " + res.first + ": " + e.what());
                             }
                         }
                         return res.second;
