@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <spacepi/log/AutoLog.hpp>
+#include <spacepi/log/Logger.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/log/LogStream.hpp>
 #include <spacepi/resource/ResourceFactory.hpp>
@@ -13,7 +13,7 @@
 namespace spacepi {
     namespace resource {
         namespace detail {
-            class MockSPI : public SPI, private spacepi::log::AutoLog<decltype("core:resource:mock:spi"_autolog)> {
+            class MockSPI : public SPI {
                 public:
                     MockSPI(const std::string &name) noexcept;
 
@@ -27,6 +27,7 @@ namespace spacepi {
                     void doTransaction(const std::vector<std::pair<uint8_t *, int16_t>> &steps);
 
                 private:
+                    spacepi::log::Logger log;
                     std::string name;
                     enum Mode mode;
                     int speed;
@@ -52,7 +53,7 @@ using namespace spacepi::resource::detail;
 
 MockSPIFactory MockSPIFactory::instance;
 
-MockSPI::MockSPI(const string &name) noexcept : name(name), mode(SPI::Mode0), speed(100000) {
+MockSPI::MockSPI(const string &name) noexcept : log("core:resource:mock:spi"), name(name), mode(SPI::Mode0), speed(100000) {
     log(LogLevel::Debug) << "Created new SPI '" << name << "'.";
 }
 

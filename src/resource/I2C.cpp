@@ -6,7 +6,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <spacepi/log/AutoLog.hpp>
+#include <spacepi/log/Logger.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/log/LogStream.hpp>
 #include <spacepi/resource/I2C.hpp>
@@ -15,7 +15,7 @@
 namespace spacepi {
     namespace resource {
         namespace detail {
-            class MockI2C : public I2C, private spacepi::log::AutoLog<decltype("core:resource:mock:i2c"_autolog)> {
+            class MockI2C : public I2C {
                 public:
                     MockI2C(const std::string &name) noexcept;
 
@@ -41,6 +41,7 @@ namespace spacepi {
                     void doTransaction(const std::vector<std::pair<uint8_t *, int16_t>> &steps);
 
                 private:
+                    spacepi::log::Logger log;
                     std::string name;
                     int speed;
                     bool errorChecking;
@@ -66,7 +67,7 @@ using namespace spacepi::resource::detail;
 
 MockI2CFactory MockI2CFactory::instance;
 
-MockI2C::MockI2C(const string &name) noexcept : name(name), speed(100000), errorChecking(false) {
+MockI2C::MockI2C(const string &name) noexcept : log("core:resource:mock:i2c"), name(name), speed(100000), errorChecking(false) {
     log(LogLevel::Debug) << "Created new I2C '" << name << "'.";
 }
 

@@ -2,24 +2,24 @@
 #define SPACEPI_CORE_RESOURCE_BUSTRANSACTION_HPP
 
 #include <cstdint>
+#include <memory>
 #include <utility>
 #include <vector>
 
 namespace spacepi {
     namespace resource {
-        class BusTransaction;
-
         /**
-         * \brief Base class for hardware resources which can send or recieve packets as a stream of data types
+         * \brief Base class for Bus and BusTransaction
+         * 
+         * \tparam TReturn The return type of every method
          */
-        class Bus {
-            friend class BusTransaction;
-
+        template <typename TReturn>
+        class BusBase {
             public:
                 /**
-                 * \brief Destroy this Bus resource
+                 * \brief Destroys a BusBase
                  */
-                virtual ~Bus() = default;
+                virtual ~BusBase() noexcept(false);
 
                 /**
                  * \brief Transmit an 8-bit field to the end of the BusTransaction
@@ -28,62 +28,28 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint8_t data);
+                TReturn operator <<(uint8_t data) noexcept;
 
                 /**
-                 * \brief Transmit a 16-bit field to the end of the BusTransaction
+                 * \brief Helper function for stream modifiers
                  * 
-                 * \param[in] data The data to transmit
+                 * \param[in] func The stream modifier
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint16_t data);
+                template <typename Func>
+                TReturn operator <<(Func func) noexcept {
+                    return func(*this);
+                }
 
                 /**
-                 * \brief Transmit a 32-bit field to the end of the BusTransaction
+                 * \brief Sends a sequence of don't care bytes at the end of the BusTransaction
                  * 
-                 * \param[in] data The data to transmit
+                 * \param[in] count The number of don't care bytes to transmit
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction operator <<(uint32_t data);
-
-                /**
-                 * \brief Receive an 8-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction operator >>(uint8_t &data);
-
-                /**
-                 * \brief Receive a 16-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction operator >>(uint16_t &data);
-
-                /**
-                 * \brief Receive a 32-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction operator >>(uint32_t &data);
-
-                /**
-                 * \brief Receive a buffered field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * \param[in] length The number of bytes to receive
-                 * 
-                 * \return The BusTransaction to allow chaining
-                 */
-                BusTransaction read(uint8_t *data, uint16_t length);
+                TReturn seek(int count) noexcept;
 
                 /**
                  * \brief Transmit a buffered field to the end of the BusTransaction
@@ -93,9 +59,77 @@ namespace spacepi {
                  * 
                  * \return The BusTransaction to allow chaining
                  */
-                BusTransaction write(const uint8_t *data, uint16_t length);
+                virtual TReturn write(const uint8_t *data, uint16_t length) noexcept = 0;
+
+                /**
+                 * \brief Receive an 8-bit field to the end of the BusTransaction
+                 * 
+                 * \param[out] data The data to receive
+                 * 
+                 * \return The BusTransaction to allow \c >> chaining
+                 */
+                TReturn operator >>(uint8_t &data) noexcept;
+
+                /**
+                 * \brief Helper function for stream modifiers
+                 * 
+                 * \param[in] func The stream modifier
+                 * 
+                 * \return The BusTransaction to allow \c >> chaining
+                 */
+                template <typename Func>
+                TReturn operator >>(Func func) noexcept {
+                    return func(*this);
+                }
+
+                /**
+                 * \brief Ignore a sequence of bytes from the end of the BusTransaction
+                 * 
+                 * \param[in] count The number of bytes to ignore
+                 * 
+                 * \return The BusTransaction to allow \c >> chaining
+                 */
+                TReturn skip(int count) noexcept;
+
+                /**
+                 * \brief Receive a buffered field to the end of the BusTransaction
+                 * 
+                 * \param[out] data The data to receive
+                 * \param[in] length The number of bytes to receive
+                 * 
+                 * \return The BusTransaction to allow chaining
+                 */
+                virtual TReturn read(uint8_t *data, uint16_t length) noexcept = 0;
 
             private:
+                virtual TReturn ref() noexcept = 0;
+
+                template <typename Func>
+                TReturn seekSkip(Func func, int count);
+        };
+
+        class BusTransaction;
+
+        /**
+         * \brief Base class for hardware resources which can send or recieve packets as a stream of data types
+         */
+        class Bus : public BusBase<BusTransaction> {
+            friend class BusTransaction;
+
+            public:
+                /**
+                 * \copydoc BusBase::read
+                 */
+                BusTransaction read(uint8_t *data, uint16_t length) noexcept;
+
+                /**
+                 * \copydoc BusBase::write
+                 */
+                BusTransaction write(const uint8_t *data, uint16_t length) noexcept;
+
+            private:
+                BusTransaction ref() noexcept;
+
                 /**
                  * \brief Performs an operation on the bus
                  * 
@@ -110,118 +144,152 @@ namespace spacepi {
         /**
          * \brief A temporary helper class which allows readable syntax for forming packets on a Bus
          */
-        class BusTransaction final {
+        class BusTransaction final : public BusBase<BusTransaction &> {
             public:
                 /**
                  * \brief Create a new, empty BusTransaction
                  * 
                  * \param[in,out] bus The bus on which the transaction is occurring
                  */
-                BusTransaction(Bus &bus);
+                BusTransaction(Bus &bus) noexcept;
 
                 /**
                  * \brief Commit the BusTransaction by performing it on the Bus
                  */
-                ~BusTransaction();
+                ~BusTransaction() noexcept(false);
 
                 /**
-                 * \brief Move-construct a BusTransaction with the signature of a copy-constructor
-                 * 
-                 * This allows returning copies of the BusTransaction from methods in Bus
-                 * 
-                 * \param[in,out] copy The original object
+                 * \copydoc BusBase::read
                  */
-                BusTransaction(BusTransaction &copy);
+                BusTransaction &read(uint8_t *data, uint16_t length) noexcept;
 
                 /**
-                 * \brief Move-assign a BusTransaction with the signature of a copy-assignment
-                 * 
-                 * This allows returning copies of the BusTransaction from methods in Bus
-                 * 
-                 * \param[in,out] copy The original object
-                 * 
-                 * \return \c this
+                 * \copydoc BusBase::write
                  */
-                BusTransaction &operator =(BusTransaction &copy);
+                BusTransaction &write(const uint8_t *data, uint16_t length) noexcept;
+
+            private:
+                BusTransaction &ref() noexcept;
+
+                Bus *bus;
+                std::shared_ptr<std::vector<std::pair<uint8_t *, int16_t>>> steps;
+                std::shared_ptr<std::vector<std::vector<uint8_t>>> alloc;
+        };
+
+        /**
+         * \brief Stream modifier to send a sequence of don't care bytes at the end of the BusTransaction
+         */
+        class seek final {
+            public:
+                /**
+                 * \brief Initialize the seek modifier
+                 * 
+                 * \param[in] count The number of don't care bytes to transmit
+                 */
+                seek(int count) noexcept;
 
                 /**
-                 * \brief Transmit an 8-bit field to the end of the BusTransaction
+                 * \brief Performs the operation on a stream
                  * 
-                 * \param[in] data The data to transmit
+                 * \tparam Target The return type of the function
+                 * 
+                 * \param[in,out] os The stream to perform on
                  * 
                  * \return The BusTransaction to allow \c << chaining
                  */
-                BusTransaction &operator <<(uint8_t data);
-                
-                /**
-                 * \brief Transmit a 16-bit field to the end of the BusTransaction
-                 * 
-                 * \param[in] data The data to transmit
-                 * 
-                 * \return The BusTransaction to allow \c << chaining
-                 */
-                BusTransaction &operator <<(uint16_t data);
-                
-                /**
-                 * \brief Transmit a 32-bit field to the end of the BusTransaction
-                 * 
-                 * \param[in] data The data to transmit
-                 * 
-                 * \return The BusTransaction to allow \c << chaining
-                 */
-                BusTransaction &operator <<(uint32_t data);
+                template <typename Target>
+                Target operator ()(BusBase<Target> &os) const noexcept;
 
-                /**
-                 * \brief Receive an 8-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction &operator >>(uint8_t &data);
+            private:
+                int count;
+        };
 
+        /**
+         * \brief Stream modifier to transmit a buffered field to the end of the BusTransaction
+         */
+        class write final {
+            public:
                 /**
-                 * \brief Receive a 16-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction &operator >>(uint16_t &data);
-
-                /**
-                 * \brief Receive a 32-bit field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * 
-                 * \return The BusTransaction to allow \c >> chaining
-                 */
-                BusTransaction &operator >>(uint32_t &data);
-
-                /**
-                 * \brief Receive a buffered field to the end of the BusTransaction
-                 * 
-                 * \param[out] data The data to receive
-                 * \param[in] length The number of bytes to receive
-                 * 
-                 * \return The BusTransaction to allow chaining
-                 */
-                BusTransaction &read(uint8_t *data, uint16_t length);
-
-                /**
-                 * \brief Transmit a buffered field to the end of the BusTransaction
+                 * \brief Initialize the write modifier
                  * 
                  * \param[in] data The data to transmit
                  * \param[in] length The number of bytes to transmit
-                 * 
-                 * \return The BusTransaction to allow chaining
                  */
-                BusTransaction &write(const uint8_t *data, uint16_t length);
+                write(const uint8_t *data, uint16_t length) noexcept;
+
+                /**
+                 * \brief Performs the operation on a stream
+                 * 
+                 * \tparam Target The return type of the function
+                 * 
+                 * \param[in,out] os The stream to perform on
+                 * 
+                 * \return The BusTransaction to allow \c << chaining
+                 */
+                template <typename Target>
+                Target operator ()(BusBase<Target> &os) const noexcept;
 
             private:
-                Bus &bus;
-                std::vector<std::pair<uint8_t *, int16_t>> steps;
-                std::vector<std::vector<uint8_t>> alloc;
+                const uint8_t *data;
+                uint16_t length;
+        };
+
+        /**
+         * \brief Stream modifier to ignore a sequence of bytes from the end of the BusTransaction
+         */
+        class skip final {
+            public:
+                /**
+                 * \brief Initialize the skip modifier
+                 * 
+                 * \param[in] count The number of bytes to ignore
+                 */
+                skip(int count) noexcept;
+
+                /**
+                 * \brief Performs the operation on a stream
+                 * 
+                 * \tparam Target The return type of the function
+                 * 
+                 * \param[in,out] os The stream to perform on
+                 * 
+                 * \return The BusTransaction to allow \c >> chaining
+                 */
+                template <typename Target>
+                Target operator ()(BusBase<Target> &os) const noexcept;
+
+            private:
+                int count;
+        };
+
+        /**
+         * \brief Stream modifier to receive a buffered field to the end of the BusTransaction
+         */
+        class read final {
+            public:
+                /**
+                 * \brief Initialize the read modifier
+                 * 
+                 * \param[out] data The data to receive
+                 * \param[in] length The number of bytes to receive
+                 */
+                read(uint8_t *data, uint16_t length) noexcept;
+
+                /**
+                 * \brief Performs the operation on a stream
+                 * 
+                 * \tparam Target The return type of the function
+                 * 
+                 * \param[in,out] os The stream to perform on
+                 * 
+                 * \return The BusTransaction to allow \c >> chaining
+                 */
+                template <typename Target>
+                Target operator ()(BusBase<Target> &os) const noexcept;
+
+            private:
+                uint8_t *data;
+                uint16_t length;
         };
     }
 }
