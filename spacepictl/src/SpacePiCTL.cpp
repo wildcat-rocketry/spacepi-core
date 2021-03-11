@@ -5,10 +5,10 @@
 
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/Config.hpp>
-#include <spacepi/spacepictl/UserManager.hpp>
-#include <spacepi/spacepictl/System.hpp>
+#include <spacepi/spacepictl/util/UserManager.hpp>
+#include <spacepi/spacepictl/util/System.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
 #include <spacepi/spacepictl/SpacePiCTL.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
 
 #include <unistd.h> 
 #include <sys/mount.h>
@@ -29,6 +29,7 @@ using namespace std;
 using boost::property_tree::ptree;
 using boost::optional;
 using namespace spacepi::spacepictl;
+using namespace spacepi::spacepictl::util;
 using namespace spacepi::log;
 using namespace spacepi::util;
 namespace fs = boost::filesystem;

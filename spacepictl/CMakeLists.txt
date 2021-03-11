@@ -13,14 +13,14 @@ endif()
 spacepi_aux_program(
     spacepictl
     SOURCES
-        src/FSOperation.cpp
-        src/FSOStream.cpp
-        src/FSTransaction.cpp
+        src/util/FSOperation.cpp
+        src/util/FSOStream.cpp
+        src/util/FSTransaction.cpp
+        src/util/Person.cpp
+        src/util/System.cpp
+        src/util/User.cpp
+        src/util/UserManager.cpp
         src/SpacePiCTL.cpp
-        src/Person.cpp
-        src/User.cpp
-        src/UserManager.cpp
-        src/System.cpp
     CONFIG_FILE include/spacepi/spacepictl/Config.hpp
     INCLUDE include
     PRECOMPILE_FROM spacepi_pch

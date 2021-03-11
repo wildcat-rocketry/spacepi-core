@@ -2,13 +2,13 @@
 #include <regex>
 #include <algorithm>
 #include <boost/filesystem.hpp>
-#include <spacepi/spacepictl/System.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
-#include <spacepi/spacepictl/FSOStream.hpp>
+#include <spacepi/spacepictl/util/System.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOStream.hpp>
 #include <string>
 #include <fstream>
 
-using namespace spacepi::spacepictl;
+using namespace spacepi::spacepictl::util;
 using namespace std;
 namespace fs = boost::filesystem;
 

@@ -1,10 +1,10 @@
 #include <string>
 #include <map>
 #include <SpacePi.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
-#include <spacepi/spacepictl/FSOStream.hpp>
-#include <spacepi/spacepictl/User.hpp>
-#include <spacepi/spacepictl/Person.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOStream.hpp>
+#include <spacepi/spacepictl/util/User.hpp>
+#include <spacepi/spacepictl/util/Person.hpp>
 
 #include <unistd.h>
 
@@ -16,7 +16,7 @@
 #include <shadow.h>
 
 using namespace std;
-using namespace spacepi::spacepictl;
+using namespace spacepi::spacepictl::util;
 using namespace spacepi::util;
 namespace fs = boost::filesystem;
 namespace bp = boost::process;
