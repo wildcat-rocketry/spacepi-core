@@ -6,6 +6,7 @@ spacepi::resource namespace
     resource/Bus
     resource/BusTransaction
     resource/DigitalIO
+    resource/Filesystem
     resource/I2C
     resource/Memory
     resource/MemoryInfo
@@ -15,4 +16,5 @@ spacepi::resource namespace
     resource/ResourceFactory
     resource/ResourcePtr
     resource/SPI
+    resource/Stream
     resource/UART

@@ -59,18 +59,22 @@ spacepi_aux_library(
         src/package/User.cpp
         src/resource/detail/MockADC.cpp
         src/resource/detail/MockDigitalIO.cpp
+        src/resource/detail/MockFilesystem.cpp
         src/resource/detail/MockI2C.cpp
         src/resource/detail/MockMemory.cpp
         src/resource/detail/MockProcessor.cpp
         src/resource/detail/MockSPI.cpp
         src/resource/detail/MockUART.cpp
+        src/resource/detail/StdFilesystem.cpp
         src/resource/ADC.cpp
         src/resource/BusTransaction.cpp
         src/resource/DigitalIO.cpp
+        src/resource/Filesystem.cpp
         src/resource/I2C.cpp
         src/resource/Memory.cpp
         src/resource/Processor.cpp
         src/resource/SPI.cpp
+        src/resource/Stream.cpp
         src/resource/UART.cpp
         src/util/Command.cpp
         src/util/CommandConfigurable.cpp
@@ -155,12 +159,14 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
             include/spacepi/resource/ADC.hpp
             include/spacepi/resource/BusTransaction.hpp
             include/spacepi/resource/DigitalIO.hpp
+            include/spacepi/resource/Filesystem.hpp
             include/spacepi/resource/I2C.hpp
             include/spacepi/resource/Memory.hpp
             include/spacepi/resource/Processor.hpp
             include/spacepi/resource/ResourceFactory.hpp
             include/spacepi/resource/ResourcePtr.hpp
             include/spacepi/resource/SPI.hpp
+            include/spacepi/resource/Stream.hpp
             include/spacepi/resource/UART.hpp
             include/spacepi/util/Command.hpp
             include/spacepi/util/CommandConfigurable.hpp
@@ -243,6 +249,7 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
                 docs/spacepi/resource/Bus.rst
                 docs/spacepi/resource/BusTransaction.rst
                 docs/spacepi/resource/DigitalIO.rst
+                docs/spacepi/resource/Filesystem.rst
                 docs/spacepi/resource/I2C.rst
                 docs/spacepi/resource/MemoryInfo.rst
                 docs/spacepi/resource/Memory.rst
@@ -252,6 +259,7 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
                 docs/spacepi/resource/ResourceFactory.rst
                 docs/spacepi/resource/ResourcePtr.rst
                 docs/spacepi/resource/SPI.rst
+                docs/spacepi/resource/Stream.rst
                 docs/spacepi/resource/UART.rst
                 docs/spacepi/util/CommandConfigurable.rst
                 docs/spacepi/util/Command.rst
