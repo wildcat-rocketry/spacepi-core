@@ -1,7 +1,6 @@
 #ifndef SPACEPI_TARGETLIB_LINUX_EXTENSION_UART_HPP
 #define SPACEPI_TARGETLIB_LINUX_EXTENSION_UART_HPP
 
-#include <streambuf>
 #include <string>
 #include <chrono>
 #include <SpacePi.hpp>
@@ -17,11 +16,10 @@ namespace spacepi {
                     int getBAUDRate() const noexcept;
                     void setBAUDRate(int baud);
 
-                protected:
-                    std::streamsize xsgetn(char *buffer, std::streamsize count);
-                    std::streamsize xsputn(char *buffer, std::streamsize count);
-
                 private:
+                    int readBuf(char *buffer, int count);
+                    int writeBuf(const char *buffer, int count);
+
                     void set_baud(int baud);
                     void throwError(int returnCode);
 

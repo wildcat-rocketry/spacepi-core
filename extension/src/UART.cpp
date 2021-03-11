@@ -1,6 +1,5 @@
 #include <cerrno>
 #include <chrono>
-#include <streambuf>
 #include <string>
 #include <fcntl.h>
 #include <termios.h>
@@ -158,15 +157,7 @@ void UART::setBAUDRate(int baud) {
     set_baud(baud);
 }
 
-streamsize UART::xsgetn(char *buffer, streamsize count) {
-    if(last != 0 && count > 0){
-        buffer[0] = last;
-        last = 0;
-        buffer++;
-        count--;
-	if(count == 0) return 1;
-    }
-
+int UART::readBuf(char *buffer, int count) {
     ssize_t r = ::read(fd, buffer, count);
 
     while(r == 0){
@@ -178,7 +169,7 @@ streamsize UART::xsgetn(char *buffer, streamsize count) {
     return r;
 }
 
-streamsize UART::xsputn(char *buffer, streamsize count) {
+int UART::writeBuf(const char *buffer, int count) {
     ssize_t r = ::write(fd, buffer, count);
     throwError(r);
     return r;
