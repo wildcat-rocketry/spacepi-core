@@ -29,6 +29,7 @@
 #     [I2C]
 #     [OPENSSL]
 #     [OPENSSL_CRYPTO]
+#     [SYSTEMCTL]
 #
 #     [QEMU_USER_STATIC <arch>]
 #
@@ -75,6 +76,7 @@ function (spacepi_dependencies)
         I2C
         OPENSSL
         OPENSSL_CRYPTO
+        SYSTEMCTL
 
         BOOST_ASIO
         BOOST_BEAST
@@ -335,6 +337,16 @@ function (spacepi_dependencies)
             LIBRARY_NAMES libcrypto.so crypto
             HEADERS openssl/ssl.h
             PACKAGES libssl-dev
+            ${optionalFlag}
+        )
+    endif()
+
+    if (SPACEPI_DEPS_SYSTEMCTL)
+        spacepi_dependency(
+            systemctl
+            TARGET SYSTEMCTL
+            PROGRAM_NAMES systemctl
+            PACKAGES systemd
             ${optionalFlag}
         )
     endif()
