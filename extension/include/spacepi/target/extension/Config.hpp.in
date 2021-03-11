@@ -3,4 +3,6 @@
 
 #cmakedefine HAVE_LIBGPIOD_BIAS
 
+#cmakedefine CMAKE_SOURCE_DIR "@CMAKE_SOURCE_DIR@"
+
 #endif
