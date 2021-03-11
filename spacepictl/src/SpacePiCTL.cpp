@@ -190,7 +190,16 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
             }
             args.push_back(NULL);
 
-            execvp(executable.c_str(), &args[0]);
+            vector<char*> env;
+            string ld_preload = "LD_PRELOAD=\"";
+            for(const auto &lib : get_preload_libraries()){
+                ld_preload += lib + " ";
+            }
+            ld_preload = "\"";
+            env.push_back(const_cast<char*>(ld_preload.c_str()));
+            env.push_back(NULL);
+
+            execvpe(executable.c_str(), &args[0], &env[0]);
 
             stringstream ss;
             ss << "Error executing";
@@ -209,6 +218,32 @@ int SpacePiCTL::spacepictl_exec(vector<string> argv){
     return 1;
 }
 
+vector<string> SpacePiCTL::get_preload_libraries(){
+    char exec_path[64];
+    int n = readlink("/proc/self/exe", exec_path, 63);
+    if(n < 1) {
+        log(LogLevel::Warning) << "Problem reading link /proc/self/exe";
+        return { };
+    }
+    exec_path[n] = '\0'; // Man says readlink does not null terminate?
+    fs::path exec_folder = fs::path(exec_path).parent_path();
+
+    vector<fs::path> paths = resolve_path(exec_folder / "../lib/libspacepi-ext-");
+    if(paths.size() == 0){
+        return { };
+    } else if (paths.size() == 1) {
+        return { paths[0].native() };
+    }
+
+    vector<string> retval;
+    for(auto path : paths){
+        if(path.has_extension() && path.extension() == "so"){
+            retval.push_back(path.normalize().native());
+        }
+    }
+
+    return retval;
+}
 
 int SpacePiCTL::spacepictl_systemctl(vector<string> argv){
     if(argv.size() == 3){

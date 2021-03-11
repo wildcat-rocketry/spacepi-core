@@ -22,6 +22,7 @@ namespace spacepi {
                 bool points_to_file(boost::filesystem::path& p);
                 std::vector<boost::filesystem::path> resolve_path(const boost::filesystem::path& p);
                 std::vector<std::string> resolve_config(const std::string name);
+                std::vector<std::string> get_preload_libraries();
                 bool get_module(std::string module_name, spacepi::package::Module &module_config);
 
                 int spacepictl_exec(std::vector<std::string> argv);
