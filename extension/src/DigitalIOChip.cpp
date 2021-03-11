@@ -45,14 +45,30 @@ shared_ptr<DigitalIO> DigitalIOChip::addLine(const string &name) {
             return ptr;
         }
     }
-    line l = chip.find_line(name);
-    if (!l) {
-        throw EXCEPTION(ResourceException("Unknown line name"));
+
+    line l;
+    int off;
+    if(name.substr(0,7) == "OFFSET="){
+        // Get by offset instead of name
+        off = stoi(name.substr(7));
+        if (off >= resources.size()) {
+            throw EXCEPTION(ResourceException("Offset is larger than the number of lines"));
+        }
+        l = chip.get_line(off);
+        if (!l) {
+            throw EXCEPTION(ResourceException("Unknown line offset"));
+        }
+    } else {
+        l = chip.find_line(name);
+        if (!l) {
+            throw EXCEPTION(ResourceException("Unknown line name"));
+        }
+        off = l.offset();
+        if (off >= resources.size()) {
+            throw EXCEPTION(ResourceException("Got a line with an offset larger than the number of lines"));
+        }
     }
-    int off = l.offset();
-    if (off >= resources.size()) {
-        throw EXCEPTION(ResourceException("Got a line with an offset larger than the number of lines"));
-    }
+
     shared_ptr<DigitalIO> ptr(new DigitalIO(shared_from_this(), move(l)));
     resources[off] = weak_ptr<DigitalIO>(ptr);
     resourceIDs.emplace_hint(it, name, off);
