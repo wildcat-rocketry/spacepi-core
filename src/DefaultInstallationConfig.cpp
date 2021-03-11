@@ -9,7 +9,9 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",build-essential"
         ",cmake"
         ",debootstrap"
+        ",gdb"
         ",git"
+        ",gpiod"
         ",i2c-tools"
         ",kpartx"
         ",libblkid-dev"
@@ -19,8 +21,10 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",libi2c-dev"
         ",libprotobuf-dev"
         ",libssl-dev"
+        ",network-manager"
         ",openssh-server"
         ",protobuf-compiler"
+        ",rng-tools"
         ",sudo"
             + 1;
     components = "main,contrib,non-free";
