@@ -17,6 +17,7 @@ check_cxx_source_compiles("
 
 spacepi_extension(
     SOURCES
+        src/detail/FilesystemFactoryBase.cpp
         src/detail/UniqueDir.cpp
         src/detail/UniqueFD.cpp
         src/DigitalIO.cpp
@@ -30,8 +31,10 @@ spacepi_extension(
         src/ProcessorFactory.cpp
         src/SPI.cpp
         src/SPIFactory.cpp
+        src/SrcFilesystemFactory.cpp
         src/UART.cpp
         src/UARTFactory.cpp
+        src/VarFilesystemFactory.cpp
     CONFIG_FILE include/spacepi/target/extension/Config.hpp
     INCLUDE include
     LINK
