@@ -53,11 +53,11 @@ TReturn BusBase<TReturn>::seekSkip(Func func, int count) {
     return obj;
 }
 
-BusTransaction Bus::read(uint8_t *data, uint16_t length) {
+BusTransaction Bus::read(uint8_t *data, uint16_t length) noexcept {
     return ref().read(data, length);
 }
 
-BusTransaction Bus::write(const uint8_t *data, uint16_t length) {
+BusTransaction Bus::write(const uint8_t *data, uint16_t length) noexcept {
     return ref().write(data, length);
 }
 
@@ -66,7 +66,7 @@ BusTransaction Bus::ref() noexcept {
     return bus;
 }
 
-BusTransaction::BusTransaction(Bus &bus) : bus(&bus), steps(new vector<pair<uint8_t *, int16_t>>()), alloc(new vector<vector<uint8_t>>()) {
+BusTransaction::BusTransaction(Bus &bus) noexcept : bus(&bus), steps(new vector<pair<uint8_t *, int16_t>>()), alloc(new vector<vector<uint8_t>>()) {
 }
 
 BusTransaction::~BusTransaction() noexcept(false) {
@@ -76,12 +76,12 @@ BusTransaction::~BusTransaction() noexcept(false) {
     }
 }
 
-BusTransaction &BusTransaction::read(uint8_t *data, uint16_t length) {
+BusTransaction &BusTransaction::read(uint8_t *data, uint16_t length) noexcept {
     steps->emplace_back(data, length);
     return *this;
 }
 
-BusTransaction &BusTransaction::write(const uint8_t *data, uint16_t length) {
+BusTransaction &BusTransaction::write(const uint8_t *data, uint16_t length) noexcept {
     alloc->emplace_back();
     vector<uint8_t> &buf = alloc->back();
     buf.reserve(length);
