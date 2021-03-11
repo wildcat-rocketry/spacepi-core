@@ -53,6 +53,13 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         "# <ip address>  <host name>\n"
         "127.0.0.1       localhost\n"
         "127.0.0.1       spacepi-unconfigured\n";
+    // /etc/modules
+    std::ofstream((root / "etc/modules").native()) <<
+        "# /etc/modules: kernel modules to load at boot time.\n"
+        "#\n"
+        "# This file contains the names of kernel modules that should be loaded\n"
+        "# at boot time, one per line. Lines beginning with \"#\" are ignored.\n"
+        "i2c-dev\n";
     // /etc/mtab
     remove(root / "etc/mtab");
     create_symlink("/proc/self/mounts", root / "etc/mtab");
