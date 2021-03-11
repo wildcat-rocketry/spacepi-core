@@ -84,7 +84,7 @@ void System::write_hostname(){
     string line;
     bool found_name = false;
     while(getline(ifs, line)){
-        for( size_t p = line.find(old_hostname); p != string::npos; p = line.find( old_hostname, p)){
+        for( size_t p = line.find(old_hostname); p != string::npos; p = line.find( old_hostname, p + hostname.length())){
             line.replace( p, old_hostname.length(), hostname);
             found_name = true;
         }
