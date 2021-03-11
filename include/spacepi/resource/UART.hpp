@@ -1,6 +1,7 @@
 #ifndef SPACEPI_CORE_RESOURCE_UART_HPP
 #define SPACEPI_CORE_RESOURCE_UART_HPP
 
+#include <ios>
 #include <istream>
 #include <memory>
 #include <streambuf>
@@ -71,7 +72,7 @@ namespace spacepi {
                  * 
                  * \return The actual amount of data which was read
                  */
-                virtual std::streamsize xsgetn(char *buffer, std::streamsize count) = 0;
+                std::streamsize xsgetn(char *buffer, std::streamsize count);
 
                 /**
                  * \brief Write some data to the UART bus
@@ -81,26 +82,34 @@ namespace spacepi {
                  * 
                  * \return The actual amount of data which was written
                  */
-                virtual std::streamsize xsputn(char *buffer, std::streamsize count) = 0;
+                std::streamsize xsputn(char *buffer, std::streamsize count);
 
                 /**
                  * \brief Peek the next character to read but don't remove
                  * 
                  * \return The next character to read or EOL
                  */
-                virtual int underflow();
+                int underflow();
 
                 /**
                  * \brief Take the next character off the UART
                  * 
                  * \return The next character on the UART or EOL
                  */
-                virtual int uflow();
+                int uflow();
+
+            private:
+                /**
+                 * \copydoc xsgetn
+                 */
+                virtual int readBuf(char *buffer, int count) = 0;
 
                 /**
-                 * \brief Character taken off the UART but not processed.
+                 * \copydoc xsputn
                  */
-                char last = 0;
+                virtual int writeBuf(const char *buffer, int count) = 0;
+
+                int last;
         };
     }
 }

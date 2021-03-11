@@ -1,7 +1,6 @@
 #include <iomanip>
 #include <ios>
 #include <memory>
-#include <streambuf>
 #include <string>
 #include <spacepi/log/AutoLog.hpp>
 #include <spacepi/log/LogLevel.hpp>
@@ -19,11 +18,10 @@ namespace spacepi {
                     int getBAUDRate() const noexcept;
                     void setBAUDRate(int baud);
 
-                protected:
-                    std::streamsize xsgetn(char *buffer, std::streamsize count);
-                    std::streamsize xsputn(char *buffer, std::streamsize count);
-
                 private:
+                    int readBuf(char *buffer, int count);
+                    int writeBuf(const char *buffer, int count);
+
                     std::string name;
                     int baud;
             };
@@ -61,12 +59,12 @@ void MockUART::setBAUDRate(int baud) {
     this->baud = baud;
 }
 
-streamsize MockUART::xsgetn(char *buffer, streamsize count) {
+int MockUART::readBuf(char *buffer, int count) {
     log(LogLevel::Debug) << "Reading UART '" << name << "': " << count << " bytes";
     return count;
 }
 
-streamsize MockUART::xsputn(char *buffer, streamsize count) {
+int MockUART::writeBuf(const char *buffer, int count) {
     LogStream os = log(LogLevel::Debug);
     os << "Writing UART '" << name << "': " << count << "bytes:" << hex << setfill('0');
     for (int i = 0; i < count; ++i) {
