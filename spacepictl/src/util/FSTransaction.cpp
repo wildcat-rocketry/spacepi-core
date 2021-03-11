@@ -11,14 +11,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <SpacePi.hpp>
-#include <spacepi/spacepictl/FSOperation.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOperation.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
 
 using namespace std;
 using namespace spacepi::log;
 using namespace spacepi::util;
-using namespace spacepi::spacepictl;
-using namespace spacepi::spacepictl::detail;
+using namespace spacepi::spacepictl::util;
+using namespace spacepi::spacepictl::util::detail;
 
 FSGitConfigOperation::FSGitConfigOperation(const string &path, const map<string, string> &confEntries, uid_t uid, gid_t gid, mode_t mode) : path(path), confEntries(confEntries), uid(uid), gid(gid), mode(mode), hasBackup(false), wrote(false) {
 }

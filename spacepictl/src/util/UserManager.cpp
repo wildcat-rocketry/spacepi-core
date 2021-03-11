@@ -1,11 +1,11 @@
 #include <fstream>
 
 #include <SpacePi.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
-#include <spacepi/spacepictl/FSOStream.hpp>
-#include <spacepi/spacepictl/User.hpp>
-#include <spacepi/spacepictl/Person.hpp>
-#include <spacepi/spacepictl/UserManager.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOStream.hpp>
+#include <spacepi/spacepictl/util/User.hpp>
+#include <spacepi/spacepictl/util/Person.hpp>
+#include <spacepi/spacepictl/util/UserManager.hpp>
 
 #include <pwd.h>
 #include <grp.h>
@@ -13,7 +13,7 @@
 
 using boost::property_tree::ptree;
 using boost::optional;
-using namespace spacepi::spacepictl;
+using namespace spacepi::spacepictl::util;
 using namespace spacepi::log;
 using namespace spacepi::util;
 using namespace std;

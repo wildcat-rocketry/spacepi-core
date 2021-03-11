@@ -3,7 +3,7 @@
 #include <string>
 #include <memory>
 #include <cstring>
-#include <spacepi/spacepictl/User.hpp>
+#include <spacepi/spacepictl/util/User.hpp>
 
 #include <sstream>
 
@@ -11,7 +11,7 @@
 #include <shadow.h>
 
 using namespace std;
-using namespace spacepi::spacepictl;
+using namespace spacepi::spacepictl::util;
 
 // Constructors
 User::User(const struct passwd* pw, const struct spwd* sh) :

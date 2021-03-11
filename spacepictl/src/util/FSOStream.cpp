@@ -8,14 +8,14 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <SpacePi.hpp>
-#include <spacepi/spacepictl/FSOperation.hpp>
-#include <spacepi/spacepictl/FSOStream.hpp>
-#include <spacepi/spacepictl/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOperation.hpp>
+#include <spacepi/spacepictl/util/FSOStream.hpp>
+#include <spacepi/spacepictl/util/FSTransaction.hpp>
 
 using namespace std;
 using namespace spacepi::util;
-using namespace spacepi::spacepictl;
-using namespace spacepi::spacepictl::detail;
+using namespace spacepi::spacepictl::util;
+using namespace spacepi::spacepictl::util::detail;
 
 FSOStreamBuf::FSOStreamBuf(const string &filename, uid_t uid, gid_t gid, mode_t mode, bool keepBackup) : filename(filename), uid(uid), gid(gid), mode(mode), keepBackup(keepBackup), hasBackup(false), wrote(false) {
 }
