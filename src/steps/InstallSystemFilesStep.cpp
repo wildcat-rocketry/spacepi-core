@@ -120,8 +120,8 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         std::ofstream out((root / "etc/sudoers~").native());
         string line;
         while (getline(in, line)) {
-            if (line.substr(0, 5) == "sudo\t") {
-                out << "sudo\tALL=(ALL:ALL) NOPASSWD:ALL\n";
+            if (line.substr(0, 6) == "%sudo\t") {
+                out << "%sudo\tALL=(ALL:ALL) NOPASSWD:ALL\n";
             } else {
                 out << line << "\n";
             }
