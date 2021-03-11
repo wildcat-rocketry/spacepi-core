@@ -1,45 +1,17 @@
 #ifndef SPACEPI_CORE_RESOURCE_UART_HPP
 #define SPACEPI_CORE_RESOURCE_UART_HPP
 
-#include <ios>
-#include <istream>
 #include <memory>
-#include <streambuf>
 #include <string>
+#include <spacepi/resource/Stream.hpp>
 
 namespace spacepi {
     namespace resource {
         /**
          * \brief A hardware resource which represents a serial UART bus
          */
-        class UART : public std::iostream, public std::streambuf {
+        class UART : public Stream {
             public:
-                /**
-                 * \brief Initialize the UART
-                 */
-                UART();
-
-                /**
-                 * \brief Copy-construct the UART
-                 * 
-                 * \param[in] copy The original object
-                 */
-                UART(const UART &copy);
-
-                /**
-                 * \brief Destroys this UART resource
-                 */
-                virtual ~UART() = default;
-
-                /**
-                 * \brief Copy-assign the UART
-                 * 
-                 * \param[in] copy The original object
-                 * 
-                 * \return \c this
-                 */
-                UART &operator =(const UART &copy);
-
                 /**
                  * \brief Get a pointer to a UART object by its resource name
                  * 
@@ -62,54 +34,6 @@ namespace spacepi {
                  * \param[in] baud The new BAUD rate
                  */
                 virtual void setBAUDRate(int baud) = 0;
-
-            protected:
-                /**
-                 * \brief Read some data from the UART bus.
-                 * 
-                 * \param[out] buffer The data which was read
-                 * \param[in] count The maximum amount of data to read
-                 * 
-                 * \return The actual amount of data which was read
-                 */
-                std::streamsize xsgetn(char *buffer, std::streamsize count);
-
-                /**
-                 * \brief Write some data to the UART bus
-                 * 
-                 * \param[in] buffer The data to write
-                 * \param[in] count The maximum amount of data to write
-                 * 
-                 * \return The actual amount of data which was written
-                 */
-                std::streamsize xsputn(char *buffer, std::streamsize count);
-
-                /**
-                 * \brief Peek the next character to read but don't remove
-                 * 
-                 * \return The next character to read or EOL
-                 */
-                int underflow();
-
-                /**
-                 * \brief Take the next character off the UART
-                 * 
-                 * \return The next character on the UART or EOL
-                 */
-                int uflow();
-
-            private:
-                /**
-                 * \copydoc xsgetn
-                 */
-                virtual int readBuf(char *buffer, int count) = 0;
-
-                /**
-                 * \copydoc xsputn
-                 */
-                virtual int writeBuf(const char *buffer, int count) = 0;
-
-                int last;
         };
     }
 }

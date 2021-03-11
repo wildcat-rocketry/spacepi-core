@@ -46,12 +46,14 @@ INPUT                  = \
     spacepi/resource/ADC.hpp \
     spacepi/resource/BusTransaction.hpp \
     spacepi/resource/DigitalIO.hpp \
+    spacepi/resource/Filesystem.hpp \
     spacepi/resource/I2C.hpp \
     spacepi/resource/Memory.hpp \
     spacepi/resource/Processor.hpp \
     spacepi/resource/ResourceFactory.hpp \
     spacepi/resource/ResourcePtr.hpp \
     spacepi/resource/SPI.hpp \
+    spacepi/resource/Stream.hpp \
     spacepi/resource/UART.hpp \
     spacepi/util/Command.hpp \
     spacepi/util/CommandConfigurable.hpp \
