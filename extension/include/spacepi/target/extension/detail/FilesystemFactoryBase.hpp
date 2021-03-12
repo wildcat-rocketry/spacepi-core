@@ -15,7 +15,7 @@ namespace spacepi {
 
                     private:
                         std::shared_ptr<spacepi::resource::Filesystem> create(const std::string &name);
-                        virtual std::string getPath(const std::string &relativePath) noexcept;
+                        virtual std::string getPath(const std::string &relativePath) noexcept = 0;
 
                         static std::string modulePath;
                 };
