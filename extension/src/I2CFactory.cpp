@@ -22,6 +22,6 @@ shared_ptr<resource::I2C> I2CFactory::create(const string &name) {
         throw EXCEPTION(ResourceException("Invalid I2C resource name."));
     }
     string devName = name.substr(0, colon);
-    string addr = name.substr(colon);
+    string addr = name.substr(colon + 1);
     return shared_ptr<resource::I2C>(new extension::I2C(devName, stoi(addr, nullptr, 16)));
 }
