@@ -43,6 +43,11 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         std::ofstream ofs((root / "etc/fstab").native());
         tab.printFstab(ofs);
     }
+    // /etc/gitconfig
+    std::ofstream((root / "etc/gitconfig").native()) <<
+        "[alias]\n"
+        "\tupdate = \"!f(){ git pull \\\"$@\\\" && git submodule update --init --recursive --remote; };f\"\n"
+        "\tset-master = \"!f(){ git tag tmp master && git branch -d master && git checkout -b master && git merge tmp && git tag -d tmp && git branch -u origin master; };f\"\n";
     // /etc/hostname
     std::ofstream((root / "etc/hostname").native()) <<
         "spacepi-unconfigured\n";
