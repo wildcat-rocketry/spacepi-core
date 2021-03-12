@@ -150,6 +150,15 @@ void CloneGitRepoStep::run(InstallationData &data) {
                 }
             }
 
+            UniqueGitPtr<git_object *, git_object_free> remoteHeadObject;
+            handle("looking up remote head object", git_object_lookup(&remoteHeadObject, remoteRepo, git_object_id(headCommit), GIT_OBJECT_COMMIT));
+            remoteHeadObject.take();
+
+            handle("checking out remote head", git_reset(remoteRepo, remoteHeadObject, GIT_RESET_HARD, &checkoutOpt));
+            logLastProgress();
+
+            handle("setting remote detached head", git_repository_set_head_detached(remoteRepo, git_object_id(headCommit)));
+
             if (headIsBranch) {
                 UniqueGitPtr<git_commit *, git_commit_free> remoteHeadCommit;
                 handle("looking up remote head commit", git_commit_lookup(&remoteHeadCommit, remoteRepo, git_object_id(headCommit)));
@@ -157,16 +166,11 @@ void CloneGitRepoStep::run(InstallationData &data) {
 
                 string branchName = git_reference_shorthand(localHead);
                 UniqueGitPtr<git_reference *, git_reference_free> branch;
-                handle("creating remote head branch", git_branch_create(&branch, remoteRepo, branchName.c_str(), remoteHeadCommit, 0));
+                handle("creating remote head branch", git_branch_create(&branch, remoteRepo, branchName.c_str(), remoteHeadCommit, 1));
                 branch.take();
 
                 handle("setting remote head", git_repository_set_head(remoteRepo, refSpec.c_str()));
-            } else {
-                handle("setting remote detached head", git_repository_set_head_detached(remoteRepo, git_object_id(headCommit)));
             }
-
-            handle("checking out remote head", git_checkout_head(remoteRepo, &checkoutOpt));
-            logLastProgress();
 
             this->remoteRepo = remoteRepo;
             this->name = &name;
