@@ -30,6 +30,8 @@
 #     [OPENSSL]
 #     [OPENSSL_CRYPTO]
 #     [SYSTEMCTL]
+#     [DTC]
+#     [SSH]
 #
 #     [QEMU_USER_STATIC <arch>]
 #
@@ -77,6 +79,8 @@ function (spacepi_dependencies)
         OPENSSL
         OPENSSL_CRYPTO
         SYSTEMCTL
+        DTC
+        SSH
 
         BOOST_ASIO
         BOOST_BEAST
@@ -347,6 +351,26 @@ function (spacepi_dependencies)
             TARGET SYSTEMCTL
             PROGRAM_NAMES systemctl
             PACKAGES systemd
+            ${optionalFlag}
+        )
+    endif()
+
+    if (SPACEPI_DEPS_DTC)
+        spacepi_dependency(
+            dtc
+            TARGET DTC
+            PROGRAM_NAMES dtc
+            PACKAGES device-tree-compiler
+            ${optionalFlag}
+        )
+    endif()
+
+    if (SPACEPI_DEPS_SSH)
+        spacepi_dependency(
+            ssh
+            TARGET SSH
+            PROGRAM_NAMES ssh
+            PACKAGES openssh-client
             ${optionalFlag}
         )
     endif()
