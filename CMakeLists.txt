@@ -19,6 +19,7 @@ spacepi_dependencies(
     MKFS
     SFDISK
     USERADD
+    SSH
 )
 
 spacepi_dependencies(
@@ -48,6 +49,7 @@ get_target_property(KPARTX_EXECUTABLE KPARTX IMPORTED_LOCATION)
 get_target_property(MKFS_EXECUTABLE MKFS IMPORTED_LOCATION)
 get_target_property(DEBOOTSTRAP_EXECUTABLE DEBOOTSTRAP IMPORTED_LOCATION)
 get_target_property(USERADD_EXECUTABLE USERADD IMPORTED_LOCATION)
+get_target_property(SSH_EXECUTABLE SSH IMPORTED_LOCATION)
 if (TARGET SUDO)
     get_target_property(SUDO_EXECUTABLE SUDO IMPORTED_LOCATION)
 endif()
@@ -60,12 +62,14 @@ configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR
 spacepi_aux_library(
     spacepi-targetlib-linux SHARED
     SOURCES
+        src/DefaultConnectPlan.cpp
         src/DefaultInstallationConfig.cpp
         src/DefaultInstallationPlan.cpp
         src/Image.cpp
         src/InstallationData.cpp
         src/InstallationOptions.cpp
         src/InstallationPlan.cpp
+        src/Installer.cpp
         src/Partition.cpp
         src/PartitionTable.cpp
         src/SharedLoopDevice.cpp
@@ -75,6 +79,8 @@ spacepi_aux_library(
         src/steps/BuildSpacePiStep.cpp
         src/steps/CleanupStep.cpp
         src/steps/CloneGitRepoStep.cpp
+        src/steps/CloneImageStep.cpp
+        src/steps/ConnectStep.cpp
         src/steps/EnsureRootStep.cpp
         src/steps/FormatPartitionsStep.cpp
         src/steps/InitStep.cpp
@@ -82,6 +88,8 @@ spacepi_aux_library(
         src/steps/InstallSpacePiStep.cpp
         src/steps/InstallSystemFilesStep.cpp
         src/steps/MountPartitionsStep.cpp
+        src/steps/PrepareNFSStep.cpp
+        src/steps/SSHTunnelStep.cpp
         src/SystemCaller.cpp
         src/UniqueChroot.cpp
         src/UniqueEID.cpp
