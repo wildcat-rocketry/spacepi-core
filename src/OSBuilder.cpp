@@ -4,9 +4,9 @@
 #include <spacepi/liblinux/steps/EnsureRootStep.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
 #include <spacepi/liblinux/DefaultInstallationConfig.hpp>
-#include <spacepi/liblinux/DefaultInstallationPlan.hpp>
 #include <spacepi/liblinux/InstallationOptions.hpp>
 #include <spacepi/liblinux/InstallationPlan.hpp>
+#include <spacepi/liblinux/Installer.hpp>
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/target/Config.hpp>
@@ -64,8 +64,9 @@ void OSBuilder::runCommand() {
             .setMountPoint("/run")
             .setFSType("tmpfs")
             .setOptions("defaults,noatime")));
-    InstallationPlan p = DefaultInstallationPlan();
+    Installer inst;
+    InstallationPlan &p = inst.getInstallPlan();
     p.insertStepAfter<EnsureRootStep, DownloadFirmwareStep>();
     p.insertStepBefore<InstallSystemFilesStep, InstallFirmwareStep>();
-    p.install(d);
+    inst.install(d);
 }
