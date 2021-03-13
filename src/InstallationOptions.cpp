@@ -6,7 +6,7 @@ using namespace spacepi::liblinux;
 using namespace std;
 
 InstallationOptions::InstallationOptions(spacepi::util::Command &cmd): CommandConfigurable("Installtion Options",cmd){
-    fromCommand(configFile, "config-file", "XML file path to configure the OS from");
+    fromCommand(configFile, "", "config-file", "XML file path to configure the OS from");
     fromCommand(outFile, "out", "Output image file path");
 }
 
