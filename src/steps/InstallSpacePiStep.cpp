@@ -19,7 +19,7 @@ using namespace spacepi::liblinux::steps;
 void InstallSpacePiStep::run(InstallationData &data) {
     string rootDir = data.getData<SharedTempDir>().getPath();
     InstallationConfig &config = data.getData<InstallationConfig>();
-    path configFile = relative(data.getData<InstallationOptions>().getConfigFile(), CMAKE_SOURCE_DIR);
+    string configFile = data.getData<InstallationOptions>().getConfigFile();
     UniqueChroot chroot(rootDir);
     path buildDir = config.sourceDir / "build";
     UniqueProcess make(false, false, false, "/usr/bin/env", { "make", "-C", buildDir.native(), "install" });
@@ -32,9 +32,11 @@ void InstallSpacePiStep::run(InstallationData &data) {
     if (ldconfig.getExitCode() != 0) {
         throw EXCEPTION(ResourceException("Unable to set library include path"));
     }
-    UniqueProcess spacepictl(false, false, false, "/usr/local/bin/spacepictl", { "config-set", configFile.native() });
-    spacepictl.wait();
-    if (spacepictl.getExitCode() != 0) {
-        throw EXCEPTION(ResourceException("Unable to set SpacePi package config"));
+    if (!configFile.empty()) {
+        UniqueProcess spacepictl(false, false, false, "/usr/local/bin/spacepictl", { "config-set", relative(configFile, CMAKE_SOURCE_DIR).native() });
+        spacepictl.wait();
+        if (spacepictl.getExitCode() != 0) {
+            throw EXCEPTION(ResourceException("Unable to set SpacePi package config"));
+        }
     }
 }
