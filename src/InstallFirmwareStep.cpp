@@ -6,6 +6,7 @@
 #include <spacepi/liblinux/Partition.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedTempDir.hpp>
+#include <spacepi/target/Config.hpp>
 #include <spacepi/target/Firmware.hpp>
 #include <spacepi/target/InstallFirmwareStep.hpp>
 
@@ -39,7 +40,10 @@ void InstallFirmwareStep::run(InstallationData &data) {
         "dtparam=i2c_arm=on\n"
         "dtparam=spi=on\n"
         "enable_uart=1\n"
-        "gpu_mem=16\n";
+        "gpu_mem=16\n"
+        "dtoverlay=gpio-line-names\n";
+    // /boot/overlays/gpio-line-names.dtbo
+    copy(GPIO_LINE_NAMES_DTBO_OUTPUT, root / "boot/overlays/gpio-line-names.dtbo");
     // /lib/firmware/brcm/brcmfmac43430-sdio.txt
     create_directories(root / "lib/firmware/brcm");
     std::ofstream((root / "lib/firmware/brcm/brcmfmac43430-sdio.txt").native()) <<
