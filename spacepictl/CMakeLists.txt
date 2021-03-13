@@ -28,6 +28,7 @@ spacepi_aux_program(
         src/Help.cpp
         src/Init.cpp
         src/List.cpp
+        src/RemoteID.cpp
         src/Systemctl.cpp
         src/Verb.cpp
     CONFIG_FILE include/spacepi/spacepictl/Config.hpp
