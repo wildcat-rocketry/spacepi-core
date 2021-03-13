@@ -4,6 +4,7 @@ using namespace spacepi::liblinux;
 
 DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
     sourceDir = "/usr/local/src/spacepi";
+    nfsDir = "/usr/local";
     packages =
         ",automake"
         ",build-essential"
@@ -22,6 +23,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",libprotobuf-dev"
         ",libssl-dev"
         ",network-manager"
+        ",nfs-kernel-server"
         ",openssh-server"
         ",protobuf-compiler"
         ",rng-tools"

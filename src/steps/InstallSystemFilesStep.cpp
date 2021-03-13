@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <fstream>
+#include <iomanip>
 #include <ios>
 #include <string>
 #include <vector>
@@ -38,6 +39,17 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     // /etc/environment
     std::ofstream((root / "etc/environment").native()) <<
         "BLKID_FILE=/var/local/etc/blkid.tab\n";
+    // /etc/exports
+    {
+        std::ofstream ofs((root / "etc/exports").native());
+        ofs << "# /etc/exports: the access control list for filesystems which may be exported\n"
+               "#               to NFS clients.  See exports(5).\n"
+               "#\n"
+               "# <path>                        <hosts>\n";
+        if (!config.nfsDir.empty()) {
+            ofs << left << setw(31) << config.nfsDir << " localhost(insecure,rw,sync,no_subtree_check)\n";
+        }
+    }
     // /etc/fstab
     {
         std::ofstream ofs((root / "etc/fstab").native());
