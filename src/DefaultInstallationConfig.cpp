@@ -10,6 +10,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",build-essential"
         ",cmake"
         ",debootstrap"
+        ",device-tree-compiler"
         ",gdb"
         ",git"
         ",gpiod"
