@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <cstring>
 #include <exception>
 #include <string>
@@ -61,14 +62,16 @@ void SSHTunnelStep::run(InstallationData &data) {
         proc.error() >> word;
         if (word.substr(0, 28) == "spacepi-targetlib-linux:UID=") {
             state->set_sshuid(stoi(word.substr(28)));
-            if (state->sshgid() >= 0) {
-                break;
-            }
         } else if (word.substr(0, 28) == "spacepi-targetlib-linux:GID=") {
             state->set_sshgid(stoi(word.substr(28)));
-            if (state->sshuid() >= 0) {
-                break;
+        } else if (word.substr(0, 28) == "spacepi-targetlib-linux:GRP=") {
+            size_t start = 28;
+            while (start < word.size()) {
+                size_t comma = word.find_first_of(',', start);
+                state->add_sshgrp(stoi(word.substr(start, comma - start)));
+                start = comma + 1;
             }
+            break;
         }
     }
     if (state->sshuid() < 0 || state->sshgid() < 0) {

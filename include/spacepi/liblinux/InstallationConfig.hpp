@@ -10,7 +10,7 @@ namespace spacepi {
         class InstallationConfig {
             public:
                 std::string sourceDir;
-                std::string nfsDir;
+                std::vector<std::string> nfsDirs;
                 std::string packages;
                 std::string components;
                 std::string osRelease;

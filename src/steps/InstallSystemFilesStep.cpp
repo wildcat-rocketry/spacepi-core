@@ -45,9 +45,9 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         ofs << "# /etc/exports: the access control list for filesystems which may be exported\n"
                "#               to NFS clients.  See exports(5).\n"
                "#\n"
-               "# <path>                        <hosts>\n";
-        if (!config.nfsDir.empty()) {
-            ofs << left << setw(31) << config.nfsDir << " localhost(insecure,rw,sync,no_subtree_check)\n";
+               "# <path>                        <hosts>\n" << left;
+        for (vector<string>::const_iterator it = config.nfsDirs.begin(); it != config.nfsDirs.end(); ++it) {
+            ofs << setw(31) << *it << " localhost(insecure,rw,sync,no_subtree_check,no_root_squash)\n";
         }
     }
     // /etc/fstab
