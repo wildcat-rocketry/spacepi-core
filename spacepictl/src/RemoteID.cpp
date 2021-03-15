@@ -29,7 +29,19 @@ bool RemoteID::run(const vector<string> &args) {
     ostringstream ss;
     ss << "\n"
           "spacepi-targetlib-linux:UID=" << getuid() << "\n"
-          "spacepi-targetlib-linux:GID=" << getgid() << "\n";
+          "spacepi-targetlib-linux:GID=" << getgid() << "\n"
+          "spacepi-targetlib-linux:GRP=";
+    int count = getgroups(0, nullptr);
+    vector<gid_t> groups;
+    groups.resize(count);
+    getgroups(count, groups.data());
+    for (vector<gid_t>::const_iterator it = groups.begin(); it != groups.end(); ++it) {
+        if (it != groups.begin()) {
+            ss << ",";
+        }
+        ss << *it;
+    }
+    ss << "\n";
     cerr << ss.str();
 
     try {

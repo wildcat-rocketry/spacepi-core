@@ -4,7 +4,7 @@ using namespace spacepi::liblinux;
 
 DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
     sourceDir = "/usr/local/src/spacepi";
-    nfsDir = "/usr/local";
+    nfsDirs = { "/etc", "/usr/local", "/var/local" };
     packages =
         ",automake"
         ",build-essential"
