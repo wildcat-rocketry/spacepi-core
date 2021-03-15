@@ -66,7 +66,7 @@ void SSHTunnelStep::run(InstallationData &data) {
             state->set_sshgid(stoi(word.substr(28)));
         } else if (word.substr(0, 28) == "spacepi-targetlib-linux:GRP=") {
             size_t start = 28;
-            while (start < word.size()) {
+            while (start >= 28 && start < word.size()) {
                 size_t comma = word.find_first_of(',', start);
                 state->add_sshgrp(stoi(word.substr(start, comma - start)));
                 start = comma + 1;
