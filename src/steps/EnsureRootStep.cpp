@@ -1,6 +1,7 @@
 #include <cerrno>
 #include <cstring>
 #include <fstream>
+#include <string>
 #include <vector>
 #include <sys/types.h>
 #include <unistd.h>
@@ -9,6 +10,7 @@
 #include <spacepi/liblinux/steps/EnsureRootStep.hpp>
 #include <spacepi/liblinux/Config.hpp>
 #include <spacepi/liblinux/InstallationData.hpp>
+#include <spacepi/liblinux/State.hpp>
 
 using namespace std;
 using namespace boost::filesystem;
@@ -33,6 +35,7 @@ void EnsureRootStep::run(InstallationData &data) {
     vector<vector<char>> args;
 #ifdef SUDO_EXECUTABLE
     args.push_back(vector<char> { 's', 'u', 'd', 'o', '\0' });
+    //args.push_back(vector<char> { 's', 't', 'r', 'a', 'c', 'e', '\0' });
 #else
     args.push_back(vector<char> { 's', 'u', '\0' });
     args.push_back(vector<char> { '-', 'c', '\0' });
@@ -47,6 +50,11 @@ void EnsureRootStep::run(InstallationData &data) {
         }
     }
     argFile.close();
+    args.push_back(vector<char> { '-', '-', 's', 't', 'a', 't', 'e', '\0' });
+    string serState = data.getData<State>();
+    args.emplace_back();
+    args.back().resize(serState.size() + 1);
+    strcpy(args.back().data(), serState.data());
     vector<char *> argv;
     argv.reserve(args.size());
     for (vector<vector<char>>::iterator it = args.begin(); it != args.end(); ++it) {

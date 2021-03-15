@@ -70,6 +70,8 @@ namespace spacepi {
             public:
                 UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::initializer_list<std::string> &args);
                 UniqueProcess(bool useInput, bool useOutput, bool useError, const std::string &exe, const std::vector<std::string> &args);
+                UniqueProcess(const std::string &exe, const std::initializer_list<std::string> &args);
+                UniqueProcess(const std::string &exe, const std::vector<std::string> &args);
 
                 UniqueProcess(UniqueProcess &) = delete;
                 UniqueProcess &operator =(UniqueProcess &) = delete;

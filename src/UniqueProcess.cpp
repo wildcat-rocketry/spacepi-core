@@ -111,7 +111,7 @@ streamsize OutputStream::xsgetn(char *s, std::streamsize n) {
         return 0;
     }
     string &line = readQueue.front();
-    if (line.size() < n) {
+    if (line.size() <= n) {
         strncpy(s, line.c_str(), line.size());
         readQueue.pop();
         return line.size();
@@ -164,6 +164,15 @@ UniqueProcess::UniqueProcess(bool useInput, bool useOutput, bool useError, const
     stdoutBuf->start();
     stderrBuf->start();
     NetworkThread::instance.start();
+}
+
+UniqueProcess::UniqueProcess(const string &exe, const initializer_list<string> &args) : UniqueProcess(exe, vector<string>(args)) {
+}
+
+UniqueProcess::UniqueProcess(const string &exe, const vector<string> &args) :
+    log(""),
+    stdoutStream(nullptr), stderrStream(nullptr),
+    proc(exe, argv = args, on_exec_setup = ExecSetup()) {
 }
 
 ostream &UniqueProcess::input() noexcept {

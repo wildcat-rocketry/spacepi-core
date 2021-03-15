@@ -10,6 +10,7 @@ InstallationOptions::InstallationOptions(spacepi::util::Command &cmd): CommandCo
     fromCommand(outFile, "out", "Output image file path");
     fromCommand(connectSSH, "", "connect", "Connect to a running machine over SSH/NFS");
     fromCommand(sshPort, 22, "port", "Port for SSH connection (see --connect)");
+    fromCommand(state, "", "state", "Internal state data");
 }
 
 void InstallationOptions::runCommand(){
@@ -30,4 +31,8 @@ const string &InstallationOptions::getConnectSSH() const noexcept {
 
 int InstallationOptions::getSSHPort() const noexcept {
     return sshPort;
+}
+
+const string &InstallationOptions::getState() const noexcept {
+    return state;
 }

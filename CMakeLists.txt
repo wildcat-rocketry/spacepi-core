@@ -59,6 +59,13 @@ endif()
 
 configure_file(include/spacepi/liblinux/Config.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/liblinux/Config.hpp @ONLY)
 
+spacepi_message_library(
+    spacepi-targetlib-linux-messages include
+    SOURCES
+        spacepi/liblinux/StateData.proto
+    NO_CORE_DEP
+)
+
 spacepi_aux_library(
     spacepi-targetlib-linux SHARED
     SOURCES
@@ -72,10 +79,12 @@ spacepi_aux_library(
         src/Installer.cpp
         src/Partition.cpp
         src/PartitionTable.cpp
+        src/ResourceTempDir.cpp
         src/SharedLoopDevice.cpp
         src/SharedMount.cpp
         src/SharedProcess.cpp
         src/SharedTempDir.cpp
+        src/State.cpp
         src/steps/BuildSpacePiStep.cpp
         src/steps/CleanupStep.cpp
         src/steps/CloneGitRepoStep.cpp
@@ -83,6 +92,7 @@ spacepi_aux_library(
         src/steps/ConnectStep.cpp
         src/steps/EnsureRootStep.cpp
         src/steps/FormatPartitionsStep.cpp
+        src/steps/InitStateStep.cpp
         src/steps/InitStep.cpp
         src/steps/InstallBaseSystemStep.cpp
         src/steps/InstallSpacePiStep.cpp
@@ -108,6 +118,7 @@ spacepi_aux_library(
         BOOST_PROCESS
         BOOST_SYSTEM
         GIT_LIB
+        spacepi-targetlib-linux-messages
     NO_INSTALL
 )
 

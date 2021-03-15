@@ -1,0 +1,8 @@
+syntax = "proto3";
+package spacepi.liblinux;
+
+message StateData {
+    int32 sshPort = 1;
+    int32 sshUID = 2;
+    int32 sshGID = 3;
+}
