@@ -16,12 +16,14 @@ namespace spacepi {
                 const std::string &getOutFile() const noexcept;
                 const std::string &getConnectSSH() const noexcept;
                 int getSSHPort() const noexcept;
+                const std::string &getState() const noexcept;
 
             private:
                 std::string configFile;
                 std::string outFile;
                 std::string connectSSH;
                 int sshPort;
+                std::string state;
         };
     }
 }

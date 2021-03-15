@@ -3,6 +3,7 @@
 #include <spacepi/liblinux/steps/CloneGitRepoStep.hpp>
 #include <spacepi/liblinux/steps/EnsureRootStep.hpp>
 #include <spacepi/liblinux/steps/FormatPartitionsStep.hpp>
+#include <spacepi/liblinux/steps/InitStateStep.hpp>
 #include <spacepi/liblinux/steps/InitStep.hpp>
 #include <spacepi/liblinux/steps/InstallBaseSystemStep.hpp>
 #include <spacepi/liblinux/steps/InstallSpacePiStep.hpp>
@@ -14,6 +15,7 @@ using namespace spacepi::liblinux;
 using namespace spacepi::liblinux::steps;
 
 DefaultInstallationPlan::DefaultInstallationPlan() noexcept {
+    appendStep<InitStateStep>();
     appendStep<EnsureRootStep>();
     appendStep<InitStep>();
     appendStep<FormatPartitionsStep>();
