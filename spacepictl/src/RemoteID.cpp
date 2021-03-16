@@ -11,7 +11,6 @@
 #include <spacepi/spacepictl/Verb.hpp>
 
 using namespace std;
-using namespace std::chrono;
 using namespace spacepi::concurrent;
 using namespace spacepi::spacepictl;
 
@@ -45,9 +44,7 @@ bool RemoteID::run(const vector<string> &args) {
     cerr << ss.str();
 
     try {
-        while (true) {
-            Sleep::duration(nanoseconds::max());
-        }
+        Sleep::forever();
     } catch (const exception &) {
     }
     return true;
