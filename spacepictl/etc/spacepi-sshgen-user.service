@@ -1,0 +1,14 @@
+[Unit]
+Description=Generates missing user SSH keys
+Wants=rng-tools.service
+After=rng-tools.service
+ConditionPathExists=|!/etc/ssh/id_rsa
+ConditionPathExists=|!/etc/ssh/id_rsa.pub
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=ssh-keygen -q -b 2048 -t rsa -N "" -C SpacePi -f /etc/ssh/id_rsa
