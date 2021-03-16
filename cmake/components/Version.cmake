@@ -1,4 +1,4 @@
-set(version 2.1.2)
+set(version 2.1.3)
 set(build_compat 2.1.0)
 
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_VERSION DEFINED)

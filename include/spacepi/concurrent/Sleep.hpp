@@ -62,6 +62,15 @@ namespace spacepi {
                     cond.wait_until(lck, time, detail::SleepPredicate::instance);
                 }
 
+                /**
+                 * \brief Sleep until the program is interrupted
+                 * 
+                 * This method will never return normally, but may throw an exception to exit.
+                 * 
+                 * This method is a cancellation point (see spacepi::concurrent::Interrupt).
+                 */
+                static void forever();
+
             private:
                 Sleep() noexcept = default;
 
