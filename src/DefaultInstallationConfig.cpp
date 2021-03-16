@@ -28,6 +28,8 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",openssh-server"
         ",protobuf-compiler"
         ",rng-tools"
+        ",screen"
+        ",strace"
         ",sudo"
             + 1;
     components = "main,contrib,non-free";
