@@ -18,10 +18,10 @@ namespace spacepi {
                 virtual ~Verb() = default;
 
                 static int main(int argc, const char **argv) noexcept;
-                static std::ostream &printFullHelp(std::ostream &os) noexcept;
+                static std::ostream &printFullHelp(std::ostream &os, bool includeInternal = false) noexcept;
 
             protected:
-                Verb(const std::string &name, const std::string &desc) noexcept;
+                Verb(const std::string &name, const std::string &desc, bool internal = false) noexcept;
 
                 void printErrorHelp(const std::string &error) const noexcept;
 
@@ -35,6 +35,7 @@ namespace spacepi {
 
                 std::string name;
                 std::string desc;
+                bool internal;
                 static std::string argv0;
         };
     }

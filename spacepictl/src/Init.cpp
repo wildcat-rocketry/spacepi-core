@@ -26,7 +26,7 @@ namespace fs = boost::filesystem;
 
 Init Init::instance;
 
-Init::Init() noexcept : Verb("", "Runs the init process") {
+Init::Init() noexcept : Verb("", "Runs the init process", true) {
 }
 
 bool Init::run(const vector<string> &args) {

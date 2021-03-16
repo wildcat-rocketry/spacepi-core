@@ -17,7 +17,7 @@ using namespace spacepi::spacepictl;
 
 RemoteID RemoteID::instance;
 
-RemoteID::RemoteID() noexcept : Verb("remote-id", "Prints out the current UID and GID, then blocks forever") {
+RemoteID::RemoteID() noexcept : Verb("remote-id", "Prints out the current UID and GID, then blocks forever", true) {
 }
 
 bool RemoteID::run(const vector<string> &args) {
