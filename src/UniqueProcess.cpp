@@ -199,8 +199,12 @@ bool UniqueProcess::running() {
 void UniqueProcess::wait() {
     Interrupt::cancellationPoint();
     proc.join();
-    stdoutBuf->join();
-    stderrBuf->join();
+    if (stdoutBuf) {
+        stdoutBuf->join();
+    }
+    if (stderrBuf) {
+        stderrBuf->join();
+    }
 }
 
 int UniqueProcess::getExitCode() const {
