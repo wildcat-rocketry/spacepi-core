@@ -39,7 +39,7 @@ function build {
 
 # Start with 4GB stack size instead of default
 function start {
-	docker run --cap-add SYS_ADMIN \
+	docker run --privileged=true \
 		--name spacepi-target-docker -d -it \
 		-e USER_ID=$user_uuid \
 		-e QEMU_RESERVED_VA=0x7f000000 \
