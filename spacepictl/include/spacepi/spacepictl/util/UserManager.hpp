@@ -30,7 +30,7 @@ namespace spacepi {
 
                     std::list<spacepi::spacepictl::util::User> system_users;
                     std::list<spacepi::spacepictl::util::Person> human_users;
-                    spacepi::spacepictl::util::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t sudo_gid);
+                    spacepi::spacepictl::util::Person create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, std::string uname, gid_t gid);
 
                     std::list<uid_t> uids;
                     uid_t next_uid(uid_t start);

@@ -139,19 +139,10 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         }
     }
     // /etc/sudoers
-    {
-        std::ifstream in((root / "etc/sudoers").native());
-        std::ofstream out((root / "etc/sudoers~").native());
-        string line;
-        while (getline(in, line)) {
-            if (line.substr(0, 6) == "%sudo\t") {
-                out << "%sudo\tALL=(ALL:ALL) NOPASSWD:ALL\n";
-            } else {
-                out << line << "\n";
-            }
-        }
-    }
-    rename(root / "etc/sudoers~", root / "etc/sudoers");
+    std::ofstream((root / "etc/sudoers").native(), ios::out | ios::app) <<
+        "\n"
+        "# SpacePi privilege specification\n"
+        "%spacepi ALL=(ALL:ALL) NOPASSWD:ALL\n";
     // /etc/tmpfiles.d/spacepi.conf
     std::ofstream((root / "etc/tmpfiles.d/spacepi.conf").native()) <<
         "d /run 1777 root root\n";
