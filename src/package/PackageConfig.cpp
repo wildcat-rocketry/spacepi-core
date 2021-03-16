@@ -141,7 +141,7 @@ void PackageConfig::save(ostream &os) {
             key.data() = *kit;
             user.push_back(make_pair("key", key));
         }
-        users.push_back(make_pair("user", users));
+        users.push_back(make_pair("user", user));
     }
     pt.put_child("config.users", users);
     ptree modules;
