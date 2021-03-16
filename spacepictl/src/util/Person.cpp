@@ -53,16 +53,10 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
             }
         }
     }
-
-    // This is where I can set up default symlink to github ssh keys
 }
 
 void Person::write_keys(){
     string key_file = this->get_home_dir() + "/.ssh/authorized_keys";
-    if(!fs::exists(get_home_dir() + "/.ssh")){
-        fs.mkdir(get_home_dir() + "/.ssh");
-    }
-
     FSOStream file(fs, key_file, get_uid(), get_gid());
     for(const auto& key : keys){
         file << key << endl;
