@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace std::chrono;
+using namespace spacepi::concurrent;
 using namespace spacepi::log;
 using namespace spacepi::util;
 using namespace spacepi::liblinux;
@@ -96,6 +97,7 @@ void CloneImageStep::run(InstallationData &data) {
                     if (now - lastMessage > seconds(1)) {
                         lastMessage += seconds(1);
                         log(LogLevel::Info) << "Cloning image: " << (100 * copied / total) << "%";
+                        Interrupt::cancellationPoint();
                     }
                 }
             }
