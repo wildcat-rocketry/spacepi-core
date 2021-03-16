@@ -39,12 +39,12 @@ UserManager::UserManager(FSTransaction &fs, const std::unordered_map<std::string
 
     human_users = list<Person>();
 
-    struct group* sudo_grp = getgrnam("sudo");
-    if(!sudo_grp){
-        throw EXCEPTION(StateException("No sudo group found"));
+    struct group* spacepi_grp = getgrnam("spacepi");
+    if(!spacepi_grp){
+        throw EXCEPTION(StateException("No spacepi group found"));
     }
 
-    gid_t sudo_gid = sudo_grp->gr_gid;
+    gid_t spacepi_gid = spacepi_grp->gr_gid;
 
     for( const auto &user_pair : users){
         spacepi::package::User user = user_pair.second;
@@ -59,7 +59,7 @@ UserManager::UserManager(FSTransaction &fs, const std::unordered_map<std::string
         vector<string> keys = user.getKeys();
 
         cur_pwd = getpwnam(uname.c_str());
-        Person new_person = create_person(cur_pwd, cur_spwd, uname, sudo_gid);
+        Person new_person = create_person(cur_pwd, cur_spwd, uname, spacepi_gid);
 
         new_person.add_info(name, email, keys);
         new_person.update_user();
@@ -67,7 +67,7 @@ UserManager::UserManager(FSTransaction &fs, const std::unordered_map<std::string
     }
 }
 
-Person UserManager::create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, string uname, gid_t sudo_gid){
+Person UserManager::create_person(const struct passwd * cur_pwd, const struct spwd * cur_spwd, string uname, gid_t gid){
     if(cur_pwd){
         cur_spwd = getspnam(cur_pwd->pw_name);
         if(!cur_spwd){
@@ -80,7 +80,7 @@ Person UserManager::create_person(const struct passwd * cur_pwd, const struct sp
         uid_t new_uid = next_uid(1000);
         uids.push_back(new_uid);
         update = true;
-        return Person(fs, uname, new_uid, sudo_gid);
+        return Person(fs, uname, new_uid, gid);
     }
 }
 
