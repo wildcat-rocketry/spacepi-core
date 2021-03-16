@@ -48,28 +48,34 @@ int Verb::main(int argc, const char **argv) noexcept {
     return EXIT_FAILURE;
 }
 
-ostream &Verb::printFullHelp(ostream &os) noexcept {
+ostream &Verb::printFullHelp(ostream &os, bool includeInternal) noexcept {
     os << "Usage: " << argv0 << " <verb> [<option> ...]\n"
           "\n"
           "Available verbs:\n" << left;
     int width = 0;
     for (unordered_map<string, Verb *>::const_iterator it = getVerbs().begin(); it != getVerbs().end(); ++it) {
-        int w = it->first.size();
-        if (w > width) {
-            width = w;
+        if (!it->second->internal || includeInternal) {
+            int w = it->first.size();
+            if (w > width) {
+                width = w;
+            }
         }
     }
     for (unordered_map<string, Verb *>::const_iterator it = getVerbs().begin(); it != getVerbs().end(); ++it) {
-        os << "    " << setw(width) << it->first << setw(0) << "  " << it->second->desc << "\n";
+        if (!it->second->internal || includeInternal) {
+            os << "    " << setw(width) << it->first << setw(0) << "  " << it->second->desc << "\n";
+        }
     }
     os << "\n";
     for (unordered_map<string, Verb *>::const_iterator it = getVerbs().begin(); it != getVerbs().end(); ++it) {
-        it->second->printHelp(os << it->second->desc << ": " << argv0 << " " << it->first) << "\n";
+        if (!it->second->internal || includeInternal) {
+            it->second->printHelp(os << it->second->desc << ": " << argv0 << " " << it->first) << "\n";
+        }
     }
     return os;
 }
 
-Verb::Verb(const string &name, const string &desc) noexcept : name(name), desc(desc) {
+Verb::Verb(const string &name, const string &desc, bool internal) noexcept : name(name), desc(desc), internal(internal) {
     getVerbs()[name] = this;
 }
 

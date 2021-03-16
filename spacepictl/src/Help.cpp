@@ -22,6 +22,10 @@ bool Help::run(const vector<string> &args) {
             Verb::printFullHelp(log(LogLevel::Info) << "");
             return true;
         case 1:
+            if (args.front() == "--all") {
+                Verb::printFullHelp(log(LogLevel::Info) << "", true);
+                return true;
+            }
             it = Verb::getVerbs().find(args.front());
             if (it == Verb::getVerbs().end()) {
                 printErrorHelp("Unknown verb '" + args.front() + "'");
@@ -36,7 +40,8 @@ bool Help::run(const vector<string> &args) {
 }
 
 ostream &Help::printHelp(ostream &os) const noexcept {
-    return os << " [<verb>]\n"
+    return os << " [--all|<verb>]\n"
                  "Options:\n"
-                 "    verb  Only print help for a single verb\n";
+                 "    --all  Print the full help, including internal commands\n"
+                 "    verb   Only print help for a single verb\n";
 }
