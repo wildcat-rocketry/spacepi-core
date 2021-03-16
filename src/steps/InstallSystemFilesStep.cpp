@@ -126,6 +126,12 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     std::ofstream((root / "etc/resolv.conf").native()) <<
         "nameserver 1.1.1.1\n"
         "nameserver 8.8.8.8\n";
+    // /etc/skel/.ssh
+    create_directories(root / "etc/skel/.ssh");
+    // /etc/skel/.ssh/id_rsa
+    create_symlink("/etc/ssh/id_rsa", root / "etc/skel/.ssh/id_rsa");
+    // /etc/skel/.ssh/id_rsa.pub
+    create_symlink("/etc/ssh/id_rsa.pub", root / "etc/skel/.ssh/id_rsa.pub");
     // /etc/ssh/ssh_host_*
     {
         vector<path> files;
