@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <sys/types.h>
+#include <pwd.h>
 #include <unistd.h>
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/RemoteID.hpp>
@@ -16,7 +17,7 @@ using namespace spacepi::spacepictl;
 
 RemoteID RemoteID::instance;
 
-RemoteID::RemoteID() noexcept : Verb("remote-id", "Prints out the current UID and GID, then blocks forever", true) {
+RemoteID::RemoteID() noexcept : Verb("remote-id", "Prints out the current username, then blocks forever", true) {
 }
 
 bool RemoteID::run(const vector<string> &args) {
@@ -27,20 +28,7 @@ bool RemoteID::run(const vector<string> &args) {
 
     ostringstream ss;
     ss << "\n"
-          "spacepi-targetlib-linux:UID=" << getuid() << "\n"
-          "spacepi-targetlib-linux:GID=" << getgid() << "\n"
-          "spacepi-targetlib-linux:GRP=";
-    int count = getgroups(0, nullptr);
-    vector<gid_t> groups;
-    groups.resize(count);
-    getgroups(count, groups.data());
-    for (vector<gid_t>::const_iterator it = groups.begin(); it != groups.end(); ++it) {
-        if (it != groups.begin()) {
-            ss << ",";
-        }
-        ss << *it;
-    }
-    ss << "\n";
+          "spacepi-targetlib-linux:USER=" << getpwuid(getuid())->pw_name << "\n";
     cerr << ss.str();
 
     try {

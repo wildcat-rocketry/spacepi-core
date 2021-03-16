@@ -55,26 +55,15 @@ void SSHTunnelStep::run(InstallationData &data) {
         opt.getConnectSSH(),
         CMAKE_INSTALL_PREFIX "/bin/spacepictl", "remote-id"
     });
-    state->set_sshuid(-1);
-    state->set_sshgid(-1);
     while (!proc.error().eof()) {
         string word;
         proc.error() >> word;
-        if (word.substr(0, 28) == "spacepi-targetlib-linux:UID=") {
-            state->set_sshuid(stoi(word.substr(28)));
-        } else if (word.substr(0, 28) == "spacepi-targetlib-linux:GID=") {
-            state->set_sshgid(stoi(word.substr(28)));
-        } else if (word.substr(0, 28) == "spacepi-targetlib-linux:GRP=") {
-            size_t start = 28;
-            while (start >= 28 && start < word.size()) {
-                size_t comma = word.find_first_of(',', start);
-                state->add_sshgrp(stoi(word.substr(start, comma - start)));
-                start = comma + 1;
-            }
+        if (word.substr(0, 29) == "spacepi-targetlib-linux:USER=") {
+            state->set_sshuser(word.substr(29));
             break;
         }
     }
-    if (state->sshuid() < 0 || state->sshgid() < 0) {
+    if (state->sshuser().empty()) {
         throw EXCEPTION(ResourceException("Failed to SSH to remote host"));
     }
     data.initData<SharedProcess>(proc);
