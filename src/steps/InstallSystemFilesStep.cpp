@@ -152,6 +152,12 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     // /etc/tmpfiles.d/spacepi.conf
     std::ofstream((root / "etc/tmpfiles.d/spacepi.conf").native()) <<
         "d /run 1777 root root\n";
+    // /etc/udev/rules.d/80-spacepi.rules
+    std::ofstream((root / "etc/udev/rules.d/80-spacepi.rules").native()) <<
+        "SUBSYSTEMS==\"i2c\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "SUBSYSTEMS==\"gpio\", OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "SUBSYSTEMS==\"spi\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "KERNEL==\"ttyS*\",    OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n";
     // /home
     remove(root / "home");
     create_directory_symlink("/var/local/home", root / "home");
