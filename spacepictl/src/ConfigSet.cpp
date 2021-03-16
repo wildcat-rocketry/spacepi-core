@@ -3,13 +3,16 @@
 #include <string>
 #include <vector>
 #include <boost/filesystem.hpp>
+#include <SpacePi.hpp>
 #include <spacepi/spacepictl/util/FSTransaction.hpp>
+#include <spacepi/spacepictl/util/FSOStream.hpp>
 #include <spacepi/spacepictl/Config.hpp>
 #include <spacepi/spacepictl/ConfigSet.hpp>
 #include <spacepi/spacepictl/Verb.hpp>
 
 using namespace std;
 using namespace spacepi::log;
+using namespace spacepi::package;
 using namespace spacepi::spacepictl;
 using namespace spacepi::spacepictl::util;
 namespace fs = boost::filesystem;
@@ -50,20 +53,23 @@ bool ConfigSet::run(const vector<string> &args) {
             log(LogLevel::Error) << "Argument does not match any configs\n";
             return false;
         } else {
-            //config_path =  fs::path(SPACEPI_CONFIGS).append(configs[0]);
             config_path =  configs[0];
         }
     }
 
-    string config = fs::canonical(config_path).native();
-
-    log(LogLevel::Info) << "Linking " << SPACEPI_NEW_PATH_CONF << " -> " << config << "\n";
-    log(LogLevel::Info) << "New configuration will activate on next boot\n";
+    log(LogLevel::Info) << "Writing " << config_path.native() << " to " SPACEPI_NEW_PATH_CONF "...";
 
     FSTransaction fs;
-    if(!fs::exists(SPACEPI_ETC)) fs.mkdir(SPACEPI_ETC);
-    fs.link(SPACEPI_NEW_PATH_CONF, config);
+    if(!fs::exists(SPACEPI_ETC)) {
+        fs.mkdir(SPACEPI_ETC);
+    }
+    {
+        FSOStream os(fs, SPACEPI_NEW_PATH_CONF);
+        PackageConfig(config_path.native()).save(os);
+    }
     fs.apply();
+
+    log(LogLevel::Info) << "New configuration will activate on next boot";
 
     return true;
 }
