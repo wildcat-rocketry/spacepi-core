@@ -41,3 +41,18 @@ spacepi_aux_program(
         BOOST_THREAD
         GIT_LIB
 )
+
+install(
+    FILES
+        etc/spacepi-sshgen-host.service
+        etc/spacepi-sshgen-user.service
+    DESTINATION /usr/lib/systemd/system
+)
+
+install(
+    CODE
+        "execute_process(COMMAND systemctl enable
+            spacepi-sshgen-host.service
+            spacepi-sshgen-user.service
+        )"
+)
