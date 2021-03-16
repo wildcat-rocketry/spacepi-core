@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -120,6 +121,6 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
 
 void I2C::throwError(int returnCode) {
     if (returnCode < 0) {
-        throw EXCEPTION(ResourceException("I2C operation failed."));
+        throw EXCEPTION(ResourceException("I2C operation failed. " + string(strerror(errno))));
     }
 }
