@@ -152,6 +152,9 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         }
     }
     rename(root / "etc/sudoers~", root / "etc/sudoers");
+    // /etc/tmpfiles.d/spacepi.conf
+    std::ofstream((root / "etc/tmpfiles.d/spacepi.conf").native()) <<
+        "d /run 1777 root root\n";
     // /home
     remove(root / "home");
     create_directory_symlink("/var/local/home", root / "home");
