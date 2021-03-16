@@ -1,3 +1,4 @@
+#include <csignal>
 #include <cstddef>
 #include <cstring>
 #include <initializer_list>
@@ -7,6 +8,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <linux/prctl.h>
+#include <sys/prctl.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <boost/asio.hpp>
@@ -144,6 +147,7 @@ int OutputStream::uflow() {
 
 template <typename Exec>
 void ExecSetup::operator ()(Exec &exec) const noexcept {
+    prctl(PR_SET_PDEATHSIG, SIGHUP);
     uid_t euid = geteuid();
     seteuid(getuid());
     setgid(getegid());
