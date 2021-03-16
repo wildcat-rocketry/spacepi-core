@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/spi/spidev.h>
@@ -132,6 +133,7 @@ void SPI::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
 
 void SPI::throwError(int returnCode) {
     if (returnCode < 0) {
-        throw EXCEPTION(ResourceException("SPI operation failed."));
+        throw EXCEPTION(ResourceException("SPI operation failed. " + string(strerror(errno))));
+
     }
 }
