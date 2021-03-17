@@ -27,6 +27,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",nfs-kernel-server"
         ",openssh-server"
         ",protobuf-compiler"
+        ",psmisc"
         ",rng-tools"
         ",screen"
         ",strace"
