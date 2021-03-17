@@ -1,9 +1,12 @@
+#include <csignal>
 #include <exception>
 #include <iostream>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <linux/prctl.h>
+#include <sys/prctl.h>
 #include <sys/types.h>
 #include <pwd.h>
 #include <unistd.h>
@@ -25,6 +28,8 @@ bool RemoteID::run(const vector<string> &args) {
         printErrorHelp("remote-id verb does not take any arguments.");
         return false;
     }
+
+    prctl(PR_SET_PDEATHSIG, SIGHUP);
 
     ostringstream ss;
     ss << "\n"
