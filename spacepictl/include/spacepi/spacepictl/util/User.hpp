@@ -12,7 +12,7 @@
 namespace spacepi {
     namespace spacepictl {
         namespace util {
-            class User: private spacepi::log::AutoLog<decltype("spacepictl:user"_autolog)> {
+            class User: protected spacepi::log::AutoLog<decltype("spacepictl:user"_autolog)> {
                 public:
                     static bool is_system_user(const struct passwd* sh);
                     static bool is_system_user(User user);

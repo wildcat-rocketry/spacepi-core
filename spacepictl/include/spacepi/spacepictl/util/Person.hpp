@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-#include <SpacePi.hpp>
 #include <spacepi/spacepictl/util/FSTransaction.hpp>
 #include <spacepi/spacepictl/util/User.hpp>
 #include <pwd.h>
@@ -12,7 +11,7 @@
 namespace spacepi {
     namespace spacepictl {
         namespace util {
-            class Person: public spacepi::spacepictl::util::User , private spacepi::log::AutoLog<decltype("spacepictl:person"_autolog)> {
+            class Person: public spacepi::spacepictl::util::User {
                 public:
                     // Makes a new person with defaults
                     Person(spacepi::spacepictl::util::FSTransaction &fs, std::string uname, uid_t uid, gid_t gid);
