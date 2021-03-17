@@ -1,5 +1,7 @@
 #include <string>
 #include <map>
+#include <stack>
+#include <utility>
 #include <SpacePi.hpp>
 #include <spacepi/spacepictl/util/FSTransaction.hpp>
 #include <spacepi/spacepictl/util/FSOStream.hpp>
@@ -16,6 +18,7 @@
 #include <shadow.h>
 
 using namespace std;
+using namespace spacepi::log;
 using namespace spacepi::spacepictl::util;
 using namespace spacepi::util;
 namespace fs = boost::filesystem;
@@ -37,19 +40,37 @@ void Person::add_info(const std::string &new_name, const std::string &new_email,
 }
 
 void Person::build_home(string uname, uid_t uid, gid_t gid){
-    fs::path home_dir_name("/home/" + uname); 
+    stack<pair<fs::path, fs::path>> dirStack;
+    dirStack.emplace("/home" / fs::path(uname), fs::path("/etc/skel"));
 
-    if(!fs::exists(home_dir_name)){
-        fs.mkdir(home_dir_name.native(), uid, gid);
-    }
+    while (!dirStack.empty()) {
+        fs::path dst = dirStack.top().first;
+        fs::path src = dirStack.top().second;
+        dirStack.pop();
 
-    // Loop through skell dir and 
-    for(auto& entry : boost::make_iterator_range(fs::directory_iterator("/etc/skel"), {})){
-        fs::path old_file_path = entry.path();
-        fs::path new_file_path = home_dir_name.native() / fs::path("/") / old_file_path.filename();
-        if(fs::is_regular_file(old_file_path)){
-            if(!fs::exists(new_file_path)){
-                fs.copy(old_file_path.native(), new_file_path.native(), uid, gid);
+        if (!fs::exists(dst)) {
+            fs.mkdir(dst.native(), uid, gid);
+        }
+
+        for (fs::directory_iterator it(src); it != fs::directory_iterator(); ++it) {
+            fs::path name = it->path().filename();
+            switch (it->status().type()) {
+                case fs::file_type::directory_file:
+                    dirStack.emplace(dst / name, src / name);
+                    break;
+                case fs::file_type::regular_file:
+                    if (!fs::exists(dst / name)) {
+                        fs.copy((src / name).native(), (dst / name).native(), uid, gid);
+                    }
+                    break;
+                case fs::file_type::symlink_file:
+                    if (!fs::exists(dst / name)) {
+                        fs.link((dst / name).native(), fs::read_symlink(src / name).native(), uid, gid);
+                    }
+                    break;
+                default:
+                    log(LogLevel::Warning) << "Skipping skel file due to invalid type: " << it->path();
+                    break;
             }
         }
     }
