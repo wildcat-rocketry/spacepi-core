@@ -37,7 +37,7 @@ namespace spacepi {
                     void doTransaction(const std::vector<std::pair<uint8_t *, int16_t>> &steps);
 
                 private:
-                    void throwError(int returnCode);
+                    void throwError(const std::string &action, int returnCode);
 
                     uint16_t address;
                     detail::UniqueFD fd;
