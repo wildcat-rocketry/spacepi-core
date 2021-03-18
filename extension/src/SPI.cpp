@@ -20,9 +20,9 @@ using namespace spacepi::util;
 using namespace spacepi::target::extension;
 
 SPI::SPI(const string &deviceName) : fd(open(("/dev/" + deviceName).c_str(), O_RDWR)) {
-    throwError(fd);
+    throwError("opening device", fd);
     uint32_t m;
-    throwError(ioctl(fd, SPI_IOC_RD_MODE32, &m));
+    throwError("setting mode", ioctl(fd, SPI_IOC_RD_MODE32, &m));
     switch (m & (SPI_MODE_0 | SPI_MODE_1 | SPI_MODE_2 | SPI_MODE_3)) {
         case SPI_MODE_0:
             mode = Mode0;
@@ -41,7 +41,7 @@ SPI::SPI(const string &deviceName) : fd(open(("/dev/" + deviceName).c_str(), O_R
             break;
     }
     uint32_t s;
-    throwError(ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &s));
+    throwError("setting speed", ioctl(fd, SPI_IOC_RD_MAX_SPEED_HZ, &s));
     speed = s;
 }
 
@@ -68,7 +68,7 @@ void SPI::setMode(enum resource::SPI::Mode mode) {
             throw EXCEPTION(ArgumentException("Unknown SPI mode"));
             break;
     }
-    throwError(ioctl(fd, SPI_IOC_WR_MODE32, &m));
+    throwError("setting mode", ioctl(fd, SPI_IOC_WR_MODE32, &m));
     this->mode = mode;
 }
 
@@ -81,7 +81,7 @@ void SPI::setSpeed(int speed) {
         throw EXCEPTION(ArgumentException("Cannot have a negative frequency"));
     }
     uint32_t s = speed;
-    throwError(ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &s));
+    throwError("setting speed", ioctl(fd, SPI_IOC_WR_MAX_SPEED_HZ, &s));
     this->speed = speed;
 }
 
@@ -128,12 +128,11 @@ void SPI::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
         }
     }
     int n = messages.size();
-    throwError(ioctl(fd, SPI_IOC_MESSAGE(n), messages.data()));
+    throwError("executing SPI transaction", ioctl(fd, SPI_IOC_MESSAGE(n), messages.data()));
 }
 
-void SPI::throwError(int returnCode) {
+void SPI::throwError(const string &action, int returnCode) {
     if (returnCode < 0) {
-        throw EXCEPTION(ResourceException("SPI operation failed. " + string(strerror(errno))));
-
+        throw EXCEPTION(ResourceException("SPI failed " + action + ": " + strerror(errno)));
     }
 }
