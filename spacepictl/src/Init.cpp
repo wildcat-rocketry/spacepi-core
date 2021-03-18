@@ -92,6 +92,7 @@ bool Init::run(const vector<string> &args) {
     }
 */
 
+    sync();
     execl("/sbin/init", "/sbin/init", nullptr); 
     log(LogLevel::Error) << "Error executing /sbin/init: " << strerror(errno) << "!";
     return false;
