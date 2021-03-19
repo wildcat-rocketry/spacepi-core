@@ -58,14 +58,15 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
                 case fs::file_type::directory_file:
                     dirStack.emplace(dst / name, src / name);
                     break;
+                case fs::file_type::file_not_found:
                 case fs::file_type::regular_file:
-                    if (!fs::exists(dst / name)) {
-                        fs.copy((src / name).native(), (dst / name).native(), uid, gid);
-                    }
-                    break;
                 case fs::file_type::symlink_file:
                     if (!fs::exists(dst / name)) {
-                        fs.link((dst / name).native(), fs::read_symlink(src / name).native(), uid, gid);
+                        if (fs::is_symlink(src / name)) {
+                            fs.link((dst / name).native(), fs::read_symlink(src / name).native(), uid, gid);
+                        } else {
+                            fs.copy((src / name).native(), (dst / name).native(), uid, gid);
+                        }
                     }
                     break;
                 default:
