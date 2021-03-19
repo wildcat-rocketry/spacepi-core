@@ -58,11 +58,6 @@ void OSBuilder::runCommand() {
             .setSource("none")
             .setMountPoint("/tmp")
             .setFSType("tmpfs")
-            .setOptions("defaults,noatime"))
-        .addPartition(Partition()
-            .setSource("none")
-            .setMountPoint("/run")
-            .setFSType("tmpfs")
             .setOptions("defaults,noatime")));
     Installer inst;
     InstallationPlan &p = inst.getInstallPlan();
