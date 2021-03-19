@@ -42,17 +42,23 @@ spacepi_aux_program(
         GIT_LIB
 )
 
+configure_file("etc/spacepi-sshgen.service" "${CMAKE_CURRENT_BINARY_DIR}/etc/spacepi-sshgen.service" @ONLY)
+
 install(
     FILES
-        etc/spacepi-sshgen-host.service
-        etc/spacepi-sshgen-user.service
+        "bin/spacepi-sshgen"
+    DESTINATION bin
+)
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/etc/spacepi-sshgen.service"
     DESTINATION /usr/lib/systemd/system
 )
 
 install(
     CODE
         "execute_process(COMMAND systemctl enable
-            spacepi-sshgen-host.service
-            spacepi-sshgen-user.service
+            spacepi-sshgen.service
         )"
 )

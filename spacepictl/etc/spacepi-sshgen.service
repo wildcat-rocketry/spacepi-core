@@ -1,0 +1,23 @@
+[Unit]
+Description=Generate missing SSH keys
+Wants=rng-tools.service
+Before=ssh.service
+After=rng-tools.service
+ConditionPathExists=|!/etc/ssh/id_rsa
+ConditionPathExists=|!/etc/ssh/id_rsa.pub
+ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_rsa_key.pub
+ConditionPathExists=|!/etc/ssh/ssh_host_dsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_dsa_key.pub
+ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key
+ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key.pub
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key
+ConditionPathExists=|!/etc/ssh/ssh_host_ed25519_key.pub
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=@CMAKE_INSTALL_PREFIX@/bin/spacepi-sshgen

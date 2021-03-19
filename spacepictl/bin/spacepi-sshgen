@@ -1,0 +1,16 @@
+#!/bin/bash
+set -e
+
+create_key() {
+    if [ ! -f $1 ] || [ ! -f $1.pub ]; then
+        ssh-keygen -q -b 2048 -t $2 -N "" -C $3 -f $1
+    fi
+}
+
+mount -o remount,rw /
+create_key /etc/ssh/id_rsa               rsa     SpacePi
+create_key /etc/ssh/ssh_host_rsa_key     rsa     SpacePi-host
+create_key /etc/ssh/ssh_host_dsa_key     dsa     SpacePi-host
+create_key /etc/ssh/ssh_host_ecdsa_key   ecdsa   SpacePi-host
+create_key /etc/ssh/ssh_host_ed25519_key ed25519 SpacePi-host
+mount -a || true
