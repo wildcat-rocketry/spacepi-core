@@ -8,6 +8,7 @@
 #include <vector>
 #include <spacepi/resource/ResourceFactory.hpp>
 #include <spacepi/util/CommandInternals.hpp>
+#include <spacepi/util/Exception.hpp>
 
 namespace spacepi {
     namespace resource {
@@ -117,7 +118,7 @@ namespace spacepi {
                             try {
                                 var = std::move(spacepi::resource::ResourceFactory<Type>::get(res.first));
                                 if (!var) {
-                                    throw std::exception();
+                                    throw EXCEPTION(ResourceException("Resource factory not found"));
                                 }
                                 valid = true;
                             } catch (const std::exception &e) {
