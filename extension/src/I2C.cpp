@@ -97,41 +97,37 @@ void I2C::writeBlockSMBus(uint8_t command, uint8_t *data, uint8_t length) {
 
 void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
     int i = 0;
-    int readByteCount - 0;
+    int readByteCount = 0;
     vector<uint8_t> write_msgs;
     vector<uint8_t> read_msgs;
-    vector<pair<uint8_t*, pair<uint8_t *, int16_t>>&> read_locations; 
+    vector<tuple<uint8_t*, uint8_t *, int16_t>> read_locations; 
 
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
-        msg.buf = it->first;
-        msg.flags = 0;
-    
         if (it->second < 0) {
-            it->second = -it->second;
             if(read_msgs.size() > 0){
                 throw EXCEPTION(ResourceException("I2C failed: May only read at end of transaction"));
             }
 
-            if(write_msgs.capacity() < write_msgs.size() + it->second){
-                write_msgs.resize(write_msgs.size() + it->second());
+            if(write_msgs.capacity() < write_msgs.size() - it->second){
+                write_msgs.resize(write_msgs.size() - it->second);
             }
 
             for(i = 0; i < it->second; i++){
-                write_msgs.push_back(it->first + i);
+                write_msgs.push_back(*(uint8_t *)(it->first + i));
             }
         } else {
             if(read_msgs.capacity() < readByteCount + it->second){
-                read_msgs.resize(readByteCount + it->second());
+                read_msgs.resize(readByteCount + it->second);
             }
 
-            pair<uint8_t *, pair<uint8_t *, int16_t>&> newMsg;
-            newMsg.first = &read_msgs[readByteCount];
-            newMsg.second = steps[i];
+            read_locations.push_back(tuple<uint8_t*, uint8_t *, int16_t>(&read_msgs[readByteCount], steps[i].first, steps[i].second));
+            readByteCount += steps[i].second;
         }
 
         i++;
     }
-    struct i2c_msg = msgs[2];
+
+    struct i2c_msg msgs[2];
     if(write_msgs.size() > 0){
         msgs[0].addr = address;
         msgs[0].buf = &write_msgs[0];
@@ -141,7 +137,7 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
 
     if(readByteCount > 0){
         msgs[1].addr = address;
-        msgs[1].buf = &read_msgs[0]
+        msgs[1].buf = &read_msgs[0];
         msgs[1].flags = ((address >= 0x80)? I2C_M_TEN: 0x00) | I2C_M_RD;
         msgs[1].len = readByteCount;
     }
@@ -161,8 +157,8 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
 
     throwError("executing I2C transaction", ioctl(fd, I2C_RDWR, &data));
 
-    for (vector<pair<uint8_t*, pair<uint8_t *, int16_t>&>>::const_iterator it = read_locations.begin(); it != read_locations.end(); ++it) {
-        memcpy(it->second.first, it->first, it->second.second);
+    for (auto it = read_locations.begin(); it != read_locations.end(); ++it) {
+        memcpy(std::get<1>(*it) , std::get<0>(*it), std::get<2>(*it));
     }
 }
 
@@ -171,3 +167,4 @@ void I2C::throwError(const string &action, int returnCode) {
         throw EXCEPTION(ResourceException("I2C failed " + action + ": " + strerror(errno)));
     }
 }
+
