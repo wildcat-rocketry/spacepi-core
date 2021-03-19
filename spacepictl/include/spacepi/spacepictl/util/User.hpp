@@ -44,7 +44,7 @@ namespace spacepi {
                     
                     // Members of struct spwd
                     // sp_namp -> pw_name
-                    const std::string sp_pwdp = "*";
+                    const std::string sp_pwdp = "";
                     const long int sp_lstchg = 18509;
                     const long int sp_min = 0;
                     const long int sp_max = 99999;
