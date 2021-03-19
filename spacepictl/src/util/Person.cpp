@@ -69,7 +69,7 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
                     }
                     break;
                 default:
-                    log(LogLevel::Warning) << "Skipping skel file due to invalid type: " << it->path();
+                    log(LogLevel::Warning) << "Skipping skel file due to invalid type: " << it->path() << "(" << it->status().type() << ")";
                     break;
             }
         }
