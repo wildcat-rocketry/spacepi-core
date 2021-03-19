@@ -99,7 +99,6 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
     int readByteCount = 0;
     vector<uint8_t> write_msgs;
     vector<uint8_t> read_msgs;
-    vector<tuple<uint8_t*, uint8_t *, int16_t>> read_locations; 
 
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
         if (it->second < 0) {
@@ -112,7 +111,6 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
                 write_msgs.push_back(it->first[i]);
             }
         } else {
-            read_locations.emplace_back(read_msgs.data() + readByteCount, it->first, it->second);
             readByteCount += it->second;
         }
     }
@@ -149,8 +147,12 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
 
     throwError("executing I2C transaction", ioctl(fd, I2C_RDWR, &data));
 
-    for (auto it = read_locations.begin(); it != read_locations.end(); ++it) {
-        memcpy(std::get<1>(*it) , std::get<0>(*it), std::get<2>(*it));
+    uint8_t *src = read_msgs.data();
+    for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
+        if (it->second > 0) {
+            memcpy(it->first, src, it->second);
+            src += it->second;
+        }
     }
 }
 
