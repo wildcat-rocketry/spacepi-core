@@ -96,7 +96,6 @@ void I2C::writeBlockSMBus(uint8_t command, uint8_t *data, uint8_t length) {
 }
 
 void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
-    int i = 0;
     int readByteCount = 0;
     vector<uint8_t> write_msgs;
     vector<uint8_t> read_msgs;
@@ -108,50 +107,43 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
                 throw EXCEPTION(ResourceException("I2C failed: May only read at end of transaction"));
             }
 
-            if(write_msgs.capacity() < write_msgs.size() - it->second){
-                write_msgs.resize(write_msgs.size() - it->second);
-            }
-
-            for(i = 0; i < it->second; i++){
-                write_msgs.push_back(*(uint8_t *)(it->first + i));
+            write_msgs.reserve(write_msgs.size() + it->second);
+            for(int i = 0; i < it->second; i++){
+                write_msgs.push_back(it->first[i]);
             }
         } else {
-            if(read_msgs.capacity() < readByteCount + it->second){
-                read_msgs.resize(readByteCount + it->second);
-            }
-
-            read_locations.push_back(tuple<uint8_t*, uint8_t *, int16_t>(&read_msgs[readByteCount], steps[i].first, steps[i].second));
-            readByteCount += steps[i].second;
+            read_locations.emplace_back(read_msgs.data() + readByteCount, it->first, it->second);
+            readByteCount += it->second;
         }
-
-        i++;
     }
+
+    read_msgs.resize(readByteCount);
 
     struct i2c_msg msgs[2];
     if(write_msgs.size() > 0){
         msgs[0].addr = address;
-        msgs[0].buf = &write_msgs[0];
+        msgs[0].buf = write_msgs.data();
         msgs[0].flags = (address >= 0x80)? I2C_M_TEN: 0x00;
         msgs[0].len = write_msgs.size();
     }
 
     if(readByteCount > 0){
         msgs[1].addr = address;
-        msgs[1].buf = &read_msgs[0];
+        msgs[1].buf = read_msgs.data();
         msgs[1].flags = ((address >= 0x80)? I2C_M_TEN: 0x00) | I2C_M_RD;
         msgs[1].len = readByteCount;
     }
 
     struct i2c_rdwr_ioctl_data data;
     if(write_msgs.size() > 0){
-        data.msgs = &msgs[0];
+        data.msgs = msgs;
         if(readByteCount > 0){
             data.nmsgs = 2;
         } else {
             data.nmsgs = 1;
         }
     } else {
-        data.msgs = &msgs[1];
+        data.msgs = msgs + 1;
         data.nmsgs = 1;
     }
 
