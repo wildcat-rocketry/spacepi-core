@@ -5,6 +5,7 @@
 #include <spacepi/spacepictl/util/System.hpp>
 #include <spacepi/spacepictl/util/FSTransaction.hpp>
 #include <spacepi/spacepictl/util/FSOStream.hpp>
+#include <spacepi/spacepictl/Config.hpp>
 #include <string>
 #include <fstream>
 
@@ -117,16 +118,25 @@ void System::write_services(){
         spacepi::package::Module module = module_pair.second;
         const string service_file_name = "/lib/systemd/system/" + moduleServiceName(module) + ".service";
         FSOStream service(fs, service_file_name);
-        service << "[Unit]" << endl
-                << "Description=SpacePi Service " << module.getName() << endl
-                << endl
-                << "[Service]" << endl
-                << "ExecStart=/usr/local/bin/spacepictl exec " << module.getName() << endl;
-        
+        service << "[Unit]\n"
+                   "Description=SpacePi Service " << module.getName() << "\n"
+                   "\n"
+                   "[Service]\n"
+                   "Type=exec\n"
+                   "ExecStart=" CMAKE_INSTALL_PREFIX "/bin/spacepictl exec " << module.getName() << "\n"
+                   "Restart=on-failure\n"
+                   "RestartSec=2\n"
+                   "User=spacepi\n"
+                   "Group=spacepi\n"
+                   "UMask=0002\n"
+                   "ProtectSystem=strict\n"
+                   "ProtectHome=yes\n"
+                   "ReadWritePaths=/run /var/local\n";
+
         if(module.hasAutomaticStart()){
-            service << endl
-                    << "[Install]" << endl
-                    << "WantedBy=multi-user.target" << endl;
+            service << "\n"
+                       "[Install]\n"
+                       "WantedBy=multi-user.target\n";
 
             fs.link("/etc/systemd/system/multi-user.target.wants/" + moduleServiceName(module) + ".service", service_file_name);
         }
@@ -136,7 +146,7 @@ void System::write_services(){
 string System::moduleBin(spacepi::package::Module &module){
     string module_type = module.getType();
     replace(module_type.begin(), module_type.end(), '/', '_');
-    return "/usr/local/bin/spacepi-mod_modules_" + module_type;
+    return CMAKE_INSTALL_PREFIX "/bin/spacepi-mod_modules_" + module_type;
 }
 
 string System::moduleServiceName(spacepi::package::Module &module){
