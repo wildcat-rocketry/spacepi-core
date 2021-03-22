@@ -86,7 +86,7 @@ void FSGitConfigOperation::finalize() {
     }
 }
 
-FSMkSymlinkOperation::FSMkSymlinkOperation(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode) : path(path), target(target), uid(uid), gid(gid), mode(mode), hasBackup(false), wrote(false) {
+FSMkSymlinkOperation::FSMkSymlinkOperation(const string &path, const string &target) : path(path), target(target), hasBackup(false), wrote(false) {
 }
 
 void FSMkSymlinkOperation::perform() {
@@ -99,8 +99,6 @@ void FSMkSymlinkOperation::perform() {
     }
 
     handle("creating symlink", symlink(target.c_str(), tempName.c_str()));
-    handle("setting file owner", chown(tempName.c_str(), uid, gid));
-    handle("setting file mode", chmod(tempName.c_str(), mode));
 
     if (hasBackup) {
         string backupName = path + "~";
@@ -328,8 +326,8 @@ void FSTransaction::copy(const string &from, const string &to, uid_t uid, gid_t 
     *this += make_shared<FSCopyOperation>(from, to, uid, gid, mode);
 }
 
-void FSTransaction::link(const string &path, const string &target, uid_t uid, gid_t gid, mode_t mode){
-    *this += make_shared<FSMkSymlinkOperation>(path, target, uid, gid, mode);
+void FSTransaction::link(const string &path, const string &target){
+    *this += make_shared<FSMkSymlinkOperation>(path, target);
 }
 
 void FSTransaction::add_git_config(const string &path, map<string,string> confEntries, uid_t uid, gid_t gid, mode_t mode){

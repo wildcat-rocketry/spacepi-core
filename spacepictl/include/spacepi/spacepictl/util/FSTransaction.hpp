@@ -38,7 +38,7 @@ namespace spacepi {
 
                 class FSMkSymlinkOperation : public FSOperation {
                     public:
-                        FSMkSymlinkOperation(const std::string &path, const std::string &target, uid_t uid, gid_t gid, mode_t mode);
+                        FSMkSymlinkOperation(const std::string &path, const std::string &target);
 
                     private:
                         void perform();
@@ -47,9 +47,6 @@ namespace spacepi {
 
                         std::string target;
                         std::string path;
-                        gid_t gid;
-                        uid_t uid;
-                        mode_t mode;
                         bool hasBackup;
                         bool wrote;
 
@@ -122,7 +119,7 @@ namespace spacepi {
                     void remove(const std::string &file);
                     void mkdir(const std::string &path, uid_t uid = 0, gid_t gid = 0, mode_t mode = 0755);
                     void copy(const std::string &from, const std::string &to, uid_t uid = 0, gid_t gid = 0, mode_t mode = 0644);
-                    void link(const std::string &path, const std::string &target, uid_t uid = 0, gid_t gid = 0, mode_t mode = 0644);
+                    void link(const std::string &path, const std::string &target);
                     void add_git_config(const std::string &path, std::map<std::string,std::string> confEntries, uid_t uid = 0, gid_t gid = 0, mode_t mode = 0644);
 
                 private:
