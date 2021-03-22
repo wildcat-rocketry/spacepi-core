@@ -106,8 +106,8 @@ void I2C::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
                 throw EXCEPTION(ResourceException("I2C failed: May only read at end of transaction"));
             }
 
-            write_msgs.reserve(write_msgs.size() + it->second);
-            for(int i = 0; i < it->second; i++){
+            write_msgs.reserve(write_msgs.size() - it->second);
+            for(int i = 0; i < -it->second; i++){
                 write_msgs.push_back(it->first[i]);
             }
         } else {
