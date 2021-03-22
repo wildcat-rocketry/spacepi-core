@@ -63,7 +63,7 @@ void Person::build_home(string uname, uid_t uid, gid_t gid){
                 case fs::file_type::symlink_file:
                     if (!fs::exists(dst / name)) {
                         if (fs::is_symlink(src / name)) {
-                            fs.link((dst / name).native(), fs::read_symlink(src / name).native(), uid, gid);
+                            fs.link((dst / name).native(), fs::read_symlink(src / name).native());
                         } else {
                             fs.copy((src / name).native(), (dst / name).native(), uid, gid);
                         }
