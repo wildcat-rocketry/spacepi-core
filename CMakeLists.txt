@@ -124,4 +124,5 @@ spacepi_aux_library(
 
 add_subdirectory(extension)
 add_subdirectory(setup-deploy-key)
+add_subdirectory(shell)
 add_subdirectory(spacepictl)

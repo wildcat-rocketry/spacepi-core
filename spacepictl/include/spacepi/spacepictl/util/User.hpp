@@ -8,6 +8,7 @@
 #include <boost/program_options.hpp>
 #include <pwd.h>
 #include <shadow.h>
+#include <spacepi/spacepictl/Config.hpp>
 
 namespace spacepi {
     namespace spacepictl {
@@ -40,7 +41,7 @@ namespace spacepi {
                     const std::string pw_name;
                     const std::string pw_gecos = "From spacepictl";
                     const std::string pw_dir;
-                    const std::string pw_shell = "/bin/bash";
+                    const std::string pw_shell = CMAKE_INSTALL_PREFIX "/bin/spacepi-shell";
                     
                     // Members of struct spwd
                     // sp_namp -> pw_name

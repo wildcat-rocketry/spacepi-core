@@ -5,6 +5,8 @@
 
 #cmakedefine SYSTEMCTL_EXECUTABLE "@SYSTEMCTL_EXECUTABLE@"
 
+#cmakedefine CMAKE_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
+
 #define SPACEPI_ETC "/etc/spacepi"
 #define SPACEPI_NEW_PATH_CONF SPACEPI_ETC "/new_conf.xml"
 #define SPACEPI_RUNNING_CONF SPACEPI_ETC "/running_conf.xml"
