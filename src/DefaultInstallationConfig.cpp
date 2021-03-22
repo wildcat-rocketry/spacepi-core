@@ -14,6 +14,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",gdb"
         ",git"
         ",gpiod"
+        ",htop"
         ",i2c-tools"
         ",kpartx"
         ",libblkid-dev"
