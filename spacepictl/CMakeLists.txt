@@ -20,7 +20,6 @@ spacepi_aux_program(
         src/util/FSOStream.cpp
         src/util/FSTransaction.cpp
         src/util/Person.cpp
-        src/util/RWRoot.cpp
         src/util/System.cpp
         src/util/User.cpp
         src/util/UserManager.cpp
