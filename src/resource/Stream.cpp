@@ -44,7 +44,9 @@ int Stream::underflow() {
     if (last >= 0) {
         return last;
     }
-    if (readBuf(&(char &) last, 1) == 1) {
+    char buf;
+    if (readBuf(&buf, 1) == 1) {
+        last = buf;
         return last;
     }
     return EOF;
