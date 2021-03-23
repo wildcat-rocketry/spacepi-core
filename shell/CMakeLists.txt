@@ -5,6 +5,8 @@ spacepi_aux_program(
     NO_INSTALL
 )
 
+add_dependencies(installable spacepi-shell)
+
 install(
     TARGETS spacepi-shell
     RUNTIME DESTINATION bin
