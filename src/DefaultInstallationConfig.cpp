@@ -33,6 +33,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",screen"
         ",strace"
         ",sudo"
+        ",tmux"
             + 1;
     components = "main,contrib,non-free";
     osRelease = "stable";
