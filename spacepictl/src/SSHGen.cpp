@@ -4,8 +4,12 @@
 #include <string>
 #include <vector>
 #include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/vfs.h>
+#include <pwd.h>
 #include <sched.h>
+#include <unistd.h>
 #include <boost/filesystem.hpp>
 #include <boost/process.hpp>
 #include <SpacePi.hpp>
@@ -35,20 +39,35 @@ bool SSHGen::run(const vector<string> &args) {
         log(LogLevel::Warning) << "Unable to remount / as read-write: " << strerror(errno);
     }
 
-    generate("/etc/ssh/id_rsa",               "rsa",     "SpacePi"     );
-    generate("/etc/ssh/ssh_host_rsa_key",     "rsa",     "SpacePi-host");
-    generate("/etc/ssh/ssh_host_ecdsa_key",   "ecdsa",   "SpacePi-host");
+    pwd = getpwnam("spacepi");
+
+    generate("/etc/ssh/id_rsa",             "rsa",   "SpacePi"     );
+    generate("/etc/ssh/ssh_host_rsa_key",   "rsa",   "SpacePi-host");
+    generate("/etc/ssh/ssh_host_ecdsa_key", "ecdsa", "SpacePi-host");
     return success;
 }
 
 void SSHGen::generate(const string &privateKey, const string &type, const string &comment) noexcept {
-    if (!exists(privateKey) || !exists(privateKey + ".pub")) {
+    string publicKey = privateKey + ".pub";
+    if (!exists(privateKey) || !exists(publicKey)) {
         log(LogLevel::Info) << "Generating " << privateKey << "...";
         child proc("/usr/bin/ssh-keygen", "-q", "-t", type, "-N", "", "-C", comment, "-f", privateKey);
         proc.wait();
         if (proc.exit_code() != 0) {
             log(LogLevel::Warning) << "Unable to generate key: " << privateKey;
             success = false;
+        }
+        if (chown(privateKey.c_str(), pwd->pw_uid, pwd->pw_gid) < 0) {
+            log(LogLevel::Warning) << "Unable to change owner of " << privateKey << ": " << strerror(errno);
+        }
+        if (chown(publicKey.c_str(), pwd->pw_uid, pwd->pw_gid) < 0) {
+            log(LogLevel::Warning) << "Unable to change owner of " << publicKey << ": " << strerror(errno);
+        }
+        if (chmod(privateKey.c_str(), 0640) < 0) {
+            log(LogLevel::Warning) << "Unable to change permissions of " << privateKey << ": " << strerror(errno);
+        }
+        if (chmod(publicKey.c_str(), 0644) < 0) {
+            log(LogLevel::Warning) << "Unable to change permissions of " << publicKey << ": " << strerror(errno);
         }
     }
 }
