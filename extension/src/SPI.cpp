@@ -86,49 +86,37 @@ void SPI::setSpeed(int speed) {
 }
 
 void SPI::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
-    vector<struct spi_ioc_transfer> messages;
+    vector<uint8_t> mosi;
+    int misoCount;
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
         if (it->second < 0) {
-            struct spi_ioc_transfer tx;
-            memset(&tx, 0, sizeof(tx));
-            tx.tx_buf = (uint64_t) it->first;
-            tx.len = -it->second;
-            messages.push_back(tx);
-        }
-    }
-    vector<struct spi_ioc_transfer>::iterator mit = messages.begin();
-    for (vector<pair<uint8_t *, int16_t>>::const_iterator sit = steps.begin(); sit != steps.end(); ++sit) {
-        int16_t len = sit->second;
-        uint64_t data = (uint64_t) sit->first;
-        while (len > 0) {
-            if (mit == messages.end()) {
-                struct spi_ioc_transfer rx;
-                memset(&rx, 0, sizeof(rx));
-                rx.rx_buf = data;
-                rx.len = len;
-                messages.push_back(rx);
-                len = 0;
-            } else if (mit->len < len) {
-                mit->rx_buf = data;
-                data += mit->len;
-                len -= mit->len;
-            } else if (mit->len > len) {
-                mit->rx_buf = data;
-                struct spi_ioc_transfer tx;
-                memset(&tx, 0, sizeof(tx));
-                tx.tx_buf = mit->tx_buf + len;
-                tx.len = mit->len - len;
-                mit->len = len;
-                mit = messages.insert(mit + 1, tx) - 1;
-                len = 0;
-            } else {
-                mit++->rx_buf = data;
-                len = 0;
+            mosi.reserve(mosi.size() - it->second);
+            for (int i = 0; i < -it->second; ++i) {
+                mosi.push_back(it->first[i]);
             }
+        } else {
+            misoCount += it->second;
         }
     }
-    int n = messages.size();
-    throwError("executing SPI transaction", ioctl(fd, SPI_IOC_MESSAGE(n), messages.data()));
+    if (mosi.size() > misoCount) {
+        misoCount = mosi.size();
+    } else if (mosi.size() < misoCount) {
+        mosi.resize(misoCount);
+    }
+    vector<uint8_t> miso(misoCount);
+    struct spi_ioc_transfer msg;
+    memset(&msg, 0, sizeof(msg));
+    msg.tx_buf = (uint64_t) mosi.data();
+    msg.rx_buf = (uint64_t) miso.data();
+    msg.len = misoCount;
+    throwError("executing SPI transaction", ioctl(fd, SPI_IOC_MESSAGE(1), &msg));
+    uint8_t *src = miso.data();
+    for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
+        if (it->second > 0) {
+            memcpy(it->first, src, it->second);
+            src += it->second;
+        }
+    }
 }
 
 void SPI::throwError(const string &action, int returnCode) {
