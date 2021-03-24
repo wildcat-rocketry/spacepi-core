@@ -146,7 +146,7 @@ void System::write_services(){
 string System::moduleBin(spacepi::package::Module &module){
     string module_type = module.getType();
     replace(module_type.begin(), module_type.end(), '/', '_');
-    return CMAKE_INSTALL_PREFIX "/bin/spacepi-mod_" + module_type;
+    return CMAKE_INSTALL_PREFIX "/bin/spacepi-mod-" + module_type;
 }
 
 string System::moduleServiceName(spacepi::package::Module &module){
