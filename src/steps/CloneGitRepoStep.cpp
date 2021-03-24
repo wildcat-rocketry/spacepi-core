@@ -170,6 +170,13 @@ void CloneGitRepoStep::run(InstallationData &data) {
                 branch.take();
 
                 handle("setting remote head", git_repository_set_head(remoteRepo, refSpec.c_str()));
+
+                UniqueGitPtr<git_buf, git_buf_dispose> upstream;
+                handle("getting local upstream info", git_branch_upstream_name(&upstream, localRepo, refSpec.c_str()));
+                upstream.take();
+
+                string upstreamStr(upstream->ptr, upstream->size);
+                handle("setting remote upstream info", git_branch_set_upstream(branch, upstreamStr.c_str()));
             }
 
             this->remoteRepo = remoteRepo;
