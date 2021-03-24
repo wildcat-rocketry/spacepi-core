@@ -19,7 +19,6 @@ int main(int argc, char **argv) {
             fprintf(stderr, "setuid(0): %s\n", strerror(errno));
         }
 
-        struct statfs stat;
         if (unshare(CLONE_NEWNS) < 0) {
             fprintf(stderr, "unshare: %s\n", strerror(errno));
         } else if (mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL) < 0) {
