@@ -9,7 +9,7 @@
 #include <sched.h>
 #include <unistd.h>
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     uid_t uid = getuid();
     if (setuid(0) < 0) {
         fprintf(stderr, "setuid(0): %s\n", strerror(errno));
@@ -33,7 +33,15 @@ int main(int argc, const char **argv) {
         fprintf(stderr, "seteuid(%d): %s\n", uid, strerror(errno));
     }
 
-    execl("/bin/bash", "/bin/bash", NULL);
+    char **childArgv = malloc(sizeof(char *) * (argc + 1));
+    *childArgv = "/bin/bash";
+    for (int i = 1; i < argc; ++i) {
+        childArgv[i] = argv[i];
+    }
+    childArgv[argc] = NULL;
+
+    execv("/bin/bash", childArgv);
+    free(childArgv);
     fprintf(stderr, "execl: %s\n", strerror(errno));
     return EXIT_FAILURE;
 }
