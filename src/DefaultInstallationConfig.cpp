@@ -24,6 +24,7 @@ DefaultInstallationConfig::DefaultInstallationConfig() noexcept {
         ",libi2c-dev"
         ",libprotobuf-dev"
         ",libssl-dev"
+        ",man-db"
         ",network-manager"
         ",nfs-kernel-server"
         ",openssh-server"
