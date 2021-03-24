@@ -4,6 +4,8 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <sys/types.h>
+#include <pwd.h>
 #include <spacepi/spacepictl/Verb.hpp>
 
 namespace spacepi {
@@ -21,6 +23,7 @@ namespace spacepi {
 
                 std::ostream &printHelp(std::ostream &os) const noexcept;
 
+                struct passwd *pwd;
                 bool success;
         };
     }
