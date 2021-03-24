@@ -96,6 +96,12 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         "[ipv6]\n"
         "method=auto\n"
         "ip6-privacy=2\n";
+    // /etc/pam.d/common-session
+    create_directories(root / "etc/pam.d");
+    std::ofstream((root / "etc/pam.d/common-session").native(), ios::out | ios::app) <<
+        "\n"
+        "# SpacePi rules\n"
+        "session optional pam_umask.so umask=002\n";
     // /etc/passwd
     UniqueProcess useradd(false, false, false, USERADD_EXECUTABLE, { "-d", "/", "-M", "-r", "-R", root.native(), "-U", "spacepi" });
     useradd.wait();
