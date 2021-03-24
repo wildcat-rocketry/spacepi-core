@@ -87,7 +87,7 @@ void SPI::setSpeed(int speed) {
 
 void SPI::doTransaction(const vector<pair<uint8_t *, int16_t>> &steps) {
     vector<uint8_t> mosi;
-    int misoCount;
+    int misoCount = 0;
     for (vector<pair<uint8_t *, int16_t>>::const_iterator it = steps.begin(); it != steps.end(); ++it) {
         if (it->second < 0) {
             mosi.reserve(mosi.size() - it->second);
