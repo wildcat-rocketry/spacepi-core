@@ -12,6 +12,15 @@ using namespace spacepi::resource;
 template class BusBase<BusTransaction>;
 template class BusBase<BusTransaction &>;
 
+template BusTransaction seek::operator()<BusTransaction>(BusBase<BusTransaction> &os) const noexcept;
+template BusTransaction &seek::operator()<BusTransaction &>(BusBase<BusTransaction &> &os) const noexcept;
+template BusTransaction write::operator()<BusTransaction>(BusBase<BusTransaction> &os) const noexcept;
+template BusTransaction &write::operator()<BusTransaction &>(BusBase<BusTransaction &> &os) const noexcept;
+template BusTransaction skip::operator()<BusTransaction>(BusBase<BusTransaction> &os) const noexcept;
+template BusTransaction &skip::operator()<BusTransaction &>(BusBase<BusTransaction &> &os) const noexcept;
+template BusTransaction read::operator()<BusTransaction>(BusBase<BusTransaction> &os) const noexcept;
+template BusTransaction &read::operator()<BusTransaction &>(BusBase<BusTransaction &> &os) const noexcept;
+
 static array<uint8_t, 32> randomArray;
 
 template <typename TReturn>
