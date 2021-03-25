@@ -10,6 +10,9 @@
 
 namespace spacepi {
     namespace messaging {
+        class Connection;
+        class RawConnection;
+
         /**
          * \brief Base class for Subscription which allows polymorphic access
          */
@@ -48,10 +51,10 @@ namespace spacepi {
                  * \param[in,out] conn The Connection from which to subscribe to messages
                  * \param[in] id The ID to subscribe to
                  */
-                GenericSubscription(detail::ImmovableConnection &conn, const network::SubscriptionID &id);
+                GenericSubscription(RawConnection &conn, const network::SubscriptionID &id);
 
             private:
-                detail::ImmovableConnection &conn;
+                RawConnection &conn;
                 network::SubscriptionID id;
         };
 
@@ -67,7 +70,7 @@ namespace spacepi {
                  * \param[in,out] conn The Connection from which to subscribe to messages
                  * \param[in] instanceID The instance ID of the messages which are being subscribed to
                  */
-                Subscription(Connection &conn, uint64_t instanceID) : GenericSubscription(*conn.conn, network::SubscriptionID(MessageType::descriptor()->options().GetExtension(MessageID), instanceID)) {
+                Subscription(Connection &conn, uint64_t instanceID) : GenericSubscription(*conn.raw(), network::SubscriptionID(MessageType::descriptor()->options().GetExtension(MessageID), instanceID)) {
                 }
 
                 /**

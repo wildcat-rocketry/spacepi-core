@@ -52,6 +52,8 @@ spacepi_aux_library(
         src/messaging/network/SocketWrapper.cpp
         src/messaging/network/SubscriptionID.cpp
         src/messaging/Connection.cpp
+        src/messaging/Publisher.cpp
+        src/messaging/RawConnection.cpp
         src/messaging/Subscription.cpp
         src/package/Module.cpp
         src/package/Options.cpp
@@ -151,6 +153,8 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
             include/spacepi/messaging/network/SubscriptionID.hpp
             include/spacepi/messaging/Connection.hpp
             include/spacepi/messaging/Network.hpp
+            include/spacepi/messaging/Publisher.hpp
+            include/spacepi/messaging/RawConnection.hpp
             include/spacepi/messaging/Subscription.hpp
             include/spacepi/package/Module.hpp
             include/spacepi/package/Options.hpp
@@ -240,6 +244,7 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
                 docs/spacepi/messaging/GenericSubscription.rst
                 docs/spacepi/messaging/Network.rst
                 docs/spacepi/messaging/Publisher.rst
+                docs/spacepi/messaging/RawConnection.rst
                 docs/spacepi/messaging/Subscription.rst
                 docs/spacepi/package/Module.rst
                 docs/spacepi/package/Options.rst

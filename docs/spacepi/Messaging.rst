@@ -6,4 +6,5 @@ spacepi::messaging namespace
     messaging/GenericSubscription
     messaging/Network
     messaging/Publisher
+    messaging/RawConnection
     messaging/Subscription

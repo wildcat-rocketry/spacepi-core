@@ -38,6 +38,8 @@ INPUT                  = \
     spacepi/messaging/network/SubscriptionID.hpp \
     spacepi/messaging/Connection.hpp \
     spacepi/messaging/Network.hpp \
+    spacepi/messaging/Publisher.hpp \
+    spacepi/messaging/RawConnection.hpp \
     spacepi/messaging/Subscription.hpp \
     spacepi/package/Module.hpp \
     spacepi/package/Options.hpp \
