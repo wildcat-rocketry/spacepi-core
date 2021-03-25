@@ -91,16 +91,19 @@ void CloneGitRepoStep::run(InstallationData &data) {
             handle("peeling local head", git_reference_peel(&headCommit, localHead, GIT_OBJECT_COMMIT));
             headCommit.take();
 
-            string remoteURL = ("file://" / absolute(git_repository_path(localRepo))).native();
-            UniqueGitPtr<git_remote *, git_remote_free> remote;
-            handle("adding temporary remote", git_remote_create(&remote, remoteRepo, "tmp", remoteURL.c_str()));
-            remote.take();
-
             string refSpec;
             bool headIsBranch = git_reference_is_branch(localHead);
             UniqueGitPtr<git_reference *, git_reference_free> tempBranch;
+            string upstreamRemote;
             if (headIsBranch) {
                 refSpec = git_reference_name(localHead);
+
+                UniqueGitPtr<git_buf, git_buf_dispose> upstream;
+                memset(&upstream, 0, sizeof(git_buf));
+                handle("getting local upstream info", git_branch_upstream_remote(&upstream, localRepo, refSpec.c_str()));
+                upstream.take();
+
+                upstreamRemote = string(upstream->ptr, upstream->size);
             } else {
                 UniqueGitPtr<git_commit *, git_commit_free> localHeadCommit;
                 handle("looking up local head commit", git_commit_lookup(&localHeadCommit, localRepo, git_object_id(headCommit)));
@@ -110,7 +113,21 @@ void CloneGitRepoStep::run(InstallationData &data) {
                 tempBranch.take();
 
                 refSpec = git_reference_name(tempBranch);
+
+                upstreamRemote = "spacepi-installer-tmp";
             }
+
+            string remoteURL = ("file://" / absolute(git_repository_path(localRepo))).native();
+            UniqueGitPtr<git_remote *, git_remote_free> remote;
+            int res = git_remote_create(&remote, remoteRepo, upstreamRemote.c_str(), remoteURL.c_str());
+            if (res == GIT_EEXISTS) {
+                handle("resetting temporary remote", git_remote_set_url(remoteRepo, upstreamRemote.c_str(), remoteURL.c_str()));
+
+                handle("looking up temporary remote", git_remote_lookup(&remote, remoteRepo, upstreamRemote.c_str()));
+            } else {
+                handle("adding temporary remote", res);
+            }
+            remote.take();
 
             array<char *, 1> refSpecs;
             vector<char> refSpecData;
@@ -130,7 +147,9 @@ void CloneGitRepoStep::run(InstallationData &data) {
             }
 
             remote.reset();
-            handle("deleting temporary remote", git_remote_delete(remoteRepo, "tmp"));
+            if (!headIsBranch) {
+                handle("deleting temporary remote", git_remote_delete(remoteRepo, upstreamRemote.c_str()));
+            }
 
             UniqueGitPtr<git_strarray, git_strarray_dispose> remoteList;
             handle("listing local remotes", git_remote_list(&remoteList, localRepo));
@@ -142,8 +161,10 @@ void CloneGitRepoStep::run(InstallationData &data) {
                 string url = git_remote_url(remote);
                 remote.reset();
 
-                int res = git_remote_create(&remote, remoteRepo, remoteList->strings[i], url.c_str());
-                if (res != GIT_EEXISTS) {
+                res = git_remote_create(&remote, remoteRepo, remoteList->strings[i], url.c_str());
+                if (res == GIT_EEXISTS) {
+                    handle("resetting remote", git_remote_set_url(remoteRepo, remoteList->strings[i], url.c_str()));
+                } else {
                     handle("copying remote", res);
                     remote.take();
                     remote.reset();
@@ -171,11 +192,11 @@ void CloneGitRepoStep::run(InstallationData &data) {
 
                 handle("setting remote head", git_repository_set_head(remoteRepo, refSpec.c_str()));
 
-                UniqueGitPtr<git_buf, git_buf_dispose> upstream;
-                handle("getting local upstream info", git_branch_upstream_name(&upstream, localRepo, refSpec.c_str()));
+                UniqueGitPtr<git_reference *, git_reference_free> upstream;
+                handle("getting local upstream info", git_branch_upstream(&upstream, localHead));
                 upstream.take();
 
-                string upstreamStr(upstream->ptr, upstream->size);
+                string upstreamStr = git_reference_shorthand(upstream);
                 handle("setting remote upstream info", git_branch_set_upstream(branch, upstreamStr.c_str()));
             }
 
