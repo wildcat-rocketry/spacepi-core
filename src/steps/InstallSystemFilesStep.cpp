@@ -160,10 +160,13 @@ void InstallSystemFilesStep::run(InstallationData &data) {
         "d /run 1777 root root\n";
     // /etc/udev/rules.d/80-spacepi.rules
     std::ofstream((root / "etc/udev/rules.d/80-spacepi.rules").native()) <<
-        "SUBSYSTEMS==\"i2c\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "KERNEL==\"ttyACM*\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "KERNEL==\"ttyAMA*\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "KERNEL==\"ttyS*\",    OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "KERNEL==\"ttyUSB*\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
         "SUBSYSTEMS==\"gpio\", OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
-        "SUBSYSTEMS==\"spi\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
-        "KERNEL==\"ttyS*\",    OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n";
+        "SUBSYSTEMS==\"i2c\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n"
+        "SUBSYSTEMS==\"spi\",  OWNER=\"root\", GROUP=\"spacepi\", MODE=\"0660\"\n";
     // /home
     remove(root / "home");
     create_directory_symlink("/var/local/home", root / "home");
