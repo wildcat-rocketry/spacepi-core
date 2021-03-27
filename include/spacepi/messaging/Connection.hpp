@@ -4,11 +4,12 @@
 #include <cstdint>
 #include <memory>
 #include <spacepi/messaging/Publisher.hpp>
-#include <spacepi/messaging/RawConnection.hpp>
 #include <spacepi/util/Command.hpp>
 
 namespace spacepi {
     namespace messaging {
+        class RawConnection;
+
         /**
          * \brief The main class which is used to handle a connection to the router, and therefore other modules
          */
