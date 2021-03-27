@@ -45,12 +45,10 @@ void Journal::write(const JournalEntry &ent) const {
     data[2] = (msg.size() & 0x0000FF) >>  0;
     stream->write((char *) data, 3);
     stream->write(msg.data(), msg.size());
-    cout << "Wrote packet\n";
 }
 
 void Journal::flush() const {
     stream->flush();
-    cout << "Flushed file\n";
 }
 
 void Journal::runCommand() {
