@@ -27,7 +27,7 @@ namespace spacepi {
                 public:
                     MockFilesystem(const std::string &name) noexcept;
 
-                    std::shared_ptr<Stream> open(const std::string &name, bool write);
+                    std::shared_ptr<Stream> open(const std::string &name, enum OpenMode mode);
 
                 private:
                     std::string name;
@@ -77,9 +77,25 @@ MockFilesystem::MockFilesystem(const string &name) noexcept : name(name) {
     log(LogLevel::Debug) << "Created new filesystem '" << name << "'.";
 }
 
-shared_ptr<Stream> MockFilesystem::open(const string &name, bool write) {
+shared_ptr<Stream> MockFilesystem::open(const string &name, enum OpenMode mode) {
     string combinedName = this->name + "'/'" + name;
-    log(LogLevel::Debug) << "Opening file '" << combinedName << "' " << (write ? "in write mode" : "as read-only");
+    LogStream os = log(LogLevel::Debug);
+    os << "Opening file '" << combinedName << "' in ";
+    switch (mode) {
+        case Read:
+            os << "read";
+            break;
+        case Write:
+            os << "write";
+            break;
+        case Log:
+            os << "log";
+            break;
+        default:
+            os << "unknown (" << mode << ")";
+            break;
+    }
+    os << " mode";
     return shared_ptr<Stream>(new MockFile(combinedName));
 }
 

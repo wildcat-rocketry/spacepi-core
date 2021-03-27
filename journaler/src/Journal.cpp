@@ -2,12 +2,14 @@
 #include <string>
 #include <vector>
 #include <spacepi/messaging/JournalEntry.pb.h>
+#include <spacepi/resource/Filesystem.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/journaler/Journal.hpp>
 
 using namespace std;
 using namespace spacepi::messaging::detail;
+using namespace spacepi::resource;
 using namespace spacepi::util;
 using namespace spacepi::journaler;
 
@@ -16,7 +18,7 @@ Journal::Journal(Command &cmd) noexcept : CommandConfigurable("Journal Options",
 }
 
 void Journal::open(bool write) {
-    stream = fs->open("", write);
+    stream = fs->open("", write ? Filesystem::Log : Filesystem::Read);
 }
 
 bool Journal::read(JournalEntry &ent) const {

@@ -1,3 +1,4 @@
+#include <cstddef>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -25,7 +26,7 @@ namespace spacepi {
                 public:
                     StdFilesystem(const std::string &path) noexcept;
 
-                    std::shared_ptr<Stream> open(const std::string &name, bool write);
+                    std::shared_ptr<Stream> open(const std::string &name, enum OpenMode mode);
 
                 private:
                     std::string path;
@@ -83,8 +84,41 @@ int StdFile::throwError(int ret) const {
 StdFilesystem::StdFilesystem(const string &path) noexcept : path(path) {
 }
 
-shared_ptr<Stream> StdFilesystem::open(const string &name, bool write) {
-    return shared_ptr<Stream>(new StdFile(path + name, (ios_base::openmode) (ios_base::in | ios_base::binary | (write ? ios_base::out | ios_base::trunc : 0))));
+shared_ptr<Stream> StdFilesystem::open(const string &name, enum OpenMode mode) {
+    string path = this->path + name;
+    switch (mode) {
+        case Read:
+            return shared_ptr<Stream>(new StdFile(path, (ios_base::openmode) (ios_base::in | ios_base::binary)));
+        case Write:
+            return shared_ptr<Stream>(new StdFile(path, (ios_base::openmode) (ios_base::in | ios_base::binary | ios_base::out | ios_base::trunc)));
+        case Log: {
+            ifstream test1(path);
+            if (!test1) {
+                test1.close();
+                return shared_ptr<Stream>(new StdFile(path, (ios_base::openmode) (ios_base::in | ios_base::binary | ios_base::out | ios_base::trunc)));
+            }
+            test1.close();
+            size_t dot = path.find_last_of('.');
+            size_t slash = path.find_last_of('/');
+            string prefix;
+            string suffix;
+            if (dot != string::npos && (dot > slash || slash == string::npos)) {
+                prefix = path.substr(0, dot) + "_";
+                suffix = path.substr(dot);
+            } else {
+                prefix = path + "_";
+            }
+            for (int i = 1; true; ++i) {
+                path = prefix + to_string(i) + suffix;
+                ifstream test2(path);
+                if (!test2) {
+                    test2.close();
+                    return shared_ptr<Stream>(new StdFile(path, (ios_base::openmode) (ios_base::in | ios_base::binary | ios_base::out | ios_base::trunc)));
+                }
+            }
+        } break;
+    }
+    return shared_ptr<Stream>();
 }
 
 StdFilesystemFactory::StdFilesystemFactory() : ResourceFactory<Filesystem>("std") {

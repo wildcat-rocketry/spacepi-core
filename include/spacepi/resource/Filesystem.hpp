@@ -13,6 +13,24 @@ namespace spacepi {
         class Filesystem {
             public:
                 /**
+                 * \brief Modes in which a file can be opened
+                 */
+                enum OpenMode {
+                    /**
+                     * \brief Open file for reading only
+                     */
+                    Read,
+                    /**
+                     * \brief Open file for writing and delete old contents
+                     */
+                    Write,
+                    /**
+                     * \brief Open file for writing and change filename if file already exists
+                     */
+                    Log
+                };
+
+                /**
                  * \brief Destroys this Filesystem resource
                  */
                 virtual ~Filesystem() = default;
@@ -30,11 +48,11 @@ namespace spacepi {
                  * \brief Opens a file
                  * 
                  * \param[in] name The relative filename, or an empty string for the default
-                 * \param[in] write If the stream should be writable
+                 * \param[in] mode The mode to open the stream in
                  * 
                  * \return A stream to access the file
                  */
-                virtual std::shared_ptr<Stream> open(const std::string &name = "", bool write = false) = 0;
+                virtual std::shared_ptr<Stream> open(const std::string &name = "", enum OpenMode mode = Read) = 0;
         };
     }
 }
