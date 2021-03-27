@@ -73,6 +73,15 @@ namespace spacepi {
                  */
                 int uflow();
 
+                /**
+                 * \brief Writes a single character to the stream
+                 * 
+                 * \param[in] c The character to write
+                 * 
+                 * \return \c c or EOF
+                 */
+                int overflow(int c);
+
             private:
                 /**
                  * \copydoc xsgetn

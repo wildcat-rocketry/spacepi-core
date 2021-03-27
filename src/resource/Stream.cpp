@@ -59,3 +59,11 @@ int Stream::uflow() {
     }
     return EOF;
 }
+
+int Stream::overflow(int c) {
+    char ch = (char) c;
+    if (writeBuf(&ch, 1) < 0) {
+        return EOF;
+    }
+    return c;
+}
