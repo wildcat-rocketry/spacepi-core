@@ -23,8 +23,9 @@ INPUT                  = \
     spacepi/log/AutoLog.hpp \
     spacepi/log/ConsoleTarget.hpp \
     spacepi/log/Entry.hpp \
+    spacepi/log/FileTarget.hpp \
+    spacepi/log/LogCommand.hpp \
     spacepi/log/LogFilter.hpp \
-    spacepi/log/LogFilterCommand.hpp \
     spacepi/log/Logger.hpp \
     spacepi/log/LogLevel.hpp \
     spacepi/log/LogManager.hpp \

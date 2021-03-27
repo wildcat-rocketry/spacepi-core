@@ -1,9 +1,11 @@
-#ifndef SPACEPI_CORE_LOG_LOGFILTERCOMMAND_HPP
-#define SPACEPI_CORE_LOG_LOGFILTERCOMMAND_HPP
+#ifndef SPACEPI_CORE_LOG_LOGCOMMAND_HPP
+#define SPACEPI_CORE_LOG_LOGCOMMAND_HPP
 
 #include <string>
 #include <vector>
 #include <spacepi/log/LogLevel.hpp>
+#include <spacepi/resource/Filesystem.hpp>
+#include <spacepi/resource/ResourcePtr.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 
 namespace spacepi {
@@ -15,14 +17,14 @@ namespace spacepi {
         /**
          * \brief A command which is used to configure the logging system based on command-line arguments
          */
-        class LogFilterCommand final : private spacepi::util::CommandConfigurable {
+        class LogCommand final : private spacepi::util::CommandConfigurable {
             public:
                 /**
-                 * \brief Initializes a new LogFilterCommand
+                 * \brief Initializes a new LogCommand
                  * 
                  * \param[in,out] cmd The spacepi::util::Command from which the logging system will be configured
                  */
-                LogFilterCommand(spacepi::util::Command &cmd) noexcept;
+                LogCommand(spacepi::util::Command &cmd) noexcept;
 
                 void runCommand();
 
@@ -32,6 +34,7 @@ namespace spacepi {
                 std::vector<std::string> infoLevel;
                 std::vector<std::string> warningLevel;
                 std::vector<std::string> errorLevel;
+                spacepi::resource::ResourcePtr<spacepi::resource::Filesystem> logFile;
         };
     }
 }

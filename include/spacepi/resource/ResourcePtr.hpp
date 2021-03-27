@@ -105,7 +105,7 @@ namespace spacepi {
                     CommandParser(spacepi::resource::ResourcePtr<Type> &var, const std::string &name, const std::string &desc) : GenericCommandParser(name, desc, false), var(var) {
                     }
 
-                    CommandParser(spacepi::resource::ResourcePtr<Type> &var, const Type &def, const std::string &name, const std::string &desc) : GenericCommandParser(name, desc, true), var(var) {
+                    CommandParser(spacepi::resource::ResourcePtr<Type> &var, const spacepi::resource::ResourcePtr<Type> &def, const std::string &name, const std::string &desc) : GenericCommandParser(name, desc, true), var(var) {
                         var = def;
                     }
 
