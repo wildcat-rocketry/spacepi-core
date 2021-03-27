@@ -10,7 +10,7 @@ using namespace std::chrono;
 using namespace spacepi::log;
 using namespace spacepi::resource;
 
-FileTarget::FileTarget(Filesystem &fs) noexcept : stream(fs.open("", true)) {
+FileTarget::FileTarget(Filesystem &fs) noexcept : stream(fs.open("", Filesystem::Log)) {
 }
 
 void FileTarget::operator <<(const Entry &entry) {
