@@ -28,7 +28,7 @@ void Playback::runCommand() {
     if (!enable) {
         return;
     }
-    static const uint64_t helloID = HelloMessage::GetDescriptor()->options().GetExtension(MessageID);
+    static const uint64_t helloID = HelloMessage::descriptor()->options().GetExtension(MessageID);
     JournalEntry ent;
     journal.open(false);
     steady_clock::time_point start = steady_clock::now();
