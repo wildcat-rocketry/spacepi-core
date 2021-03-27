@@ -1,0 +1,10 @@
+syntax = "proto3";
+package spacepi.messaging.detail;
+option java_package = "com.ffaero.spacepi.messaging";
+
+message JournalEntry {
+    uint64 timestamp = 1;
+    uint64 messageID = 2;
+    uint64 instanceID = 3;
+    bytes payload = 4;
+}
