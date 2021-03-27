@@ -9,6 +9,7 @@ spacepi_message_library(
     SOURCES
         spacepi/messaging/EncapsulatedMessage.proto
         spacepi/messaging/HelloMessage.proto
+        spacepi/messaging/JournalEntry.proto
         spacepi/messaging/MessageID.proto
         spacepi/messaging/SubscribeRequest.proto
         spacepi/messaging/SubscriptionID.proto
@@ -293,4 +294,5 @@ endif()
 
 add_subdirectory(dashboard)
 add_subdirectory(examples)
+add_subdirectory(journaler)
 add_subdirectory(router)
