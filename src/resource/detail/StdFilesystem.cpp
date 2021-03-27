@@ -61,6 +61,7 @@ int StdFile::readBuf(char *buffer, int count) {
 
 int StdFile::writeBuf(const char *buffer, int count) {
     stream.write(buffer, count);
+    stream.flush();
     return throwError(count);
 }
 
@@ -83,7 +84,7 @@ StdFilesystem::StdFilesystem(const string &path) noexcept : path(path) {
 }
 
 shared_ptr<Stream> StdFilesystem::open(const string &name, bool write) {
-    return shared_ptr<Stream>(new StdFile(path + name, (ios_base::openmode) (ios_base::in | ios_base::binary | (write ? ios_base::out : 0))));
+    return shared_ptr<Stream>(new StdFile(path + name, (ios_base::openmode) (ios_base::in | ios_base::binary | (write ? ios_base::out | ios_base::trunc : 0))));
 }
 
 StdFilesystemFactory::StdFilesystemFactory() : ResourceFactory<Filesystem>("std") {
