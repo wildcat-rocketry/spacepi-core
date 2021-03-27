@@ -41,8 +41,9 @@ spacepi_aux_library(
         src/concurrent/UniqueConditionVariableLock.cpp
         src/log/ConsoleTarget.cpp
         src/log/Entry.cpp
+        src/log/FileTarget.cpp
+        src/log/LogCommand.cpp
         src/log/LogFilter.cpp
-        src/log/LogFilterCommand.cpp
         src/log/Logger.cpp
         src/log/LogLevel.cpp
         src/log/LogManager.cpp
@@ -139,8 +140,9 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
             include/spacepi/log/AutoLog.hpp
             include/spacepi/log/ConsoleTarget.hpp
             include/spacepi/log/Entry.hpp
+            include/spacepi/log/FileTarget.hpp
+            include/spacepi/log/LogCommand.hpp
             include/spacepi/log/LogFilter.hpp
-            include/spacepi/log/LogFilterCommand.hpp
             include/spacepi/log/Logger.hpp
             include/spacepi/log/LogLevel.hpp
             include/spacepi/log/LogManager.hpp
@@ -227,7 +229,8 @@ if (TARGET DOXYGEN AND TARGET DOXYGEN_DOT)
                 docs/spacepi/log/AutoLog.rst
                 docs/spacepi/log/ConsoleTarget.rst
                 docs/spacepi/log/Entry.rst
-                docs/spacepi/log/LogFilterCommand.rst
+                docs/spacepi/log/FileTarget.rst
+                docs/spacepi/log/LogCommand.rst
                 docs/spacepi/log/LogFilter.rst
                 docs/spacepi/log/Logger.rst
                 docs/spacepi/log/LogLevel.rst

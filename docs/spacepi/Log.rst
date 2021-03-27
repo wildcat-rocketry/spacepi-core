@@ -5,8 +5,9 @@ spacepi::log namespace
     log/AutoLog
     log/ConsoleTarget
     log/Entry
+    log/FileTarget
+    log/LogCommand
     log/LogFilter
-    log/LogFilterCommand
     log/Logger
     log/LogLevel
     log/LogManager

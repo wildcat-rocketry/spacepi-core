@@ -1,28 +1,34 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <spacepi/log/FileTarget.hpp>
+#include <spacepi/log/LogCommand.hpp>
 #include <spacepi/log/LogFilter.hpp>
-#include <spacepi/log/LogFilterCommand.hpp>
 #include <spacepi/log/LogLevel.hpp>
 #include <spacepi/log/LogManager.hpp>
+#include <spacepi/log/LogTarget.hpp>
+#include <spacepi/resource/Filesystem.hpp>
+#include <spacepi/resource/ResourcePtr.hpp>
 #include <spacepi/util/Command.hpp>
 #include <spacepi/util/CommandConfigurable.hpp>
 #include <spacepi/util/CommandInternals.hpp>
 
 using namespace std;
 using namespace spacepi::log;
+using namespace spacepi::resource;
 using namespace spacepi::util;
 using namespace spacepi::util::detail;
 
-LogFilterCommand::LogFilterCommand(Command &cmd) noexcept : CommandConfigurable("Logging Options", cmd) {
+LogCommand::LogCommand(Command &cmd) noexcept : CommandConfigurable("Logging Options", cmd) {
     fromCommand(defaultLevel, &LogLevel::Info, "logDefault", "The default minimum level to log on");
     fromCommand(debugLevel, vector<string>(), "logDebug", "A list of loggers to log a minimum of debug messages on");
     fromCommand(infoLevel, vector<string>(), "logInfo", "A list of loggers to log a minimum of info messages on");
     fromCommand(warningLevel, vector<string>(), "logWarning", "A list of loggers to log a minimum of warning messages on");
     fromCommand(errorLevel, vector<string>(), "logError", "A list of loggers to log a minimum of error messages on");
+    fromCommand(logFile, ResourcePtr<Filesystem>(), "logFile", "A file in which to save all logging entries");
 }
 
-void LogFilterCommand::runCommand() {
+void LogCommand::runCommand() {
     LogFilter &filter = LogManager::instance.getFilter();
     filter.setDefaultLevel(*defaultLevel);
     for (vector<string>::const_iterator it = debugLevel.begin(); it != debugLevel.end(); ++it) {
@@ -36,6 +42,9 @@ void LogFilterCommand::runCommand() {
     }
     for (vector<string>::const_iterator it = errorLevel.begin(); it != errorLevel.end(); ++it) {
         filter.setLevel(*it, LogLevel::Error);
+    }
+    if (((Filesystem *) logFile) != nullptr) {
+        LogManager::instance += shared_ptr<LogTarget>(new FileTarget(*logFile));
     }
 }
 
