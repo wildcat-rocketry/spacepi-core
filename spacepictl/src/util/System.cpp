@@ -111,7 +111,7 @@ void System::delete_service_from_dir(string dir){
 }
 
 void System::write_services(){
-    delete_service_from_dir("/etc/systemd/system/multi-user.target.wants");
+    delete_service_from_dir("/etc/systemd/system/spacepi.target.wants");
     delete_service_from_dir("/lib/systemd/system");
 
     for(const auto& module_pair : modules){
@@ -136,9 +136,9 @@ void System::write_services(){
         if(module.hasAutomaticStart()){
             service << "\n"
                        "[Install]\n"
-                       "WantedBy=multi-user.target\n";
+                       "WantedBy=spacepi.target\n";
 
-            fs.link("/etc/systemd/system/multi-user.target.wants/" + moduleServiceName(module) + ".service", service_file_name);
+            fs.link("/etc/systemd/system/spacepi.target.wants/" + moduleServiceName(module) + ".service", service_file_name);
         }
     }
 }

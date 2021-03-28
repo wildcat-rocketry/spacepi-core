@@ -11,7 +11,7 @@ ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key
 ConditionPathExists=|!/etc/ssh/ssh_host_ecdsa_key.pub
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=spacepi.target
 
 [Service]
 Type=oneshot
