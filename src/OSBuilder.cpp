@@ -58,7 +58,14 @@ void OSBuilder::runCommand() {
             .setSource("none")
             .setMountPoint("/tmp")
             .setFSType("tmpfs")
-            .setOptions("defaults,noatime")));
+            .setOptions("defaults,noatime"))
+        .addPartition(Partition()
+            .setSource("/dev/sda1")
+            .setMountPoint("/media/flash")
+            .setFSType("auto")
+            .setOptions("defaults,sync,noatime,auto,nofail,users,umask=0002")
+            .setDump(0)
+            .setPass(2)));
     Installer inst;
     InstallationPlan &p = inst.getInstallPlan();
     p.insertStepAfter<EnsureRootStep, DownloadFirmwareStep>();
