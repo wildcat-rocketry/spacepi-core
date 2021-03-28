@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <boost/filesystem.hpp>
+#include <unistd.h>
 #include <SpacePi.hpp>
 #include <spacepi/liblinux/steps/InstallSystemFilesStep.hpp>
 #include <spacepi/liblinux/Config.hpp>
@@ -13,6 +14,7 @@
 #include <spacepi/liblinux/InstallationData.hpp>
 #include <spacepi/liblinux/PartitionTable.hpp>
 #include <spacepi/liblinux/SharedTempDir.hpp>
+#include <spacepi/liblinux/SystemCaller.hpp>
 #include <spacepi/liblinux/UniqueProcess.hpp>
 
 using namespace std;
@@ -189,4 +191,8 @@ void InstallSystemFilesStep::run(InstallationData &data) {
     create_directories(root / "var/local/etc");
     // /var/local/home
     create_directories(root / "var/local/home");
+    // /var/local/spacepi
+    create_directories(root / "var/local/spacepi");
+    handle(chown((root / "var/local/spacepi").c_str(), config.sourceUid, config.sourceGid))
+        << "Error changing ownership of /var/local/spacepi: " << SyscallErrorString;
 }
