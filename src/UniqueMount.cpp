@@ -8,6 +8,7 @@
 #include <string>
 #include <sys/mount.h>
 
+using namespace std;
 using namespace spacepi::liblinux;
 
 UniqueMount::UniqueMount(const std::string &blockDevice, const std::string &mountPoint, const std::string &options, const std::string &type){
@@ -52,13 +53,19 @@ bool UniqueMount::isMounted() const noexcept{
 }
 
 void UniqueMount::mount(){
-    if(!mounted){
-        handle(::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str()))
-            << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
-        mounted = true;
-        if ((flags & MS_BIND) != 0) {
-            handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+    try {
+        if(!mounted){
+            handle(::mount(blockDevice.c_str(),mountPoint.c_str(),type.c_str(),flags,options.c_str()))
                 << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+            mounted = true;
+            if ((flags & MS_BIND) != 0) {
+                handle(::mount("none",mountPoint.c_str(),"none",flags | MS_REMOUNT,options.c_str()))
+                    << "Failed to mount '" << blockDevice << "' to '" << mountPoint << "': " << SyscallErrorString;
+            }
+        }
+    } catch (const exception &e) {
+        if (!(flags & MS_SILENT)) {
+            throw;
         }
     }
 }
