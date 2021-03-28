@@ -155,11 +155,27 @@ void CloneGitRepoStep::run(InstallationData &data) {
             handle("listing local remotes", git_remote_list(&remoteList, localRepo));
             remoteList.take();
             for (int i = 0; i < remoteList->count; ++i) {
+                if (string(remoteList->strings[i]) == "flash") {
+                    continue;
+                }
+
                 handle("looking up local remote", git_remote_lookup(&remote, localRepo, remoteList->strings[i]));
                 remote.take();
 
                 string url = git_remote_url(remote);
                 remote.reset();
+
+                if (upstreamRemote == string(remoteList->strings[i])) {
+                    string flashURL = "file:///media/flash" + url.substr(url.find_last_not_of('/'));
+                    res = git_remote_create(&remote, remoteRepo, "flash", flashURL.c_str());
+                    if (res == GIT_EEXISTS) {
+                        handle("resetting flash remote", git_remote_set_url(remoteRepo, "flash", flashURL.c_str()));
+                    } else {
+                        handle("creating flash remote", res);
+                        remote.take();
+                        remote.reset();
+                    }
+                }
 
                 res = git_remote_create(&remote, remoteRepo, remoteList->strings[i], url.c_str());
                 if (res == GIT_EEXISTS) {
