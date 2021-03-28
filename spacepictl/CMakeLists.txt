@@ -48,7 +48,7 @@ configure_file("etc/spacepi-sshgen.service" "${CMAKE_CURRENT_BINARY_DIR}/etc/spa
 install(
     FILES
         "${CMAKE_CURRENT_BINARY_DIR}/etc/spacepi-sshgen.service"
-        "spacepi.target"
+        "etc/spacepi.target"
     DESTINATION /usr/lib/systemd/system
 )
 
