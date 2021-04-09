@@ -192,7 +192,7 @@ To do this, the following versioning scheme has been adopted:
 5. When one number is incremented, all further numbers reset to 0
 
 The full current version should be stored in :code:`/cmake/Version.cmake`.
-The first two digits should be stored in :code:`/docs/conf.py`.
+The first two digits should be stored in :code:`/docs/conf.py` and :code:`/docs/Doxyfile.in`.
 
 The latest commit for each version should be tagged in Git with the version ID.
 Tags should be of the format :code:`vXX.XX.XX`.
