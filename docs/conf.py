@@ -7,9 +7,9 @@ breathe_projects        = { "spacepi": os.environ.get("BUILD_DIR", ".") + "/xml"
 extensions              = [ "breathe" ]
 master_doc              = "index"
 project                 = "SpacePi Core"
-release                 = "2.0"
+release                 = "3.0"
 source_suffix           = ".rst"
-version                 = "2.0"
+version                 = "3.0"
 
 if os.environ.get("READTHEDOCS") == "True":
     with open("Doxyfile.in", "rt") as fin:
