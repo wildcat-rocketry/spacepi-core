@@ -1,0 +1,52 @@
+syntax = "proto3";
+package spacepi.protoc.test;
+
+message LargeTest {
+    double doubleField = 1;
+    float floatField = 2;
+    int32 int32Field = 3;
+    int64 int64Field = 4;
+    uint32 uint32Field = 5;
+    uint64 uint64Field = 6;
+    sint32 sint32Field = 7;
+    sint64 sint64Field = 8;
+    fixed32 fixed32Field = 9;
+    fixed64 fixed64Field = 10;
+    sfixed32 sfixed32Field = 11;
+    sfixed64 sfixed64Field = 12;
+    bool boolField = 13;
+    string stringField = 14;
+    bytes bytesField = 15;
+
+    message ChildClass {
+        message ChildChildClass {
+            message ChildChildChildClass {
+                string field = 7;
+            }
+
+            enum ChildChildChildEnum {
+                A = 0;
+                B = 1;
+            }
+
+            string field = 9;
+            ChildChildChildClass child = 4;
+        }
+
+        string field = 10;
+        ChildChildClass.ChildChildChildClass childChild = 1;
+        ChildChildClass child = 4;
+        SiblingClass.SiblingChildEnum cousin = 5;
+    }
+}
+
+message SiblingClass {
+    enum SiblingChildEnum {
+        VAL_0 = 0;
+        VAL_10 = 10;
+        VAL_20 = 20;
+        VAL_5 = 5;
+    }
+
+    string field = 1;
+}
