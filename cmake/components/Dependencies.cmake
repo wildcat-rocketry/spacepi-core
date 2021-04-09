@@ -3,6 +3,7 @@
 #
 #     [PROTOC]
 #     [LIBPROTOBUF]
+#     [LIBPROTOC]
 #
 #     [JAVA_JDK]
 #
@@ -52,6 +53,7 @@ function (spacepi_dependencies)
     set(supportedPkgs
         PROTOC
         LIBPROTOBUF
+        LIBPROTOC
 
         JAVA_JDK
 
@@ -125,6 +127,16 @@ function (spacepi_dependencies)
             TARGET LIBPROTOBUF
             LIBRARY_NAMES protobuf
             PACKAGES libprotobuf-dev
+            ${optionalFlag}
+        )
+    endif()
+
+    if (SPACEPI_DEPS_LIBPROTOC)
+        spacepi_dependency(
+            libprotoc
+            TARGET LIBPROTOC
+            LIBRARY_NAMES protoc
+            PACKAGES libprotoc-dev
             ${optionalFlag}
         )
     endif()

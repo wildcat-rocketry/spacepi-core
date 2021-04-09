@@ -23,7 +23,7 @@ Minimal Installation
 .. code-block:: text
 
     # apt update
-    # apt install cmake build-essential protobuf-compiler libboost-all-dev
+    # apt install cmake build-essential protobuf-compiler libprotoc-dev libprotobuf-dev libboost-all-dev
 
 Installation for Dashboard
 **************************
