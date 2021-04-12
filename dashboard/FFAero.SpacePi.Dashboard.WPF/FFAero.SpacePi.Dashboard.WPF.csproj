@@ -3,6 +3,7 @@
         <OutputType>WinExe</OutputType>
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
+        <ApplicationIcon>Images\Icon.ico</ApplicationIcon>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\FFAero.SpacePi.Dashboard.API\FFAero.SpacePi.Dashboard.API.csproj" />
