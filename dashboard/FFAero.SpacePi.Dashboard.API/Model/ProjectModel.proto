@@ -1,0 +1,17 @@
+// This is the information stored in each project config file
+
+syntax = "proto3";
+
+import "Setting.proto";
+import "Layout.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message ProjectModel {
+	string Name = 1; // The name of this project
+	string Version = 2; // Optional version info for project
+
+	LayoutSettings Layout = 3; // The grid layout settings
+
+	map<string, Setting> Settings = 4;
+}

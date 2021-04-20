@@ -1,0 +1,32 @@
+// This proto details one setting entry used in the GUI 
+
+syntax = "proto3";
+
+package SpacePi.Dashboard.API.Model;
+
+enum SettingType {
+	STRING = 0;
+	BOOL = 1;
+	NUMBER = 2;
+	HEX = 3;
+	ENUM = 4;
+}
+
+message Setting {
+	SettingType Type = 1;
+	string Name = 2;
+	string Description = 3;
+	double Min = 4;
+	double Max = 5;
+	double Step = 6;
+	bool List = 7; // To be true if the values are a list or a single value (maybe redundant)
+	int32 GroupId = 8; // Like group numbers group settings
+	repeated string Values = 9; // Possble values of this setting
+	string Regex = 10; // Regex used to verify string values
+
+	// Actual values of this setting
+	repeated string StringValue = 11;
+	repeated bool BoolValue = 12;
+	repeated double NumberValue = 13;
+	repeated int64 IntValue = 14;
+}

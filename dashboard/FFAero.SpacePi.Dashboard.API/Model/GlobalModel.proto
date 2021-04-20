@@ -1,0 +1,16 @@
+// This is the information stored in each global config file
+
+syntax = "proto3";
+
+import "Setting.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message GlobalModel {
+	string Name = 1; // The name of this configuration
+	string Version = 2; // Optional version info
+
+	repeated string Recents = 3; // Recently opened project files
+
+	map<string, Setting> Settings = 4; // Global settings
+}
