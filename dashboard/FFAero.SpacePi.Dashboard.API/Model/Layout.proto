@@ -7,21 +7,71 @@ import "Setting.proto";
 package SpacePi.Dashboard.API.Model;
 
 message LayoutSettings {
-	int32 Rows = 1; // Number of rows in the layout
-	int32 Columns = 2; // Number of columns in the layout
+	repeated LayoutTabs Tabs = 1;
+	SettingsDisplay SettingsDisplay = 2;	
+}
 
-	repeated Widget Widgets = 3; // All the widgets being displayed
+message LayoutTabs {
+	string Name = 1;
+	string Description = 2;
+
+	int32 Rows = 3; // Number of rows in the tab
+	int32 Columns = 4; // Number of columns in the tab
+
+	repeated Widget Widgets = 5; // All the widgets being displayed on this tab
+	repeated WidgetGroup Groups = 6;
+}
+
+// A visual grouping of widgets
+message WidgetGroup {
+	string Name = 1; // Name of the grouping
+
+	int32 Row = 2; // Row the widget is on
+	int32 Column = 3; // Column the widget is on
+	int32 RowSpan = 4; // Number of rows spanned
+	int32 ColumnSpan = 5; // Number of columns spanned
+
+	map<string,Setting> Settings = 6; // Group specific settings
+	repeated Widget Widgets = 7; // Widgets held in this group
 }
 
 // The info for a single widget in the grid
 message Widget {
 	int32 Row = 1; // Row the widget is on
 	int32 Column = 2; // Column the widget is on
-	int32 Row_span = 3; // Number of rows spanned
-	int32 Column_span = 4; // Number of columns spanned
+	int32 RowSpan = 3; // Number of rows spanned
+	int32 ColumnSpan = 4; // Number of columns spanned
 
-	string Display_name = 5;
+	// Sub-grid positioning of the widget
+	int32 SubRows = 5;
+	int32 SubColumns = 6;
+	int32 SubRow = 7;
+	int32 SubColumn = 8;
+	int32 SubRowSpan = 9;
+	int32 SubColumnSpan = 10;
 
-	string WidgetType = 6; // Unique identifier for the type of widget
-	map<string,Setting> Settings = 7;
+	string DisplayName = 11;
+
+	string WidgetType = 12; // Unique identifier for the type of widget
+	map<string,Setting> Settings = 13;
+}
+
+// Settings Display Split into its own message for future expansion
+message SettingsDisplay {
+	repeated SettingsPage SettingsPages = 1;
+}
+
+// Details for a single page of settings
+message SettingsPage {
+	string PageName = 1;
+	repeated SettingsGroup Groups = 2;
+}
+
+// Details for a single group of settings
+message SettingsGroup {
+	string GroupName = 1;
+
+	// A repeated instead of map so it can be ordered
+	repeated Setting Settings = 2; // Somehow this should be linked to 
+	                               // a group query of the ProjectSettings
 }
