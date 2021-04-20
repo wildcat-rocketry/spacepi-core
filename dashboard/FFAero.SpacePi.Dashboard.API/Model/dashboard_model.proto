@@ -1,0 +1,14 @@
+// This file includes the overall model of the dashboard.
+// All other models are combined into this one
+
+syntax = "proto3";
+
+import "global_model.proto";
+import "project_model.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message DashboardModel {
+	ProjectModel project_model = 1;
+	GlobalModel global_model = 2;
+}
