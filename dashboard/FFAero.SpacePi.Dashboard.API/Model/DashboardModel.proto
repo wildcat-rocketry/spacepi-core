@@ -3,12 +3,12 @@
 
 syntax = "proto3";
 
-import "global_model.proto";
-import "project_model.proto";
+import "GlobalModel.proto";
+import "ProjectModel.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message DashboardModel {
-	ProjectModel project_model = 1;
-	GlobalModel global_model = 2;
+	ProjectModel ProjectModel = 1;
+	GlobalModel GlobalModel = 2;
 }
