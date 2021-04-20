@@ -1,0 +1,27 @@
+// The settings for how to layout different data points
+
+syntax = "proto3";
+
+import "setting.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message LayoutSettings {
+	int32 rows = 1; // Number of rows in the layout
+	int32 columns = 2; // Number of columns in the layout
+
+	repeated Widget widgets = 3; // All the widgets being displayed
+}
+
+// The info for a single widget in the grid
+message Widget {
+	int32 row = 1; // Row the widget is on
+	int32 column = 2; // Column the widget is on
+	int32 row_span = 3; // Number of rows spanned
+	int32 column_span = 4; // Number of columns spanned
+
+	string display_name = 5;
+
+	string widget_type = 6; // Unique identifier for the type of widget
+	map<string,Setting> settings = 7;
+}
