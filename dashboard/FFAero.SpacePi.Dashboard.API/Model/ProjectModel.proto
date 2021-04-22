@@ -3,7 +3,7 @@
 syntax = "proto3";
 
 import "Setting.proto";
-import "Layout.proto";
+import "LayoutSettings.proto";
 
 package SpacePi.Dashboard.API.Model;
 

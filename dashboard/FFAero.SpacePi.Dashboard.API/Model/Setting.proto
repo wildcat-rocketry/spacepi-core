@@ -2,15 +2,9 @@
 
 syntax = "proto3";
 
-package SpacePi.Dashboard.API.Model;
+import "SettingType.proto";
 
-enum SettingType {
-	STRING = 0;
-	BOOL = 1;
-	NUMBER = 2;
-	HEX = 3;
-	ENUM = 4;
-}
+package SpacePi.Dashboard.API.Model;
 
 message Setting {
 	SettingType Type = 1;
