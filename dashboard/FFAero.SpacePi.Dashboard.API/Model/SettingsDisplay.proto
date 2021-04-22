@@ -1,0 +1,12 @@
+// The settings for how to layout different data points
+
+syntax = "proto3";
+
+import "SettingsPage.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+// Settings Display Split into its own message for future expansion
+message SettingsDisplay {
+	repeated SettingsPage SettingsPages = 1;
+}

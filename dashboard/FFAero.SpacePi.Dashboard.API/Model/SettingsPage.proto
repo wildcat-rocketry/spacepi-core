@@ -1,0 +1,13 @@
+// The settings for how to layout different data points
+
+syntax = "proto3";
+
+import "SettingsGroup.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+// Details for a single page of settings
+message SettingsPage {
+	string PageName = 1;
+	repeated SettingsGroup Groups = 2;
+}
