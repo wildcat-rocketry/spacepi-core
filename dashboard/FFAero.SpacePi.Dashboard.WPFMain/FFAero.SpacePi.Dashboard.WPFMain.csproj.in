@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>..\${relProj}\FFAero.SpacePi.Dashboard.WPFMain\Images\Icon.ico</ApplicationIcon>
+        <EnableDefaultItems>false</EnableDefaultItems>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="FFAero.SpacePi.Dashboard.API" Version="3.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\${relProj}\FFAero.SpacePi.Dashboard.Analyzer\FFAero.SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\${relProj}\FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj" />
+$<TARGET_PROPERTY:dashboard-metadata,SPACEPI_DASHBOARD_CSPROJ_REFS>    </ItemGroup>
+    <ItemGroup>
+        <Content Include="..\${relProj}\FFAero.SpacePi.Dashboard.WPFMain\Images\Icon.ico" Link="Images\Icon.ico" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="..\${relProj}\FFAero.SpacePi.Dashboard.WPFMain\Entry.cs" Link="Entry.cs" />
+    </ItemGroup>
+</Project>
