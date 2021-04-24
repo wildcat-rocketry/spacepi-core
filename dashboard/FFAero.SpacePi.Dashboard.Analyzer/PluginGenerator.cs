@@ -11,29 +11,6 @@ using Microsoft.CodeAnalysis.Text;
 namespace FFAero.SpacePi.Dashboard.Analyzer {
     [Generator]
     public class PluginGenerator : ISourceGenerator {
-        public static string[] ResolvePlugins(string[] assemblies) {
-            List<Assembly> asms = new();
-            foreach (string assembly in assemblies) {
-                Assembly asm = Assembly.ReflectionOnlyLoadFrom(assembly);
-                if (asm.FullName.StartsWith("FFAero.SpacePi.Dashboard")) {
-                    asms.Add(asm);
-                }
-            }
-            IEnumerable<Type> allTypes = asms
-                .SelectMany(a => a.GetTypes())
-                .ToArray();
-            Type PluginAttribute = allTypes.First(t => t.FullName == "FFAero.SpacePi.Dashboard.API.PluginAttribute");
-            Type IPlugin = allTypes.First(t => t.FullName == "FFAero.SpacePi.Dashboard.API.IPlugin");
-            return allTypes
-                .Where(t => t.GetCustomAttributes(PluginAttribute, false).Length > 0
-                        && (t.Attributes & (TypeAttributes.Public | TypeAttributes.Class)) == (TypeAttributes.Public | TypeAttributes.Class)
-                        && (t.Attributes & TypeAttributes.Abstract) == 0
-                        && IPlugin.IsAssignableFrom(t)
-                        && t.GetConstructor(Array.Empty<Type>()) != null)
-                .Select(t => t.FullName)
-                .ToArray();
-        }
-
         public void Execute(GeneratorExecutionContext context) {
             StringBuilder str = new(@"
 using System;
