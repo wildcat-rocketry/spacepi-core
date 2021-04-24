@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>Images\Icon.ico</ApplicationIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FFAero.SpacePi.Dashboard.Core\FFAero.SpacePi.Dashboard.Core.csproj" />
+        <ProjectReference Include="..\FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj" />
+    </ItemGroup>
+</Project>

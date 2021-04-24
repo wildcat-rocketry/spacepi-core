@@ -1,5 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
+        <PackageId>FFAero.SpacePi.Dashboard.API</PackageId>
+        <Version>3.0.0</Version>
+        <Authors>Final Frontier Aerospace Systems and Technology</Authors>
+        <Company>Final Frontier Aerospace Systems and Technology</Company>
     </PropertyGroup>
 </Project>
