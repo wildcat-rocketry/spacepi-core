@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
+        <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
     </PropertyGroup>
     <ItemGroup>
         <ApplicationDefinition Remove="App.xaml" />
