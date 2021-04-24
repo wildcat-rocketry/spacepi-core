@@ -33,4 +33,10 @@ configure_file(
     "${CMAKE_BINARY_DIR}/_dashboard/FFAero.SpacePi.Dashboard.UWP/FFAero.SpacePi.Dashboard.UWP.wapproj"
 )
 
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/_dashboard/.nuget")
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/nuget.config.in"
+    "${CMAKE_BINARY_DIR}/_dashboard/nuget.config"
+)
+
 add_subdirectory(FFAero.SpacePi.Dashboard.Core)
