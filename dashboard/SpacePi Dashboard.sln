@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.218
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFAero.SpacePi.Dashboard.API", "FFAero.SpacePi.Dashboard.API\FFAero.SpacePi.Dashboard.API.csproj", "{0F502909-B2ED-419D-96A1-DFA6D482C94D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFAero.SpacePi.Dashboard.API", "FFAero.SpacePi.Dashboard.API\FFAero.SpacePi.Dashboard.API.csproj", "{0F502909-B2ED-419D-96A1-DFA6D482C94D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFAero.SpacePi.Dashboard.Core", "FFAero.SpacePi.Dashboard.Core\FFAero.SpacePi.Dashboard.Core.csproj", "{8180EB74-9DA5-48E3-8DAE-3421C7421619}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFAero.SpacePi.Dashboard.Core", "FFAero.SpacePi.Dashboard.Core\FFAero.SpacePi.Dashboard.Core.csproj", "{8180EB74-9DA5-48E3-8DAE-3421C7421619}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFAero.SpacePi.Dashboard.WPF", "FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj", "{F212EF34-F0AA-45BB-996D-26120D89F8B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFAero.SpacePi.Dashboard.WPFMain", "FFAero.SpacePi.Dashboard.WPFMain\FFAero.SpacePi.Dashboard.WPFMain.csproj", "{F212EF34-F0AA-45BB-996D-26120D89F8B0}"
 EndProject
 Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "FFAero.SpacePi.Dashboard.UWP", "FFAero.SpacePi.Dashboard.UWP\FFAero.SpacePi.Dashboard.UWP.wapproj", "{3896F325-27BF-445F-90AD-4E929FA7D439}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFAero.SpacePi.Dashboard.WPF", "FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj", "{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,26 @@ Global
 		{3896F325-27BF-445F-90AD-4E929FA7D439}.Release|x86.ActiveCfg = Release|x86
 		{3896F325-27BF-445F-90AD-4E929FA7D439}.Release|x86.Build.0 = Release|x86
 		{3896F325-27BF-445F-90AD-4E929FA7D439}.Release|x86.Deploy.0 = Release|x86
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|x64.Build.0 = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Debug|x86.Build.0 = Debug|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|ARM.Build.0 = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|ARM64.Build.0 = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|x64.ActiveCfg = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|x64.Build.0 = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|x86.ActiveCfg = Release|Any CPU
+		{2E950B2A-2646-4301-A4A9-889A3FCAA2B1}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

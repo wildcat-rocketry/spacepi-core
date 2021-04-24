@@ -55,7 +55,7 @@
         <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
         <DefaultLanguage>en-US</DefaultLanguage>
         <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
-        <EntryPointProjectUniqueName>..\FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj</EntryPointProjectUniqueName>
+        <EntryPointProjectUniqueName>..\FFAero.SpacePi.Dashboard.WPFMain\FFAero.SpacePi.Dashboard.WPFMain.csproj</EntryPointProjectUniqueName>
     </PropertyGroup>
     <ItemGroup>
         <AppxManifest Include="Package.appxmanifest">
@@ -120,7 +120,7 @@
         <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.19041.8" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\FFAero.SpacePi.Dashboard.WPF\FFAero.SpacePi.Dashboard.WPF.csproj">
+        <ProjectReference Include="..\FFAero.SpacePi.Dashboard.WPFMain\FFAero.SpacePi.Dashboard.WPFMain.csproj">
             <SkipGetTargetFrameworkProperties>True</SkipGetTargetFrameworkProperties>
         </ProjectReference>
     </ItemGroup>
