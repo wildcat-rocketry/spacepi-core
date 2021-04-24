@@ -8,23 +8,12 @@ using System.Threading.Tasks;
 
 namespace FFAero.SpacePi.Dashboard.API {
     public static class PluginFactory {
-        public static readonly IEnumerable<IPlugin> LoadedPlugins;
+        public static IEnumerable<IPlugin> LoadedPlugins { get; private set; }
 
-        public static readonly IEnumerable<object> GlobalSettings;
+        public static IEnumerable<object> GlobalSettings { get; private set; }
 
-        static PluginFactory() {
-            LoadedPlugins = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes())
-                .Where(t => t.GetCustomAttributes(typeof(PluginAttribute), false).Length > 0
-                        && (t.Attributes & (TypeAttributes.Public | TypeAttributes.Class)) == (TypeAttributes.Public | TypeAttributes.Class)
-                        && (t.Attributes & TypeAttributes.Abstract) == 0
-                        && t.IsAssignableTo(typeof(IPlugin)))
-                .Select(t => t.GetConstructor(Array.Empty<Type>()))
-                .Where(c => c != null
-                        && (c.Attributes & MethodAttributes.Public) != 0)
-                .Select(c => c.Invoke(Array.Empty<object>()))
-                .Cast<IPlugin>()
-                .ToImmutableList();
+        public static void Initialize(IEnumerable<IPlugin> plugins) {
+            LoadedPlugins = plugins.ToImmutableArray();
             List<object> globalSettings = new();
             foreach (IPlugin plugin in LoadedPlugins) {
                 // TODO
@@ -33,6 +22,7 @@ namespace FFAero.SpacePi.Dashboard.API {
             foreach (IPlugin plugin in LoadedPlugins) {
                 plugin.Load();
             }
+            GlobalSettings = globalSettings.ToImmutableArray();
         }
     }
 }

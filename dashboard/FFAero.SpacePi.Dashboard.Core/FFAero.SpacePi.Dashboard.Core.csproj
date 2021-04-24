@@ -3,6 +3,6 @@
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\FFAero.SpacePi.Dashboard.API\FFAero.SpacePi.Dashboard.API.csproj" />
+      <PackageReference Include="FFAero.SpacePi.Dashboard.API" Version="3.0.0" />
     </ItemGroup>
 </Project>
