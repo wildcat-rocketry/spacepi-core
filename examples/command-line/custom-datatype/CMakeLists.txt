@@ -1,8 +1,9 @@
 spacepi_module(
+    EXAMPLE MODULE
     SOURCES
         src/CustomOption.cpp
         src/CustomType.cpp
         src/main.cpp
     INCLUDE include
-    EXAMPLE
+    LINK spacepi
 )

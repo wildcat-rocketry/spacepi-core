@@ -1,14 +1,10 @@
-spacepi_dependencies(
-    LIBPROTOBUF
-    LIBPROTOC
-)
+find_package(Protobuf REQUIRED)
 
-spacepi_aux_program(
-    protoc-gen-spacepi-dashboard
+spacepi_module(
+    CORE MODULE NAME protoc-gen-spacepi-dashboard
     SOURCES
         src/main.cpp
     LINK
-        LIBPROTOC
-        LIBPROTOBUF
-    NO_INSTALL
+        protobuf::libprotoc
+        protobuf::libprotobuf
 )
