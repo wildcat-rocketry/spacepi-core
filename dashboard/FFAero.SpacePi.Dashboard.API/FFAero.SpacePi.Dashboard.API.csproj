@@ -5,5 +5,12 @@
         <Version>3.0.0</Version>
         <Authors>Final Frontier Aerospace Systems and Technology</Authors>
         <Company>Final Frontier Aerospace Systems and Technology</Company>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
+    <Target Name="DeleteOldPackage">
+        <RemoveDir Directories="$(SolutionDir)\.nuget\$(PackageId)\$(Version)" />
+    </Target>
+    <Target Name="CopyPackage" AfterTargets="Pack" DependsOnTargets="DeleteOldPackage">
+        <Exec Command="dotnet nuget push $(PackageId).$(Version).nupkg" WorkingDirectory="$(OutputPath)\.." />
+    </Target>
 </Project>

@@ -1,0 +1,12 @@
+<configuration>
+    <config>
+        <add key="globalPackagesFolder" value="${CMAKE_BINARY_DIR}/_dashboard/.nuget" />
+        <add key="repositoryPath" value="${CMAKE_BINARY_DIR}/_dashboard/.nuget" />
+        <add key="defaultPushSource" value="${CMAKE_BINARY_DIR}/_dashboard/.nuget" />
+    </config>
+    <packageSources>
+        <clear />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+        <add key="local" value="${CMAKE_BINARY_DIR}/_dashboard/.nuget" />
+    </packageSources>
+</configuration>
