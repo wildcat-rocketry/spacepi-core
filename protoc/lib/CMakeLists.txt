@@ -1,17 +1,13 @@
-spacepi_dependencies(
-    LIBPROTOBUF
-    LIBPROTOC
-)
+find_package(Protobuf REQUIRED)
 
-spacepi_aux_library(
-    spacepi-protoc SHARED
+spacepi_module(
+    CORE LIBRARY NAME spacepi-protoc
     SOURCES
         src/CodeGenerator.cpp
         src/CodeStream.cpp
         src/CodeTemplate.cpp
     INCLUDE include
     LINK
-        LIBPROTOC
-        LIBPROTOBUF
-    NO_INSTALL
+        protobuf::libprotobuf
+        protobuf::libprotoc
 )

@@ -1,10 +1,7 @@
-spacepi_dependencies(
-    LIBPROTOBUF
-    LIBPROTOC
-)
+find_package(Protobuf REQUIRED)
 
-spacepi_aux_program(
-    protoc-gen-spacepi-cpp
+spacepi_module(
+    CORE MODULE NAME protoc-gen-spacepi-cpp
     SOURCES
         src/main.cpp
         src/CPPGen.cpp
@@ -12,7 +9,6 @@ spacepi_aux_program(
     INCLUDE include
     LINK
         spacepi-protoc
-        LIBPROTOC
-        LIBPROTOBUF
-    NO_INSTALL
+        protobuf::libprotobuf
+        protobuf::libprotoc
 )

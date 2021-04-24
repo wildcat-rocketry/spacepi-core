@@ -1,17 +1,13 @@
-spacepi_dependencies(
-    LIBPROTOBUF
-    LIBPROTOC
-)
+find_package(Protobuf REQUIRED)
 
-spacepi_aux_program(
-    protoc-gen-spacepi-csharp
+spacepi_module(
+    CORE MODULE NAME protoc-gen-spacepi-csharp
     SOURCES
         src/main.cpp
         src/CSharpGen.cpp
     INCLUDE include
     LINK
         spacepi-protoc
-        LIBPROTOC
-        LIBPROTOBUF
-    NO_INSTALL
+        protobuf::libprotobuf
+        protobuf::libprotoc
 )
