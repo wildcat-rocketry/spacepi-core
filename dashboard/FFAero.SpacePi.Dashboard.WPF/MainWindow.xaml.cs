@@ -20,7 +20,6 @@ namespace FFAero.SpacePi.Dashboard.WPF {
 
         public MainWindow() {
             InitializeComponent();
-            //typeof(Core.AboutPage.AboutPlugin).GetFields();
             Context = new(null);
             Closed += (_, _) => Context.Dispose();
         }
