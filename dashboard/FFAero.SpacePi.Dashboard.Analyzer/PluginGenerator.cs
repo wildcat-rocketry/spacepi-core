@@ -12,6 +12,7 @@ namespace FFAero.SpacePi.Dashboard.Analyzer {
     [Generator]
     public class PluginGenerator : ISourceGenerator {
         public void Execute(GeneratorExecutionContext context) {
+            bool any = false;
             StringBuilder str = new(@"
 using System;
 using FFAero.SpacePi.Dashboard.API;
@@ -36,6 +37,7 @@ namespace FFAero.SpacePi.Dashboard.Analyzer {
                         && !type.IsAbstract)) {
                     str.Append($@"
                 new {ns.Item1}{type.Name}(),");
+                    any = true;
                 }
             }
             str.Append(@"
@@ -44,7 +46,9 @@ namespace FFAero.SpacePi.Dashboard.Analyzer {
     }
 }
 ");
-            context.AddSource("PluginContext", SourceText.From(str.ToString(), Encoding.UTF8));
+            if (any) {
+                context.AddSource("PluginContext", SourceText.From(str.ToString(), Encoding.UTF8));
+            }
         }
 
         public void Initialize(GeneratorInitializationContext context) {

@@ -7,10 +7,8 @@
         <Company>Final Frontier Aerospace Systems and Technology</Company>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
-    <Target Name="DeleteOldPackage">
-        <RemoveDir Directories="$(SolutionDir)\.nuget\$(PackageId)\$(Version)" />
-    </Target>
-    <Target Name="CopyPackage" AfterTargets="Pack" DependsOnTargets="DeleteOldPackage">
-        <Exec Command="dotnet nuget push $(PackageId).$(Version).nupkg" WorkingDirectory="$(OutputPath)\.." />
+    <UsingTask TaskName="FFAero.SpacePi.Dashboard.Build.APIPublishTask" AssemblyFile="$(SolutionDir)\FFAero.SpacePi.Dashboard.Build\bin\netstandard2.0\FFAero.SpacePi.Dashboard.Build.dll" />
+    <Target Name="CopyPackage" AfterTargets="Pack">
+        <APIPublishTask BuildDir="$(SolutionDir)" PackageId="$(PackageId)" Version="$(Version)" />
     </Target>
 </Project>
