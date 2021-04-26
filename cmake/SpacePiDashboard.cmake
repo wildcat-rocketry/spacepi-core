@@ -11,29 +11,32 @@ function (spacepi_dashboard_plugin SPACEPI_DASHBOARD_PROJ SPACEPI_DASHBOARD_GUID
 
     string(APPEND slnProjs
 "Project(\"{9A19103F-16F7-4668-BE54-9A1E7A4F7556}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
+	ProjectSection(ProjectDependencies) = postProject
+		{0F502909-B2ED-419D-96A1-DFA6D482C94D} = {0F502909-B2ED-419D-96A1-DFA6D482C94D}
+	EndProjectSection
 EndProject
 ")
     string(APPEND slnCfgs
-"        ${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|ARM.ActiveCfg = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|ARM.Build.0 = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|ARM64.Build.0 = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|x64.ActiveCfg = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|x64.Build.0 = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|x86.ActiveCfg = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Debug|x86.Build.0 = Debug|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|Any CPU.Build.0 = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|ARM.ActiveCfg = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|ARM.Build.0 = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|ARM64.ActiveCfg = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|ARM64.Build.0 = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|x64.ActiveCfg = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|x64.Build.0 = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|x86.ActiveCfg = Release|Any CPU
-        ${SPACEPI_DASHBOARD_GUID}.Release|x86.Build.0 = Release|Any CPU
+"		${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|ARM.Build.0 = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|ARM64.Build.0 = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|x64.ActiveCfg = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|x64.Build.0 = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|x86.ActiveCfg = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Debug|x86.Build.0 = Debug|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|ARM.ActiveCfg = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|ARM.Build.0 = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|ARM64.ActiveCfg = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|ARM64.Build.0 = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|x64.ActiveCfg = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|x64.Build.0 = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|x86.ActiveCfg = Release|Any CPU
+		${SPACEPI_DASHBOARD_GUID}.Release|x86.Build.0 = Release|Any CPU
 ")
     string(APPEND csprojRefs
 "        <ProjectReference Include=\"..\\${relProj}\" />
