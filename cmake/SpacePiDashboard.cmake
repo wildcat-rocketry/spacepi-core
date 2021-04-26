@@ -1,21 +1,50 @@
-# spacepi_dashboard_plugin(<csproj file> <guid>)
+# spacepi_dashboard_plugin(
+#     <csproj file> <guid>
+#     [NOT_PLUGIN]
+#     [TYPE <guid>]
+#     [DEPENDS <guid> [<guid> ...]]
+# )
 function (spacepi_dashboard_plugin SPACEPI_DASHBOARD_PROJ SPACEPI_DASHBOARD_GUID)
+    cmake_parse_arguments(SPACEPI_DASHBOARD "NOT_PLUGIN" "TYPE" "DEPENDS" ${ARGN})
+
+    if (NOT SPACEPI_DASHBOARD_TYPE)
+        set(SPACEPI_DASHBOARD_TYPE "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}")
+    endif()
+
+    if (NOT SPACEPI_DASHBOARD_NOT_PLUGIN)
+        list(APPEND SPACEPI_DASHBOARD_DEPENDS "{0F502909-B2ED-419D-96A1-DFA6D482C94D}")
+    endif()
+
     get_target_property(slnProjs dashboard-metadata SPACEPI_DASHBOARD_SLN_PROJS)
     get_target_property(slnCfgs dashboard-metadata SPACEPI_DASHBOARD_SLN_CFGS)
     get_target_property(csprojRefs dashboard-metadata SPACEPI_DASHBOARD_CSPROJ_REFS)
 
+    get_filename_component(SPACEPI_DASHBOARD_PROJ "${SPACEPI_DASHBOARD_PROJ}" ABSOLUTE)
     get_filename_component(projName "${SPACEPI_DASHBOARD_PROJ}" NAME)
     string(REGEX REPLACE "\\.csproj$" "" projName "${projName}")
-    file(RELATIVE_PATH relProj "${CMAKE_BINARY_DIR}/_dashboard" "${CMAKE_CURRENT_SOURCE_DIR}/${SPACEPI_DASHBOARD_PROJ}")
+    file(RELATIVE_PATH relProj "${CMAKE_BINARY_DIR}/_dashboard" "${SPACEPI_DASHBOARD_PROJ}")
     string(REPLACE "/" "\\" relProj "${relProj}")
 
-    string(APPEND slnProjs
-"Project(\"{9A19103F-16F7-4668-BE54-9A1E7A4F7556}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
+    if (SPACEPI_DASHBOARD_DEPENDS)
+        string(APPEND slnProjs
+"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
 	ProjectSection(ProjectDependencies) = postProject
-		{0F502909-B2ED-419D-96A1-DFA6D482C94D} = {0F502909-B2ED-419D-96A1-DFA6D482C94D}
-	EndProjectSection
+")
+        foreach (dep IN LISTS SPACEPI_DASHBOARD_DEPENDS)
+            string(APPEND slnProjs
+"		${dep} = ${dep}
+")
+        endforeach()
+        string(APPEND slnProjs
+"	EndProjectSection
 EndProject
 ")
+    else()
+        string(APPEND slnProjs
+"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
+EndProject
+")
+    endif()
     string(APPEND slnCfgs
 "		${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		${SPACEPI_DASHBOARD_GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
@@ -38,9 +67,11 @@ EndProject
 		${SPACEPI_DASHBOARD_GUID}.Release|x86.ActiveCfg = Release|Any CPU
 		${SPACEPI_DASHBOARD_GUID}.Release|x86.Build.0 = Release|Any CPU
 ")
-    string(APPEND csprojRefs
+    if (NOT SPACEPI_DASHBOARD_NOT_PLUGIN)
+        string(APPEND csprojRefs
 "        <ProjectReference Include=\"..\\${relProj}\" />
 ")
+    endif()
 
     set_target_properties(
         dashboard-metadata PROPERTIES

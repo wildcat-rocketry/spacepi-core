@@ -10,27 +10,9 @@ include(SpacePiDashboard)
 file(RELATIVE_PATH relProj "${CMAKE_BINARY_DIR}/_dashboard" "${CMAKE_CURRENT_SOURCE_DIR}")
 string(REPLACE "/" "\\" relProj "${relProj}")
 
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/SpacePi Dashboard.sln.in"
-    "${CMAKE_BINARY_DIR}/_dashboard/SpacePi Dashboard.sln.in"
-)
 file(
     GENERATE OUTPUT "${CMAKE_BINARY_DIR}/_dashboard/SpacePi Dashboard.sln"
-    INPUT "${CMAKE_BINARY_DIR}/_dashboard/SpacePi Dashboard.sln.in"
-)
-
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/FFAero.SpacePi.Dashboard.WPFMain/FFAero.SpacePi.Dashboard.WPFMain.csproj.in"
-    "${CMAKE_BINARY_DIR}/_dashboard/FFAero.SpacePi.Dashboard.WPFMain/FFAero.SpacePi.Dashboard.WPFMain.csproj.in"
-)
-file(
-    GENERATE OUTPUT "${CMAKE_BINARY_DIR}/_dashboard/FFAero.SpacePi.Dashboard.WPFMain/FFAero.SpacePi.Dashboard.WPFMain.csproj"
-    INPUT "${CMAKE_BINARY_DIR}/_dashboard/FFAero.SpacePi.Dashboard.WPFMain/FFAero.SpacePi.Dashboard.WPFMain.csproj.in"
-)
-
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/FFAero.SpacePi.Dashboard.UWP/FFAero.SpacePi.Dashboard.UWP.wapproj.in"
-    "${CMAKE_BINARY_DIR}/_dashboard/FFAero.SpacePi.Dashboard.UWP/FFAero.SpacePi.Dashboard.UWP.wapproj"
+    INPUT "${CMAKE_CURRENT_SOURCE_DIR}/SpacePi Dashboard.sln.in"
 )
 
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/_dashboard/.nuget")
@@ -39,4 +21,11 @@ configure_file(
     "${CMAKE_BINARY_DIR}/_dashboard/nuget.config"
 )
 
+add_subdirectory(FFAero.SpacePi.Dashboard.WPFMain)
+add_subdirectory(FFAero.SpacePi.Dashboard.Analyzer)
+add_subdirectory(FFAero.SpacePi.Dashboard.API)
+add_subdirectory(FFAero.SpacePi.Dashboard.Build)
+add_subdirectory(FFAero.SpacePi.Dashboard.BuildTool)
 add_subdirectory(FFAero.SpacePi.Dashboard.Core)
+add_subdirectory(FFAero.SpacePi.Dashboard.UWP)
+add_subdirectory(FFAero.SpacePi.Dashboard.WPF)
