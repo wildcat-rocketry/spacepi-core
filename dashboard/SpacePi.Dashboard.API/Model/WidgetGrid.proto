@@ -1,0 +1,21 @@
+// The settings for how to layout different data points
+
+syntax = "proto3";
+
+import "Widget.proto";
+import "SettingsPage.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message WidgetGrid {
+	string Name = 1;
+	uint32 Rows = 2;
+	uint32 Columns = 3;
+	uint32 Row = 4;
+	uint32 Column = 5;
+	uint32 RowSpan = 6;
+	uint32 ColumnSpan = 7;
+	repeated SettingsPage Settings = 8;
+	repeated Widget Widgets = 9;
+	repeated WidgetGrid Grids = 10;
+}

@@ -14,7 +14,6 @@ message Setting {
 	double Max = 5;
 	double Step = 6;
 	bool List = 7; // To be true if the values are a list or a single value (maybe redundant)
-	int32 GroupId = 8; // Like group numbers group settings
 	repeated string Values = 9; // Possble values of this setting
 	string Regex = 10; // Regex used to verify string values
 
