@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/struct.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message DataField {
+    google.protobuf.FieldDescriptorProto Description = 1;
+	map<uint64, google.protobuf.Value> Instances = 4;
+}

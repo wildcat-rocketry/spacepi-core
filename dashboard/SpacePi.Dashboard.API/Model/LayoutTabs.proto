@@ -2,8 +2,7 @@
 
 syntax = "proto3";
 
-import "Widget.proto";
-import "WidgetGroup.proto";
+import "WidgetGrid.proto";
 
 package SpacePi.Dashboard.API.Model;
 
@@ -11,9 +10,5 @@ message LayoutTabs {
 	string Name = 1;
 	string Description = 2;
 
-	int32 Rows = 3; // Number of rows in the tab
-	int32 Columns = 4; // Number of columns in the tab
-
-	repeated Widget Widgets = 5; // All the widgets being displayed on this tab
-	repeated WidgetGroup Groups = 6;
+	WidgetGrid Grids = 3;
 }

@@ -2,16 +2,15 @@
 
 syntax = "proto3";
 
-import "Setting.proto";
-import "LayoutSettings.proto";
+import "SettingsPage.proto";
+import "LayoutTabs.proto";
+import "Message.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message ProjectModel {
-	string Name = 1; // The name of this project
-	string Version = 2; // Optional version info for project
-
-	LayoutSettings Layout = 3; // The grid layout settings
-
-	map<string, Setting> Settings = 4;
+	string Version = 1; // Optional version info for project
+	repeated LayoutTabs Tabs = 2;
+	repeated SettingsPage ProjectSettings = 3;
+	map<uint64, Message> Messages = 4;
 }
