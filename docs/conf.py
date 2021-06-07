@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-author                  = "Zach Deibert"
+author                  = "Wildcat Rocketry Club"
 breathe_default_project = "spacepi"
 breathe_projects        = { "spacepi": os.environ.get("BUILD_DIR", ".") + "/xml" }
 extensions              = [ "breathe" ]

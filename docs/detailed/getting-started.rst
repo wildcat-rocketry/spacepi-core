@@ -1,53 +1,40 @@
 Getting Started
 ===============
 
-Platform
---------
-
-This page expects that the host which is compiling the SpacePi code is Linux-based.
-On a non-Linux-based machine, there are a few options available for development:
-
-1. Use the Windows Subsystem for Linux: https://docs.microsoft.com/en-us/windows/wsl/install-win10
-2. Install Linux in a virtual machine
-3. Install Linux on another computer and remote into it
-
 Installing Dependencies
 -----------------------
 
-All commands in this section are tested on Debian 10.
-Other versions or operating systems may cause differing results/errors.
+Standard Software Install
+*************************
 
-Minimal Installation
-********************
+The following software packages are required to do SpacePi development:
 
-.. code-block:: text
+1. Git: https://git-scm.com/
+2. CMake: https://cmake.org/
+3. vcpkg: https://vcpkg.io/
+4. Compiler Toolchain
 
-    # apt update
-    # apt install cmake build-essential protobuf-compiler libprotoc-dev libprotobuf-dev libboost-all-dev
+Full Software Install
+*********************
 
-Installation for Dashboard
-**************************
+The following software packages are optional, but installing them enables more of SpacePi's functionality:
 
-.. code-block:: text
+1. Visual Studio 2019 Preview 10+: https://visualstudio.microsoft.com/vs/preview/
+2. .NET 6.0 Preview 3+: https://dotnet.microsoft.com/download/dotnet/6.0
+3. Doxygen and Graphviz: https://www.doxygen.nl/
+4. Python 3+: https://www.python.org/
 
-    # apt install openjdk-11-jdk-headless
+Windows Subsystem for Linux
+***************************
 
-Installation for API Documentation
-**********************************
+If building on a Windows machine, it may be desired to have a Linux environment as well to build in.
+This can be achieved though the Windows Subsystem for Linux: https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
-.. code-block:: text
-
-    # apt install doxygen graphviz
-
-Installation for Full Documentation
-***********************************
-
-.. code-block:: text
-
-    # apt install doxygen graphviz python3
-
-Environment Setup
+Building the Code
 -----------------
+
+Build System Setup
+******************
 
 After cloning the repository from Git but before building the code, the environment must first be set up with CMake.
 
@@ -57,98 +44,73 @@ First, enter the directory which the Git repository was cloned into (this may no
 
     $ cd spacepi-core
 
-Then, create a new folder to contain all of the build artifacts in:
+Then, run CMake to configure the project:
 
 .. code-block:: text
 
-    spacepi-core$ mkdir -p build
+    $ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=D:/github.com/Microsoft/vcpkg/scripts/buildsystem/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_HOST_TRIPLET=x64-windows-static
 
-And enter the newly created :code:`build` folder:
+This command contains many different options, which are summarized below:
 
-.. code-block:: text
+* :code:`-S .`: Specifies that the source code is located in :code:`.` (aka the current directory)
+* :code:`-B build`: Specifies that the built code goes in a new folder called :code:`build` (so :code:`spacepi-core/build`)
+* :code:`-DCMAKE_TOOLCHAIN_FILE=.../vcpkg.cmake`: Specifies the location that vcpkg was installed into
+* :code:`-DVCPKG_TARGET_TRIPLET=...`: Specifies the type of program to build
+* :code:`-DVCPKG_HOST_TRIPLET=...`: Specifies the type of program which can run on this machine (likely the same as the previous)
 
-    spacepi-core$ cd build
+The following triplets are supported and regularly tested:
 
-Finally, run CMake to configure the project:
+* :code:`x64-windows-static`
+* :code:`x64-linux`
 
-.. code-block:: text
+The following triplets should be supported:
 
-    spacepi-core/build$ cmake ..
+* :code:`*-windows-static`
+* :code:`*-mingw-static`
+* :code:`*-linux`
+* :code:`*-osx`
 
-Building the Code
------------------
+Running a Build
+***************
 
-After configuring CMake once, each time the code is edited and the project needs to be rebuilt, only the :code:`make` command is needed.
-However, make sure the :code:`make` command is run inside the :code:`build` folder (:code:`cd` to it if needed).
+After configuring CMake once, each time the code is edited and the project needs to be rebuild, only the following commands are needed:
 
-Documentation Outputs
-*********************
-
-The core project can create a few additional outputs besides just the built code.
-These are:
-
-* :code:`build/html/index.html`: API Documentation
-* :code:`build/sphinx/html/index.html`: Full Documenation
-
-If the project being built was not the :code:`spacepi-core`, these may instead be under :code:`build/core` instead of just :code:`build`.
-
-The following can be used to build the documentations (which is not built by default unless the build root is :code:`spacepi-core`):
+First, remember to navigate back to the directory the code is stored in:
 
 .. code-block:: text
 
-    spacepi-core/build$ make docs
+    $ cd spacepi-core
 
-Building Core Examples
-**********************
-
-The following can be used to build the core example code (which is not built by default):
+Then, run CMake to build the project:
 
 .. code-block:: text
 
-    spacepi-core/build$ make examples
+    $ cmake --build build
 
-Opening Dashboard Project
--------------------------
+If the :code:`-B` option was changed when configuring the environment, the name of the build folder needs to be updated here as well.
 
-The dashboard project can be imported into either Eclipse IDE or IntelliJ IDEA IDE.
-The following commands must be run on the platform on which the IDE is running.
-Therefore, if the code is being built on WSL but the IDE is running on Windows, these commands should be run on Windows and not WSL.
+Building with Make
+******************
 
-These commands all assume the :code:`spacepi-core` repository was cloned.
-If a different repository was cloned, instead use :code:`spacepi-other/core`.
-
-Eclipse IDE
-***********
-
-Windows commands:
+On a Linux system, :code:`make` can also be used to build the project, if it is installed.
+First, navigate to the build folder:
 
 .. code-block:: text
 
-    spacepi-core\dashboard> .\gradlew.bat eclipse
+    $ cd spacepi-core/build
 
-Linux commands:
+Then, run Make to build the project:
 
-.. code-block:: text
+..code-block:: text
 
-    spacepi-core/dashboard$ ./gradlew eclipse
+    $ make
 
-Then, import the project into Eclipse by going to :code:`File` > :code:`Import...`, then select :code:`General` > :code:`Existing Projects into Workspace`, then select the :code:`spacepi-core/dashboard` folder as the project root directory and import the project.
-Now, the project can be built and run directly from Eclipse.
+Building with Visual Studio
+***************************
 
-IDEA IDE
-********
+If Microsoft Visual Studio is installed, it also can be used to build the project.
 
-Windows commands:
+To build any C++ code, there should be a solution located in the build folder.
+For example, if building the :code:`spacepi-core` repository, the solution file is located at :code:`spacepi-core/build/spacepi-core.sln`.
 
-.. code-block:: text
-
-    spacepi-core\dashboard> .\gradlew.bat idea
-
-Linux commands:
-
-.. code-block:: text
-
-    spacepi-core/dashboard$ ./gradlew idea
-
-Then, import the project into IDEA and select the :code:`spacepi-core/dashboard` folder as the project root directory.
-Now, the project can be built and run directly from IDEA.
+To build the C# dashboard application, there is a solution file located at :code:`spacepi-core/build/_dashboard/SpacePi Dashboard.sln`.
