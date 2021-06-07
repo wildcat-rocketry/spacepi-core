@@ -21,4 +21,6 @@ macro (spacepi_platform)
     elseif (NOT SPACEPI_PLATFORM_DEFAULT)
         return()
     endif()
+
+    define_property(GLOBAL PROPERTY SPACEPI_HAS_PLATFORM BRIEF_DOCS "." FULL_DOCS ".")
 endmacro()
