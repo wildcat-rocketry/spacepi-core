@@ -85,7 +85,7 @@ CodeStream &CodeStream::process(const ostringstream &ss) noexcept {
         if (lineStart < lineEnd) {
             int indentChars = this->indentChars;
             if (indentChars >= indentBuf.size()) {
-                indentChars = indentBuf.size() - 1;
+                indentChars = (int) (indentBuf.size() - 1);
             }
             if (!emptyLine) {
                 indentChars = 0;

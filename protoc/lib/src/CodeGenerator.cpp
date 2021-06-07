@@ -21,7 +21,7 @@ CodeGenerator::CodeGenerator(const initializer_list<const CodeTemplate *> &templ
 
 bool CodeGenerator::Generate(const FileDescriptor *_file, const string &parameter, compiler::GeneratorContext *ctx, string *error) const noexcept {
     const FileDescriptor &file = *_file;
-    for (initializer_list<const CodeTemplate *>::const_iterator it = templates.begin(); it != templates.end(); ++it) {
+    for (vector<const CodeTemplate *>::const_iterator it = templates.begin(); it != templates.end(); ++it) {
         ZeroCopyOutputStream *zos = ctx->Open((*it)->outputFilename(file.name()));
         CodeStream os;
         (*it)->fileBeg(os, file);
@@ -103,7 +103,7 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
             memcpy(data, str.data() + start, write);
             start += write;
             if (write < size) {
-                zos->BackUp(size - write);
+                zos->BackUp((int) (size - write));
             }
         }
     }
