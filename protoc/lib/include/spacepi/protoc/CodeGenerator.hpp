@@ -3,6 +3,7 @@
 
 #include <initializer_list>
 #include <string>
+#include <vector>
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/descriptor.h>
 #include <spacepi/protoc/CodeTemplate.hpp>
@@ -16,7 +17,7 @@ namespace spacepi {
                 bool Generate(const google::protobuf::FileDescriptor *file, const std::string &parameter, google::protobuf::compiler::GeneratorContext *ctx, std::string *error) const noexcept;
 
             private:
-                std::initializer_list<const CodeTemplate *> templates;
+                std::vector<const CodeTemplate *> templates;
         };
     }
 }

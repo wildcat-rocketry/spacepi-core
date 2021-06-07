@@ -21,7 +21,7 @@ int main(int argc, char **argv) noexcept {
         CodeGeneratorResponse_File *file = res.add_file();
         vector<uint8_t> raw;
         raw.resize(req.ByteSizeLong());
-        if (!req.SerializeToArray(raw.data(), raw.size())) {
+        if (!req.SerializeToArray(raw.data(), (int) raw.size())) {
             cerr << "unable to serialize input CodeGeneratorRequest" << endl;
             return EXIT_FAILURE;
         }
