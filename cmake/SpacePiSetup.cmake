@@ -5,6 +5,10 @@ set(build_compat 2.1.0)
 # Enable testing
 enable_testing()
 
+# Fix building on Windows
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 # Ensure SPACEPI_CORE_DIR is set
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_DIR DEFINED)
 if (NOT hasProp)
