@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <PackageId>SpacePi.Dashboard.API</PackageId>
@@ -11,4 +11,13 @@
     <Target Name="CopyPackage" AfterTargets="Pack">
         <APIPublishTask BuildDir="$(SolutionDir)" PackageId="$(PackageId)" Version="$(Version)" />
     </Target>
+    <ItemGroup>
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Remove="Model/*.proto" />
+    </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="Model/*.proto" />
+    </ItemGroup>
 </Project>
