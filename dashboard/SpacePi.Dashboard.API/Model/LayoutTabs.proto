@@ -3,12 +3,14 @@
 syntax = "proto3";
 
 import "WidgetGrid.proto";
+import "SettingsPage.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message LayoutTabs {
 	string Name = 1;
-	string Description = 2;
 
-	WidgetGrid Grids = 3;
+	repeated SettingsPage Settings = 2;
+	WidgetGrid Grid = 3;
+
 }

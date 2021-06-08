@@ -10,4 +10,5 @@ enum SettingType {
 	NUMBER = 2;
 	HEX = 3;
 	ENUM = 4;
+	CODE = 5; // A string that holds code
 }

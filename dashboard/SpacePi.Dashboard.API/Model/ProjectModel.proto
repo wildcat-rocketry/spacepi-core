@@ -9,7 +9,6 @@ import "Message.proto";
 package SpacePi.Dashboard.API.Model;
 
 message ProjectModel {
-	string Version = 1; // Optional version info for project
 	repeated LayoutTabs Tabs = 2;
 	repeated SettingsPage ProjectSettings = 3;
 	map<uint64, Message> Messages = 4;
