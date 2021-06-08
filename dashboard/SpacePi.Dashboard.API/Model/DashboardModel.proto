@@ -5,12 +5,10 @@ syntax = "proto3";
 
 import "ProjectModel.proto";
 import "SettingsPage.proto";
-import "TransientOption.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message DashboardModel {
-	string Version = 1;	
 	repeated SettingsPage GlobalSettings = 2;
-	ProjectModel ProjectModel = 3 [(transient)=true];
+	ProjectModel ProjectModel = 3 [transient=true];
 }

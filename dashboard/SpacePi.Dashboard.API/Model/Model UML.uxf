@@ -1,19 +1,14 @@
-<diagram program="umletino" version="14.3.0"><zoom_level>10</zoom_level><help_text></help_text><element><id>UMLClass</id><coordinates><x>280</x><y>167</y><w>240</w><h>80</h></coordinates><panel_attributes>DashboardModel
+<diagram program="umletino" version="14.3.0"><zoom_level>10</zoom_level><help_text></help_text><element><id>UMLClass</id><coordinates><x>510</x><y>147</y><w>240</w><h>60</h></coordinates><panel_attributes>DashboardModel
 --
-+Version: string
 +GlobalSettings:List&lt;SettingsPage&gt;
-+ProjectModel: ProjectModel</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>560</x><y>427</y><w>240</w><h>80</h></coordinates><panel_attributes>LayoutTabs
++ProjectModel: ProjectModel {transient}</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>790</x><y>377</y><w>240</w><h>80</h></coordinates><panel_attributes>LayoutTabs
 --
-+Name: string
-+Description: string
-+Grid: WidgetGrid</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>420</x><y>287</y><w>310</w><h>110</h></coordinates><panel_attributes>&lt;&lt;transient&gt;&gt;
-ProjectModel
++Grid: WidgetGrid
++Settings: List&lt;SettingsPage&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>650</x><y>247</y><w>310</w><h>80</h></coordinates><panel_attributes>ProjectModel
 --
-+Version: string
 +Tabs: List&lt;LayoutTabs&gt;
 +ProjectSettings: List&lt;SettingsPage&gt;
-+Messages: Map&lt;int,Message&gt;
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>767</y><w>240</w><h>260</h></coordinates><panel_attributes>Setting
++Messages: Map&lt;int,Message&gt;  {transient}</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>230</x><y>727</y><w>240</w><h>260</h></coordinates><panel_attributes>Setting
 --
 +Type: SettingType
 +Id: string
@@ -23,50 +18,39 @@ ProjectModel
 +Max: double
 +Step: double
 +List: bool
++Readonly: bool
 +Values: List&lt;string&gt;
 +Regex: string
 +StringValue: string
 +BoolValue: bool
 +NumberValue: double
-+IntValue: long</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>667</y><w>240</w><h>60</h></coordinates><panel_attributes>SettingsGroup
++IntValue: long</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>230</x><y>627</y><w>240</w><h>60</h></coordinates><panel_attributes>SettingsGroup
 --
 +GroupName: string
-+Settings: List&lt;Setting&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>567</y><w>240</w><h>60</h></coordinates><panel_attributes>SettingsPage
++Settings: List&lt;Setting&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>230</x><y>527</y><w>240</w><h>60</h></coordinates><panel_attributes>SettingsPage
 --
 +PageName: string
-+Groups: List&lt;SettingsGroup&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>280</x><y>827</y><w>240</w><h>130</h></coordinates><panel_attributes>&lt;&lt;enum&gt;&gt;
++Groups: List&lt;SettingsGroup&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>787</y><w>240</w><h>150</h></coordinates><panel_attributes>&lt;&lt;enum&gt;&gt;
 SettingsType
 --
 STRING
 BOOL
 NUMBER
 HEX
-ENUM</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>280</x><y>587</y><w>240</w><h>140</h></coordinates><panel_attributes>Widget
+ENUM
+CODE
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>510</x><y>547</y><w>240</w><h>50</h></coordinates><panel_attributes>Widget
 --
-+Row: int
-+Column: int
-+RowSpan: int
-+ColumnSpan: int
-+DisplayName: string
-+WidgetType: string
-+Settings: List&lt;SettingsPage&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>560</x><y>537</y><w>240</w><h>180</h></coordinates><panel_attributes>WidgetGrid
++Settings: List&lt;SettingsPage&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>790</x><y>497</y><w>240</w><h>90</h></coordinates><panel_attributes>WidgetGrid
 --
-+Name: string
-+Rows: int
-+Columns: int
-+Row: int
-+Column: int
-+RowSpan: int
-+ColumnSpan: int
 +Settings: List&lt;SettingsPage&gt;
 +Widgets: List&lt;Widget&gt;
-+Grids: List&lt;WidgetGrid&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>80</x><y>237</y><w>270</w><h>350</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>250;10;250;60;10;60;10;330</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>237</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>387</y><w>390</w><h>200</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>370;10;370;40;10;40;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>617</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>567</y><w>350</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>330;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>110</x><y>717</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>607</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>230</x><y>887</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;50;10</additional_attributes></element><element><id>Relation</id><coordinates><x>510</x><y>647</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>664</x><y>707</y><w>80</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50;60;50;60;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>848</x><y>437</y><w>300</w><h>70</h></coordinates><panel_attributes>Field
++Grids: List&lt;WidgetGrid&gt;</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>310</x><y>197</y><w>270</w><h>350</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>250;10;250;60;10;60;10;330</additional_attributes></element><element><id>Relation</id><coordinates><x>690</x><y>197</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>340</x><y>317</y><w>390</w><h>230</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>370;10;370;70;10;70;10;210</additional_attributes></element><element><id>Relation</id><coordinates><x>340</x><y>577</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>527</y><w>350</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>330;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>340</x><y>677</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>567</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>460</x><y>847</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;50;10</additional_attributes></element><element><id>Relation</id><coordinates><x>740</x><y>557</y><w>70</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>50;10;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>894</x><y>577</y><w>80</w><h>90</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;70;60;70;60;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1078</x><y>397</y><w>300</w><h>70</h></coordinates><panel_attributes>Field
 --
 +Description: google.protobuf.FieldDescriptorProto
 +Instances: Map&lt;int, google.protobuf.Value&gt;
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>720</x><y>357</y><w>150</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;130;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>850</x><y>317</y><w>120</w><h>80</h></coordinates><panel_attributes>&lt;&lt;transient&gt;&gt;
-Message
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>950</x><y>307</y><w>150</w><h>30</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;130;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1080</x><y>287</y><w>120</w><h>70</h></coordinates><panel_attributes>Message
 --
 +Id: int
 +Fields: List&lt;Field&gt;
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>387</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>670</x><y>387</y><w>30</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element><element><id>Relation</id><coordinates><x>670</x><y>497</y><w>30</w><h>60</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;40</additional_attributes></element></diagram>
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1130</x><y>347</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>317</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>447</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;50</additional_attributes></element><element><id>Relation</id><coordinates><x>380</x><y>417</y><w>430</w><h>130</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-</panel_attributes><additional_attributes>410;10;10;10;10;110</additional_attributes></element></diagram>

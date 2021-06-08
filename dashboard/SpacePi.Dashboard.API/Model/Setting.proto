@@ -16,6 +16,7 @@ message Setting {
 	bool List = 7; // To be true if the values are a list or a single value (maybe redundant)
 	repeated string Values = 9; // Possble values of this setting
 	string Regex = 10; // Regex used to verify string values
+	bool Readonly = 15; // The setting is read only
 
 	// Actual values of this setting
 	repeated string StringValue = 11;
