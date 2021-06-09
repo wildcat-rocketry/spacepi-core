@@ -1,14 +1,20 @@
 # spacepi_dashboard_plugin(
-#     <csproj file> <guid>
+#     <name> <guid>
 #     [NOT_PLUGIN]
 #     [TYPE <guid>]
+#     [PROJ_TYPE <tproj>]
 #     [DEPENDS <guid> [<guid> ...]]
+#     [CONFIG_FILE <file> [<file> ...]]
 # )
 function (spacepi_dashboard_plugin SPACEPI_DASHBOARD_PROJ SPACEPI_DASHBOARD_GUID)
-    cmake_parse_arguments(SPACEPI_DASHBOARD "NOT_PLUGIN" "TYPE" "DEPENDS" ${ARGN})
+    cmake_parse_arguments(SPACEPI_DASHBOARD "NOT_PLUGIN" "TYPE;PROJ_TYPE" "DEPENDS;CONFIG_FILE" ${ARGN})
 
     if (NOT SPACEPI_DASHBOARD_TYPE)
         set(SPACEPI_DASHBOARD_TYPE "{9A19103F-16F7-4668-BE54-9A1E7A4F7556}")
+    endif()
+
+    if (NOT SPACEPI_DASHBOARD_PROJ_TYPE)
+        set(SPACEPI_DASHBOARD_PROJ_TYPE "csproj")
     endif()
 
     if (NOT SPACEPI_DASHBOARD_NOT_PLUGIN)
@@ -19,15 +25,20 @@ function (spacepi_dashboard_plugin SPACEPI_DASHBOARD_PROJ SPACEPI_DASHBOARD_GUID
     get_target_property(slnCfgs dashboard-metadata SPACEPI_DASHBOARD_SLN_CFGS)
     get_target_property(csprojRefs dashboard-metadata SPACEPI_DASHBOARD_CSPROJ_REFS)
 
-    get_filename_component(SPACEPI_DASHBOARD_PROJ "${SPACEPI_DASHBOARD_PROJ}" ABSOLUTE)
-    get_filename_component(projName "${SPACEPI_DASHBOARD_PROJ}" NAME)
-    string(REGEX REPLACE "\\.csproj$" "" projName "${projName}")
-    file(RELATIVE_PATH relProj "${CMAKE_BINARY_DIR}/_dashboard" "${SPACEPI_DASHBOARD_PROJ}")
-    string(REPLACE "/" "\\" relProj "${relProj}")
+    file(RELATIVE_PATH relProjBuild "${CMAKE_BINARY_DIR}/_dashboard" "${CMAKE_CURRENT_SOURCE_DIR}/${SPACEPI_DASHBOARD_PROJ}.${SPACEPI_DASHBOARD_PROJ_TYPE}")
+    string(REPLACE "/" "\\" relProjBuild "${relProjBuild}")
+    get_property(spacePiCore GLOBAL PROPERTY SPACEPI_CORE_DIR)
+    file(RELATIVE_PATH relProjSrc "${spacePiCore}/dashboard" "${CMAKE_CURRENT_SOURCE_DIR}/${SPACEPI_DASHBOARD_PROJ}.${SPACEPI_DASHBOARD_PROJ_TYPE}")
+    string(REPLACE "/" "\\" relProjSrc "${relProjSrc}")
+
+    foreach (file IN LISTS SPACEPI_DASHBOARD_CONFIG_FILE)
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${file}.in" "${CMAKE_BINARY_DIR}/_dashboard/${SPACEPI_DASHBOARD_PROJ}/${file}.in")
+        file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/_dashboard/${SPACEPI_DASHBOARD_PROJ}/${file}" INPUT "${CMAKE_BINARY_DIR}/_dashboard/${SPACEPI_DASHBOARD_PROJ}/${file}.in")
+    endforeach()
 
     if (SPACEPI_DASHBOARD_DEPENDS)
         string(APPEND slnProjs
-"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
+"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${SPACEPI_DASHBOARD_PROJ}\", \"${relProjBuild}\", \"${SPACEPI_DASHBOARD_GUID}\"
 	ProjectSection(ProjectDependencies) = postProject
 ")
         foreach (dep IN LISTS SPACEPI_DASHBOARD_DEPENDS)
@@ -41,7 +52,7 @@ EndProject
 ")
     else()
         string(APPEND slnProjs
-"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${projName}\", \"${relProj}\", \"${SPACEPI_DASHBOARD_GUID}\"
+"Project(\"${SPACEPI_DASHBOARD_TYPE}\") = \"${SPACEPI_DASHBOARD_PROJ}\", \"${relProjBuild}\", \"${SPACEPI_DASHBOARD_GUID}\"
 EndProject
 ")
     endif()
@@ -69,7 +80,7 @@ EndProject
 ")
     if (NOT SPACEPI_DASHBOARD_NOT_PLUGIN)
         string(APPEND csprojRefs
-"        <ProjectReference Include=\"..\\${relProj}\" />
+"        <ProjectReference Include=\"..\\${relProjSrc}\" />
 ")
     endif()
 
