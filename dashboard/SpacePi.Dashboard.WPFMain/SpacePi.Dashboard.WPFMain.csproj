@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <ApplicationIcon>Images\Icon.ico</ApplicationIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="SpacePi.Dashboard.API" Version="3.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SpacePi.Dashboard.WPF\SpacePi.Dashboard.WPF.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="Images\Icon.ico" />
+    </ItemGroup>
+    <Import Project="$(SolutionDir)\SpacePi.Dashboard.WPFMain\SpacePi.Dashboard.WPFMain.props" />
+</Project>

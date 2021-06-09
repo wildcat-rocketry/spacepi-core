@@ -1,0 +1,4 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup>
+$<TARGET_PROPERTY:dashboard-metadata,SPACEPI_DASHBOARD_CSPROJ_REFS>    </ItemGroup>
+</Project>
