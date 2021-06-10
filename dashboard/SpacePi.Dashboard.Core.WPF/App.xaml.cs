@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace SpacePi.Dashboard.WPF {
+namespace SpacePi.Dashboard.Core.WPF {
     public partial class App : Application {
     }
 }
