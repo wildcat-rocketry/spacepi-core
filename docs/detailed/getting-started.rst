@@ -10,7 +10,7 @@ Standard Software Install
 The following software packages are required to do SpacePi development:
 
 1. Git: https://git-scm.com/
-2. CMake: https://cmake.org/
+2. CMake: https://cmake.org/ (make sure to add to system PATH on Windows)
 3. vcpkg: https://vcpkg.io/
 4. Compiler Toolchain
 
@@ -48,7 +48,7 @@ Then, run CMake to configure the project:
 
 .. code-block:: text
 
-    $ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=D:/github.com/Microsoft/vcpkg/scripts/buildsystem/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_HOST_TRIPLET=x64-windows-static
+    $ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=D:/github.com/Microsoft/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DVCPKG_HOST_TRIPLET=x64-windows-static
 
 This command contains many different options, which are summarized below:
 
