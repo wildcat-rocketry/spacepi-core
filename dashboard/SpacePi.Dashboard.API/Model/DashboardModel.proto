@@ -12,10 +12,10 @@ import "google/protobuf/any.proto";
 package SpacePi.Dashboard.API.Model;
 
 message DashboardModel {
-	repeated SettingsPage GlobalSettings = 1 [(transient)=true];
-	Widget Base = 2;
-	repeated SettingsPage ProjectSettings = 3;
-	map<uint64, Message> Messages = 4;
+    repeated SettingsPage GlobalSettings = 1 [(transient)=true];
+    Widget Base = 2;
+    repeated SettingsPage ProjectSettings = 3;
+    map<uint64, Message> Messages = 4;
 
-	google.protobuf.Any mainWindow = 10 [(transient)=true, (className)="System.Object"];
+    google.protobuf.Any mainWindow = 10 [(transient)=true, (className)="System.Object"];
 }
