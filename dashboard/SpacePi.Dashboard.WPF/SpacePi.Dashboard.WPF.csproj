@@ -8,7 +8,7 @@
         <ApplicationDefinition Remove="App.xaml" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="SpacePi.Dashboard.API" Version="3.0.0" />
+      <ProjectReference Include="..\SpacePi.Dashboard.API\SpacePi.Dashboard.API.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Page Include="App.xaml" />

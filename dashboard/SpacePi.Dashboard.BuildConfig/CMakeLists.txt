@@ -1,4 +1,5 @@
 include(SpacePiDashboard)
+find_package(Protobuf REQUIRED)
 spacepi_dashboard_plugin(
     "SpacePi.Dashboard.BuildConfig" "{A1A2374B-DA09-49CB-AAC5-6D7F9DFC74A3}"
     NOT_PLUGIN

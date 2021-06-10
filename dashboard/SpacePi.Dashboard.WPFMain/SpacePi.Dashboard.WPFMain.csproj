@@ -6,10 +6,8 @@
         <ApplicationIcon>Images\Icon.ico</ApplicationIcon>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="SpacePi.Dashboard.API" Version="3.0.0" />
-    </ItemGroup>
-    <ItemGroup>
         <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SpacePi.Dashboard.API\SpacePi.Dashboard.API.csproj" />
         <ProjectReference Include="..\SpacePi.Dashboard.WPF\SpacePi.Dashboard.WPF.csproj" />
     </ItemGroup>
     <ItemGroup>

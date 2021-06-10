@@ -1,16 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <PackageId>SpacePi.Dashboard.API</PackageId>
-        <Version>3.0.0</Version>
-        <Authors>Final Frontier Aerospace Systems and Technology</Authors>
-        <Company>Final Frontier Aerospace Systems and Technology</Company>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
-    <UsingTask TaskName="SpacePi.Dashboard.Build.APIPublishTask" AssemblyFile="$(SolutionDir)\SpacePi.Dashboard.Build\bin\netstandard2.0\SpacePi.Dashboard.Build.dll" />
-    <Target Name="CopyPackage" AfterTargets="Pack">
-        <APIPublishTask BuildDir="$(SolutionDir)" PackageId="$(PackageId)" Version="$(Version)" />
-    </Target>
     <ItemGroup>
         <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
