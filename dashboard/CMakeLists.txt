@@ -18,7 +18,6 @@ file(
 add_subdirectory(SpacePi.Dashboard.WPFMain)
 add_subdirectory(SpacePi.Dashboard.Analyzer)
 add_subdirectory(SpacePi.Dashboard.API)
-add_subdirectory(SpacePi.Dashboard.BuildConfig)
 add_subdirectory(SpacePi.Dashboard.Core)
 add_subdirectory(SpacePi.Dashboard.UWP)
 add_subdirectory(SpacePi.Dashboard.WPF)

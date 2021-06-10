@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Analyzer {
     static class Diagnostics {
