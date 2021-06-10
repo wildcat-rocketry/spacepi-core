@@ -14,7 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SpacePi.Dashboard.API;
 
-namespace SpacePi.Dashboard.WPF {
+namespace SpacePi.Dashboard.Core.WPF {
     public partial class MainWindow : Window {
         private readonly PluginContext Context;
 

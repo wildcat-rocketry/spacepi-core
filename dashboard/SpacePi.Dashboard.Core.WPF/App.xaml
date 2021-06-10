@@ -1,7 +1,7 @@
-﻿<Application x:Class="SpacePi.Dashboard.WPF.App"
+﻿<Application x:Class="SpacePi.Dashboard.Core.WPF.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SpacePi.Dashboard.WPF"
+             xmlns:local="clr-namespace:SpacePi.Dashboard.Core.WPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          
