@@ -8,6 +8,7 @@ package SpacePi.Dashboard.API.Model;
 
 // Details for a single page of settings
 message SettingsPage {
-	string PageName = 1;
-	repeated SettingsGroup Groups = 2;
+    string PageName = 1;
+    repeated SettingsGroup Groups = 2;
+    string ID = 3;
 }
