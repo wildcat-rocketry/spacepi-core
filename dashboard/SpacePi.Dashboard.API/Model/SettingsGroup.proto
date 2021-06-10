@@ -13,4 +13,6 @@ message SettingsGroup {
 	// A repeated instead of map so it can be ordered
 	repeated Setting Settings = 2; // Somehow this should be linked to 
 	                               // a group query of the ProjectSettings
+	
+	string ID = 3;
 }
