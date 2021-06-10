@@ -10,4 +10,5 @@ package SpacePi.Dashboard.API.Model;
 message SettingsPage {
 	string PageName = 1;
 	repeated SettingsGroup Groups = 2;
+	string ID = 3;
 }

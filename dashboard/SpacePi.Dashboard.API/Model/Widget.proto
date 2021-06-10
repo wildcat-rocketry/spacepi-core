@@ -10,4 +10,5 @@ package SpacePi.Dashboard.API.Model;
 message Widget {
 	// All other settings are placed as settings
 	map<string,Setting> Settings = 1;
+	repeated Widget SubWidgets = 2; // Widgets are now a tree of widgets
 }
