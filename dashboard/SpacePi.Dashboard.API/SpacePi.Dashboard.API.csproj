@@ -11,4 +11,7 @@
     <ItemGroup>
         <AdditionalFiles Include="Model/*.proto" />
     </ItemGroup>
+    <ItemGroup>
+        <Compile Include="$(SolutionDir)\SpacePi.Dashboard.API\BuildConfig.cs" Link="BuildConfig.cs" />
+    </ItemGroup>
 </Project>

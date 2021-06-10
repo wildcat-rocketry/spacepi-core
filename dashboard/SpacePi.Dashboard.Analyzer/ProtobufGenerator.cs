@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Analyzer {
     [Generator]

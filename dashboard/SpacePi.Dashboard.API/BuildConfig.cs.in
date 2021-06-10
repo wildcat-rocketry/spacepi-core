@@ -1,6 +1,6 @@
 using System;
 
-namespace SpacePi.Dashboard {
+namespace SpacePi.Dashboard.API {
     public static class BuildConfig {
         public static readonly string CMAKE_BINARY_DIR = "${CMAKE_BINARY_DIR}";
         public static readonly string CMAKE_COMMAND = "${CMAKE_COMMAND}";
