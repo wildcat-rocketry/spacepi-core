@@ -8,6 +8,7 @@ package SpacePi.Dashboard.API.Model;
 
 // The info for a single widget in the grid
 message Widget {
-	// All other settings are placed as settings
-	map<string,Setting> Settings = 1;
+    // All other settings are placed as settings
+    map<string,Setting> Settings = 1;
+    repeated Widget SubWidgets = 2; // Widgets are now a tree of widgets
 }

@@ -5,7 +5,6 @@ import "DataField.proto";
 package SpacePi.Dashboard.API.Model;
 
 message Message {
-	uint32 id = 1;
-	repeated DataField Fields = 2;
-	map<uint64, Message> Messages = 4;
+    uint32 id = 1;
+    repeated DataField Fields = 2;
 }

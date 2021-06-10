@@ -3,12 +3,19 @@
 
 syntax = "proto3";
 
-import "ProjectModel.proto";
 import "SettingsPage.proto";
+import "FieldOptionsExtension.proto";
+import "Widget.proto";
+
+import "google/protobuf/any.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message DashboardModel {
-	repeated SettingsPage GlobalSettings = 2;
-	ProjectModel ProjectModel = 3 [transient=true];
+    repeated SettingsPage GlobalSettings = 1 [(transient)=true];
+    Widget Base = 2;
+    repeated SettingsPage ProjectSettings = 3;
+    map<uint64, Message> Messages = 4;
+
+    google.protobuf.Any mainWindow = 10 [(transient)=true, (className)="System.Object"];
 }
