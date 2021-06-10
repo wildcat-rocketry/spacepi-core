@@ -10,7 +10,4 @@
     <ItemGroup>
         <ProjectReference Include="..\SpacePi.Dashboard.API\SpacePi.Dashboard.API.csproj" />
     </ItemGroup>
-    <ItemGroup>
-        <Page Include="App.xaml" />
-    </ItemGroup>
 </Project>
