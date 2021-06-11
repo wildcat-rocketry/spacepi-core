@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         private readonly IField Field;
 
         public string Name => "Append Item";
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void PerformAction() => Field.Append();
 
