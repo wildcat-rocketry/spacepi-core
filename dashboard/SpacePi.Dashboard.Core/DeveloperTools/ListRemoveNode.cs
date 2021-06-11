@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         private readonly int Index;
 
         public string Name => "Remove Item";
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public void PerformAction() => Field.Remove(Index);
 

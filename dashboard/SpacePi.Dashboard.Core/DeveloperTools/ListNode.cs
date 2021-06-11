@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +12,13 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         private readonly Func<int, IGroupNode> ChildCtor;
         private readonly Action<int, IGroupNode> ChildReloader;
 
-        public string Name { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public string Name { get; }
 
         public IEnumerable<IActionNode> Actions { get; }
 
+        public static readonly PropertyChangedEventArgs SubGroupsChanged = new(nameof(SubGroups));
         public IEnumerable<IGroupNode> SubGroups { get; private set; }
 
         public IEnumerable<IValueNode> Values => Array.Empty<IValueNode>();
@@ -29,17 +33,16 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         public void Reload() => ReloadTo(((IGroupNode[]) SubGroups).Length);
 
         public void FullReload(IField field) {
-            Name = field.Name;
             IGroupNode[] old = (IGroupNode[]) SubGroups;
-            IGroupNode[] @new = old;
             if (field.Count != old.Length) {
-                @new = new IGroupNode[field.Count];
+                IGroupNode[] @new = new IGroupNode[field.Count];
                 old.CopyTo(@new, 0);
                 for (int i = old.Length; i < field.Count; ++i) {
                     @new[i] = ChildCtor(i);
                 }
+                SubGroups = @new;
+                PropertyChanged?.Invoke(this, SubGroupsChanged);
             }
-            SubGroups = @new;
             ReloadTo(Math.Min(field.Count, old.Length));
         }
 
