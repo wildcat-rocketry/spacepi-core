@@ -10,7 +10,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         private readonly EnumOrdinalNode Ordinal;
         private readonly EnumNamedNode Named;
 
-        public override IEnumerable<IGroupNode> SubGroups => Array.Empty<IGroupNode>();
+        public override IEnumerable<IGroupNode> SubGroups => Enumerable.Empty<IGroupNode>();
 
         public override IEnumerable<IValueNode> Values { get; }
 

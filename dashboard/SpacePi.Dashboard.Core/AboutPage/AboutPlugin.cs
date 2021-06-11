@@ -16,7 +16,7 @@ namespace SpacePi.Dashboard.Core.AboutPage {
             foreach (IPlugin plugin in PluginFactory.LoadedPlugins) {
                 Trace.WriteLine(string.Format("{0} v{1}", plugin.Name, plugin.Version));
             }
-            return Array.Empty<object>();
+            return Enumerable.Empty<object>();
         }
 
         public void Load() {
