@@ -10,7 +10,7 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Analyzer {
     [Generator]
-    public class ProtobufGenerator : ISourceGenerator {
+    public class ProtobufGenerator : DebugSourceGenerator {
         public static readonly string BaseOutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/SpacePi.Dashboard.Analyzer/protobuf/";
         public static readonly string BuildLogFilename = "stdout.log";
         public static readonly string ErrorLogFilename = "stderr.log";
@@ -18,7 +18,7 @@ namespace SpacePi.Dashboard.Analyzer {
         public static readonly string PluginBuildLog = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/SpacePi.Dashboard.Analyzer/protobuf/{BuildLogFilename}";
         public static readonly string PluginErrorLog = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/SpacePi.Dashboard.Analyzer/protobuf/{ErrorLogFilename}";
 
-        public void Execute(GeneratorExecutionContext context) {
+        public override void DebugExecute(GeneratorExecutionContext context) {
             string[] files = context.AdditionalFiles
                 .Select(f => f.Path)
                 .Where(f => f.EndsWith(".proto"))
@@ -106,9 +106,6 @@ namespace SpacePi.Dashboard.Analyzer {
             foreach (string file in Directory.GetFiles(dir).Where(f => f.EndsWith(".cs"))) {
                 context.AddSource(Path.GetFileNameWithoutExtension(file), File.ReadAllText(file));
             }
-        }
-
-        public void Initialize(GeneratorInitializationContext context) {
         }
     }
 }
