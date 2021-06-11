@@ -7,10 +7,8 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     [Plugin]
-    public class MainWindowPlugin : IPlugin {
-        public string Name => "SpacePi.Dashboard.Core.WPF.MainWindow";
-
-        public Version Version => AssemblyInfo.Version;
+    public class MainWindowPlugin : CorePlugin, IPlugin {
+        protected override string PluginName => nameof(MainWindow);
 
         public void Load() {
             Thread t = new(() => {

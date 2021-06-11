@@ -8,10 +8,8 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.AboutPage {
     [Plugin]
-    public class AboutPlugin : IPlugin {
-        public string Name => "SpacePi.Dashboard.Core.AboutPage";
-
-        public Version Version => AssemblyInfo.Version;
+    public class AboutPlugin : CorePlugin, IPlugin {
+        protected override string PluginName => nameof(AboutPage);
 
         public IEnumerable<object> RegisterSettings() {
             Trace.WriteLine("Loaded plugins:");

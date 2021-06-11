@@ -9,5 +9,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\SpacePi.Dashboard.API\SpacePi.Dashboard.API.csproj" />
+        <ProjectReference Include="..\SpacePi.Dashboard.Core\SpacePi.Dashboard.Core.csproj" />
     </ItemGroup>
 </Project>
