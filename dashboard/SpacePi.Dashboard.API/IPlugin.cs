@@ -10,7 +10,7 @@ namespace SpacePi.Dashboard.API {
 
         Version Version { get; }
 
-        IEnumerable<object> RegisterSettings() => Array.Empty<object>();
+        IEnumerable<object> RegisterSettings() => Enumerable.Empty<object>();
 
         void Load() { }
 

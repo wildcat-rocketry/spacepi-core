@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
     public interface IPluginInstance : IDisposable {
-        IEnumerable<object> RegisterSettings() => Array.Empty<object>();
+        IEnumerable<object> RegisterSettings() => Enumerable.Empty<object>();
 
-        IEnumerable<INetworkAdapter> RegisterNetworkAdapters() => Array.Empty<INetworkAdapter>();
+        IEnumerable<INetworkAdapter> RegisterNetworkAdapters() => Enumerable.Empty<INetworkAdapter>();
 
-        IEnumerable<IViewComponent> RegisterViewComponents() => Array.Empty<IViewComponent>();
+        IEnumerable<IViewComponent> RegisterViewComponents() => Enumerable.Empty<IViewComponent>();
     }
 }

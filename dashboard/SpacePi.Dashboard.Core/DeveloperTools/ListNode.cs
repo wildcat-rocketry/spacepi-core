@@ -21,7 +21,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         public static readonly PropertyChangedEventArgs SubGroupsChanged = new(nameof(SubGroups));
         public IEnumerable<IGroupNode> SubGroups { get; private set; }
 
-        public IEnumerable<IValueNode> Values => Array.Empty<IValueNode>();
+        public IEnumerable<IValueNode> Values => Enumerable.Empty<IValueNode>();
 
         private void ReloadTo(int stop) {
             IGroupNode[] arr = (IGroupNode[])SubGroups;
