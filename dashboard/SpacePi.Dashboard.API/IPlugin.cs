@@ -10,10 +10,8 @@ namespace SpacePi.Dashboard.API {
 
         Version Version { get; }
 
-        IEnumerable<object> RegisterSettings() => Enumerable.Empty<object>();
-
         void Load() { }
 
-        IPluginInstance NewInstance(object model) => null;
+        IPluginInstance CreateInstance() => null;
     }
 }

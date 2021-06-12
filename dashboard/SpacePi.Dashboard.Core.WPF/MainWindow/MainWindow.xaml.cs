@@ -16,11 +16,11 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     public partial class MainWindow : Window {
-        private readonly PluginContext Context;
+        IContext Context;
 
         public MainWindow() {
+            Context = IPluginFactory.Instance.CreateContext();
             InitializeComponent();
-            Context = new(null);
             Closed += (_, _) => Context.Dispose();
         }
     }
