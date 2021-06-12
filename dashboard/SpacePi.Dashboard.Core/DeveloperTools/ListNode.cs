@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ using SpacePi.Dashboard.API.Model.Reflection;
 
 namespace SpacePi.Dashboard.Core.DeveloperTools {
     class ListNode : IGroupNode, IReloadable {
-        private readonly IField Field;
         private readonly Func<int, IGroupNode> ChildCtor;
         private readonly Action<int, IGroupNode> ChildReloader;
+        private IField Field;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -18,32 +19,67 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public IEnumerable<IActionNode> Actions { get; }
 
-        public static readonly PropertyChangedEventArgs SubGroupsChanged = new(nameof(SubGroups));
         public IEnumerable<IGroupNode> SubGroups { get; private set; }
 
         public IEnumerable<IValueNode> Values => Enumerable.Empty<IValueNode>();
 
-        private void ReloadTo(int stop) {
-            IGroupNode[] arr = (IGroupNode[])SubGroups;
-            for (int i = 0; i < stop; ++i) {
-                ChildReloader(i, arr[i]);
-            }
-        }
-
-        public void Reload() => ReloadTo(((IGroupNode[]) SubGroups).Length);
-
-        public void FullReload(IField field) {
+        private void Reload(int from, int to) {
             IGroupNode[] old = (IGroupNode[]) SubGroups;
-            if (field.Count != old.Length) {
-                IGroupNode[] @new = new IGroupNode[field.Count];
+            if (Field.Count != old.Length) {
+                IGroupNode[] @new = new IGroupNode[Field.Count];
                 old.CopyTo(@new, 0);
-                for (int i = old.Length; i < field.Count; ++i) {
+                for (int i = old.Length; i < Field.Count; ++i) {
                     @new[i] = ChildCtor(i);
                 }
                 SubGroups = @new;
-                PropertyChanged?.Invoke(this, SubGroupsChanged);
+                PropertyChanged?.Invoke(this, IGroupNode.SubGroupsChanged);
+                old = @new;
             }
-            ReloadTo(Math.Min(field.Count, old.Length));
+            for (int i = from; i < to; ++i) {
+                ChildReloader(i, old[i]);
+            }
+        }
+
+        public void Reload() => Reload(0, ((IGroupNode[]) SubGroups).Length);
+
+        public void FullReload(IField field) {
+            Field = field;
+            Reload();
+        }
+
+        private void ModelCollectionChanged(object sender, NotifyCollectionChangedEventArgs e) {
+            int index = e.NewStartingIndex < 0 ? e.OldStartingIndex : e.NewStartingIndex;
+            switch (e.Action) {
+                case NotifyCollectionChangedAction.Add:
+                case NotifyCollectionChangedAction.Remove:
+                    Reload(index < 0 ? 0 : index, Field.Count);
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (index < 0) {
+                        Reload();
+                    } else {
+                        Reload(index, index + e.NewItems.Count);
+                    }
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                case NotifyCollectionChangedAction.Reset:
+                default:
+                    Reload();
+                    break;
+            }
+        }
+
+        public void Dispose() {
+            foreach (IActionNode node in Actions) {
+                node.Dispose();
+            }
+            foreach (IGroupNode node in SubGroups) {
+                node.Dispose();
+            }
+            foreach (IValueNode node in Values) {
+                node.Dispose();
+            }
+            Field.CollectionChanged -= ModelCollectionChanged;
         }
 
         public ListNode(IField field) {
@@ -66,6 +102,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
                 new ListAppendNode(field)
             };
             SubGroups = Enumerable.Range(0, Field.Count).Select(ChildCtor).ToArray();
+            Field.CollectionChanged += ModelCollectionChanged;
         }
     }
 }

@@ -15,6 +15,9 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public void PerformAction() => Obj.Reload();
 
+        public void Dispose() {
+        }
+
         public ReloadNode(string name, IReloadable obj) {
             Obj = obj;
             Name = name;
