@@ -55,6 +55,6 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public Types Type { get; }
 
-        object this[int i] { get; set; }
+        object this[int idx] { get; set; }
     }
 }
