@@ -13,6 +13,18 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public abstract IEnumerable<IValueNode> Values { get; }
 
+        public override void Dispose() {
+            foreach (IActionNode node in Actions) {
+                node.Dispose();
+            }
+            foreach (IGroupNode node in SubGroups) {
+                node.Dispose();
+            }
+            foreach (IValueNode node in Values) {
+                node.Dispose();
+            }
+        }
+
         public ScalarGroupNode(TField field, int index, string reloadName) : base(field, index) {
             Actions = Field.IsList ? new IActionNode[] {
                 new ReloadNode(reloadName, this),

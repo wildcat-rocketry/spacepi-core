@@ -17,6 +17,9 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public void PerformAction() => Field.Remove(Index);
 
+        public void Dispose() {
+        }
+
         public ListRemoveNode(IField field, int index) {
             Field = field;
             Index = index;

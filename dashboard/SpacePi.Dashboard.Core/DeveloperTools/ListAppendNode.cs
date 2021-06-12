@@ -16,6 +16,9 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public void PerformAction() => Field.Append();
 
+        public void Dispose() {
+        }
+
         public ListAppendNode(IField field) => Field = field;
     }
 }
