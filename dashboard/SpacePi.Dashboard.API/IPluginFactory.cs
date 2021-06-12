@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface INetworkAdapter {
-        public string Key { get; }
+    public interface IPluginFactory {
+        IPlugin[] Plugins { get; }
 
-        // TODO
+        IContext CreateContext();
+
+        public static IPluginFactory Instance;
     }
 }

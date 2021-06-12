@@ -7,5 +7,6 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
     record PluginClass {
         public string FQCN;
         public ITypeSymbol Symbol;
+        public int Index;
     }
 }

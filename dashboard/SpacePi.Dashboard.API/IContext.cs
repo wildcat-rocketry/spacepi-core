@@ -5,9 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface IViewComponent {
-        public string Key { get; }
-
-        // TODO
+    public interface IContext : IDisposable {
+        IEnumerable<IPluginInstance> Plugins { get; }
     }
 }

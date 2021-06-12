@@ -11,16 +11,11 @@ namespace SpacePi.Dashboard.Core.AboutPage {
     public class AboutPlugin : CorePlugin, IPlugin {
         protected override string PluginName => nameof(AboutPage);
 
-        public IEnumerable<object> RegisterSettings() {
+        public void Load() {
             Trace.WriteLine("Loaded plugins:");
-            foreach (IPlugin plugin in PluginFactory.LoadedPlugins) {
+            foreach (IPlugin plugin in IPluginFactory.Instance.Plugins) {
                 Trace.WriteLine(string.Format("{0} v{1}", plugin.Name, plugin.Version));
             }
-            return Enumerable.Empty<object>();
-        }
-
-        public void Load() {
-            Trace.WriteLine("Plugin Loaded.");
         }
     }
 }
