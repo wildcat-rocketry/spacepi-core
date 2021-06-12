@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -9,6 +10,7 @@ using SpacePi.Dashboard.Analyzer.Plugin.Model;
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
     class PluginBinder : BufferedPipeline<PluginClass> {
         private readonly List<BoundPlugin> Bindings = new();
+        [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "Bug; Fixed in Microsoft.CodeAnalysis.Analyzers:3.3.3")]
         private readonly Dictionary<ITypeSymbol, PluginClass> Lookup = new(SymbolEqualityComparer.Default);
         private ITypeSymbol BindPluginAttribute;
 

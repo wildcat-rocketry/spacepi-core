@@ -13,7 +13,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public string Name => "Remove Item";
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 
         public void PerformAction() => Field.Remove(Index);
 

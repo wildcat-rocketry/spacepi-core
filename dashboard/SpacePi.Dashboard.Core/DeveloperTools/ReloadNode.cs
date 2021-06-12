@@ -11,7 +11,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public string Name { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged { add { } remove { } }
 
         public void PerformAction() => Obj.Reload();
 
