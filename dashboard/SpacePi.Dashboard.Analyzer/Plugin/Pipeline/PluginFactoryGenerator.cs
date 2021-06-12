@@ -12,7 +12,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Analyzer.Generated {
-    public class PluginFactoryImpl : IPluginFactory {
+    public partial class PluginFactoryImpl : IPluginFactory {
         public IPlugin[] Plugins { get; } = new IPlugin[] {";
 
         protected override string Footer => @"

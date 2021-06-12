@@ -8,5 +8,6 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
         public string FQCN;
         public ITypeSymbol Symbol;
         public int Index;
+        public List<BoundPlugin> BoundPlugins = new();
     }
 }

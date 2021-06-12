@@ -12,7 +12,8 @@ namespace SpacePi.Dashboard.Analyzer.Plugin {
             PipelineGenerator.RunSourcePipeline(context,
                 new PluginDiscoverer() +
                 new PluginIndexer() +
-                (new PluginFactoryGenerator() | new ContextGenerator())
+                new PluginBinder() +
+                (new PluginFactoryGenerator() | new PluginFactoryBindingGenerator() | new ContextGenerator())
             );
         }
     }
