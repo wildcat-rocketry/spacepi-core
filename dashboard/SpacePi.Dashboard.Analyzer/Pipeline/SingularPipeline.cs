@@ -17,4 +17,13 @@ namespace SpacePi.Dashboard.Analyzer.Pipeline {
 
         protected override TOut _Process(TIn @in) => Process(@in);
     }
+
+    abstract class SingularPipeline<Type> : SingularPipelineHelper<Type, Type> {
+        public abstract new void Process(Type @in);
+
+        protected override Type _Process(Type @in) {
+            Process(@in);
+            return @in;
+        }
+    }
 }

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    abstract class PluginBinder<TSource> : Binder<TSource, BoundPlugin<TSource, PluginClass>> {
+    abstract class PluginBinder<TSource, TClass> : Binder<TSource, BoundPlugin<TSource, PluginClass>, TClass> {
         private ITypeSymbol BindPluginAttribute;
 
         public abstract PluginClass GetPlugin(TSource source);
