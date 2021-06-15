@@ -16,6 +16,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Count => 1;
 
+        public int Number { get; }
+
         public IEnum Type { get; }
 
         public int this[int idx] {
@@ -33,8 +35,9 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
-        public ScalarEnumField(string name, IEnum type, Func<int> getter, Action<int> setter) {
+        public ScalarEnumField(string name, int number, IEnum type, Func<int> getter, Action<int> setter) {
             Name = name;
+            Number = number;
             Type = type;
             Getter = getter;
             Setter = setter;

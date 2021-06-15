@@ -16,6 +16,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Count => 1;
 
+        public int Number { get; }
+
         public IPrimitiveField.Types Type { get; }
 
         public object this[int idx] {
@@ -33,8 +35,9 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
-        public ScalarPrimitiveField(string name, IPrimitiveField.Types type, Func<object> getter, Action<object> setter) {
+        public ScalarPrimitiveField(string name, int number, IPrimitiveField.Types type, Func<object> getter, Action<object> setter) {
             Name = name;
+            Number = number;
             Type = type;
             Getter = getter;
             Setter = setter;
