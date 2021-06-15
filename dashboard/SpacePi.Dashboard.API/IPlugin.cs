@@ -5,13 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface IPlugin {
+    public interface IPlugin : IDisposable {
         string Name { get; }
 
         Version Version { get; }
 
         void Load() { }
+    }
 
-        IPluginInstance CreateInstance() => null;
+    public interface IPlugin<TInstance> : IPlugin where TInstance : IPluginInstance {
+        TInstance CreateInstance();
     }
 }
