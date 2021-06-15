@@ -16,6 +16,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Count => 1;
 
+        public int Number { get; }
+
         public IClass this[int idx] {
             get => Getter();
             set => Setter((Type) value);
@@ -31,8 +33,9 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
-        public ScalarClassField(string name, Func<Type> getter, Action<Type> setter) {
+        public ScalarClassField(string name, int number, Func<Type> getter, Action<Type> setter) {
             Name = name;
+            Number = number;
             Getter = getter;
             Setter = setter;
             ChangedEvent = new(NotifyCollectionChangedAction.Replace, this, this, 0);

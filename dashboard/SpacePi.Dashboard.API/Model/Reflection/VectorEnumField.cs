@@ -19,6 +19,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Count => List.Count;
 
+        public int Number { get; }
+
         public int this[int idx] {
             get => ToOrdinal(List[idx]);
             set => List[idx] = FromOrdinal(value);
@@ -55,8 +57,9 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
             CollectionChanged?.Invoke(this, e);
         }
 
-        public VectorEnumField(string name, ObservableCollection<EnumType> list, Func<EnumType, int> toOrdinal, Func<int, EnumType> fromOrdinal) {
+        public VectorEnumField(string name, int number, ObservableCollection<EnumType> list, Func<EnumType, int> toOrdinal, Func<int, EnumType> fromOrdinal) {
             Name = name;
+            Number = number;
             List = list;
             ToOrdinal = toOrdinal;
             FromOrdinal = fromOrdinal;
