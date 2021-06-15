@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface IPluginInstance : IDisposable {
-        void Load() { }
+    public interface IContextFactory : IDisposable {
+        IContext[] Contexts { get; }
     }
 }

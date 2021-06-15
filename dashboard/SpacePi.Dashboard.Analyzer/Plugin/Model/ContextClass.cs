@@ -4,12 +4,12 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
-    record PluginInstance {
+    record ContextClass {
         public PluginClass Parent;
         public string FQCN;
         public ITypeSymbol Symbol;
         public int Index;
-        public List<BoundPlugin<PluginInstance, PluginClass>> BoundPlugins = new();
-        public List<BoundPlugin<PluginInstance, PluginInstance>> BoundInstances = new();
+        public List<BoundPlugin<ContextClass, PluginClass>> BoundPlugins = new();
+        public List<BoundPlugin<ContextClass, ContextClass>> BoundContexts = new();
     }
 }

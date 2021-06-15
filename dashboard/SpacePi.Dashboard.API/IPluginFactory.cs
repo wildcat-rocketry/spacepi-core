@@ -8,7 +8,7 @@ namespace SpacePi.Dashboard.API {
     public interface IPluginFactory {
         IPlugin[] Plugins { get; }
 
-        IContext CreateContext();
+        IContextFactory CreateContext();
 
         public static IPluginFactory Instance;
     }

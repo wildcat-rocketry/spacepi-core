@@ -31,7 +31,7 @@ namespace SpacePi.Dashboard.Core {
         }
     }
 
-    public abstract class CorePlugin<TInstance> : CorePlugin, IPlugin<TInstance> where TInstance : CorePluginInstance, new() {
-        public virtual TInstance CreateInstance() => new();
+    public abstract class CorePlugin<TContext> : CorePlugin, IPlugin<TContext> where TContext : CoreContext, new() {
+        public virtual TContext CreateInstance() => new();
     }
 }
