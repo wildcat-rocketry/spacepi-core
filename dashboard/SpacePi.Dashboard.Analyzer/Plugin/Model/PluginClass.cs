@@ -8,7 +8,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
         public string FQCN;
         public ITypeSymbol Symbol;
         public int Index;
-        public ContextClass[] Instance = Array.Empty<ContextClass>();
+        public ContextClass[] Contexts = Array.Empty<ContextClass>();
         public List<BoundPlugin<PluginClass, PluginClass>> BoundPlugins = new();
     }
 }

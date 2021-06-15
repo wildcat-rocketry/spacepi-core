@@ -33,7 +33,7 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
 ";
 
         protected override void Process(PluginClass plugin, StringBuilder src) {
-            foreach (ContextClass instance in plugin.Instance) {
+            foreach (ContextClass instance in plugin.Contexts) {
                 src.Append($@"
             ((IPlugin<{instance.FQCN}>) factory.Plugins[{instance.Parent.Index}]).CreateInstance(),");
             }
