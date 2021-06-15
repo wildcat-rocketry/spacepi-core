@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.Core.DeveloperTools {
-    public class DeveloperToolsContext : CorePluginInstance {
+    public class DeveloperToolsContext : CoreContext {
     }
 }

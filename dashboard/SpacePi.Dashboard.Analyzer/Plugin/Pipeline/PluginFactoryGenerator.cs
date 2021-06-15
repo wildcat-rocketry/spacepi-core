@@ -18,7 +18,7 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
         protected override string Footer => @"
         };
 
-        public IContext CreateContext() => new ContextImpl();
+        public IContextFactory CreateContext() => new ContextFactoryImpl(this);
     }
 }
 ";

@@ -13,7 +13,7 @@ namespace SpacePi.Dashboard.API {
         void Load() { }
     }
 
-    public interface IPlugin<TInstance> : IPlugin where TInstance : IPluginInstance {
+    public interface IPlugin<TInstance> : IPlugin where TInstance : IContext {
         TInstance CreateInstance();
     }
 }

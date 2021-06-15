@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginInstanceIndexer : PluginPipeline {
+    class ContextIndexer : PluginPipeline {
         private int NextIndex;
 
         public override void Init(GeneratorExecutionContext ctx) {
@@ -13,7 +13,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
         }
 
         public override void Process(PluginClass plugin) {
-            foreach (PluginInstance instance in plugin.Instance) {
+            foreach (ContextClass instance in plugin.Instance) {
                 instance.Index = NextIndex++;
             }
         }

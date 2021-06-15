@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
     public interface IContext : IDisposable {
-        IEnumerable<IPluginInstance> Plugins { get; }
+        void Load() { }
     }
 }
