@@ -21,7 +21,7 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
 ";
 
         protected override void Process(PluginClass plugin, StringBuilder src) {
-            foreach (BoundPlugin binding in plugin.BoundPlugins) {
+            foreach (BoundPlugin<PluginClass, PluginClass> binding in plugin.BoundPlugins) {
                 src.Append($@"
             (({binding.Parent.FQCN}) Plugins[{binding.Parent.Index}]).{binding.FieldName} = ({binding.TargetClass.FQCN}) Plugins[{binding.TargetClass.Index}];");
             }

@@ -1,50 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginBinder : BufferedPipeline<PluginClass> {
-        private readonly List<BoundPlugin> Bindings = new();
-        [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "Bug; Fixed in Microsoft.CodeAnalysis.Analyzers:3.3.3")]
-        private readonly Dictionary<ITypeSymbol, PluginClass> Lookup = new(SymbolEqualityComparer.Default);
+    abstract class PluginBinder<TSource> : Binder<TSource, BoundPlugin<TSource, PluginClass>> {
         private ITypeSymbol BindPluginAttribute;
+
+        public abstract PluginClass GetPlugin(TSource source);
+
+        public abstract void RegisterBinding(TSource source, BoundPlugin<TSource, PluginClass> binding);
+
+        public override ISymbol GetSymbol(BoundPlugin<TSource, PluginClass> binding) => binding.TargetClassSymbol;
+
+        public override void Bind(TSource source, BoundPlugin<TSource, PluginClass> binding) => binding.TargetClass = GetPlugin(source);
 
         public override void Init(GeneratorExecutionContext ctx) {
             base.Init(ctx);
-            Bindings.Clear();
-            Lookup.Clear();
             BindPluginAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.BindPluginAttribute");
         }
 
-        public override void Process(PluginClass plugin) {
-            foreach (ISymbol sym in plugin.Symbol.GetMembers().Where(m => (m.Kind == SymbolKind.Field || m.Kind == SymbolKind.Property)
+        public void ProcessSource(TSource source, ITypeSymbol symbol) {
+            foreach (ISymbol sym in symbol.GetMembers().Where(m => (m.Kind == SymbolKind.Field || m.Kind == SymbolKind.Property)
                 && m.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, BindPluginAttribute))
                 && m.DeclaredAccessibility == Accessibility.Public
                 && !m.IsAbstract
                 && !m.IsStatic
-                && (m.Kind != SymbolKind.Property || !((IPropertySymbol) m).IsReadOnly)
-                && (m.Kind != SymbolKind.Field || !((IFieldSymbol) m).IsReadOnly))) {
-                BoundPlugin binding = new() {
-                    Parent = plugin,
+                && (m.Kind != SymbolKind.Property || !((IPropertySymbol)m).IsReadOnly)
+                && (m.Kind != SymbolKind.Field || !((IFieldSymbol)m).IsReadOnly))) {
+                BoundPlugin<TSource, PluginClass> binding = new() {
+                    Parent = source,
                     FieldName = sym.Name,
-                    TargetClassSymbol = sym.Kind == SymbolKind.Property ? ((IPropertySymbol) sym).Type : ((IFieldSymbol) sym).Type
+                    TargetClassSymbol = sym.Kind == SymbolKind.Property ? ((IPropertySymbol)sym).Type : ((IFieldSymbol)sym).Type
                 };
-                plugin.BoundPlugins.Add(binding);
-                Bindings.Add(binding);
+                RegisterBinding(source, binding);
+                RegisterBinding(binding);
             }
-            Lookup[plugin.Symbol] = plugin;
-        }
-
-        public override IEnumerable<PluginClass> Finish() {
-            foreach (BoundPlugin binding in Bindings) {
-                binding.TargetClass = Lookup[binding.TargetClassSymbol];
-            }
-            return base.Finish();
+            RegisterSource(source, symbol);
         }
     }
 }

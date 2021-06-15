@@ -9,6 +9,7 @@ using SpacePi.Dashboard.API;
 namespace SpacePi.Dashboard.Core {
     public abstract class CorePlugin : IPlugin {
         protected static readonly Version AssemblyVersion = GetAssemblyVersion();
+        private bool Disposed;
 
         protected abstract string PluginName { get; }
 
@@ -17,5 +18,20 @@ namespace SpacePi.Dashboard.Core {
         public Version Version => AssemblyVersion;
 
         protected static Version GetAssemblyVersion() => Assembly.GetCallingAssembly().GetName().Version;
+
+        protected virtual void Dispose(bool disposing) {
+            if (!Disposed) {
+                Disposed = true;
+            }
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
+    public abstract class CorePlugin<TInstance> : CorePlugin, IPlugin<TInstance> where TInstance : CorePluginInstance, new() {
+        public virtual TInstance CreateInstance() => new();
     }
 }

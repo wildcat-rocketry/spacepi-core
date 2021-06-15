@@ -7,7 +7,7 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.DeveloperTools {
     [Plugin]
-    public class DeveloperToolsPlugin : CorePlugin, IPlugin {
+    public class DeveloperToolsPlugin : CorePlugin<DeveloperToolsContext> {
         protected override string PluginName => nameof(DeveloperTools);
     }
 }

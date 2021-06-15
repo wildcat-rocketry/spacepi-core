@@ -11,9 +11,12 @@ namespace SpacePi.Dashboard.Analyzer.Plugin {
         public override void DebugExecute(GeneratorExecutionContext context) {
             PipelineGenerator.RunSourcePipeline(context,
                 new PluginDiscoverer() +
+                new PluginInstanceDiscoverer() +
                 new PluginSorter() +
                 new PluginIndexer() +
-                new PluginBinder() +
+                new PluginInstanceIndexer() +
+                new PluginPluginBinder() +
+                new PluginPluginInstanceBinder() +
                 (new PluginFactoryGenerator() | new PluginFactoryBindingGenerator() | new ContextGenerator())
             );
         }

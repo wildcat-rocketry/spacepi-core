@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API {
-    public interface IPluginInstance : IDisposable {
-        void Load() { }
+namespace SpacePi.Dashboard.Core.DeveloperTools {
+    public class DeveloperToolsContext : CorePluginInstance {
     }
 }

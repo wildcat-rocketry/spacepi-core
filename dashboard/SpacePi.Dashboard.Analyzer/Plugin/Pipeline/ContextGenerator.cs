@@ -21,7 +21,11 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
 }
 ";
 
-        protected override void Process(PluginClass plugin, StringBuilder src) => src.Append($@"
-            IPluginFactory.Instance.Plugins[{plugin.Index}].CreateInstance(),");
+        protected override void Process(PluginClass plugin, StringBuilder src) {
+            foreach (PluginInstance instance in plugin.Instance) {
+                src.Append($@"
+            ((IPlugin<{instance.FQCN}>) IPluginFactory.Instance.Plugins[{instance.Parent.Index}]).CreateInstance(),");
+            }
+        }
     }
 }
