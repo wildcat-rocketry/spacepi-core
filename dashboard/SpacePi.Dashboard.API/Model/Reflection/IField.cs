@@ -13,6 +13,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         int Count { get; }
 
+        int Number { get; }
+
         void Append();
 
         void Remove(int idx);
