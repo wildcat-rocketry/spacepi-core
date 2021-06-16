@@ -10,7 +10,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
     public class ContextDiscoverer : SingularPipeline<PluginClass> {
         private ITypeSymbol IPlugin;
 
-        public override void Init(GeneratorExecutionContext ctx) => IPlugin = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.IPlugin`1");
+        public override void Init(GeneratorExecutionContext ctx) => IPlugin = ctx.Compilation.GetTypeByMetadataName(Types.IPlugin_1);
 
         public override void Process(PluginClass plugin) =>
             plugin.Contexts = plugin.Symbol.AllInterfaces

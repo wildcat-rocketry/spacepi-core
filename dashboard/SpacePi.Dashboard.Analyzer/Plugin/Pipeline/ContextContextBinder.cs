@@ -15,7 +15,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 
         public override void Init(GeneratorExecutionContext ctx) {
             base.Init(ctx);
-            BindContextAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.BindContextAttribute");
+            BindContextAttribute = ctx.Compilation.GetTypeByMetadataName(Types.BindContextAttribute);
         }
 
         public override void Process(ContextClass context) {

@@ -11,7 +11,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin {
     [Generator]
     public class PluginGenerator : DebugSourceGenerator {
         public override void DebugExecute(GeneratorExecutionContext context) {
-            ITypeSymbol GeneratePluginFactoryAttribute = context.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.Startup.GeneratePluginFactoryAttribute");
+            ITypeSymbol GeneratePluginFactoryAttribute = context.Compilation.GetTypeByMetadataName(Types.GeneratePluginFactoryAttribute);
             if (context.Compilation.Assembly.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, GeneratePluginFactoryAttribute))) {
                 PipelineGenerator.RunSourcePipeline(context,
                     new PluginDiscoverer() +
