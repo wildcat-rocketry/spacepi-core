@@ -8,6 +8,7 @@ namespace SpacePi.Dashboard.Analyzer.Pipeline {
         protected abstract TOut _Process(TIn @in);
 
         public override IEnumerable<TOut> Process(TIn @in) {
+            Console.WriteLine("** Other class **");
             yield return _Process(@in);
         }
     }
@@ -22,6 +23,7 @@ namespace SpacePi.Dashboard.Analyzer.Pipeline {
         public abstract new void Process(Type @in);
 
         protected override Type _Process(Type @in) {
+            Console.WriteLine("** Where **");
             Process(@in);
             return @in;
         }

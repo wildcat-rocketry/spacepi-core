@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.Pipeline;
+using SpacePi.Dashboard.Analyzer.Plugin.Model;
 using SpacePi.Dashboard.Analyzer.Plugin.Pipeline;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin {
@@ -17,9 +18,10 @@ namespace SpacePi.Dashboard.Analyzer.Plugin {
                 new ContextDiscoverer() +
                 new ContextBranch(
                     new ContextIndexer() +
-                    new PluginContextBinder()
+                    new PluginContextBinder() +
+                    new ContextContextBinder()
                 ) +
-                (new PluginFactoryGenerator() | new PluginFactoryBindingGenerator() | new ContextFactoryGenerator())
+                (new PluginFactoryGenerator() | new PluginFactoryBindingGenerator() | new ContextFactoryGenerator() | new ContextFactoryBindingGenerator())
             );
         }
     }
