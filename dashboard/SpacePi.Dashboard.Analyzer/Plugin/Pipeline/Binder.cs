@@ -7,7 +7,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    abstract class Binder<TSource, TBinding, TClass> : BufferedPipeline<TClass> {
+    public abstract class Binder<TSource, TBinding, TClass> : BufferedPipeline<TClass> {
         private readonly List<TBinding> Bindings = new();
         [SuppressMessage("MicrosoftCodeAnalysisCorrectness", "RS1024:Compare symbols correctly", Justification = "Bug; Fixed in Microsoft.CodeAnalysis.Analyzers:3.3.3")]
         private readonly Dictionary<ISymbol, TSource> Lookup = new(SymbolEqualityComparer.Default);

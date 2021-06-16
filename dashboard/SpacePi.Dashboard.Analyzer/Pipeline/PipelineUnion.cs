@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Pipeline {
-    class PipelineUnion : GenericPipeline {
+    public class PipelineUnion : GenericPipeline {
         private readonly GenericPipeline First;
         private readonly GenericPipeline Second;
 

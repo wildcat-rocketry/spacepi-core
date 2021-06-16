@@ -7,7 +7,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginSorter : PipelineNode<PluginClass, PluginClass> {
+    public class PluginSorter : PipelineNode<PluginClass, PluginClass> {
         private readonly SortedList<int, List<PluginClass>> Sorter = new();
         private ITypeSymbol PluginAttribute;
 
@@ -16,7 +16,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
             PluginAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.PluginAttribute");
         }
 
-        public override IEnumerable<PluginClass> Process(PluginClass plugin) {
+        public override IEnumerable<PluginClass> ProcessMany(PluginClass plugin) {
             int priority = plugin.Symbol.GetAttributes()
                 .First(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, PluginAttribute))
                 .ConstructorArguments.Select(a => a.Value)

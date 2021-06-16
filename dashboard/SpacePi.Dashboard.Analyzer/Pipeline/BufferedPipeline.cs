@@ -5,29 +5,23 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Pipeline {
-    abstract class BufferedPipelineHelper<Type> : PipelineNode<Type, Type> {
+    public abstract class BufferedPipeline<Type> : PipelineNode<Type, Type> {
         private readonly List<Type> List = new();
 
-        protected abstract void _Process(Type @in);
+        public abstract void Process(Type @in);
 
         public override void Init(GeneratorExecutionContext ctx) {
             List.Clear();
         }
 
-        public override IEnumerable<Type> Process(Type @in) {
+        public override IEnumerable<Type> ProcessMany(Type @in) {
             List.Add(@in);
-            _Process(@in);
+            Process(@in);
             return Enumerable.Empty<Type>();
         }
 
         public override IEnumerable<Type> Finish() {
             return List;
         }
-    }
-
-    abstract class BufferedPipeline<Type> : BufferedPipelineHelper<Type> {
-        public abstract new void Process(Type @in);
-
-        protected override void _Process(Type @in) => Process(@in);
     }
 }

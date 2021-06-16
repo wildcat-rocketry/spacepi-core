@@ -7,7 +7,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class ContextDiscoverer : SingularPipeline<PluginClass> {
+    public class ContextDiscoverer : SingularPipeline<PluginClass> {
         private ITypeSymbol IPlugin;
 
         public override void Init(GeneratorExecutionContext ctx) => IPlugin = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.IPlugin`1");
@@ -18,7 +18,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
                 .Select(i => i.TypeArguments.First())
                 .Select(c => new ContextClass {
                     Parent = plugin,
-                    FQCN = c.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+                    FQCN = c.ToString(),
                     Symbol = c
                 }).ToArray();
     }

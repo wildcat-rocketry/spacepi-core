@@ -4,7 +4,7 @@ using System.Text;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class ContextFactoryGenerator : GeneratorPipeline {
+    public class ContextFactoryGenerator : GeneratorPipeline {
         protected override string FileBaseName => "ContextFactoryImpl";
 
         protected override string Header =>

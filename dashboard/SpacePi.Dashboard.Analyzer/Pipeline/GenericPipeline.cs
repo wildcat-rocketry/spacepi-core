@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Pipeline {
-    abstract class GenericPipeline {
+    public abstract class GenericPipeline {
         public virtual void Init(GeneratorExecutionContext ctx) {
         }
 

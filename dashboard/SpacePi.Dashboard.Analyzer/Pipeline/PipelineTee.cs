@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 
 namespace SpacePi.Dashboard.Analyzer.Pipeline {
-    class PipelineTee : GenericPipeline {
+    public class PipelineTee : GenericPipeline {
         private readonly GenericPipeline[] Pipes;
 
         public override void Init(GeneratorExecutionContext ctx) {

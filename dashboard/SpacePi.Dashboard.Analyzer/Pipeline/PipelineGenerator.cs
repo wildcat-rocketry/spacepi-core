@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Pipeline {
-    static class PipelineGenerator {
+    public static class PipelineGenerator {
         public static IEnumerable<object> RunPipelineGeneric(GeneratorExecutionContext ctx, GenericPipeline pipeline) {
             pipeline.Init(ctx);
             return Enumerable.Range(0, 2).SelectMany(i => i == 0 ? pipeline.ProcessGeneric(new Null()) : pipeline.FinishGeneric());

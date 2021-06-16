@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class ContextContextBinder : Binder<ContextClass, BoundPlugin<ContextClass, ContextClass>, ContextClass> {
+    public class ContextContextBinder : Binder<ContextClass, BoundPlugin<ContextClass, ContextClass>, ContextClass> {
         private ITypeSymbol BindContextAttribute;
 
         public override ISymbol GetSymbol(BoundPlugin<ContextClass, ContextClass> binding) => binding.TargetClassSymbol;

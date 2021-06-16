@@ -4,7 +4,7 @@ using System.Text;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginFactoryGenerator : GeneratorPipeline {
+    public class PluginFactoryGenerator : GeneratorPipeline {
         protected override string FileBaseName => "PluginFactoryImpl";
 
         protected override string Header =>
