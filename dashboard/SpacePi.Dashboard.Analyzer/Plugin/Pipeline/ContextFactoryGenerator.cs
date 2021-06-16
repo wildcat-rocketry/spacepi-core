@@ -12,7 +12,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Analyzer.Generated {
-    public class ContextFactoryImpl : IContextFactory {
+    public partial class ContextFactoryImpl : IContextFactory {
         public IContext[] Contexts { get; }
 
         public void Dispose() {
@@ -27,6 +27,7 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
 
         protected override string Footer => @"
             };
+            Bind(factory);
         }
     }
 }
@@ -35,7 +36,7 @@ namespace SpacePi.Dashboard.Analyzer.Generated {
         protected override void Process(PluginClass plugin, StringBuilder src) {
             foreach (ContextClass instance in plugin.Contexts) {
                 src.Append($@"
-            ((IPlugin<{instance.FQCN}>) factory.Plugins[{instance.Parent.Index}]).CreateInstance(),");
+                ((IPlugin<{instance.FQCN}>) factory.Plugins[{instance.Parent.Index}]).CreateContext(),");
             }
         }
     }
