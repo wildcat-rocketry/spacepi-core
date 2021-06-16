@@ -15,8 +15,8 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
         public override void Init(GeneratorExecutionContext ctx) {
             NamespaceStack = new();
             NamespaceStack.Push(("", ctx.Compilation.GlobalNamespace));
-            PluginAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.PluginAttribute");
-            IPlugin = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.IPlugin");
+            PluginAttribute = ctx.Compilation.GetTypeByMetadataName(Types.PluginAttribute);
+            IPlugin = ctx.Compilation.GetTypeByMetadataName(Types.IPlugin);
         }
 
         public override IEnumerable<PluginClass> ProcessMany(Null @in) {

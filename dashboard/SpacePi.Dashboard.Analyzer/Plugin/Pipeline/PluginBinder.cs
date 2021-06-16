@@ -19,7 +19,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 
         public override void Init(GeneratorExecutionContext ctx) {
             base.Init(ctx);
-            BindPluginAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.BindPluginAttribute");
+            BindPluginAttribute = ctx.Compilation.GetTypeByMetadataName(Types.BindPluginAttribute);
         }
 
         public void ProcessSource(TSource source, ITypeSymbol symbol) {

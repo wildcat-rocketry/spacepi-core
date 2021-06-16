@@ -8,11 +8,11 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
         protected override string FileBaseName => "ContextFactoryImpl.Binding";
 
         protected override string Header =>
-@"using System;
+@$"using System;
 
-namespace SpacePi.Dashboard.Analyzer.Generated {
-    public partial class ContextFactoryImpl {
-        private void Bind(PluginFactoryImpl factory) {";
+namespace {Types.Generated} {{
+    public partial class ContextFactoryImpl {{
+        private void Bind({Types.PluginFactoryImpl} factory) {{";
 
         protected override string Footer => @"
         }

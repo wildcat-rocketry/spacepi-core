@@ -13,7 +13,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 
         public override void Init(GeneratorExecutionContext ctx) {
             Sorter.Clear();
-            PluginAttribute = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.PluginAttribute");
+            PluginAttribute = ctx.Compilation.GetTypeByMetadataName(Types.PluginAttribute);
         }
 
         public override IEnumerable<PluginClass> ProcessMany(PluginClass plugin) {

@@ -8,22 +8,22 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
         protected override string FileBaseName => "ContextFactoryImpl";
 
         protected override string Header =>
-@"using System;
+@$"using System;
 using SpacePi.Dashboard.API;
 
-namespace SpacePi.Dashboard.Analyzer.Generated {
-    public partial class ContextFactoryImpl : IContextFactory {
-        public IContext[] Contexts { get; }
+namespace {Types.Generated} {{
+    public partial class ContextFactoryImpl : IContextFactory {{
+        public IContext[] Contexts {{ get; }}
 
-        public void Dispose() {
-            foreach (IContext context in Contexts) {
+        public void Dispose() {{
+            foreach (IContext context in Contexts) {{
                 context.Dispose();
-            }
+            }}
             GC.SuppressFinalize(this);
-        }
+        }}
 
-        public ContextFactoryImpl(PluginFactoryImpl factory) {
-            Contexts = new IContext[] {";
+        public ContextFactoryImpl({Types.PluginFactoryImpl} factory) {{
+            Contexts = new IContext[] {{";
 
         protected override string Footer => @"
             };
