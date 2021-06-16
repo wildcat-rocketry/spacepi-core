@@ -14,6 +14,6 @@ namespace SpacePi.Dashboard.API {
     }
 
     public interface IPlugin<TInstance> : IPlugin where TInstance : IContext {
-        TInstance CreateInstance();
+        TInstance CreateContext();
     }
 }
