@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -30,6 +30,7 @@ namespace SpacePi.Dashboard.Analyzer {
                         action();
                     } catch (Exception ex) {
                         Console.Error.WriteLine(ex);
+                        throw;
                     } finally {
                         Console.SetError(stderr);
                     }
