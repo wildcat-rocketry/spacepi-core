@@ -16,12 +16,9 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     public partial class MainWindow : Window {
-        IContextFactory Context;
-
-        public MainWindow() {
-            Context = IPluginFactory.Instance.CreateContext();
+        public MainWindow(IContextFactory context) {
             InitializeComponent();
-            Closed += (_, _) => Context.Dispose();
+            Closed += (_, _) => context.Dispose();
         }
     }
 }
