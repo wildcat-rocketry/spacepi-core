@@ -7,7 +7,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    abstract class GeneratorPipeline : PipelineNode<PluginClass, SourceFile> {
+    public abstract class GeneratorPipeline : PipelineNode<PluginClass, SourceFile> {
         private SourceFile File;
         private bool HasPlugins;
 
@@ -27,7 +27,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
             HasPlugins = false;
         }
 
-        public override IEnumerable<SourceFile> Process(PluginClass plugin) {
+        public override IEnumerable<SourceFile> ProcessMany(PluginClass plugin) {
             Process(plugin, File.Contents);
             HasPlugins = true;
             return Enumerable.Empty<SourceFile>();

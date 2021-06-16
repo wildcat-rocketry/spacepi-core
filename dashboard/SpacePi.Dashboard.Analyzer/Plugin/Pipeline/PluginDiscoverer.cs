@@ -7,7 +7,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginDiscoverer : PipelineNode<Null, PluginClass> {
+    public class PluginDiscoverer : PipelineNode<Null, PluginClass> {
         private Stack<(string, INamespaceSymbol)> NamespaceStack;
         private ITypeSymbol PluginAttribute;
         private ITypeSymbol IPlugin;
@@ -19,7 +19,7 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
             IPlugin = ctx.Compilation.GetTypeByMetadataName("SpacePi.Dashboard.API.IPlugin");
         }
 
-        public override IEnumerable<PluginClass> Process(Null @in) {
+        public override IEnumerable<PluginClass> ProcessMany(Null @in) {
             while (NamespaceStack.Count > 0) {
                 (string fqnn, INamespaceSymbol symbol) = NamespaceStack.Pop();
                 foreach (INamespaceSymbol sub in symbol.GetNamespaceMembers()) {

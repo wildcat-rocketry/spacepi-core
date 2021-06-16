@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
-    record PluginClass : DebuggableRecord {
+    public record PluginClass : DebuggableRecord {
         public string FQCN;
         public ITypeSymbol Symbol;
         public int Index;

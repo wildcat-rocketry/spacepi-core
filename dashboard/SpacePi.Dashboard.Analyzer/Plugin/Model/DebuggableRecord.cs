@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Model {
-    record DebuggableRecord {
+    public record DebuggableRecord {
         protected virtual bool PrintMembers(StringBuilder str) => false;
 
         public bool Print(StringBuilder str) {

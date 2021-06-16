@@ -6,7 +6,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PluginIndexer : SingularPipeline<PluginClass> {
+    public class PluginIndexer : SingularPipeline<PluginClass> {
         private int NextIndex;
 
         public override void Init(GeneratorExecutionContext ctx) => NextIndex = 0;

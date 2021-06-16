@@ -5,7 +5,7 @@ using SpacePi.Dashboard.Analyzer.Pipeline;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    class PipelineDebugger<Type> : SingularPipeline<Type> where Type : DebuggableRecord {
+    public class PipelineDebugger<Type> : SingularPipeline<Type> where Type : DebuggableRecord {
         private readonly string Prefix;
         private readonly string Suffix;
         private readonly bool AllowSpace;
