@@ -16,9 +16,10 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     public partial class MainWindow : Window {
-        public MainWindow(IContextFactory context) {
+        public MainWindow(IContextFactory context, UserControl root) {
             InitializeComponent();
             Closed += (_, _) => context.Dispose();
+            RootGrid.Children.Add(root);
         }
     }
 }

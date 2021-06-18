@@ -11,7 +11,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public override void Reload() {
             base.Reload();
-            Reloader();
+            Reloader?.Invoke();
         }
 
         public ScalarClassNode(IClassField field, int index = 0) : base(field, index, "Reload Object") {

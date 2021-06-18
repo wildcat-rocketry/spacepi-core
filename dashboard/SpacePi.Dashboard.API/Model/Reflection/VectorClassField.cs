@@ -5,10 +5,11 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SpacePi.Dashboard.API.Util;
 
 namespace SpacePi.Dashboard.API.Model.Reflection {
     public class VectorClassField<Type> : IClassField where Type : IClass {
-        private readonly ObservableCollection<Type> List;
+        private readonly IList<Type> List;
         private readonly Func<Type> Ctor;
 
         public string Name { get; }
@@ -35,9 +36,9 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
         public VectorClassField(string name, int number, ObservableCollection<Type> list, Func<Type> ctor) {
             Name = name;
             Number = number;
-            List = list;
+            List = new ForgivingList<Type>(list);
             Ctor = ctor;
-            List.CollectionChanged += Changed;
+            list.CollectionChanged += Changed;
         }
     }
 }

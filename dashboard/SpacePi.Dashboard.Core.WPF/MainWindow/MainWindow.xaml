@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SpacePi.Dashboard.Core.WPF.MainWindow"
         mc:Ignorable="d"
         Title="SpacePi Dashboard" Height="450" Width="800">
-    <Grid>
+    <Grid x:Name="RootGrid">
 
     </Grid>
 </Window>

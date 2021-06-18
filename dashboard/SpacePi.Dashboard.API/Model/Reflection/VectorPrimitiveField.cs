@@ -5,10 +5,11 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SpacePi.Dashboard.API.Util;
 
 namespace SpacePi.Dashboard.API.Model.Reflection {
     public class VectorPrimitiveField<PrimType> : IPrimitiveField {
-        private readonly ObservableCollection<PrimType> List;
+        private readonly IList<PrimType> List;
 
         public string Name { get; }
 
@@ -37,8 +38,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
             Name = name;
             Number = number;
             Type = type;
-            List = list;
-            List.CollectionChanged += Changed;
+            List = new ForgivingList<PrimType>(list);
+            list.CollectionChanged += Changed;
         }
     }
 }

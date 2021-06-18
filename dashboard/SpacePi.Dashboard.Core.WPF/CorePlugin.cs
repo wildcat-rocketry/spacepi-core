@@ -19,6 +19,8 @@ namespace SpacePi.Dashboard.Core.WPF {
     }
 
     public abstract class CorePlugin<TContext> : Core.CorePlugin<TContext> where TContext : CoreContext, new() {
+        public override string Name => $"{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Core)}.{nameof(WPF)}.{PluginName}";
+
         static CorePlugin() => CorePlugin.CheckVersion();
     }
 }

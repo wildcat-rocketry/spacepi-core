@@ -8,14 +8,7 @@ using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.DeveloperTools {
     [Plugin]
-    public class DeveloperToolsPlugin : CorePlugin, IPlugin {
+    public class DeveloperToolsPlugin : CorePlugin<DeveloperToolsContext> {
         protected override string PluginName => nameof(DeveloperTools);
-
-        [BindPlugin]
-        public Core.DeveloperTools.DeveloperToolsPlugin CorePlugin;
-
-        public void Load() {
-            Trace.WriteLine($"CorePlugin: {CorePlugin}");
-        }
     }
 }
