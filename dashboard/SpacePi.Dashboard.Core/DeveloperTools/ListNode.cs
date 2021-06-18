@@ -27,7 +27,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
             IGroupNode[] old = (IGroupNode[]) SubGroups;
             if (Field.Count != old.Length) {
                 IGroupNode[] @new = new IGroupNode[Field.Count];
-                old.CopyTo(@new, 0);
+                Array.Copy(old, @new, Math.Min(old.Length, @new.Length));
                 for (int i = old.Length; i < Field.Count; ++i) {
                     @new[i] = ChildCtor(i);
                 }
