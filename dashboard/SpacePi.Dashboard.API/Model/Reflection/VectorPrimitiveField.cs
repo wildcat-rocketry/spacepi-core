@@ -19,6 +19,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
+        public bool Transient { get; }
+
         public IPrimitiveField.Types Type { get; }
 
         public object this[int idx] {
@@ -34,9 +36,10 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         private void Changed(object sender, NotifyCollectionChangedEventArgs e) => CollectionChanged?.Invoke(this, e);
 
-        public VectorPrimitiveField(string name, int number, IPrimitiveField.Types type, ObservableCollection<PrimType> list) {
+        public VectorPrimitiveField(string name, int number, bool transient, IPrimitiveField.Types type, ObservableCollection<PrimType> list) {
             Name = name;
             Number = number;
+            Transient = transient;
             Type = type;
             List = new ForgivingList<PrimType>(list);
             list.CollectionChanged += Changed;

@@ -15,6 +15,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         int Number { get; }
 
+        bool Transient { get; }
+
         void Append();
 
         void Remove(int idx);

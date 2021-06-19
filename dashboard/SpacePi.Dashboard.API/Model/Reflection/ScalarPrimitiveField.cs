@@ -18,6 +18,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
+        public bool Transient { get; }
+
         public IPrimitiveField.Types Type { get; }
 
         public object this[int idx] {
@@ -35,9 +37,10 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
-        public ScalarPrimitiveField(string name, int number, IPrimitiveField.Types type, Func<object> getter, Action<object> setter) {
+        public ScalarPrimitiveField(string name, int number, bool transient, IPrimitiveField.Types type, Func<object> getter, Action<object> setter) {
             Name = name;
             Number = number;
+            Transient = transient;
             Type = type;
             Getter = getter;
             Setter = setter;
