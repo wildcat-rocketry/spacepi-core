@@ -6,16 +6,14 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.Plugin.Model;
 
 namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
-    public abstract class PluginBinder<TSource, TClass> : Binder<TSource, BoundPlugin<TSource, PluginClass>, TClass> {
+    public abstract class PluginBinder<TSource> : Binder<PluginClass, BoundPlugin<TSource, PluginClass>, TSource> {
         private ITypeSymbol BindPluginAttribute;
-
-        public abstract PluginClass GetPlugin(TSource source);
 
         public abstract void RegisterBinding(TSource source, BoundPlugin<TSource, PluginClass> binding);
 
         public override ISymbol GetSymbol(BoundPlugin<TSource, PluginClass> binding) => binding.TargetClassSymbol;
 
-        public override void Bind(TSource source, BoundPlugin<TSource, PluginClass> binding) => binding.TargetClass = GetPlugin(source);
+        public override void Bind(PluginClass source, BoundPlugin<TSource, PluginClass> binding) => binding.TargetClass = source;
 
         public override void Init(GeneratorExecutionContext ctx) {
             base.Init(ctx);
@@ -38,7 +36,6 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
                 RegisterBinding(source, binding);
                 RegisterBinding(binding);
             }
-            RegisterSource(source, symbol);
         }
     }
 }

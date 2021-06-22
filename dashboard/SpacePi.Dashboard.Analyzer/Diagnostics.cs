@@ -20,5 +20,19 @@ namespace SpacePi.Dashboard.Analyzer {
             "SpacePi",
             DiagnosticSeverity.Error,
             true);
+        public static DiagnosticDescriptor UnknownBindingClass = new(
+            "SPI0003",
+            "Unknown binding class",
+            "The binding target class {0} for field {1}.{2} was not found",
+            "SpacePi",
+            DiagnosticSeverity.Error,
+            true);
+        public static DiagnosticDescriptor AnalyzerException = new(
+            "SPI0004",
+            "Analyzer encountered an exception",
+            "Analyzer encountered an exception of type '{0}' with message '{1}'",
+            "SpacePi",
+            DiagnosticSeverity.Error,
+            true);
     }
 }
