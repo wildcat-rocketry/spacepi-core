@@ -1,12 +1,10 @@
-﻿<Window x:Class="SpacePi.Dashboard.Core.WPF.MainWindow.MainWindow"
+﻿<Window x:Class="SpacePi.Dashboard.Core.WPF.DeveloperTools.DeveloperToolsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SpacePi.Dashboard.Core.WPF.MainWindow"
+        xmlns:local="clr-namespace:SpacePi.Dashboard.Core.WPF.DeveloperTools"
         mc:Ignorable="d"
-        Title="SpacePi Dashboard" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="SpacePi Dashboard > Developer Tools" Height="450" Width="800">
+    <local:DeveloperTools />
 </Window>

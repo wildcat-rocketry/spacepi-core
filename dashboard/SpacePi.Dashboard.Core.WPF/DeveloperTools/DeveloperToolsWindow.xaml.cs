@@ -10,15 +10,15 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SpacePi.Dashboard.API;
 
-namespace SpacePi.Dashboard.Core.WPF.MainWindow {
-    public partial class MainWindow : Window {
-        public MainWindow(IContextFactory context) {
+namespace SpacePi.Dashboard.Core.WPF.DeveloperTools {
+    /// <summary>
+    /// Interaction logic for DeveloperToolsWindow.xaml
+    /// </summary>
+    public partial class DeveloperToolsWindow : Window {
+        public DeveloperToolsWindow() {
             InitializeComponent();
-            Closed += (_, _) => context.Dispose();
         }
     }
 }

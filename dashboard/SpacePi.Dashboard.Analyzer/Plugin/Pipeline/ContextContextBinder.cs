@@ -11,6 +11,9 @@ namespace SpacePi.Dashboard.Analyzer.Plugin.Pipeline {
 
         public override ISymbol GetSymbol(BoundPlugin<ContextClass, ContextClass> binding) => binding.TargetClassSymbol;
 
+        public override Diagnostic GenerateMissingDiagnostic(BoundPlugin<ContextClass, ContextClass> binding) =>
+            Diagnostic.Create(Diagnostics.UnknownBindingClass, null, binding.TargetClassSymbol, binding.Parent.Symbol, binding.FieldName);
+
         public override void Bind(ContextClass source, BoundPlugin<ContextClass, ContextClass> binding) => binding.TargetClass = source;
 
         public override void Init(GeneratorExecutionContext ctx) {

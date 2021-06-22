@@ -14,11 +14,11 @@ namespace SpacePi.Dashboard.Analyzer {
         public virtual void DebugInitialize(GeneratorInitializationContext ctx) {
         }
 
-        public virtual void Execute(GeneratorExecutionContext ctx) => DebugAction(nameof(Execute), () => DebugExecute(ctx));
+        public virtual void Execute(GeneratorExecutionContext ctx) => DebugAction(nameof(Execute), ctx, () => DebugExecute(ctx));
 
-        public void Initialize(GeneratorInitializationContext ctx) => DebugAction(nameof(Initialize), () => DebugInitialize(ctx));
+        public void Initialize(GeneratorInitializationContext ctx) => DebugAction(nameof(Initialize), null, () => DebugInitialize(ctx));
 
-        protected void DebugAction(string name, Action action) {
+        protected void DebugAction(string name, GeneratorExecutionContext? ctx, Action action) {
             using StringWriter log = new();
             try {
                 TextWriter stdout = Console.Out;
@@ -30,7 +30,9 @@ namespace SpacePi.Dashboard.Analyzer {
                         action();
                     } catch (Exception ex) {
                         Console.Error.WriteLine(ex);
-                        throw;
+                        if (ctx != null) {
+                            ctx.Value.ReportDiagnostic(Diagnostic.Create(Diagnostics.AnalyzerException, null, ex.GetType().Name, ex.Message));
+                        }
                     } finally {
                         Console.SetError(stderr);
                     }
