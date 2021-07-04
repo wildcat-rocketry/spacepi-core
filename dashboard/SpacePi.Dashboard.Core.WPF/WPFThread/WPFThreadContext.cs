@@ -5,18 +5,23 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using SpacePi.Dashboard.API;
-using SpacePi.Dashboard.API.Startup;
 
 namespace SpacePi.Dashboard.Core.WPF.WPFThread {
     public class WPFThreadContext : CoreContext, IContext {
         [BindContext]
-        public StartupContext Startup;
+        public IEnumerable<IGraphicsLoader> GraphicsLoaders { get; set; }
+
+        [BindContext]
+        public IEnumerable<IWindowFactory<Window>> WindowFactories { get; set; }
 
         [BindPlugin]
-        public WPFThreadPlugin Plugin;
+        public WPFThreadPlugin Plugin { get; set; }
 
         public void Load() => Plugin.App.Dispatcher.Invoke(() => {
-            foreach (IWindowFactory<Window> win in Startup.ContextFactory.Contexts.OfType<IWindowFactory<Window>>()) {
+            foreach (IGraphicsLoader loader in GraphicsLoaders) {
+                loader.LoadGraphics();
+            }
+            foreach (IWindowFactory<Window> win in WindowFactories) {
                 win.CreateWindow().Show();
             }
         });

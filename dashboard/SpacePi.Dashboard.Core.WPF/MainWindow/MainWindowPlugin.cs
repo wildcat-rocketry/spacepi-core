@@ -5,7 +5,7 @@ using System.Text;
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
-    [Plugin]
+    [Plugin(1000010)]
     public class MainWindowPlugin : CorePlugin<MainWindowContext> {
         protected override string PluginName => nameof(MainWindow);
     }

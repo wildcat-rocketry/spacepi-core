@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.DeveloperTools {
-    [Plugin]
+    [Plugin(210)]
     public class DeveloperToolsPlugin : CorePlugin<DeveloperToolsContext> {
         protected override string PluginName => nameof(DeveloperTools);
     }

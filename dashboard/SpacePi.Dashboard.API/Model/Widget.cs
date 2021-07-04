@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API {
-    public interface IPluginFactory : IPlugin {
-        void CreateContext();
+namespace SpacePi.Dashboard.API.Model {
+    public class Widget {
     }
 }
