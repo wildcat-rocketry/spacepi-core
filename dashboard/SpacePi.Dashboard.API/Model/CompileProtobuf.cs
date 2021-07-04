@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SpacePi.Dashboard.API;
 
-namespace SpacePi.Dashboard.API {
-    public interface IPluginFactory : IPlugin {
-        void CreateContext();
-    }
-}
+[assembly: CompileProtobuf]

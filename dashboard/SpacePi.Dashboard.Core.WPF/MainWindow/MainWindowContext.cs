@@ -6,13 +6,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using SpacePi.Dashboard.API;
-using SpacePi.Dashboard.API.Startup;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     public class MainWindowContext : CoreContext, IWindowFactory<Window> {
         [BindContext]
-        public StartupContext Startup;
+        public IEnumerable<IContext> Contexts { get; set; }
 
-        public Window CreateWindow() => new MainWindow(Startup.ContextFactory);
+        [BindContext]
+        public Core.MainWindow.MainWindowContext Core { get; set; }
+
+        public Window CreateWindow() => new MainWindow(Contexts) {
+            DataContext = Core
+        };
     }
 }

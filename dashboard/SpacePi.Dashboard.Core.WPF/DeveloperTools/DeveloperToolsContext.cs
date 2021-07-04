@@ -10,7 +10,7 @@ using SpacePi.Dashboard.API;
 namespace SpacePi.Dashboard.Core.WPF.DeveloperTools {
     public class DeveloperToolsContext : CoreContext, IWindowFactory<Window> {
         [BindContext]
-        public Core.DeveloperTools.DeveloperToolsContext Core;
+        public Core.DeveloperTools.DeveloperToolsContext Core { get; set; }
 
         public DeveloperToolsWindow Window;
 
