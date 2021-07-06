@@ -13,9 +13,8 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
         /// Stream a UInt64 into the stream
         /// </summary>
         /// <param name="number"></param>
-        public static void ToBase128(UInt64 number, Stream stream)
+        public static void ToBase128(ulong number, Stream stream)
         {
-            List<byte> bytes = new List<byte>();
             while (number > 0)
             {
                 byte newValue = (byte)(number & 0x7F);
@@ -27,25 +26,28 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                     newValue |= 0x80; 
                 }
 
-                bytes.Add(newValue);
+                stream.WriteByte(newValue);
             }
-
-            stream.Write(bytes.ToArray(), 0, bytes.Count);
         }
 
-        public static void ToBase128(Int64 number, Stream stream)
+        public static void ToBase128(long number, Stream stream)
         {
-            ToBase128((UInt64)number, stream); // Not perfect, negative numbers can get very long
+            ToBase128((ulong)((number<<1) ^ (number>>63)), stream); // Not perfect, negative numbers can get very long
             return;
         }
 
-        public static UInt64 FromBase128(byte[] bytes, int maxLength = 10)
+        public static ulong FromBase128(Stream stream)
         {
-            UInt64 newNumber = 0;
-            for(int i = 0; i < maxLength; i++)
+            ulong newNumber = 0;
+            
+            for(int i = 0; i < 10; i++) // The max size of a varint is 10
             {
-                byte cur_byte = bytes[i];
-                newNumber |= ((cur_byte & (UInt64)0x7F) << (i * 7));
+                int int_stream_return = stream.ReadByte();
+                if (int_stream_return < 1) break; // gracefully hit end of stream
+
+                byte cur_byte = (byte)int_stream_return;
+
+                newNumber |= ((cur_byte & (ulong)0x7F) << (i * 7));
                 if((cur_byte & 0x80) == 0)
                 {
                     break; // That was the last one
@@ -55,9 +57,14 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             return newNumber;
         }
 
-        public static Int64 FromBase128Signed(byte[] bytes, int maxLength = 10)
+        public static long FromBase128Signed(Stream stream)
         {
-            return (Int64)FromBase128(bytes, maxLength);
+            long num = (long)FromBase128(stream);
+            if((num & 0x01) != 0)
+            {
+                num ^= -1;
+            }
+            return num >> 1;
         }
 
         public static void Serialize(this IObject obj, Stream stream) => throw new NotImplementedException();
