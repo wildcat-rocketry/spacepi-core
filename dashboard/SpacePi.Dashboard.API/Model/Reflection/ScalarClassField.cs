@@ -18,7 +18,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
-        public bool Transient { get; }
+        public bool IsTransient { get; }
 
         public IClass this[int idx] {
             get => Getter();
@@ -38,7 +38,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
         public ScalarClassField(string name, int number, bool transient, Func<Type> getter, Action<Type> setter) {
             Name = name;
             Number = number;
-            Transient = transient;
+            IsTransient = transient;
             Getter = getter;
             Setter = setter;
             ChangedEvent = new(NotifyCollectionChangedAction.Replace, this, this, 0);
