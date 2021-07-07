@@ -22,7 +22,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
-        public bool Transient { get; }
+        public bool IsTransient { get; }
 
         public int this[int idx] {
             get => ToOrdinal(List[idx]);
@@ -63,7 +63,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
         public VectorEnumField(string name, int number, bool transient, ObservableCollection<EnumType> list, Func<EnumType, int> toOrdinal, Func<int, EnumType> fromOrdinal) {
             Name = name;
             Number = number;
-            Transient = transient;
+            IsTransient = transient;
             List = new ForgivingList<EnumType>(list);
             ToOrdinal = toOrdinal;
             FromOrdinal = fromOrdinal;

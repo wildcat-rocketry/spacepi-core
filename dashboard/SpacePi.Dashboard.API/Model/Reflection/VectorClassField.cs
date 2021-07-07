@@ -20,7 +20,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
-        public bool Transient { get; }
+        public bool IsTransient { get; }
 
         public IClass this[int idx] {
             get => List[idx];
@@ -38,7 +38,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
         public VectorClassField(string name, int number, bool transient, ObservableCollection<Type> list, Func<Type> ctor) {
             Name = name;
             Number = number;
-            Transient = transient;
+            IsTransient = transient;
             List = new ForgivingList<Type>(list);
             Ctor = ctor;
             list.CollectionChanged += Changed;

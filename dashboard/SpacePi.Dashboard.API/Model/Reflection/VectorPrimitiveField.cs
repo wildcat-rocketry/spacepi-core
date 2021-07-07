@@ -19,7 +19,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int Number { get; }
 
-        public bool Transient { get; }
+        public bool IsTransient { get; }
 
         public IPrimitiveField.Types Type { get; }
 
@@ -39,7 +39,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
         public VectorPrimitiveField(string name, int number, bool transient, IPrimitiveField.Types type, ObservableCollection<PrimType> list) {
             Name = name;
             Number = number;
-            Transient = transient;
+            IsTransient = transient;
             Type = type;
             List = new ForgivingList<PrimType>(list);
             list.CollectionChanged += Changed;

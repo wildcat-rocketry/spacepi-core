@@ -15,7 +15,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         int Number { get; }
 
-        bool Transient { get; }
+        bool IsTransient { get; }
 
         void Append();
 
