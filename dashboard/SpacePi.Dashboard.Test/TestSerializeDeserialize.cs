@@ -7,39 +7,30 @@ using System.IO;
 using Xunit;
 
 using SpacePi.Dashboard.API.Model.Serialization;
+using SpacePi.Dashboard.API.Model.Reflection;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
-        [Fact]
-        public void SimpleVarintEncode() {
-            MemoryStream memStream = new MemoryStream(4);
-            ModelSerializer.ToBase128((ulong)1, memStream);
-            Assert.Equal(1, memStream.Position);
-            memStream.Position = 0;
-            int firstByte = memStream.ReadByte();
-            Assert.True(firstByte == 0x01);
+        private void VerifyStream(Stream stream, byte[] bytes)
+        {
+            foreach (byte b in bytes)
+            {
+                Assert.Equal(b, stream.ReadByte());
+            }
         }
 
-        [Fact]
-        public void SlightlyMoreComplexVarintEncode() {
-            MemoryStream memStream = new MemoryStream(4);
-            ModelSerializer.ToBase128((ulong)300, memStream);
-            Assert.Equal(2, memStream.Position);
-            memStream.Position = 0;
-            Assert.Equal(0b10101100, memStream.ReadByte());
-            Assert.Equal(0b00000010, memStream.ReadByte());
-        }
+        [Theory]
+        [InlineData(1, new byte[] { 0x01 })]
+        [InlineData(300, new byte[] { 0b10101100, 0b00000010 })]
+        [InlineData(12345678, new byte[] { 0b11001110, 0b11000010, 0b11110001, 0b00000101 })]
 
-        [Fact]
-        public void MuchMoreComplexVarintEncode() {
-            MemoryStream memStream = new MemoryStream(8);
-            ModelSerializer.ToBase128((ulong)12345678, memStream);
-            Assert.Equal(4, memStream.Position);
+        public void UnsignedVarintEncode(ulong num, byte[] bytes) {
+            MemoryStream memStream = new MemoryStream(10);
+            Varint.ToBase128(num, memStream);
+            Assert.Equal(bytes.Length, memStream.Position);
             memStream.Position = 0;
-            Assert.Equal(0b11001110, memStream.ReadByte());
-            Assert.Equal(0b11000010, memStream.ReadByte());
-            Assert.Equal(0b11110001, memStream.ReadByte());
-            Assert.Equal(0b00000101, memStream.ReadByte());
+            VerifyStream(memStream, bytes);
+            memStream.Close();
         }
 
         [Fact]
@@ -48,17 +39,18 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream memStream = new MemoryStream(1);
             memStream.WriteByte(0b00000001);
             memStream.Seek(0, SeekOrigin.Begin);
-            Assert.Equal(1, (long)ModelSerializer.FromBase128(memStream));
+            Assert.Equal(1, (long)Varint.FromBase128(memStream));
         }
 
-        [Fact]
-        public void SlightlyMoreComplexVarintDecode()
+        [Theory]
+        [InlineData(new byte[] { 0b00000001 }, 1)]
+        [InlineData(new byte[] { 0b10101100, 0b00000010 }, 300)]
+        public void UnsignedVarintDecode(byte[] bytes, ulong num)
         {
-            MemoryStream memStream = new MemoryStream(2);
-            memStream.WriteByte(0b10101100);
-            memStream.WriteByte(0b00000010);
+            MemoryStream memStream = new MemoryStream(10);
+            memStream.Write(bytes, 0, bytes.Length);
             memStream.Seek(0, SeekOrigin.Begin);
-            Assert.Equal(300, (long)ModelSerializer.FromBase128(memStream));
+            Assert.Equal(num, Varint.FromBase128(memStream));
         }
 
         [Fact]
@@ -67,7 +59,7 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream memStream = new MemoryStream(10);
             memStream.WriteByte(0b00000001);
             memStream.Seek(0, SeekOrigin.Begin);
-            Assert.Equal(-1, ModelSerializer.FromBase128Signed(memStream));
+            Assert.Equal(-1, Varint.FromBase128Signed(memStream));
         }
 
         [Theory]
@@ -79,9 +71,59 @@ namespace SpacePi.Dashboard.Test {
         public void NegativeVarint(long testVal)
         {
             MemoryStream memStream = new MemoryStream(12);
-            ModelSerializer.ToBase128(testVal, memStream);
+            Varint.ToBase128(testVal, memStream);
             memStream.Seek(0, SeekOrigin.Begin);
-            Assert.Equal(testVal, ModelSerializer.FromBase128Signed(memStream));
+            Assert.Equal(testVal, Varint.FromBase128Signed(memStream));
+        }
+
+        public static IEnumerable<object[]> GetObjectSerializeData()
+        {
+            yield return new object[] {
+                new TestObject(
+                    new ModelClass("Test1", new IField[] {
+                        new ScalarPrimitiveField("a", 1, false, IPrimitiveField.Types.Uint32, ()=>{ return (uint)150; }, (tmp)=>{ })
+                    })
+                ),
+                new byte[] { 0x08, 0x96, 0x01 }
+            };
+            yield return new object[] {
+                new TestObject(
+                    new ModelClass("Test1", new IField[] {
+                        new ScalarClassField<ModelClass> ("name", 1, false, ()=>{
+                                return new ModelClass("NameMessage", new IField[] {
+                                    new ScalarPrimitiveField("length", 1, false, IPrimitiveField.Types.Uint32, ()=>{ return (uint)1; }, (tmp)=>{ })
+                                });
+                            }, (tmp)=>{ })
+                    })
+                ),
+                new byte[] { 0x0a, 0x02, 0x08, 0x01 }
+            };
+
+        }
+
+        [Theory]
+        [MemberData(nameof(GetObjectSerializeData))]
+        public void SimpleObjectSerialize(TestObject testObject, byte[] bytes)
+        {
+            /* Representation of:
+             *     message Test1 {
+             *         int32 a = 1; // Value of 150
+             *     }
+             */
+            MemoryStream stream = new MemoryStream(32);
+            testObject.Serialize(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            VerifyStream(stream, bytes);
+            stream.Close();
+        }
+
+        public class TestObject : IObject
+        {
+            public TestObject(ModelClass modelClass){
+                Reflection = modelClass;
+            }
+
+            public IClass Reflection { get; private set; }
         }
     }
 }
