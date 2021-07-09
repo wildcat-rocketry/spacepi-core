@@ -94,7 +94,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                         GrowingStream growingStream = new();
                         SerializeClass(classField[i], growingStream);
                         stream.AddFieldInfo(classField.Number, WireType.LENGTH_DELIMITED);
-                        Varint.ToBase128(growingStream.Length, stream);
+                        Varint.ToBase128((ulong)growingStream.Length, stream);
                         growingStream.Position = 0;
                         growingStream.CopyTo(stream);
                         growingStream.Close();
@@ -139,11 +139,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             set {
                 if (value < 0) Position = 0;
 
-                if(value < Length)
-                {
-                    _array_i = value / _buffer_length;
-                    _byte_i = value - _array_i * _buffer_length;
-                } else
+                if(value > Length)
                 {
                     long _num_array = (value / _buffer_length) + 1;
                     for(long i = data.Count; i < _num_array; i++)
@@ -152,6 +148,9 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                     }
                     _byte_count = value - (_num_array - 1) * _buffer_length;
                 }
+
+                _array_i = value / _buffer_length;
+                _byte_i = value - _array_i * _buffer_length;
             }
         }
 
