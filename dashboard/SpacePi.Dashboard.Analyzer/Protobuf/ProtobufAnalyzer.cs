@@ -7,13 +7,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
-using SpacePi.Dashboard.API;
+using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Protobuf {
-    public class ProtobufAnalyzer : Analyzer {
+    public class ProtobufAnalyzer {
+        private readonly Compilation Compilation;
+        private readonly Diagnostics Diagnostics;
         private readonly IEnumerable<BuildConfiguration> Configs;
 
-        private void ParseDiagnostic(Diag diag, string line, IEnumerable<string> files) {
+        private void ParseDiagnostic(Diagnostics.Type diag, string line, IEnumerable<string> files) {
             string[] parts = line.Split(new[] { ':' }, 2);
             string file = files.FirstOrDefault(f => f.EndsWith(parts[0]));
             Location loc = null;
@@ -35,10 +37,10 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 LinePosition pos = new(lineNo - 1, colNo - 1);
                 loc = Location.Create(file, new TextSpan(), new LinePositionSpan(pos, pos));
             }
-            ReportDiagnostic(diag.Create(loc, line));
+            diag.Report(loc, line);
         }
 
-        private bool SpawnProcess(string filename, string args, string path, IEnumerable<string> files, Diag stdoutDiag, Diag stderrDiag) {
+        private bool SpawnProcess(string filename, string args, string path, IEnumerable<string> files, Diagnostics.Type stdoutDiag, Diagnostics.Type stderrDiag) {
             ProcessStartInfo psi = new() {
                 Arguments = args,
                 CreateNoWindow = true,
@@ -95,7 +97,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
-        public IEnumerable<Diagnostic> CompileFiles(IEnumerable<AdditionalText> files) => RunWithDiagnostics(() => {
+        public void CompileFiles(IEnumerable<AdditionalText> files) {
             string[] paths = files.Select(f => f.Path).Where(f => f.EndsWith(".proto")).ToArray();
             if (paths.Length == 0) {
                 return;
@@ -113,6 +115,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             foreach (KeyValuePair<BuildConfiguration, List<string>> config in builds.Where(c => c.Value.Any())) {
                 if (NeedsRebuild(config.Key, config.Value)) {
                     if (!hasBuiltPlugin) {
+                        hasBuiltPlugin = true;
                         BuildPlugin();
                     }
                     if (!File.Exists(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE)) {
@@ -121,7 +124,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                     Build(config.Key, config.Value);
                 }
             }
-        });
+        }
 
         public void Clean() {
             foreach (BuildConfiguration config in Configs) {
@@ -148,9 +151,11 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
-        public ProtobufAnalyzer(Compilation compilation) : base(compilation) {
-            INamedTypeSymbol CompileProtobufAttribute = ResolveType(Types.CompileProtobufAttribute);
-            Configs = compilation.Assembly.GetAttributes()
+        public ProtobufAnalyzer(Compilation comp, Diagnostics diags) {
+            Compilation = comp;
+            Diagnostics = diags;
+            INamedTypeSymbol CompileProtobufAttribute = typeof(CompileProtobufAttribute).InCompilation(comp, diags);
+            Configs = comp.Assembly.GetAttributes()
                 .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, CompileProtobufAttribute))
                 .Select(a => new BuildConfiguration(a))
                 .OrderByDescending(c => c.SourceDir.Length);

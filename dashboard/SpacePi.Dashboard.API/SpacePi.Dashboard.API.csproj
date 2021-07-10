@@ -3,6 +3,7 @@
         <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
     <ItemGroup>
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer.API\SpacePi.Dashboard.Analyzer.API.csproj" />
         <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
     <ItemGroup>
@@ -10,8 +11,5 @@
     </ItemGroup>
     <ItemGroup>
         <AdditionalFiles Include="Model/*.proto" />
-    </ItemGroup>
-    <ItemGroup>
-        <Compile Include="$(SolutionDir)\SpacePi.Dashboard.API\BuildConfig.cs" Link="BuildConfig.cs" />
     </ItemGroup>
 </Project>
