@@ -2,24 +2,23 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Microsoft.CodeAnalysis;
-using SpacePi.Dashboard.API;
+using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer {
     public class DebugLog : StringWriter {
-        private static readonly string BaseDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Dashboard.Analyzer)}/{nameof(DebugLog)}";
+        private static readonly string BaseDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Analyzer)}/{nameof(DebugLog)}";
         private readonly string FileName;
+        private readonly Diagnostics Diagnostics;
         private readonly TextWriter StdOut;
         private readonly TextWriter StdErr;
 
-        public Diagnostic CatchAll(Action action) {
+        public void CatchAll(Action action) {
             try {
                 action();
             } catch (Exception ex) {
                 Console.Error.WriteLine(ex);
-                return Diagnostics.AnalyzerException.Create(ex.GetType().Name, ex.Message);
+                Diagnostics.AnalyzerException.Report(ex.GetType().Name, ex.Message);
             }
-            return null;
         }
 
         protected override void Dispose(bool disposing) {
@@ -35,8 +34,9 @@ namespace SpacePi.Dashboard.Analyzer {
             base.Dispose(disposing);
         }
         
-        public DebugLog(string filename) {
+        public DebugLog(string filename, Diagnostics diagnostics) {
             FileName = filename;
+            Diagnostics = diagnostics;
             StdOut = Console.Out;
             StdErr = Console.Error;
             Console.SetOut(this);

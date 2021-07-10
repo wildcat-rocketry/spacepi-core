@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Microsoft.CodeAnalysis;
-using SpacePi.Dashboard.API;
+using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Protobuf {
     public class BuildConfiguration {
@@ -21,7 +21,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
 
         public BuildConfiguration(AttributeData attr) {
             SourceDir = Path.GetDirectoryName(attr.ApplicationSyntaxReference.SyntaxTree.FilePath);
-            OutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Dashboard.Analyzer)}/{nameof(Protobuf)}/{SourceDir.Substring(BuildConfig.CMAKE_SOURCE_DIR.Length + 1)}";
+            OutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Analyzer)}/{nameof(Protobuf)}/{SourceDir.Substring(BuildConfig.CMAKE_SOURCE_DIR.Length + 1)}";
             StampFile = $"{OutputDir}/.stamp";
         }
     }

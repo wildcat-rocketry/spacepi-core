@@ -6,10 +6,10 @@ using Microsoft.CodeAnalysis;
 namespace SpacePi.Dashboard.Analyzer.Protobuf {
     [Generator]
     public class ProtobufSourceGenerator : SourceGenerator {
-        protected override IEnumerable<IEnumerable<Diagnostic>> Generate(GeneratorExecutionContext ctx) {
-            ProtobufAnalyzer analyzer = new(ctx.Compilation);
+        protected override void Generate(GeneratorExecutionContext ctx, Diagnostics diags) {
+            ProtobufAnalyzer analyzer = new(ctx.Compilation, diags);
             analyzer.Clean();
-            yield return analyzer.CompileFiles(ctx.AdditionalFiles);
+            analyzer.CompileFiles(ctx.AdditionalFiles);
             analyzer.GenerateSources(ctx);
         }
     }

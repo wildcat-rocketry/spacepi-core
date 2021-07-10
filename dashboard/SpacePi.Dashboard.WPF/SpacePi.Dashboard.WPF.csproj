@@ -11,5 +11,5 @@
     <ItemGroup>
         <Content Include="Images\Icon.ico" />
     </ItemGroup>
-    <Import Project="$(SolutionDir)\SpacePi.Dashboard.WPF\SpacePi.Dashboard.WPF.props" />
+    <Import Project="$(SolutionDir)\SpacePi.Dashboard.WPF\SpacePi.Dashboard.WPF.items" />
 </Project>

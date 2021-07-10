@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API {
+namespace SpacePi.Dashboard.Analyzer.API {
     [AttributeUsage(AttributeTargets.Assembly)]
     public class CompileProtobufAttribute : Attribute {
     }

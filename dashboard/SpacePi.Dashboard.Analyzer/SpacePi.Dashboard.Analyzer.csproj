@@ -7,7 +7,12 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" PrivateAssets="all" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.9.0" PrivateAssets="all" />
     </ItemGroup>
+    <ItemDefinitionGroup>
+        <AnalyzerAPI SourceDir="..\SpacePi.Dashboard.Analyzer.API\" />
+    </ItemDefinitionGroup>
+    <Import Project="..\SpacePi.Dashboard.Analyzer.API\SpacePi.Dashboard.Analyzer.API.items" />
     <ItemGroup>
-        <Compile Include="$(SolutionDir)\SpacePi.Dashboard.API\BuildConfig.cs" />
+        <AnalyzerAPI2 Include="@(AnalyzerAPI)" SourceDir="%(SourceDir)" Identity2="%(Identity)" />
+        <Compile Include="@(AnalyzerAPI2->'%(SourceDir)%(Identity)')" Link="API\%(Identity2)" />
     </ItemGroup>
 </Project>
