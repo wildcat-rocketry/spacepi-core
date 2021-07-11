@@ -8,11 +8,25 @@ using Xunit;
 
 using SpacePi.Dashboard.API.Model.Serialization;
 using SpacePi.Dashboard.API.Model.Reflection;
+using System.Collections.ObjectModel;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
-        private void VerifyStream(Stream stream, byte[] bytes)
+        private static IEnumerable<T> RepeatList<T>(IEnumerable<T> to_repeat, int count)
         {
+            for(int i = 0; i < count; i++)
+            {
+                foreach (T val in to_repeat)
+                {
+                    yield return val;
+                }
+            }
+        }
+
+        private static void VerifyStream(Stream stream, IEnumerable<byte> bytes)
+        {
+            Assert.Equal(bytes.Count(), stream.Length);
+
             foreach (byte b in bytes)
             {
                 Assert.Equal(b, stream.ReadByte());
@@ -99,11 +113,24 @@ namespace SpacePi.Dashboard.Test {
                 new byte[] { 0x0a, 0x02, 0x08, 0x01 }
             };
 
+            yield return new object[] {
+                new TestObject(
+                    new ModelClass("RepeatedTest", new IField[] {
+                        new ScalarClassField<ModelClass> ("data", 1, false, ()=>{
+                                return new ModelClass("DataMessage", new IField[] {
+                                    new VectorPrimitiveField<uint>("data", 1, false, IPrimitiveField.Types.Uint32, new ObservableCollection<uint>(Enumerable.Repeat((uint)1, 100)))
+                                });
+                            }, (tmp)=>{ })
+                    })
+                ),
+                Enumerable.Concat(new byte[] { 0x0a, 0b11001000, 0b00000001}, RepeatList(new byte[] { 0x08, 0x01 }, 100))
+            };
+
         }
 
         [Theory]
         [MemberData(nameof(GetObjectSerializeData))]
-        public void SimpleObjectSerialize(TestObject testObject, byte[] bytes)
+        public void SimpleObjectSerialize(TestObject testObject, IEnumerable<byte> bytes)
         {
             /* Representation of:
              *     message Test1 {
