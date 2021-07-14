@@ -30,9 +30,14 @@ namespace SpacePi.Dashboard.API.Model.Serialization
             }
         }
 
+        private static ulong SignedConversion(long number)
+        {
+            return (ulong)((number << 1) ^ (number >> 63));
+        }
+
         public static void ToBase128(long number, Stream stream)
         {
-            ToBase128((ulong)((number << 1) ^ (number >> 63)), stream); // Not perfect, negative numbers can get very long
+            ToBase128(SignedConversion(number), stream); // Not perfect, negative numbers can get very long
             return;
         }
 
@@ -65,6 +70,71 @@ namespace SpacePi.Dashboard.API.Model.Serialization
                 num ^= -1;
             }
             return num >> 1;
+        }
+
+        public static int Base128Length(long number)
+        {
+            return Base128Length(SignedConversion(number));
+        }
+
+        private static ulong ByteThreashold(int i)
+        {
+            return (ulong)1 << (i * 7);
+        }
+
+        public static int Base128Length(ulong number)
+        {
+            if (number >= ByteThreashold(5))
+            {
+                if (number >= ByteThreashold(7))
+                {
+                    if(number >= ByteThreashold(8))
+                    {
+                        if(number >= ByteThreashold(9))
+                        {
+                            return 10;
+                        } else
+                        {
+                            return 9;
+                        }
+                    } else
+                    {
+                        return 8;
+                    }
+                } else
+                {
+                    if(number >= ByteThreashold(6))
+                    {
+                        return 7;
+                    } else
+                    {
+                        return 6;
+                    }
+                }
+            } else
+            {
+                if (number >= ByteThreashold(3))
+                {
+                    if (number >= ByteThreashold(4))
+                    {
+                        return 5;
+                    }
+                    else
+                    {
+                        return 4;
+                    }
+                }
+                else if (number >= ByteThreashold(2))
+                {
+                    return 3;
+                } else if(number >= ByteThreashold(1))
+                {
+                    return 2;
+                } else
+                {
+                    return 1;
+                }
+            }
         }
     }
 }
