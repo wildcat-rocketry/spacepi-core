@@ -7,5 +7,7 @@ using System.Threading.Tasks;
 namespace SpacePi.Dashboard.Analyzer.API {
     [AttributeUsage(AttributeTargets.Assembly)]
     public class CompileProtobufAttribute : Attribute {
+        public CompileProtobufAttribute(params string[] systemFiles) {
+        }
     }
 }
