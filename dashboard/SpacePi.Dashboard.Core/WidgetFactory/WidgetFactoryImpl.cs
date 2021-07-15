@@ -7,8 +7,14 @@ using SpacePi.Dashboard.API;
 using SpacePi.Dashboard.API.Model;
 
 namespace SpacePi.Dashboard.Core.WidgetFactory {
-    class WidgetFactoryImpl<TGfxWidget> : IWidgetFactoryImpl {
-        private readonly Dictionary<string, IWidgetFactory<TGfxWidget>> Widgets;
+    public class WidgetFactoryImpl<TGfxWidget> : Plugin, IWidgetFactoryImpl {
+        [BindPlugin]
+        public IEnumerable<IWidgetFactory<TGfxWidget>> WidgetFactories { get; set; }
+
+        [BindPlugin]
+        public WidgetFactoryPlugin Core { get; set; }
+
+        private Dictionary<string, IWidgetFactory<TGfxWidget>> Widgets;
 
         public IEnumerable<IWidgetViewModelFactory> ViewModels => Widgets.Select(p => p.Value.ViewModelFactory);
 
@@ -19,6 +25,9 @@ namespace SpacePi.Dashboard.Core.WidgetFactory {
 
         public Widget InitWidget(string id) => new(); // TODO
 
-        public WidgetFactoryImpl(IEnumerable<IWidgetFactory<TGfxWidget>> ctx) => Widgets = ctx.ToDictionary(w => w.ViewModelFactory.Id);
+        public override void Load() {
+            Widgets = WidgetFactories.ToDictionary(w => w.ViewModelFactory.Id);
+            Core.Init(this);
+        }
     }
 }

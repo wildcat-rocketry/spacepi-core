@@ -5,10 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface IWidgetFactory {
-    }
-
-    public interface IWidgetFactory<TGfxWidget> : IWidgetFactory {
+    public interface IWidgetFactory<TGfxWidget> {
         IWidgetViewModelFactory ViewModelFactory { get; }
 
         TGfxWidget CreateWidget(object viewModel);
