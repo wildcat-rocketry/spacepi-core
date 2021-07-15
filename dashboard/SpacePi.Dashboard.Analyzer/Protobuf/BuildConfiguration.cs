@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.API;
@@ -10,6 +11,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         public readonly string SourceDir;
         public readonly string OutputDir;
         public readonly string StampFile;
+        public readonly string[] SystemFiles;
 
         public void Clean() {
             if (Directory.Exists(OutputDir)) {
@@ -23,6 +25,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             SourceDir = Path.GetDirectoryName(attr.ApplicationSyntaxReference.SyntaxTree.FilePath);
             OutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Analyzer)}/{nameof(Protobuf)}/{SourceDir.Substring(BuildConfig.CMAKE_SOURCE_DIR.Length + 1)}";
             StampFile = $"{OutputDir}/.stamp";
+            SystemFiles = attr.ConstructorArguments.FirstOrDefault().Values.Select(s => s.Value.ToString()).ToArray();
         }
     }
 }

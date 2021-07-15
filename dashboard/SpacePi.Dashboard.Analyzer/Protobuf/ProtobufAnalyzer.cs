@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define PROTOBUF_DEBUG
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -40,6 +42,12 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         }
 
         private bool SpawnProcess(string filename, string args, string path, IEnumerable<string> files, Diagnostics.Type stdoutDiag, Diagnostics.Type stderrDiag) {
+#if PROTOBUF_DEBUG
+            if (path != null) {
+                Console.Write($"PATH={path}{Path.PathSeparator}$PATH ");
+            }
+            Console.WriteLine($"{filename} {args}");
+#endif
             ProcessStartInfo psi = new() {
                 Arguments = args,
                 CreateNoWindow = true,
@@ -87,7 +95,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             Directory.CreateDirectory(config.OutputDir);
             if (SpawnProcess(
                 BuildConfig.Protobuf_PROTOC_EXECUTABLE,
-                $"-I \"{config.SourceDir}\" \"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => $" \"{f.Substring(config.SourceDir.Length + 1).Replace('\\', '/')}\""))}",
+                $"-I \"{config.SourceDir}\" \"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => f.Substring(config.SourceDir.Length + 1)).Concat(config.SystemFiles).Select(f => $" \"{f.Replace('\\', '/')}\""))}",
                 Path.GetDirectoryName(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE),
                 paths,
                 Context.Diagnostics.ProtocBuildStatus,

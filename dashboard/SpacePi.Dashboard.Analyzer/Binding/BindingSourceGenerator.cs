@@ -1,4 +1,4 @@
-﻿//#define DEBUG
+﻿//#define BINDING_SOURCE_GEN_DEBUG
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                 stream.Clear();
                 stream.AppendFactoryImpl(ctx, factory);
                 generator.AddSource(factory.GeneratedClass.ClassName, stream.ToString());
-#if DEBUG
+#if BINDING_SOURCE_GEN_DEBUG
                 Console.WriteLine($@"
 // {factory.GeneratedClass.ClassName}.cs
 {stream}
