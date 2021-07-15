@@ -1,11 +1,8 @@
 <Project>
     <ItemGroup>
+        <AnalyzerAPI Include="BindingAttributes.cs" />
         <AnalyzerAPI Include="BuildConfig.cs" SourceDir="$(SolutionDir)\SpacePi.Dashboard.Analyzer.API\" />
-        <AnalyzerAPI Include="BindingFactoryAttribute.cs" />
-        <AnalyzerAPI Include="BindingIDAttribute.cs" />
-        <AnalyzerAPI Include="BindingParameterAttribute.cs" />
-        <AnalyzerAPI Include="BindingPriorityAttribute.cs" />
         <AnalyzerAPI Include="CompileProtobufAttribute.cs" />
-        <AnalyzerAPI Include="EntryPointAttribute.cs" />
+        <AnalyzerAPI Include="IBoundFactory.cs" />
     </ItemGroup>
 </Project>

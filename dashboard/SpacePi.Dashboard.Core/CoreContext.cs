@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core {
+#if false
     public abstract class CoreContext : IContext {
         private bool Disposed;
 
@@ -20,4 +21,5 @@ namespace SpacePi.Dashboard.Core {
             GC.SuppressFinalize(this);
         }
     }
+#endif
 }

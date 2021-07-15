@@ -5,14 +5,14 @@ using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer {
     public abstract class SourceGenerator : ISourceGenerator {
-        protected abstract void Generate(GeneratorExecutionContext ctx, Diagnostics diags);
+        protected abstract void Generate(GeneratorExecutionContext generator, Context ctx);
 
-        public void Execute(GeneratorExecutionContext ctx) {
+        public void Execute(GeneratorExecutionContext generator) {
             Diagnostics diags = new();
             using DebugLog log = new(GetType().Name, diags);
-            log.CatchAll(() => Generate(ctx, diags));
+            log.CatchAll(() => Generate(generator, new(generator.Compilation, diags)));
             foreach (Diagnostic diag in diags) {
-                ctx.ReportDiagnostic(diag);
+                generator.ReportDiagnostic(diag);
             }
         }
 

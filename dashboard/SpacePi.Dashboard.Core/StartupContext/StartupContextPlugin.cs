@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.Core.StartupContext {
-    [Plugin(int.MaxValue)]
+#if false
     public class StartupContextPlugin : CorePlugin, IPlugin {
         protected override string PluginName => nameof(StartupContext);
 
@@ -15,4 +15,5 @@ namespace SpacePi.Dashboard.Core.StartupContext {
 
         public void Load() => Factory.CreateContext();
     }
+#endif
 }

@@ -27,5 +27,71 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly D ProtocBuildError = new(Error, 103,
             "CMake build error",
             "{0}");
+
+        ////////////////////////////////////////////////////////////////////////
+        // Binding Diagnostics
+        public readonly D DefaultArgsNotSupported = new(Error, 200,
+            "Default binding attribute arguments not supported",
+            "Default binding attribute arguments not supported");
+        public readonly D DeclarativeAttributeCtorMultipleParam = new(Error, 201,
+            "Attribute constructor parameter has multiple attributes",
+            "Attribute constructor parameter has multiple binding attributes");
+        public readonly D DeclarativeAttributeParameterBadType = new(Error, 202,
+            "Bad attribute constructor parameter type",
+            "Bad attribute constructor parameter type (expected {0})");
+        public readonly D DeclarativeAttributeDuplicateParameter = new(Error, 203,
+            "Duplicate attribute constructor parameter name",
+            "Duplicate attribute constructor parameter name");
+        public readonly D FactoryConstructorParameterAttributes = new(Error, 204,
+            "Exactly one of [BindingFactoryObject], [BindingID], [BindingParameter], or [BindingPriority] required",
+            "Exactly one of [BindingFactoryObject], [BindingID], [BindingParameter], or [BindingPriority] required");
+        public readonly D ExactlyOneBindingTargetNotFound = new(Error, 205,
+            "Exactly one binding target not found",
+            "{0} binding targets were found for {1}, but exactly one is required");
+
+        ////////////////////////////////////////////////////////////////////////
+        // Validator Diagnostics
+        public readonly D OneRequired = new(Error, 300,
+            "Exactly one required",
+            "Exactly one {0} required in {1}");
+        public readonly D IsPublic = new(Error, 301,
+            "Must be public",
+            "{0} must be public");
+        public readonly D IsClass = new(Error, 302,
+            "Must be a class",
+            "{0} must be a class");
+        public readonly D IsNotGeneric = new(Error, 303,
+            "Must not be generic",
+            "{0} must not be generic");
+        public readonly D IsNotAbstract = new(Error, 304,
+            "Must not be abstract",
+            "{0} must not be abstract");
+        public readonly D Extends = new(Error, 305,
+            "Must extend",
+            "{0} must extend {1}");
+        public readonly D ContextTrue = new(Error, 306,
+            "Context must be true",
+            "{0}");
+        public readonly D IsInstance = new(Error, 307,
+            "Must not be static",
+            "{0} must not be static");
+        public readonly D IsOrdinaryMethod = new(Error, 308,
+            "Must be ordinary method",
+            "{0} must be an ordinary method");
+        public readonly D IsParameterless = new(Error, 309,
+            "Must be parameterless",
+            "{0} must be a parameterless method");
+        public readonly D IsDefaultConstructible = new(Error, 310,
+            "Must be default-constructible",
+            "{0} must have a public, parameterless constructor");
+        public readonly D HasPublicGetterSetter = new(Error, 311,
+            "Must have a public getter/setter",
+            "{0} must have a public {1}");
+        public readonly D Implements = new(Error, 312,
+            "Must implement",
+            "{0} must implement {1}");
+        public readonly D IsArray = new(Error, 313,
+            "Must be array",
+            "{0} must be an array type");
     }
 }
