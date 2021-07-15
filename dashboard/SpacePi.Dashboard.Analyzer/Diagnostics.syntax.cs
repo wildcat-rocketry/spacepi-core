@@ -12,7 +12,7 @@ namespace SpacePi.Dashboard.Analyzer {
 
             public void Report(ISymbol sym, params object[] args) => Report(sym.Locations.FirstOrDefault(), args);
 
-            public void Report(params object[] args) => Report((Location)null, args);
+            public void Report(params object[] args) => Report((Location) null, args);
         };
 
         public class D : Type {

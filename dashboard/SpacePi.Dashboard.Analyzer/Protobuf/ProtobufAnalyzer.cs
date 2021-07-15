@@ -11,8 +11,7 @@ using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Protobuf {
     public class ProtobufAnalyzer {
-        private readonly Compilation Compilation;
-        private readonly Diagnostics Diagnostics;
+        private readonly Context Context;
         private readonly IEnumerable<BuildConfiguration> Configs;
 
         private void ParseDiagnostic(Diagnostics.Type diag, string line, IEnumerable<string> files) {
@@ -72,8 +71,8 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             $"--build \"{BuildConfig.CMAKE_BINARY_DIR}\" --target {BuildConfig.protoc_gen_spacepi_csharp.TARGET_NAME_IF_EXISTS}",
             null,
             Enumerable.Empty<string>(),
-            Diagnostics.CMakeBuildStatus,
-            Diagnostics.CMakeBuildError);
+            Context.Diagnostics.CMakeBuildStatus,
+            Context.Diagnostics.CMakeBuildError);
 
         private bool NeedsRebuild(BuildConfiguration config, IEnumerable<string> paths) {
             if (!File.Exists(config.StampFile)) {
@@ -91,8 +90,8 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 $"-I \"{config.SourceDir}\" \"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => $" \"{f.Substring(config.SourceDir.Length + 1).Replace('\\', '/')}\""))}",
                 Path.GetDirectoryName(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE),
                 paths,
-                Diagnostics.ProtocBuildStatus,
-                Diagnostics.ProtocBuildError)) {
+                Context.Diagnostics.ProtocBuildStatus,
+                Context.Diagnostics.ProtocBuildError)) {
                 File.WriteAllText(config.StampFile, "");
             }
         }
@@ -151,12 +150,11 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
-        public ProtobufAnalyzer(Compilation comp, Diagnostics diags) {
-            Compilation = comp;
-            Diagnostics = diags;
-            INamedTypeSymbol CompileProtobufAttribute = typeof(CompileProtobufAttribute).InCompilation(comp, diags);
-            Configs = comp.Assembly.GetAttributes()
-                .Where(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, CompileProtobufAttribute))
+        public ProtobufAnalyzer(Context ctx) {
+            Context = ctx;
+            INamedTypeSymbol CompileProtobufAttribute = ctx.GetType<CompileProtobufAttribute>();
+            Configs = ctx.Compilation.Assembly.GetAttributes()
+                .Where(a => a.AttributeClass.DEquals(CompileProtobufAttribute))
                 .Select(a => new BuildConfiguration(a))
                 .OrderByDescending(c => c.SourceDir.Length);
         }

@@ -12,7 +12,16 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
     class TestClass : ModelClass, IObject {
         public IClass Reflection => this;
 
+        public int MyField { get; set; }
+        public ObservableList<int> MyOtherField { get; set; }
+
         public TestClass(string name, params IField[] fields) : base(name, fields) {
+        }
+
+        public TestClass() : base("TestClass", new IField[] {
+            new ScalarPrimitiveField("MyField", 42, false, IPrimitiveField.Types.Int32, () => MyField, v => MyField = v),
+            
+        }) {
         }
     }
 
