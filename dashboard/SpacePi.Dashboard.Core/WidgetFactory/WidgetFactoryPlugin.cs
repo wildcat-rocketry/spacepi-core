@@ -11,10 +11,7 @@ namespace SpacePi.Dashboard.Core.WidgetFactory {
     public class WidgetFactoryPlugin : Plugin, IWidgetFactoryImpl {
         private IWidgetFactoryImpl Impl;
 
-        [BindPlugin]
-        public IEnumerable<IWidgetFactory> WidgetFactories { get; set; }
-
-        public void Init<TGfxWidget>() => Impl = new WidgetFactoryImpl<TGfxWidget>(WidgetFactories.OfType<IWidgetFactory<TGfxWidget>>());
+        public void Init(IWidgetFactoryImpl impl) => Impl = impl;
 
         public IEnumerable<IWidgetViewModelFactory> ViewModels => Impl.ViewModels;
 
