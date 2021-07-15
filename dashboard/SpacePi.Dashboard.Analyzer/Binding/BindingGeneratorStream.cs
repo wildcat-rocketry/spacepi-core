@@ -36,7 +36,8 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                 () => AppendStatement(
                                     () => AppendMethodCall(
                                         () => AppendConstructorCall(
-                                            factory.GeneratedClass.ClassName),
+                                            factory.GeneratedClass.ClassName,
+                                            false),
                                         "Create")));
                         }
                         AppendMethod(
@@ -48,7 +49,9 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                     () => AppendNewVariable(
                                         factory.Symbol,
                                         () => AppendFactoryInstance(factory)),
-                                    () => AppendConstructorCall((string) null));
+                                    () => AppendConstructorCall(
+                                        (string) null,
+                                        false));
                                 AppendAssignment(
                                     () => AppendProperty(
                                         () => AppendFactoryInstance(factory),
@@ -60,7 +63,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                                 () => AppendFactoryInstance(factory),
                                                 factory.Boxer.Method,
                                                 factory.Boxer.Parameters.Select<Parameter, Action>(p => p.Type switch {
-                                                    Parameter.Types.FactoryObject => () => AppendConstructorCall(o.ObjectType),
+                                                    Parameter.Types.FactoryObject => () => AppendConstructorCall(o.ObjectType, false),
                                                     Parameter.Types.ID => () => Append($"\"{o.Id}\""),
                                                     Parameter.Types.Parameter => () => Append(o.Parameters[p.Name].ToCSharpString()),
                                                     Parameter.Types.Priority => () => Append(o.Priority.ToString()),
@@ -82,6 +85,25 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                                         o => () => AppendUnboxing(
                                                             binding.Factory,
                                                             o))),
+                                                Binding.Modes.Dictionary => () => AppendConstructorCall(
+                                                    ctx.StaticDictionary_2.Construct(
+                                                        ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[0],
+                                                        ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[1]),
+                                                    true,
+                                                    new Action[] {
+                                                        () => AppendConstructorCall(binding.KeyType switch {
+                                                            Binding.DictionaryKeyType.Int => ctx.PrimitiveEqualityComparers_Int,
+                                                            Binding.DictionaryKeyType.String => ctx.PrimitiveEqualityComparers_String,
+                                                            _ => throw new Exception("Missing case statement")
+                                                        }, false)
+                                                    }.Concat(binding.ObjectDict.GenerateTable().Select<(int, TypedConstant, FactoryObject), Action>(
+                                                        t => () => AppendTuple(
+                                                            false,
+                                                            () => Append($"{t.Item1}"),
+                                                            () => Append(t.Item2.ToCSharpString()),
+                                                            () => AppendUnboxing(
+                                                                binding.Factory,
+                                                                t.Item3))))),
                                                 Binding.Modes.Factory => () => AppendFactoryInstance(factory),
                                                 _ => throw new Exception("Missing case statement")
                                             });

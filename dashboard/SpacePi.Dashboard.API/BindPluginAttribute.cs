@@ -11,7 +11,7 @@ namespace SpacePi.Dashboard.API {
         public BindPluginAttribute() {
         }
 
-        public BindPluginAttribute([BindingID] string id) {
+        public BindPluginAttribute([BindingDictionaryKey] string key) {
         }
     }
 }

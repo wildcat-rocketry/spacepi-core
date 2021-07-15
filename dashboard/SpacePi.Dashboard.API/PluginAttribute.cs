@@ -9,7 +9,7 @@ namespace SpacePi.Dashboard.API {
     [AttributeUsage(AttributeTargets.Class)]
     public class PluginAttribute : Attribute {
         public PluginAttribute(
-            [BindingID] string id,
+            [BindingID, BindingParameter("id")] string id,
             [BindingParameter("version")] string version,
             [BindingPriority] int priority) {
         }

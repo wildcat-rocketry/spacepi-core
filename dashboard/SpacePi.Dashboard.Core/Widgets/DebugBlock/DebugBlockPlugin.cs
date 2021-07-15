@@ -11,8 +11,6 @@ namespace SpacePi.Dashboard.Core.Widgets.DebugBlock {
     public class DebugBlockPlugin : WidgetPlugin {
         public override string Name => "Debug Block";
 
-        protected override string PluginName => nameof(DebugBlock);
-
         public override object CreateViewModel(Widget model) => null;
     }
 }

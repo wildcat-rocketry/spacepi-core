@@ -9,6 +9,15 @@ namespace SpacePi.Dashboard.Analyzer {
         private readonly StringBuilder Indent = new();
         private bool OptionalNewline = false;
 
+        public void AddIndent() => Indent.Append("    ");
+
+        public void RemoveIndent() {
+            if (Indent.Length >= 4) {
+                Source.Remove(Source.Length - 5, 4);
+                Indent.Remove(Indent.Length - 4, 4);
+            }
+        }
+
         public void Append(IEnumerable<char> chars) {
             foreach (char c in chars) {
                 if (OptionalNewline) {
@@ -23,13 +32,10 @@ namespace SpacePi.Dashboard.Analyzer {
                         Source.Append(Indent);
                         break;
                     case '{':
-                        Indent.Append("    ");
+                        AddIndent();
                         break;
                     case '}':
-                        if (Indent.Length >= 4) {
-                            Source.Remove(Source.Length - 5, 4);
-                            Indent.Remove(Indent.Length - 4, 4);
-                        }
+                        RemoveIndent();
                         break;
                 }
             }
@@ -89,24 +95,36 @@ namespace SpacePi.Dashboard.Analyzer {
             Append($"[{index}]");
         }
 
-        public void AppendTuple(IEnumerable<Action> vals) {
+        public void AppendTuple(bool paramsOnNewline, IEnumerable<Action> vals) {
             Append("(");
+            if (paramsOnNewline) {
+                AddIndent();
+                Append("\n");
+            }
             bool first = true;
             foreach (Action val in vals) {
                 if (first) {
                     first = false;
+                } else if (paramsOnNewline) {
+                    Append(",\n");
                 } else {
                     Append(", ");
                 }
                 val();
             }
+            if (paramsOnNewline) {
+                Append("\n");
+                RemoveIndent();
+            }
             Append(")");
         }
+
+        public void AppendTuple(bool paramsOnNewline, params Action[] vals) => AppendTuple(paramsOnNewline, (IEnumerable<Action>) vals);
 
         public void AppendMethodCall(Action instance, string method, IEnumerable<Action> args) {
             instance();
             Append($".{method}");
-            AppendTuple(args);
+            AppendTuple(false, args);
         }
 
         public void AppendMethodCall(Action instance, string method, params Action[] args) => AppendMethodCall(instance, method, (IEnumerable<Action>) args);
@@ -115,19 +133,19 @@ namespace SpacePi.Dashboard.Analyzer {
 
         public void AppendMethodCall(Action instance, IMethodSymbol method, params Action[] args) => AppendMethodCall(instance, method, (IEnumerable<Action>) args);
 
-        public void AppendConstructorCall(string symbol, IEnumerable<Action> args) {
+        public void AppendConstructorCall(string symbol, bool paramsOnNewline, IEnumerable<Action> args) {
             Append("new");
             if (symbol != null) {
                 Append($" {symbol}");
             }
-            AppendTuple(args);
+            AppendTuple(paramsOnNewline, args);
         }
 
-        public void AppendConstructorCall(string symbol, params Action[] args) => AppendConstructorCall(symbol, (IEnumerable<Action>) args);
+        public void AppendConstructorCall(string symbol, bool paramsOnNewline, params Action[] args) => AppendConstructorCall(symbol, paramsOnNewline, (IEnumerable<Action>) args);
 
-        public void AppendConstructorCall(ITypeSymbol symbol, IEnumerable<Action> args) => AppendConstructorCall(symbol?.ToString(), args);
+        public void AppendConstructorCall(ITypeSymbol symbol, bool paramsOnNewline, IEnumerable<Action> args) => AppendConstructorCall(symbol?.ToString(), paramsOnNewline, args);
 
-        public void AppendConstructorCall(ITypeSymbol symbol, params Action[] args) => AppendConstructorCall(symbol, (IEnumerable<Action>) args);
+        public void AppendConstructorCall(ITypeSymbol symbol, bool paramsOnNewline, params Action[] args) => AppendConstructorCall(symbol, paramsOnNewline, (IEnumerable<Action>) args);
 
         public void AppendNewArray(ITypeSymbol type, IEnumerable<Action> elements) {
             Append($"new {type}[] {{\n");
