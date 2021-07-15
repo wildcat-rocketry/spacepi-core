@@ -4,9 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpacePi.Dashboard.API;
+using SpacePi.Dashboard.API.Model;
 
 namespace SpacePi.Dashboard.Core.Widgets.DebugBlock {
-    public class DebugBlockPlugin : CorePlugin<DebugBlockContext> {
+    [Plugin("SpacePi.Dashboard.Core.Widgets.DebugBlock", "3.0.0", 11_005_000)]
+    public class DebugBlockPlugin : WidgetPlugin {
+        public override string Name => "Debug Block";
+
         protected override string PluginName => nameof(DebugBlock);
+
+        public override object CreateViewModel(Widget model) => null;
     }
 }

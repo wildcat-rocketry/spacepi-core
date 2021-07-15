@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.API {
-    public interface IPlugin : IDisposable {
-        void Load();
+    public interface IGraphicsLoader {
+        void LoadGraphics();
     }
 }

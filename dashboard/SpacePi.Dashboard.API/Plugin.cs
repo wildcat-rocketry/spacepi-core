@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SpacePi.Dashboard.API;
 
-namespace SpacePi.Dashboard.Core {
-#if false
-    public abstract class CoreContext : IContext {
+namespace SpacePi.Dashboard.API {
+    public class Plugin : IPlugin {
         private bool Disposed;
 
         protected virtual void Dispose(bool disposing) {
@@ -20,6 +18,8 @@ namespace SpacePi.Dashboard.Core {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        public virtual void Load() {
+        }
     }
-#endif
 }
