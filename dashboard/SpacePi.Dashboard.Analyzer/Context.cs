@@ -36,6 +36,7 @@ namespace SpacePi.Dashboard.Analyzer {
 
         public readonly INamedTypeSymbol Attribute;
         public readonly INamedTypeSymbol AttributeUsageAttribute;
+        public readonly INamedTypeSymbol BindingDictionaryKeyAttribute;
         public readonly INamedTypeSymbol BindingFactoryAttribute;
         public readonly INamedTypeSymbol BindingFactoryArrayAttribute;
         public readonly INamedTypeSymbol BindingFactoryBoxerAttribute;
@@ -47,27 +48,36 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly INamedTypeSymbol BindingPriorityAttribute;
         public readonly INamedTypeSymbol EntryPointAttribute;
         public readonly INamedTypeSymbol IBoundFactory_1;
+        public readonly INamedTypeSymbol IDictionary_2;
         public readonly INamedTypeSymbol IEnumerable_1;
         public readonly INamedTypeSymbol GenerateBindingsAttribute;
+        public readonly INamedTypeSymbol PrimitiveEqualityComparers_Int;
+        public readonly INamedTypeSymbol PrimitiveEqualityComparers_String;
+        public readonly INamedTypeSymbol StaticDictionary_2;
 
         public Context(Compilation compilation, Diagnostics diags) {
             Compilation = compilation;
             Diagnostics = diags;
-            Attribute                          = GetType<Attribute                     >();
-            AttributeUsageAttribute            = GetType<AttributeUsageAttribute       >();
-            BindingFactoryAttribute            = GetType<BindingFactoryAttribute       >();
-            BindingFactoryArrayAttribute       = GetType<BindingFactoryArrayAttribute  >();
-            BindingFactoryBoxerAttribute       = GetType<BindingFactoryBoxerAttribute  >();
-            BindingFactoryLoaderAttribute      = GetType<BindingFactoryLoaderAttribute >();
-            BindingFactoryUnboxerAttribute     = GetType<BindingFactoryUnboxerAttribute>();
-            BindingIDAttribute                 = GetType<BindingIDAttribute            >();
-            BindingFactoryObjectAttribute      = GetType<BindingFactoryObjectAttribute >();
-            BindingParameterAttribute          = GetType<BindingParameterAttribute     >();
-            BindingPriorityAttribute           = GetType<BindingPriorityAttribute      >();
-            EntryPointAttribute                = GetType<EntryPointAttribute           >();
-            IBoundFactory_1                    = GetType<IBoundFactory<object>         >();
-            IEnumerable_1                      = GetType<IEnumerable<object>           >();
-            GenerateBindingsAttribute          = GetType<GenerateBindingsAttribute     >();
+            Attribute                          = GetType<Attribute                        >();
+            AttributeUsageAttribute            = GetType<AttributeUsageAttribute          >();
+            BindingDictionaryKeyAttribute      = GetType<BindingDictionaryKeyAttribute    >();
+            BindingFactoryAttribute            = GetType<BindingFactoryAttribute          >();
+            BindingFactoryArrayAttribute       = GetType<BindingFactoryArrayAttribute     >();
+            BindingFactoryBoxerAttribute       = GetType<BindingFactoryBoxerAttribute     >();
+            BindingFactoryLoaderAttribute      = GetType<BindingFactoryLoaderAttribute    >();
+            BindingFactoryUnboxerAttribute     = GetType<BindingFactoryUnboxerAttribute   >();
+            BindingIDAttribute                 = GetType<BindingIDAttribute               >();
+            BindingFactoryObjectAttribute      = GetType<BindingFactoryObjectAttribute    >();
+            BindingParameterAttribute          = GetType<BindingParameterAttribute        >();
+            BindingPriorityAttribute           = GetType<BindingPriorityAttribute         >();
+            EntryPointAttribute                = GetType<EntryPointAttribute              >();
+            IBoundFactory_1                    = GetType<IBoundFactory<object>            >();
+            IDictionary_2                      = GetType<IDictionary<object, object>      >();
+            IEnumerable_1                      = GetType<IEnumerable<object>              >();
+            GenerateBindingsAttribute          = GetType<GenerateBindingsAttribute        >();
+            PrimitiveEqualityComparers_Int     = GetType<PrimitiveEqualityComparers.Int   >();
+            PrimitiveEqualityComparers_String  = GetType<PrimitiveEqualityComparers.String>();
+            StaticDictionary_2                 = GetType<StaticDictionary<object, object> >();
         }
     }
 }

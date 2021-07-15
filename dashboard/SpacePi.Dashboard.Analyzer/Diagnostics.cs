@@ -34,8 +34,8 @@ namespace SpacePi.Dashboard.Analyzer {
             "Default binding attribute arguments not supported",
             "Default binding attribute arguments not supported");
         public readonly D DeclarativeAttributeCtorMultipleParam = new(Error, 201,
-            "Attribute constructor parameter has multiple attributes",
-            "Attribute constructor parameter has multiple binding attributes");
+            "Attribute constructor has duplicate parameters",
+            "Attribute constructor has duplicate parameters with name {0}");
         public readonly D DeclarativeAttributeParameterBadType = new(Error, 202,
             "Bad attribute constructor parameter type",
             "Bad attribute constructor parameter type (expected {0})");
@@ -48,6 +48,15 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly D ExactlyOneBindingTargetNotFound = new(Error, 205,
             "Exactly one binding target not found",
             "{0} binding targets were found for {1}, but exactly one is required");
+        public readonly D DictionaryBindingMustHaveKey = new(Error, 206,
+            "Dictionary binding must have a key attribute",
+            "Dictionary binding on {0} must have the key specified on the attribute");
+        public readonly D UnsupportedKeyType = new(Error, 207,
+            "Dictionary binding has unsupported key type",
+            "Dictionary binding {0} has unsupported key type {1}");
+        public readonly D BindingMissingKey = new(Error, 208,
+            "Dictionary binding target missing key",
+            "Dictionary binding target {0} is missing a key for source {1}");
 
         ////////////////////////////////////////////////////////////////////////
         // Validator Diagnostics

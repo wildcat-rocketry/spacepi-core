@@ -1,5 +1,6 @@
 <Project>
     <ItemGroup>
+        <AnalyzerAPI Include="BindingDictionaryKeyAttribute.cs" />
         <AnalyzerAPI Include="BindingFactoryArrayAttribute.cs" />
         <AnalyzerAPI Include="BindingFactoryAttribute.cs" />
         <AnalyzerAPI Include="BindingFactoryBoxerAttribute.cs" />
@@ -14,5 +15,7 @@
         <AnalyzerAPI Include="EntryPointAttribute.cs" />
         <AnalyzerAPI Include="GenerateBindingsAttribute.cs" />
         <AnalyzerAPI Include="IBoundFactory.cs" />
+        <AnalyzerAPI Include="PrimitiveEqualityComparers.cs" />
+        <AnalyzerAPI Include="StaticDictionary.cs" />
     </ItemGroup>
 </Project>

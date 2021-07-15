@@ -8,13 +8,11 @@ using SpacePi.Dashboard.API.Model;
 
 namespace SpacePi.Dashboard.Core.WidgetFactory {
     public class WidgetFactoryImpl<TGfxWidget> : Plugin, IWidgetFactoryImpl {
-        [BindPlugin]
-        public IEnumerable<IWidgetFactory<TGfxWidget>> WidgetFactories { get; set; }
+        [BindPlugin("id")]
+        public IDictionary<string, IWidgetFactory<TGfxWidget>> Widgets { get; set; }
 
         [BindPlugin]
         public WidgetFactoryPlugin Core { get; set; }
-
-        private Dictionary<string, IWidgetFactory<TGfxWidget>> Widgets;
 
         public IEnumerable<IWidgetViewModelFactory> ViewModels => Widgets.Select(p => p.Value.ViewModelFactory);
 
@@ -25,9 +23,6 @@ namespace SpacePi.Dashboard.Core.WidgetFactory {
 
         public Widget InitWidget(string id) => new(); // TODO
 
-        public override void Load() {
-            Widgets = WidgetFactories.ToDictionary(w => w.ViewModelFactory.Id);
-            Core.Init(this);
-        }
+        public override void Load() => Core.Init(this);
     }
 }

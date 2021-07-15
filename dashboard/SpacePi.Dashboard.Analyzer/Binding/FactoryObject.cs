@@ -23,24 +23,22 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                 bool isID = param.BeginValidation().HasAttribute(ctx.BindingIDAttribute).Check();
                 (bool isParameter, AttributeData paramAttr) = param.BeginValidation().HasAttribute(ctx.BindingParameterAttribute, a => a).CheckWithContext();
                 bool isPriority = param.BeginValidation().HasAttribute(ctx.BindingPriorityAttribute).Check();
-                if ((isID && isParameter) | (isID && isPriority) || (isParameter && isPriority)) {
-                    ctx.Diagnostics.DeclarativeAttributeCtorMultipleParam.Report(param);
-                    return false;
-                }
                 if (isID) {
                     if (val.Type.SpecialType != SpecialType.System_String) {
                         ctx.Diagnostics.DeclarativeAttributeParameterBadType.Report(param, "string");
                         return false;
                     }
                     Id = val.Value.ToString();
-                } else if (isParameter) {
+                }
+                if (isParameter) {
                     string name = paramAttr.ConstructorArguments[0].Value.ToString();
                     if (Parameters.ContainsKey(name)) {
-                        ctx.Diagnostics.DeclarativeAttributeCtorMultipleParam.Report(param);
+                        ctx.Diagnostics.DeclarativeAttributeCtorMultipleParam.Report(param, name);
                         return false;
                     }
                     Parameters[name] = val;
-                } else if (isPriority) {
+                }
+                if (isPriority) {
                     if (val.Type.SpecialType != SpecialType.System_Int32) {
                         ctx.Diagnostics.DeclarativeAttributeParameterBadType.Report(param, "int");
                         return false;
