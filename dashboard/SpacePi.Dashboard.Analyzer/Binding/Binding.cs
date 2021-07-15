@@ -58,9 +58,13 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                     // Nothing to bind to explicitly
                     continue;
                 }
+                ITypeSymbol type = binding.Symbol.Type;
+                if (binding.Mode == Modes.List) {
+                    type = ((INamedTypeSymbol) type).TypeArguments[0];
+                }
                 IEnumerable<FactoryObject> filter = binding.Factory.Objects
                     .Where(o => ((ITypeSymbol) o.ObjectType).BeginValidation()
-                        .IsCastableTo(binding.Symbol.Type)
+                        .IsCastableTo(type)
                         .Check());
                 if (binding.Id != null) {
                     filter = filter.Where(o => o.Id == binding.Id);

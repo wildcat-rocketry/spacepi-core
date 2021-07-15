@@ -15,10 +15,13 @@ namespace SpacePi.Dashboard.Core.WPF.WPFThread {
 
         private void AppStartup(object sender, StartupEventArgs e) {
             lock (Plugin.IsThreadStarted) {
-                Plugin.IsThreadStarted[0] = true;
                 foreach (IGraphicsLoader loader in Plugin.GraphicsLoaders) {
                     loader.LoadGraphics();
                 }
+                foreach (IWindowFactory<Window> win in Plugin.WindowFactories) {
+                    win.CreateWindow().Show();
+                }
+                Plugin.IsThreadStarted[0] = true;
                 Monitor.PulseAll(Plugin.IsThreadStarted);
             }
         }

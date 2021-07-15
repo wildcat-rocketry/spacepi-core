@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.WPFThread {
-    [Plugin(2000000)]
-    public class WPFThreadPlugin : CorePlugin<WPFThreadContext>, IPlugin {
-        protected override string PluginName => nameof(WPFThread);
-
+    [Plugin("SpacePi.Dashboard.Core.WPF.WPFThread", "3.0.0", 2_000_200_000)]
+    public class WPFThreadPlugin : Plugin {
         public Thread Thread { get; }
 
         internal readonly bool[] IsThreadStarted = new[] { false };
@@ -20,7 +19,10 @@ namespace SpacePi.Dashboard.Core.WPF.WPFThread {
         [BindPlugin]
         public IEnumerable<IGraphicsLoader> GraphicsLoaders { get; set; }
 
-        public void Load() {
+        [BindPlugin]
+        public IEnumerable<IWindowFactory<Window>> WindowFactories { get; set; }
+
+        public override void Load() {
             Thread.Start();
             lock (IsThreadStarted) {
                 while (!IsThreadStarted[0]) {

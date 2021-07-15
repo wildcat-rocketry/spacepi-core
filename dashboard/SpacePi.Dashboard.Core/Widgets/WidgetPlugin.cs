@@ -7,8 +7,7 @@ using SpacePi.Dashboard.API;
 using SpacePi.Dashboard.API.Model;
 
 namespace SpacePi.Dashboard.Core.Widgets {
-    public abstract class CoreContext : Core.CoreContext, IWidgetViewModelFactory {
-
+    public abstract class WidgetPlugin : Plugin, IWidgetViewModelFactory {
         protected abstract string PluginName { get; }
 
         public virtual string Id => $"{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Core)}.{nameof(Widgets)}.{PluginName}";
