@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
-    public record BindingFactoryArray {
+    public record BindingArray {
         public INamedTypeSymbol Type;
         public IPropertySymbol Property;
 

@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
-    public record BindingFactoryBoxer {
+    public record BindingBoxer {
         public enum ParameterType {
             FactoryObject,
             ID,
@@ -17,7 +17,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
         public Parameter[] Parameters;
         public IMethodSymbol Unboxer;
 
-        public void TryParse(INamedTypeSymbol factory, BindingFactoryArray array, Context ctx) {
+        public void TryParse(INamedTypeSymbol factory, BindingArray array, Context ctx) {
             Method = factory.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .BeginValidation()

@@ -9,8 +9,8 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
         public INamedTypeSymbol Symbol;
         public INamedTypeSymbol DeclarativeAttribute;
         public INamedTypeSymbol BindingAttribute;
-        public BindingFactoryArray Array = new();
-        public BindingFactoryBoxer Boxer = new();
+        public BindingArray Array = new();
+        public BindingBoxer Boxer = new();
         public IMethodSymbol[] LoadMethods;
         public bool GenerateEntryPoint;
         public FactoryObject[] Objects;
