@@ -8,6 +8,11 @@ file(
     INPUT "${CMAKE_CURRENT_SOURCE_DIR}/SpacePi Dashboard.sln.in"
 )
 
+file(
+    GENERATE OUTPUT "${CMAKE_BINARY_DIR}/_dashboard/.editorconfig"
+    INPUT "${CMAKE_CURRENT_SOURCE_DIR}/.editorconfig"
+)
+
 add_subdirectory(SpacePi.Dashboard.WPF)
 add_subdirectory(SpacePi.Dashboard.Analyzer)
 add_subdirectory(SpacePi.Dashboard.Analyzer.API)
