@@ -113,7 +113,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                                                 binding.Factory,
                                                                 t.Item3)))),
                                                     null),
-                                                Binding.Modes.Factory => () => AppendFactoryInstance(factory),
+                                                Binding.Modes.Factory => () => AppendFactoryInstance(binding.Factory),
                                                 _ => throw new Exception("Missing case statement")
                                             });
                                     }
