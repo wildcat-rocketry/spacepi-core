@@ -10,9 +10,8 @@
     <ItemDefinitionGroup>
         <AnalyzerAPI SourceDir="..\SpacePi.Dashboard.Analyzer.API\" />
     </ItemDefinitionGroup>
-    <Import Project="..\SpacePi.Dashboard.Analyzer.API\SpacePi.Dashboard.Analyzer.API.items" />
     <ItemGroup>
-        <AnalyzerAPI2 Include="@(AnalyzerAPI)" SourceDir="%(SourceDir)" Identity2="%(Identity)" />
-        <Compile Include="@(AnalyzerAPI2->'%(SourceDir)%(Identity)')" Link="API\%(Identity2)" />
+        <Compile Include="..\SpacePi.Dashboard.Analyzer.API\*.cs" Link="API\%(FileName)%(Extension)" />
+        <Compile Include="$(SolutionDir)\SpacePi.Dashboard.Analyzer.API\BuildConfig.cs" Link="API\BuildConfig.cs" />
     </ItemGroup>
 </Project>
