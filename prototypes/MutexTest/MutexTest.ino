@@ -63,7 +63,7 @@ void task2(void * parameter){         // Function of task 2
  *    If it isn't, it increments the local and global counts, then prints information. 
  */   
 void crital(int *localCount, int *globalCount, int Task){
-  if ((*GlobalCount)>=50){            //  When GlobalCount exceeds 50
+  if ((*globalCount)>=50){            //  When GlobalCount exceeds 50
     Flag = 5;                           //  Set the flag to stop the count
   }
   else if(Flag!=5){                   //  If the flag is not set
