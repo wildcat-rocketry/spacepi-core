@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.API;
@@ -28,7 +27,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
         public BindingFactory Factory;
         public FactoryObject[] Objects;
         public DictionaryKeyType KeyType;
-        public IDictionaryHasher ObjectDict;
+        public IDictionaryHasher<FactoryObject> ObjectDict;
 
         public static IEnumerable<Binding> ParseAll(Context ctx, BindingFactory factory, INamedTypeSymbol cls) {
             Binding obj = null;
@@ -66,11 +65,11 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                     switch (((INamedTypeSymbol) obj.Symbol.Type).TypeArguments[0].SpecialType) {
                         case SpecialType.System_Int32:
                             obj.KeyType = DictionaryKeyType.Int;
-                            obj.ObjectDict = new DictionaryHasher<int>(new PrimitiveEqualityComparers.Int());
+                            obj.ObjectDict = new DictionaryHasher<int, FactoryObject>(new PrimitiveEqualityComparers.Int());
                             break;
                         case SpecialType.System_String:
                             obj.KeyType = DictionaryKeyType.String;
-                            obj.ObjectDict = new DictionaryHasher<string>(new PrimitiveEqualityComparers.String());
+                            obj.ObjectDict = new DictionaryHasher<string, FactoryObject>(new PrimitiveEqualityComparers.String());
                             break;
                         default:
                             ctx.Diagnostics.UnsupportedKeyType.Report(prop, prop, ((INamedTypeSymbol) obj.Symbol.Type).TypeArguments[0].SpecialType);

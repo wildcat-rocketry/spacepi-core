@@ -54,6 +54,7 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly INamedTypeSymbol PrimitiveEqualityComparers_Int;
         public readonly INamedTypeSymbol PrimitiveEqualityComparers_String;
         public readonly INamedTypeSymbol StaticDictionary_2;
+        public readonly INamedTypeSymbol SubfactoryAttribute;
 
         public Context(Compilation compilation, Diagnostics diags) {
             Compilation = compilation;
@@ -78,6 +79,7 @@ namespace SpacePi.Dashboard.Analyzer {
             PrimitiveEqualityComparers_Int     = GetType<PrimitiveEqualityComparers.Int   >();
             PrimitiveEqualityComparers_String  = GetType<PrimitiveEqualityComparers.String>();
             StaticDictionary_2                 = GetType<StaticDictionary<object, object> >();
+            SubfactoryAttribute                = GetType<SubfactoryAttribute              >();
         }
     }
 }

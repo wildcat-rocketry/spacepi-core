@@ -7,109 +7,118 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
     public class BindingGeneratorStream : GeneratorStream {
-        public void AppendFactoryInstance(BindingFactory factory) =>
+        public void AppendFactoryInstance(BindingFactoryInstance factory) =>
             Append($"F{factory.GeneratedClass.ClassName}");
 
-        public void AppendUnboxing(BindingFactory factory, FactoryObject obj) =>
+        public void AppendUnboxing(BindingFactoryInstance factory, FactoryObjectInstance obj) =>
             AppendCast(
                 () => AppendMethodCall(
                     () => AppendFactoryInstance(factory),
-                    factory.Boxer.Unboxer,
+                    factory.BindingFactory.Boxer.Unboxer,
                     () => AppendArrayIndex(
                         () => AppendProperty(
                             () => AppendFactoryInstance(factory),
-                            factory.Array.Property),
-                        obj.Index)),
-                obj.ObjectType);
+                            factory.BindingFactory.Array.Property),
+                        obj.FactoryObject.Index)),
+                obj.FactoryObject.ObjectType);
 
-        public void AppendFactoryImpl(Context ctx, BindingFactory factory) =>
+        public void AppendFactoryImpl(Context ctx, BindingFactoryInstance factory) =>
             AppendNamespace(
                 GeneratedClass.Namespace,
                 () => AppendClass(
                     factory.GeneratedClass.ClassName,
                     () => {
-                        if (factory.GenerateEntryPoint) {
-                            AppendMethod(
-                                "public static",
-                                "void",
-                                "Main",
-                                () => AppendStatement(
-                                    () => AppendMethodCall(
-                                        () => AppendConstructorCall(
-                                            factory.GeneratedClass.ClassName,
-                                            false),
-                                        "Create")));
+                        foreach (BindingFactoryInstance parent in factory.Parents) {
+                            AppendPropertyDef(
+                                "public",
+                                parent.BindingFactory.Symbol,
+                                () => AppendFactoryInstance(parent));
                         }
                         AppendMethod(
                             "public",
-                            factory.Symbol,
+                            factory.BindingFactory.Symbol,
                             "Create",
                             () => {
                                 AppendAssignment(
                                     () => AppendNewVariable(
-                                        factory.Symbol,
+                                        factory.BindingFactory.Symbol,
                                         () => AppendFactoryInstance(factory)),
                                     () => AppendConstructorCall(
                                         (string) null,
                                         false));
+                                foreach ((BindingFactoryInstance subfactory, IPropertySymbol prop) in factory.Subfactories.Zip(factory.BindingFactory.Subfactories, (a, b) => (a, b))) {
+                                    AppendAssignment(
+                                        () => AppendProperty(
+                                            () => AppendFactoryInstance(factory),
+                                            prop),
+                                        () => AppendConstructorCall(
+                                            subfactory.GeneratedClass.ClassName,
+                                            false,
+                                            null,
+                                            subfactory.Parents.Select<BindingFactoryInstance, Action>(
+                                                p => () => AppendAssignmentExpression(
+                                                    () => AppendFactoryInstance(p),
+                                                    () => AppendFactoryInstance(p)))));
+                                }
                                 AppendAssignment(
                                     () => AppendProperty(
                                         () => AppendFactoryInstance(factory),
-                                        factory.Array.Property),
+                                        factory.BindingFactory.Array.Property),
                                     () => AppendNewArray(
-                                        ((IArrayTypeSymbol) factory.Array.Property.Type).ElementType,
-                                        factory.Objects.Select<FactoryObject, Action>(
+                                        ((IArrayTypeSymbol) factory.BindingFactory.Array.Property.Type).ElementType,
+                                        factory.BindingFactory.Objects.Select<FactoryObject, Action>(
                                             o => () => AppendMethodCall(
                                                 () => AppendFactoryInstance(factory),
-                                                factory.Boxer.Method,
-                                                factory.Boxer.Parameters.Select<Parameter, Action>(p => p.Type switch {
+                                                factory.BindingFactory.Boxer.Method,
+                                                factory.BindingFactory.Boxer.Parameters.Select<Parameter, Action>(p => p.Type switch {
                                                     Parameter.Types.FactoryObject => () => AppendConstructorCall(o.ObjectType, false),
                                                     Parameter.Types.ID => () => Append($"\"{o.Id}\""),
                                                     Parameter.Types.Parameter => () => Append(o.Parameters[p.Name].ToCSharpString()),
                                                     Parameter.Types.Priority => () => Append(o.Priority.ToString()),
                                                     _ => throw new Exception("Missing case statement")
                                                 })))));
-                                foreach (FactoryObject obj in factory.Objects) {
-                                    foreach (Binding binding in obj.Bindings) {
+                                foreach (FactoryObjectInstance obj in factory.Objects.Values) {
+                                    foreach (BindingInstance binding in obj.Bindings) {
                                         AppendAssignment(
                                             () => AppendProperty(
                                                 () => AppendUnboxing(factory, obj),
-                                                binding.Symbol),
-                                            binding.Mode switch {
+                                                binding.Binding.Symbol),
+                                            binding.Binding.Mode switch {
                                                 Binding.Modes.Single => () => AppendUnboxing(
                                                     binding.Factory,
                                                     binding.Objects[0]),
                                                 Binding.Modes.List => () => AppendNewArray(
-                                                    ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[0],
-                                                    binding.Objects.Select<FactoryObject, Action>(
+                                                    ((INamedTypeSymbol) binding.Binding.Symbol.Type).TypeArguments[0],
+                                                    binding.Objects.Select<FactoryObjectInstance, Action>(
                                                         o => () => AppendUnboxing(
                                                             binding.Factory,
                                                             o))),
                                                 Binding.Modes.Dictionary => () => AppendConstructorCall(
                                                     ctx.StaticDictionary_2.Construct(
-                                                        ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[0],
-                                                        ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[1]),
+                                                        ((INamedTypeSymbol) binding.Binding.Symbol.Type).TypeArguments[0],
+                                                        ((INamedTypeSymbol) binding.Binding.Symbol.Type).TypeArguments[1]),
                                                     true,
                                                     new Action[] {
-                                                        () => AppendConstructorCall(binding.KeyType switch {
+                                                        () => AppendConstructorCall(binding.Binding.KeyType switch {
                                                             Binding.DictionaryKeyType.Int => ctx.PrimitiveEqualityComparers_Int,
                                                             Binding.DictionaryKeyType.String => ctx.PrimitiveEqualityComparers_String,
                                                             _ => throw new Exception("Missing case statement")
                                                         }, false)
-                                                    }.Concat(binding.ObjectDict.GenerateTable().Select<(int, TypedConstant, FactoryObject), Action>(
+                                                    }.Concat(binding.ObjectDict.GenerateTable().Select<(int, TypedConstant, FactoryObjectInstance), Action>(
                                                         t => () => AppendTuple(
                                                             false,
                                                             () => Append($"{t.Item1}"),
                                                             () => Append(t.Item2.ToCSharpString()),
                                                             () => AppendUnboxing(
                                                                 binding.Factory,
-                                                                t.Item3))))),
+                                                                t.Item3)))),
+                                                    null),
                                                 Binding.Modes.Factory => () => AppendFactoryInstance(factory),
                                                 _ => throw new Exception("Missing case statement")
                                             });
                                     }
                                 }
-                                foreach (IMethodSymbol loader in factory.LoadMethods) {
+                                foreach (IMethodSymbol loader in factory.BindingFactory.LoadMethods) {
                                     AppendStatement(
                                         () => AppendMethodCall(
                                             () => AppendFactoryInstance(factory),
@@ -119,6 +128,26 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                                     () => AppendFactoryInstance(factory));
                             });
                     },
-                    ctx.IBoundFactory_1.Construct(factory.Symbol)));
+                    ctx.IBoundFactory_1.Construct(factory.BindingFactory.Symbol)));
+
+        public void AppendMainClass(GeneratedClass mainClass, IEnumerable<BindingFactoryInstance> roots) =>
+            AppendNamespace(
+                GeneratedClass.Namespace,
+                () => AppendClass(
+                    mainClass.ClassName,
+                    () => AppendMethod(
+                        "public static",
+                        "void",
+                        "Main",
+                        () => {
+                            foreach (BindingFactoryInstance root in roots) {
+                                AppendStatement(
+                                    () => AppendMethodCall(
+                                        () => AppendConstructorCall(
+                                            root.GeneratedClass.ClassName,
+                                            false),
+                                        "Create"));
+                            }
+                        })));
     }
 }
