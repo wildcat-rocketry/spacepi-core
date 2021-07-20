@@ -10,11 +10,8 @@ using SpacePi.Dashboard.API;
 namespace SpacePi.Dashboard.Core.WPF.WPFThread {
     [Plugin("SpacePi.Dashboard.Core.WPF.WPFThread", "3.0.0", 2_000_200_000)]
     public class WPFThreadPlugin : Plugin {
-        public Thread Thread { get; }
-
-        internal readonly bool[] IsThreadStarted = new[] { false };
-
-        public App App { get; private set; }
+        [BindSuperPlugin]
+        public WPFThreadSuperPlugin SuperPlugin { get; set; }
 
         [BindPlugin]
         public IEnumerable<IGraphicsLoader> GraphicsLoaders { get; set; }
@@ -23,24 +20,14 @@ namespace SpacePi.Dashboard.Core.WPF.WPFThread {
         public IEnumerable<IWindowFactory<Window>> WindowFactories { get; set; }
 
         public override void Load() {
-            Thread.Start();
-            lock (IsThreadStarted) {
-                while (!IsThreadStarted[0]) {
-                    Monitor.Wait(IsThreadStarted);
+            SuperPlugin.App.Dispatcher.Invoke(() => {
+                foreach (IGraphicsLoader loader in GraphicsLoaders) {
+                    loader.LoadGraphics();
                 }
-            }
-        }
-
-        public WPFThreadPlugin() {
-            Thread = new(() => {
-                App = new() {
-                    Plugin = this
-                };
-                App.InitializeComponent();
-                App.Run();
+                foreach (IWindowFactory<Window> factory in WindowFactories) {
+                    factory.CreateWindow().Show();
+                }
             });
-            Thread.Name = "WPF Thread";
-            Thread.SetApartmentState(ApartmentState.STA);
         }
     }
 }
