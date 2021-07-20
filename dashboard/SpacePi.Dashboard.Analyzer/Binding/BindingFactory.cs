@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
-    public record BindingFactory : IGeneratorSource {
+    public record BindingFactory {
         public INamedTypeSymbol Symbol;
         public INamedTypeSymbol DeclarativeAttribute;
         public INamedTypeSymbol BindingAttribute;
@@ -14,8 +14,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
         public IMethodSymbol[] LoadMethods;
         public bool GenerateEntryPoint;
         public FactoryObject[] Objects;
-
-        public GeneratedClass GeneratedClass { get; } = new();
+        public IPropertySymbol[] Subfactories;
 
         public static IEnumerable<BindingFactory> ParseAll(Context ctx) {
             BindingFactory obj = null;
@@ -63,6 +62,15 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                 obj.GenerateEntryPoint = symbol.BeginValidation()
                     .HasAttribute(ctx.EntryPointAttribute)
                     .Check();
+                obj.Subfactories = symbol.GetAllMembers()
+                    .OfType<IPropertySymbol>()
+                    .BeginValidation()
+                    .HasAttribute(ctx.SubfactoryAttribute)
+                    .HasPublicSetter()
+                    .WhereValid()
+                    .StripContext()
+                    .Where(p => p.Type.OriginalDefinition.DEquals(ctx.IBoundFactory_1))
+                    .ToArray();
                 if (ctx.Diagnostics.Count() == start) {
                     yield return obj;
                     obj = null;

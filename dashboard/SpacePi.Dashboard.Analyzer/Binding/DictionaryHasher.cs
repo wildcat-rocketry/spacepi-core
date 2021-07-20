@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
-    public class DictionaryHasher<Type> : Dictionary<TypedConstant, FactoryObject>, IDictionaryHasher {
+    public class DictionaryHasher<TKey, TValue> : Dictionary<TypedConstant, TValue>, IDictionaryHasher<TValue> {
         private class EqualityComparer : IEqualityComparer<TypedConstant> {
             private readonly Func<TypedConstant, TypedConstant, bool> EqualsFunc;
             private readonly Func<TypedConstant, int> GetHashCodeFunc;
@@ -22,10 +22,14 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
             }
         }
 
-        private readonly IEqualityComparer<Type> EqComparer;
+        private readonly IEqualityComparer<TKey> EqComparer;
 
-        public (int, TypedConstant, FactoryObject)[] GenerateTable() => new StaticDictionary<TypedConstant, FactoryObject>(EqualityComparer.Create(EqComparer), this).Table;
+        public (int, TypedConstant, TValue)[] GenerateTable() => new StaticDictionary<TypedConstant, TValue>(EqualityComparer.Create(EqComparer), this).Table;
 
-        public DictionaryHasher(IEqualityComparer<Type> comparer) => EqComparer = comparer;
+        public IDictionaryHasher<TOtherValue> Rehash<TOtherValue>(IDictionary<TypedConstant, TOtherValue> dict) => new DictionaryHasher<TKey, TOtherValue>(dict, EqComparer);
+
+        public DictionaryHasher(IDictionary<TypedConstant, TValue> dict, IEqualityComparer<TKey> comparer) : base(dict) => EqComparer = comparer;
+
+        public DictionaryHasher(IEqualityComparer<TKey> comparer) => EqComparer = comparer;
     }
 }

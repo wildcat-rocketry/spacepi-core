@@ -17,5 +17,6 @@
         <AnalyzerAPI Include="IBoundFactory.cs" />
         <AnalyzerAPI Include="PrimitiveEqualityComparers.cs" />
         <AnalyzerAPI Include="StaticDictionary.cs" />
+        <AnalyzerAPI Include="SubfactoryAttribute.cs" />
     </ItemGroup>
 </Project>

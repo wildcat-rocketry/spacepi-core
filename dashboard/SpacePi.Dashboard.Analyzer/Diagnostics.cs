@@ -57,6 +57,12 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly D BindingMissingKey = new(Error, 208,
             "Dictionary binding target missing key",
             "Dictionary binding target {0} is missing a key for source {1}");
+        public readonly D BindingNotValidInContext = new(Error, 209,
+            "Binding not valid in context",
+            "Binding {0} is not valid in one or more contexts");
+        public readonly D UnknownBindingFactory = new(Error, 210,
+            "Unknown binding factory",
+            "Unknown binding factory {0}");
 
         ////////////////////////////////////////////////////////////////////////
         // Validator Diagnostics
