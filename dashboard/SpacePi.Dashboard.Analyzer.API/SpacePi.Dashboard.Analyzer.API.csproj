@@ -1,15 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
-        <EnableDefaultItems>false</EnableDefaultItems>
     </PropertyGroup>
-    <ItemGroup>
-        <None Include="SpacePi.Dashboard.Analyzer.API.items" />
-        <None Include="BuildConfig.cs.in" />
-    </ItemGroup>
-    <Import Project="SpacePi.Dashboard.Analyzer.API.items" />
-    <ItemGroup>
-        <AnalyzerAPI2 Include="@(AnalyzerAPI)" SourceDir="%(SourceDir)" Identity2="%(Identity)" />
-        <Compile Include="@(AnalyzerAPI2->'%(SourceDir)%(Identity)')" Link="%(Identity2)" />
-    </ItemGroup>
 </Project>
