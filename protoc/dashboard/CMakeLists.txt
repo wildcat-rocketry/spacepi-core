@@ -1,10 +1,14 @@
 find_package(Protobuf REQUIRED)
 
-spacepi_module(
-    CORE MODULE NAME protoc-gen-spacepi-dashboard
-    SOURCES
-        src/main.cpp
-    LINK
-        protobuf::libprotoc
-        protobuf::libprotobuf
+add_executable(protoc-gen-spacepi-dashboard
+    src/main.cpp
+)
+
+target_include_directories(protoc-gen-spacepi-dashboard PUBLIC
+    include
+)
+
+target_link_libraries(protoc-gen-spacepi-dashboard
+    protobuf::libprotobuf
+    protobuf::libprotoc
 )
