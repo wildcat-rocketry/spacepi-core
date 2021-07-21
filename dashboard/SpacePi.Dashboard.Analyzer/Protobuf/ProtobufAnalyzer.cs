@@ -12,10 +12,25 @@ using Microsoft.CodeAnalysis.Text;
 using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Protobuf {
+    /// <summary>
+    /// The logic to compile protobuf code
+    /// </summary>
     public class ProtobufAnalyzer {
+        /// <summary>
+        /// The compilation context
+        /// </summary>
         private readonly Context Context;
+        /// <summary>
+        /// A list of all configurations to build
+        /// </summary>
         private readonly IEnumerable<BuildConfiguration> Configs;
 
+        /// <summary>
+        /// Parses diagnostic messages output from the protobuf compiler
+        /// </summary>
+        /// <param name="diag">The type of diagnostic to report</param>
+        /// <param name="line">The line of output to parse</param>
+        /// <param name="files">A list of possible source files which could have diagnostics reported</param>
         private void ParseDiagnostic(Diagnostics.Type diag, string line, IEnumerable<string> files) {
             string[] parts = line.Split(new[] { ':' }, 2);
             string file = files.FirstOrDefault(f => f.EndsWith(parts[0]));
@@ -41,6 +56,16 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             diag.Report(loc, line);
         }
 
+        /// <summary>
+        /// Spawns a child process and parses the diagnostics reported by it
+        /// </summary>
+        /// <param name="filename">The executable to spawn</param>
+        /// <param name="args">The arguments to the executable</param>
+        /// <param name="path">An addition to the PATH environmental variable</param>
+        /// <param name="files">A list of possible source files which could have diagnostics reported</param>
+        /// <param name="stdoutDiag">The type of diagnostic to report for stdout</param>
+        /// <param name="stderrDiag">The type of diagnostic to report for stderr</param>
+        /// <returns></returns>
         private bool SpawnProcess(string filename, string args, string path, IEnumerable<string> files, Diagnostics.Type stdoutDiag, Diagnostics.Type stderrDiag) {
 #if PROTOBUF_DEBUG
             if (path != null) {
@@ -74,6 +99,9 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             return proc.ExitCode == 0;
         }
 
+        /// <summary>
+        /// Builds the protoc plugin with CMake
+        /// </summary>
         private void BuildPlugin() => SpawnProcess(
             BuildConfig.CMAKE_COMMAND,
             $"--build \"{BuildConfig.CMAKE_BINARY_DIR}\" --target {BuildConfig.protoc_gen_spacepi_csharp.TARGET_NAME_IF_EXISTS}",
@@ -82,6 +110,12 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             Context.Diagnostics.CMakeBuildStatus,
             Context.Diagnostics.CMakeBuildError);
 
+        /// <summary>
+        /// Determines if the protobuf files need to be rebuilt
+        /// </summary>
+        /// <param name="config">The configuration to check</param>
+        /// <param name="paths">The source files which can be built</param>
+        /// <returns>If it needs to be rebuilt</returns>
         private bool NeedsRebuild(BuildConfiguration config, IEnumerable<string> paths) {
             if (!File.Exists(config.StampFile)) {
                 return true;
@@ -91,6 +125,11 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 .Any(p => !File.Exists(p) || File.GetLastWriteTimeUtc(p) > stamp);
         }
 
+        /// <summary>
+        /// Builds a configuration of protobuf files
+        /// </summary>
+        /// <param name="config">The configuration to check</param>
+        /// <param name="paths">The source files to be rebuilt</param>
         private void Build(BuildConfiguration config, IEnumerable<string> paths) {
             Directory.CreateDirectory(config.OutputDir);
             if (SpawnProcess(
@@ -104,6 +143,10 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
+        /// <summary>
+        /// Compiles a list of protobuf files
+        /// </summary>
+        /// <param name="files">The protobuf files to compile</param>
         public void CompileFiles(IEnumerable<AdditionalText> files) {
             string[] paths = files.Select(f => f.Path).Where(f => f.EndsWith(".proto")).ToArray();
             if (paths.Length == 0) {
@@ -133,6 +176,9 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
+        /// <summary>
+        /// Cleans all configuration outputs
+        /// </summary>
         public void Clean() {
             foreach (BuildConfiguration config in Configs) {
                 if (Directory.Exists(config.OutputDir)) {
@@ -141,6 +187,11 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
+        /// <summary>
+        /// Adds all sources recursively in an output directory
+        /// </summary>
+        /// <param name="dir">The directory to add</param>
+        /// <param name="context">The generator context</param>
         private void AddSourcesRecursive(string dir, GeneratorExecutionContext context) {
             foreach (string subdir in Directory.GetDirectories(dir)) {
                 AddSourcesRecursive(subdir, context);
@@ -150,6 +201,10 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
+        /// <summary>
+        /// Generates all sources
+        /// </summary>
+        /// <param name="context">The generator context</param>
         public void GenerateSources(GeneratorExecutionContext context) {
             foreach (BuildConfiguration config in Configs) {
                 if (Directory.Exists(config.OutputDir)) {
@@ -158,6 +213,10 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             }
         }
 
+        /// <summary>
+        /// Creates a new ProtobufAnalyzer
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
         public ProtobufAnalyzer(Context ctx) {
             Context = ctx;
             INamedTypeSymbol CompileProtobufAttribute = ctx.GetType<CompileProtobufAttribute>();

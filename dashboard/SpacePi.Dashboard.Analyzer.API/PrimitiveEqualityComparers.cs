@@ -6,6 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.Analyzer.API {
+    /// <summary>
+    /// Equality comparers for primitive types
+    /// </summary>
     public static class PrimitiveEqualityComparers {
         public class String : IEqualityComparer<string> {
             public bool Equals(string x, string y) => x.Equals(y);
