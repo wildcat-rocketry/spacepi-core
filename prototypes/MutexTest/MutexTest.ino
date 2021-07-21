@@ -50,7 +50,7 @@ void task1(void * parameter){         //  Function of task 1
   }
   vTaskDelete(NULL);                    //  Task deletes itself when the count ends
 }
-void task2(void * parameter){         // Function of task 2
+void task2(void * parameter){         //  Function of task 2
   int taskCount = 0;                    //  Local Count var
   Serial.println((char *)parameter);    //  Print when task initilizes 
   delay(250);                           //  delay before loop
