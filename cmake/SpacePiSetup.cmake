@@ -1,7 +1,3 @@
-# CMake version setup
-cmake_minimum_required(VERSION 3.0)
-cmake_policy(SET CMP0091 NEW)
-
 # Current version information
 set(version 3.0.0)
 set(build_compat 2.1.0)
