@@ -1,15 +1,18 @@
 find_package(Protobuf REQUIRED)
 
-spacepi_module(
-    CORE MODULE NAME protoc-gen-spacepi-csharp
-    SOURCES
-        src/main.cpp
-        src/CSharpGen.cpp
-    INCLUDE include
-    LINK
-        spacepi-protoc
-        protobuf::libprotobuf
-        protobuf::libprotoc
+add_executable(protoc-gen-spacepi-csharp
+    src/main.cpp
+    src/CSharpGen.cpp
+)
+
+target_include_directories(protoc-gen-spacepi-csharp PUBLIC
+    include
+)
+
+target_link_libraries(protoc-gen-spacepi-csharp
+    spacepi-protoc
+    protobuf::libprotobuf
+    protobuf::libprotoc
 )
 
 set_target_properties(
