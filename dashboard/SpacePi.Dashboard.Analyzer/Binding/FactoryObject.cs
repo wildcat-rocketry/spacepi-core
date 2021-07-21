@@ -5,14 +5,41 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
+    /// <summary>
+    /// An object constructed by a factory
+    /// </summary>
     public record FactoryObject {
+        /// <summary>
+        /// The type of the object
+        /// </summary>
         public INamedTypeSymbol ObjectType;
+        /// <summary>
+        /// The index of the object in its array
+        /// </summary>
         public int Index;
+        /// <summary>
+        /// The ID of the object
+        /// </summary>
         public string Id;
+        /// <summary>
+        /// The values of each parameter
+        /// </summary>
         public Dictionary<string, TypedConstant> Parameters = new();
+        /// <summary>
+        /// The priority of this instance
+        /// </summary>
         public int Priority;
+        /// <summary>
+        /// A list of bindings within the instance
+        /// </summary>
         public Binding[] Bindings;
 
+        /// <summary>
+        /// Parses data from the attribute annotating an object instance
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
+        /// <param name="attr">The attribute data</param>
+        /// <returns>If the parsing was completed successfully</returns>
         public bool ParseAttributeData(Context ctx, AttributeData attr) {
             Parameters.Clear();
             if (attr.ConstructorArguments.Length != attr.AttributeConstructor.Parameters.Length) {
@@ -49,6 +76,11 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
             return true;
         }
 
+        /// <summary>
+        /// Parses all bindings declared in this object
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
+        /// <param name="factories">All factories defined in the source</param>
         public void ParseBindings(Context ctx, IEnumerable<BindingFactory> factories) =>
             Bindings = factories.SelectMany(f => Binding.ParseAll(ctx, f, ObjectType)).ToArray();
     }

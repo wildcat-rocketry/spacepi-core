@@ -6,8 +6,19 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace SpacePi.Dashboard.Analyzer.API {
+    /// <summary>
+    /// A dictionary which can be statically hashed and allocated as an array
+    /// </summary>
+    /// <typeparam name="TKey">The type of key</typeparam>
+    /// <typeparam name="TValue">The type of value</typeparam>
     public class StaticDictionary<TKey, TValue> : IDictionary<TKey, TValue> {
+        /// <summary>
+        /// A collection of keys in the dictionary
+        /// </summary>
         private class KeyCollection : ICollection<TKey> {
+            /// <summary>
+            /// The dictionary instance
+            /// </summary>
             private readonly StaticDictionary<TKey, TValue> Dictionary;
 
             public bool IsReadOnly => true;
@@ -33,10 +44,20 @@ namespace SpacePi.Dashboard.Analyzer.API {
             public void Clear() => throw new NotSupportedException();
             public bool Remove(TKey item) => throw new NotSupportedException();
 
+            /// <summary>
+            /// Creates a new KeyCollection
+            /// </summary>
+            /// <param name="dictionary">The dictionary instance</param>
             public KeyCollection(StaticDictionary<TKey, TValue> dictionary) => Dictionary = dictionary;
         }
 
+        /// <summary>
+        /// A collection of values in the dictionary
+        /// </summary>
         private class ValueCollection : ICollection<TValue> {
+            /// <summary>
+            /// The dictionary instance
+            /// </summary>
             private readonly StaticDictionary<TKey, TValue> Dictionary;
 
             public bool IsReadOnly => true;
@@ -62,10 +83,20 @@ namespace SpacePi.Dashboard.Analyzer.API {
             public void Clear() => throw new NotSupportedException();
             public bool Remove(TValue item) => throw new NotSupportedException();
 
+            /// <summary>
+            /// Creates a new ValueCollection
+            /// </summary>
+            /// <param name="dictionary">The dictionary instance</param>
             public ValueCollection(StaticDictionary<TKey, TValue> dictionary) => Dictionary = dictionary;
         }
 
+        /// <summary>
+        /// The key comparer for the dictionary
+        /// </summary>
         private readonly IEqualityComparer<TKey> KeyComparer;
+        /// <summary>
+        /// The static table of data for the dictionary
+        /// </summary>
         public readonly (int Hash, TKey Key, TValue Value)[] Table;
 
         public bool IsReadOnly => true;
@@ -133,6 +164,11 @@ namespace SpacePi.Dashboard.Analyzer.API {
         public bool Remove(TKey key) => throw new NotSupportedException();
         public bool Remove(KeyValuePair<TKey, TValue> item) => throw new NotSupportedException();
 
+        /// <summary>
+        /// Creates a statically-defined dictionary
+        /// </summary>
+        /// <param name="keyComparer">The key comparer</param>
+        /// <param name="table">The static table of data</param>
         public StaticDictionary(IEqualityComparer<TKey> keyComparer, params (int Hash, TKey Key, TValue Value)[] table) {
             KeyComparer = keyComparer;
             Table = table;
@@ -140,6 +176,11 @@ namespace SpacePi.Dashboard.Analyzer.API {
             Values = new ValueCollection(this);
         }
 
+        /// <summary>
+        /// Hashes a set of data into a statically-defined dictionary
+        /// </summary>
+        /// <param name="keyComparer">The key comparer</param>
+        /// <param name="source">The source to hash into the dictionary</param>
         public StaticDictionary(IEqualityComparer<TKey> keyComparer, IEnumerable<KeyValuePair<TKey, TValue>> source) :
             this(keyComparer, source.Select(k => (keyComparer.GetHashCode(k.Key), k.Key, k.Value)).OrderBy(t => t.Item1).ToArray()) {
         }

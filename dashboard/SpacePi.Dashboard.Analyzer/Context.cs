@@ -5,10 +5,22 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer {
+    /// <summary>
+    /// A context representing the current compilation
+    /// </summary>
     public class Context {
+        /// <summary>
+        /// The roslyn compilation context
+        /// </summary>
         public readonly Compilation Compilation;
+        /// <summary>
+        /// The currently reported diagnostics
+        /// </summary>
         public readonly Diagnostics Diagnostics;
 
+        /// <summary>
+        /// Gets all the types declared in the compilation context
+        /// </summary>
         public IEnumerable<INamedTypeSymbol> Types {
             get {
                 Stack<INamespaceSymbol> stack = new();
@@ -25,6 +37,11 @@ namespace SpacePi.Dashboard.Analyzer {
             }
         }
 
+        /// <summary>
+        /// Looks up a type in the compilation context
+        /// </summary>
+        /// <typeparam name="Type">The type to look up</typeparam>
+        /// <returns>The equivalent symbol in the compilation context</returns>
         public INamedTypeSymbol GetType<Type>() {
             string fqcn = typeof(Type).FullName.Split(new[] { '[' }, 2)[0];
             INamedTypeSymbol sym = Compilation.GetTypeByMetadataName(fqcn);
@@ -56,6 +73,11 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly INamedTypeSymbol StaticDictionary_2;
         public readonly INamedTypeSymbol SubfactoryAttribute;
 
+        /// <summary>
+        /// Creates a new Context
+        /// </summary>
+        /// <param name="compilation">The roslyn compilation context</param>
+        /// <param name="diags">The currently reported diagnostics</param>
         public Context(Compilation compilation, Diagnostics diags) {
             Compilation = compilation;
             Diagnostics = diags;
