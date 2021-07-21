@@ -27,12 +27,17 @@ void setup(){                       // Setup (run at startup)
     1,                                  // Priority
     NULL                                // Task Handle 
    );
+                                     // Watchdogs are disabled, as they time out in the while loop
+   disableCore0WDT();                //   Disable watchdog timer
+   disableCore1WDT();                //   Disable watchdog timer
 }
 
 /*    Task functions (task1 and task2): 
  *    Keeps track of task's count. 
  *    When the stop flag is not set, calls mutex code, executes critical, the unlocks
  *    Delete themselves when finished. 
+ *    
+ *    task2 seems to call critical far less than task1
  */
 void task1(void * parameter){         //  Function of task 1
   int taskCount = 0;                    //  Local Count var
@@ -63,12 +68,13 @@ void task2(void * parameter){         // Function of task 2
  *    If it isn't, it increments the local and global counts, then prints information. 
  */   
 void crital(int *localCount, int *globalCount, int Task){
-  if ((*globalCount)>=50){            //  When GlobalCount exceeds 50
-    Flag = 5;                           //  Set the flag to stop the count
+  if ((*globalCount)>=5000){            //  When GlobalCount exceeds 50
+    Flag = 5;                           //   Set the flag to stop the count
   }
   else if(Flag!=5){                   //  If the flag is not set
     (*localCount)++;                    //    Increment local count
     (*globalCount)++;                   //    Increment glabal count
+    
     Serial.print(*globalCount);         //    Print off the information
     Serial.print("\t Task");            //    (globalCount)   (Task ID): (localCount)
     Serial.print(Task);                 //    Prints off the count for the system, along 
