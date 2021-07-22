@@ -12,6 +12,6 @@ target_include_directories(protoc-gen-spacepi-cpp PUBLIC
 
 target_link_libraries(protoc-gen-spacepi-cpp
     spacepi-protoc
-    protobuf::libprotobuf
     protobuf::libprotoc
+    protobuf::libprotobuf
 )
