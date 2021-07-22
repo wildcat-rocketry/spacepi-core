@@ -7,8 +7,7 @@ target_link_libraries(spacepi-test
     GTest::gtest_main
 )
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/BuildBeforeTest.cmake" "${CMAKE_CURRENT_BINARY_DIR}/BuildBeforeTest.cmake.in")
-file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/BuildBeforeTest.cmake" INPUT "${CMAKE_CURRENT_BINARY_DIR}/BuildBeforeTest.cmake.in")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/BuildBeforeTest.cmake" "${CMAKE_CURRENT_BINARY_DIR}/BuildBeforeTest.cmake")
 set_property(DIRECTORY APPEND PROPERTY TEST_INCLUDE_FILES "${CMAKE_CURRENT_BINARY_DIR}/BuildBeforeTest.cmake")
 
 include(GoogleTest)
