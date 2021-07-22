@@ -1,5 +1,5 @@
-#include <spacepi/Ints.hpp>
 #include <gtest/gtest.h>
+#include <spacepi/Ints.hpp>
 
 using namespace spacepi;
 

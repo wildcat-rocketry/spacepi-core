@@ -11,11 +11,14 @@ target_include_directories(spacepi-pch PUBLIC
     include
     platform
     platform/spacepi/platform/host
+    "${CMAKE_CURRENT_BINARY_DIR}/include"
 )
 target_compile_definitions(spacepi-pch PUBLIC
-    HAS_PLATFORM_IMPL
+    SPACEPI_HAS_BUILD_CONFIG
+    SPACEPI_HAS_PLATFORM_IMPL
 )
 target_precompile_headers(spacepi-pch PUBLIC <SpacePi.hpp>)
+configure_file(include/spacepi/BuildConfig.in.hpp "${CMAKE_CURRENT_BINARY_DIR}/include/spacepi/BuildConfig.hpp")
 
 add_subdirectory(dashboard)
 add_subdirectory(docs)

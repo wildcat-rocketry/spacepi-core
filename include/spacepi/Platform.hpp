@@ -34,7 +34,7 @@ namespace spacepi {
     };
 }
 
-#ifndef HAS_PLATFORM_IMPL
+#ifndef SPACEPI_HAS_PLATFORM_IMPL
 
 /**
  * \brief Standardized \c int types
