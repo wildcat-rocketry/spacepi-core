@@ -9,6 +9,6 @@ target_include_directories(protoc-gen-spacepi-dashboard PUBLIC
 )
 
 target_link_libraries(protoc-gen-spacepi-dashboard
-    protobuf::libprotobuf
     protobuf::libprotoc
+    protobuf::libprotobuf
 )

@@ -11,8 +11,8 @@ target_include_directories(protoc-gen-spacepi-csharp PUBLIC
 
 target_link_libraries(protoc-gen-spacepi-csharp
     spacepi-protoc
-    protobuf::libprotobuf
     protobuf::libprotoc
+    protobuf::libprotobuf
 )
 
 set_target_properties(

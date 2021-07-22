@@ -11,6 +11,6 @@ target_include_directories(spacepi-protoc PUBLIC
 )
 
 target_link_libraries(spacepi-protoc
-    protobuf::libprotobuf
     protobuf::libprotoc
+    protobuf::libprotobuf
 )
