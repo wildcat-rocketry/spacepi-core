@@ -1,4 +1,0 @@
-@INCLUDE         = "/code/github.com/wildcat-rocketry/spacepi-core/docs/Doxyfile.in"
-INCLUDE_PATH     = "/code/github.com/wildcat-rocketry/spacepi-core/include"
-OUTPUT_DIRECTORY = "."
-INPUT            = "/code/github.com/wildcat-rocketry/spacepi-core/include"
