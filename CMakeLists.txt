@@ -7,7 +7,14 @@ include(SpacePiOnce)
 spacepi_once(SPACEPI_CORE)
 
 add_library(spacepi-pch STATIC src/PCH.cpp)
-target_include_directories(spacepi-pch PUBLIC include)
+target_include_directories(spacepi-pch PUBLIC
+    include
+    platform
+    platform/spacepi/platform/host
+)
+target_compile_definitions(spacepi-pch PUBLIC
+    HAS_PLATFORM_IMPL
+)
 target_precompile_headers(spacepi-pch PUBLIC <SpacePi.hpp>)
 
 add_subdirectory(dashboard)

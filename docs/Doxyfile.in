@@ -2,6 +2,7 @@ EXCLUDE_SYMBOLS        = *::detail::*
 EXTRACT_STATIC         = YES
 GENERATE_LATEX         = NO
 GENERATE_XML           = YES
+PREDEFINED             = BUILDING_DOCS
 PROJECT_BRIEF          = "Core library for SpacePi framework"
 PROJECT_NAME           = "SpacePi Core"
 PROJECT_NUMBER         = v3.0

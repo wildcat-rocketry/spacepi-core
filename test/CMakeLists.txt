@@ -1,8 +1,10 @@
 find_package(GTest REQUIRED)
 add_executable(spacepi-test
-    src/test.cpp
+    src/platform/ints.cpp
+    src/platform/console.cpp
 )
 target_link_libraries(spacepi-test
+    spacepi-pch
     GTest::gtest
     GTest::gtest_main
 )
