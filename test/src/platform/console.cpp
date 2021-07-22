@@ -1,14 +1,15 @@
-#include <spacepi/Platform.hpp>
-#include <gtest/gtest.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gtest/gtest.h>
+#include <spacepi/BuildConfig.hpp>
+#include <spacepi/Platform.hpp>
 
 using namespace spacepi;
 
 static void testPrinting() {
-    char filename[L_tmpnam];
-    tmpnam(filename);
+    char filename[sizeof(BuildConfig::CMAKE_CURRENT_BINARY_DIR) + sizeof("/platform_console_stdout.txt")];
+    snprintf(filename, sizeof(filename), "%s/platform_console_stdout.txt", BuildConfig::CMAKE_CURRENT_BINARY_DIR);
     freopen(filename, "w+", stdout);
     const char msg[] = "Hello, world!";
     Platform::printConsole(msg, (int) strlen(msg));
@@ -20,7 +21,6 @@ static void testPrinting() {
         buf[r] = '\0';
     }
     fclose(stdout);
-    remove(filename);
     if (strncmp(msg, buf, sizeof(buf))) {
         exit(EXIT_FAILURE);
     } else {
