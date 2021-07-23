@@ -28,6 +28,6 @@ static void testPrinting() {
     }
 }
 
-TEST(spacepi_Platform_printConsole, works) {
+TEST(Platform, printConsole) {
     EXPECT_EXIT(testPrinting(), testing::ExitedWithCode(EXIT_SUCCESS), "");
 }

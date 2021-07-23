@@ -17,7 +17,7 @@ if (TARGET Doxygen::doxygen AND TARGET Doxygen::dot AND TARGET Python3::Interpre
         COMMAND Python3::Interpreter
         ARGS -m pip install -q --user -r requirements.txt
         COMMAND ${CMAKE_COMMAND}
-        ARGS -E env "BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}" "DOXYGEN_EXE=${loc}" $<TARGET_FILE:Python3::Interpreter> -m sphinx.cmd.build -b html -c . "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/sphinx"
+        ARGS -E env "BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR}" "DOXYGEN_EXE=${loc}" $<TARGET_FILE:Python3::Interpreter> -m sphinx.cmd.build -T -b html -c . "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/sphinx"
         COMMAND ${CMAKE_COMMAND}
         ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/sphinx.stamp"
         DEPENDS
