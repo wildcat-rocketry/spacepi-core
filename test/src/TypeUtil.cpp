@@ -6,9 +6,9 @@ using namespace spacepi;
 using namespace spacepi::test;
 
 TEST(TypeUtil, NoRef) {
-    ASSERT_EQ(TypeChecker::IntCheck<TypeUtil<      int   >::NoRef>::Kind, TypeChecker::NonReference);
-    ASSERT_EQ(TypeChecker::IntCheck<TypeUtil<      int & >::NoRef>::Kind, TypeChecker::NonReference);
-    ASSERT_EQ(TypeChecker::IntCheck<TypeUtil<const int & >::NoRef>::Kind, TypeChecker::NonReference);
-    ASSERT_EQ(TypeChecker::IntCheck<TypeUtil<      int &&>::NoRef>::Kind, TypeChecker::NonReference);
-    ASSERT_EQ(TypeChecker::IntCheck<TypeUtil<const int &&>::NoRef>::Kind, TypeChecker::NonReference);
+    EXPECT_EQ(TypeChecker::IntCheck<TypeUtil<      int   >::NoRef>::Kind, TypeChecker::NonReference);
+    EXPECT_EQ(TypeChecker::IntCheck<TypeUtil<      int & >::NoRef>::Kind, TypeChecker::NonReference);
+    EXPECT_EQ(TypeChecker::IntCheck<TypeUtil<const int & >::NoRef>::Kind, TypeChecker::NonReference);
+    EXPECT_EQ(TypeChecker::IntCheck<TypeUtil<      int &&>::NoRef>::Kind, TypeChecker::NonReference);
+    EXPECT_EQ(TypeChecker::IntCheck<TypeUtil<const int &&>::NoRef>::Kind, TypeChecker::NonReference);
 }
