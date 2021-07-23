@@ -35,7 +35,7 @@ TEST(container_Function, null) {
     ASSERT_FALSE(Function<void()>());
     ASSERT_FALSE(Function<void()>(nullptr));
     ASSERT_FALSE(Function<int(int)>(doubleInt) = nullptr);
-    ASSERT_DEATH(Function<void()>()(), "");
+    ASSERT_ANY_THROW(Function<void()>()());
 }
 
 TEST(container_Function, function) {
