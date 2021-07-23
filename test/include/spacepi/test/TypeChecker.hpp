@@ -22,47 +22,47 @@ namespace spacepi {
                         static constexpr ReferenceKind Kind = Invalid;
                 };
 
-                template <>
-                class IntCheck<int> {
-                    public:
-                        IntCheck() = delete;
-
-                        static constexpr ReferenceKind Kind = NonReference;
-                };
-
-                template <>
-                class IntCheck<int &> {
-                    public:
-                        IntCheck() = delete;
-
-                        static constexpr ReferenceKind Kind = ModifiableLValue;
-                };
-
-                template <>
-                class IntCheck<const int &> {
-                    public:
-                        IntCheck() = delete;
-
-                        static constexpr ReferenceKind Kind = ConstLValue;
-                };
-
-                template <>
-                class IntCheck<int &&> {
-                    public:
-                        IntCheck() = delete;
-
-                        static constexpr ReferenceKind Kind = ModifiableRValue;
-                };
-
-                template <>
-                class IntCheck<const int &&> {
-                    public:
-                        IntCheck() = delete;
-
-                        static constexpr ReferenceKind Kind = ConstRValue;
-                };
-
                 TypeChecker() = delete;
+        };
+
+        template <>
+        class TypeChecker::IntCheck<int> {
+            public:
+                IntCheck() = delete;
+
+                static constexpr ReferenceKind Kind = NonReference;
+        };
+
+        template <>
+        class TypeChecker::IntCheck<int &> {
+            public:
+                IntCheck() = delete;
+
+                static constexpr ReferenceKind Kind = ModifiableLValue;
+        };
+
+        template <>
+        class TypeChecker::IntCheck<const int &> {
+            public:
+                IntCheck() = delete;
+
+                static constexpr ReferenceKind Kind = ConstLValue;
+        };
+
+        template <>
+        class TypeChecker::IntCheck<int &&> {
+            public:
+                IntCheck() = delete;
+
+                static constexpr ReferenceKind Kind = ModifiableRValue;
+        };
+
+        template <>
+        class TypeChecker::IntCheck<const int &&> {
+            public:
+                IntCheck() = delete;
+
+                static constexpr ReferenceKind Kind = ConstRValue;
         };
     }
 }
