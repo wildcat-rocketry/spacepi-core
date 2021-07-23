@@ -1,7 +1,13 @@
 find_package(GTest REQUIRED)
 add_executable(spacepi-test
-    src/platform/ints.cpp
+    src/container/Function.cpp
+    src/platform/Ints.cpp
     src/platform/console.cpp
+    src/Parameter.cpp
+    src/TypeUtil.cpp
+)
+target_include_directories(spacepi-test PUBLIC
+    include
 )
 target_link_libraries(spacepi-test
     spacepi-pch

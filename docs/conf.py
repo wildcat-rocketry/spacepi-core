@@ -32,12 +32,25 @@ def spacepi_core_docs_setup():
     :protected-members:
 """[1:])
         rst.close()
+        tree = xml.etree.ElementTree.parse(builddir / "xml" / f"{refid}.xml")
+        modified = False
+        for match in tree.findall("./compounddef/templateparamlist/param"):
+            eType = match.find("./type")
+            if eType.text.endswith("..."):
+                eDeclname = match.find("./declname")
+                eDefname = match.find("./defname")
+                eType.text = f"{eType.text} {eDeclname.text}"
+                match.remove(eDeclname)
+                match.remove(eDefname)
+                modified = True
+        if modified:
+            tree.write(builddir / "xml" / f"{refid}.xml")
         return refid
 
     def generateNamespace(refid: str) -> str:
         tree = xml.etree.ElementTree.parse(builddir / "xml" / f"{refid}.xml")
         rst = open(builddir / "rst" / f"{refid}.rst", "w")
-        name = f"""{tree.find("./compounddef/compoundname").text} Namespace"""
+        name = f"""namespace {tree.find("./compounddef/compoundname").text}"""
         rst.write(f"""
 {name}
 {'=' * len(name)}
@@ -48,7 +61,7 @@ def spacepi_core_docs_setup():
             rst.write(f"""
     {generateNamespace(innernamespace.attrib["refid"])}
 """[1:])
-        for innerclass in tree.findall("./compounddef/innerclass"):
+        for innerclass in tree.findall("./compounddef/innerclass[@prot='public']"):
             rst.write(f"""
     {generateClass(innerclass.attrib["refid"], innerclass.text)}
 """[1:])
