@@ -1,6 +1,7 @@
 find_package(GTest REQUIRED)
 add_executable(spacepi-test
     src/container/Function.cpp
+    src/container/Property.cpp
     src/platform/Ints.cpp
     src/platform/console.cpp
     src/Parameter.cpp

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <spacepi/Ints.hpp>
+#include <spacepi/TypeUtil.hpp>
 
 using namespace spacepi;
 
@@ -23,4 +24,15 @@ TEST(Platform_Ints, sign) {
     EXPECT_LT((i16) -1, (i16) 0);
     EXPECT_LT((i32) -1, (i32) 0);
     EXPECT_LT((i64) -1, (i64) 0);
+}
+
+TEST(Platform_Ints, isPrimitive) {
+    EXPECT_TRUE(TypeUtil<u8 >::isPrimitive);
+    EXPECT_TRUE(TypeUtil<u16>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<u32>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<u64>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<i8 >::isPrimitive);
+    EXPECT_TRUE(TypeUtil<i16>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<i32>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<i64>::isPrimitive);
 }

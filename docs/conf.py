@@ -49,6 +49,10 @@ def spacepi_core_docs_setup():
 
     def generateNamespace(refid: str) -> str:
         tree = xml.etree.ElementTree.parse(builddir / "xml" / f"{refid}.xml")
+        innernamespaces = tree.findall("./compounddef/innernamespace")
+        innerclasses = tree.findall("./compounddef/innerclass[@prot='public']")
+        if len(innernamespaces) == 0 and len(innerclasses) == 0:
+            return ""
         rst = open(builddir / "rst" / f"{refid}.rst", "w")
         name = f"""namespace {tree.find("./compounddef/compoundname").text}"""
         rst.write(f"""
@@ -57,7 +61,7 @@ def spacepi_core_docs_setup():
 
 .. toctree::
 """[1:])
-        for innernamespace in tree.findall("./compounddef/innernamespace"):
+        for innernamespace in innernamespaces:
             rst.write(f"""
     {generateNamespace(innernamespace.attrib["refid"])}
 """[1:])
