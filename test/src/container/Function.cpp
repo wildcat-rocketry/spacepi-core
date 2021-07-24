@@ -74,3 +74,14 @@ TEST(container_Function, constFunctoid) {
     EXPECT_EQ((Function<int(int)>(m6) = Function<int(int)>(m7))(2), -14);
     EXPECT_EQ((Function<int(int)>(nullptr) = m6)(2), -12);
 }
+
+TEST(container_Function, lambda) {
+    EXPECT_TRUE(Function<int(int)>() = [](int in) -> int { return in * 8; });
+    EXPECT_TRUE(Function<int(int)>([](int in) -> int { return in * 8; }));
+    EXPECT_TRUE(Function<int(int)>([](int in) -> int { return in * 8; }) = [](int in) -> int { return in * 9; });
+    EXPECT_FALSE(Function<int(int)>([](int in) -> int { return in * 8; }) = nullptr);
+    EXPECT_EQ(Function<int(int)>([](int in) -> int { return in * 8; })(2), 16);
+    EXPECT_EQ((Function<int(int)>([](int in) -> int { return in * 8; }) = [](int in) -> int { return in * 9; })(2), 18);
+    EXPECT_EQ((Function<int(int)>([](int in) -> int { return in * 8; }) = Function<int(int)>([](int in) -> int { return in * 9; }))(2), 18);
+    EXPECT_EQ((Function<int(int)>(nullptr) = [](int in) -> int { return in * 8; })(2), 16);
+}
