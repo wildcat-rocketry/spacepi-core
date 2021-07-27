@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "FieldOptionsExtension.proto";
+import "transient.proto";
 
 import "google/protobuf/descriptor.proto";
 import "google/protobuf/struct.proto";
