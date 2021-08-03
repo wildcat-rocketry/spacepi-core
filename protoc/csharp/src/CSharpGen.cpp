@@ -20,7 +20,8 @@ void CSharpGen::fileBeg(CodeStream &os, const google::protobuf::FileDescriptor &
 
 void CSharpGen::classBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
     os << "// Start class " << cls.name() << endl;
-    os << "public class " << cls.name() << " : ModelClass { " << endl << indent;
+    os << "public class " << cls.name() << " : ModelClass, IObject { " << endl << indent;
+    os << "public IClass Reflection => this;" << endl;
 }
 
 void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -28,71 +29,58 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
     if (property.is_repeated())
     {
         switch (property.type()){
-        case 1:
+        case FieldDescriptor::TYPE_DOUBLE:
             os << "public List<double> " << property.name() << " { get; set; } " << endl;
             break;
-        case 2:
+        case FieldDescriptor::TYPE_FLOAT:
             os << "public List<float> " << property.name() << " { get; set; } " << endl;
             break;
-        case 3:
+        case FieldDescriptor::TYPE_INT64:
             os << "public List<long> " << property.name() << " { get; set; } " << endl;
             break;
-        case 4:
+        case FieldDescriptor::TYPE_UINT64:
             os << "public List<ulong> " << property.name() << " { get; set; } " << endl;
             break;
-        case 5:
+        case FieldDescriptor::TYPE_INT32:
             os << "public List<int> " << property.name() << " { get; set; } " << endl;
             break;
-        case 6:
+        case FieldDescriptor::TYPE_FIXED64:
             os << "public List<fixed64> " << property.name() << " { get; set; } " << endl;
             break;
-        case 7:
+        case FieldDescriptor::TYPE_FIXED32:
             os << "public List<fixed32> " << property.name() << " { get; set; } " << endl;
             break;
-        case 8:
+        case FieldDescriptor::TYPE_BOOL:
             os << "public List<bool> " << property.name() << " { get; set; } " << endl;
             break;
-        case 9:
+        case FieldDescriptor::TYPE_STRING:
             os << "public List<string> " << property.name() << " { get; set; } " << endl;
             break;
-        case 10:
+        case FieldDescriptor::TYPE_GROUP:
             os << "public List<group> " << property.name() << " { get; set; } " << endl;
             break;
-        case 11:
-            {
-                std::string s = property.message_type()->file()->name();
-                s = s.substr(0, s.length() - 6);
-                if (property.name() == ("mainWindow")){
-                    os << "public google.protobuf.any mainWindow { get; set; } " << endl;
-                }
-                else if (property.name() == ("Description"))
-                {
-                    os << "public google.protobuf.descriptor Description { get; set; } " << endl;
-                }
-                else{
-                    os << "public List<" << property.file()->package() << "." << s << "> " << property.name() << " { get; set; } " << endl;
-                }
-            }
+        case FieldDescriptor::TYPE_MESSAGE:
+            os << "public List<" << property.message_type()->file()->package() << "." << property.message_type()->name() << "> " << property.name() << " { get; set; }" << endl;
             break;
-        case 12:
+        case FieldDescriptor::TYPE_BYTES:
             os << "public List<bytes> " << property.name() << " { get; set; } " << endl;
             break;
-        case 13:
+        case FieldDescriptor::TYPE_UINT32:
             os << "public List<uint> " << property.name() << " { get; set; } " << endl;
             break;
-        case 14:
-            os << "public List<enum> " << property.name() << " { get; set; } " << endl;
+        case FieldDescriptor::TYPE_ENUM:
+            os << "public List<" << property.message_type()->file()->package() << "." << property.message_type()->name() << "> " << property.name() << " { get; set; }" << endl;
             break;
-        case 15:
+        case FieldDescriptor::TYPE_SFIXED32:
             os << "public List<sfixed32> " << property.name() << " { get; set; } " << endl;
             break;
-        case 16:
+        case FieldDescriptor::TYPE_SFIXED64:
             os << "public List<sfixed64> " << property.name() << " { get; set; } " << endl;
             break;
-        case 17:
+        case FieldDescriptor::TYPE_SINT32:
             os << "public List<sint32> " << property.name() << " { get; set; } " << endl;
             break;
-        case 18:
+        case FieldDescriptor::TYPE_SINT64:
             os << "public List<sint64> " << property.name() << " { get; set; } " << endl;
             break;
         default:
@@ -102,71 +90,58 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
     }
     else{
         switch (property.type()){
-        case 1:
+        case FieldDescriptor::TYPE_DOUBLE:
             os << "public double " << property.name() << " { get; set; } " << endl;
             break;
-        case 2:
+        case FieldDescriptor::TYPE_FLOAT:
             os << "public float " << property.name() << " { get; set; } " << endl;
             break;
-        case 3:
+        case FieldDescriptor::TYPE_INT64:
             os << "public long " << property.name() << " { get; set; } " << endl;
             break;
-        case 4:
+        case FieldDescriptor::TYPE_UINT64:
             os << "public ulong " << property.name() << " { get; set; } " << endl;
             break;
-        case 5:
+        case FieldDescriptor::TYPE_INT32:
             os << "public int " << property.name() << " { get; set; } " << endl;
             break;
-        case 6:
+        case FieldDescriptor::TYPE_FIXED64:
             os << "public fixed64 " << property.name() << " { get; set; } " << endl;
             break;
-        case 7:
+        case FieldDescriptor::TYPE_FIXED32:
             os << "public fixed32 " << property.name() << " { get; set; } " << endl;
             break;
-        case 8:
+        case FieldDescriptor::TYPE_BOOL:
             os << "public bool " << property.name() << " { get; set; } " << endl;
             break;
-        case 9:
+        case FieldDescriptor::TYPE_STRING:
             os << "public string " << property.name() << " { get; set; } " << endl;
             break;
-        case 10:
+        case FieldDescriptor::TYPE_GROUP:
             os << "public group " << property.name() << " { get; set; } " << endl;
             break;
-        case 11:
-            {
-                std::string s = property.message_type()->file()->name();
-                s = s.substr(0, s.length() - 6);
-                if (property.name() == ("mainWindow")){
-                    os << "public google.protobuf.any mainWindow { get; set; } " << endl;
-                }
-                else if (property.name() == ("Description"))
-                {
-                    os << "public google.protobuf.descriptor Description { get; set; } " << endl;
-                }
-                else{
-                    os << "public " << property.file()->package() << "." << s << " " << property.name() << " { get; set; } " << endl;
-                }
-            }
+        case FieldDescriptor::TYPE_MESSAGE:
+            os << "public " << property.message_type()->file()->package() << "." << property.message_type()->name() << " " << property.name() << " { get; set; }" << endl;
             break;
-        case 12:
+        case FieldDescriptor::TYPE_BYTES:
             os << "public bytes " << property.name() << " { get; set; } " << endl;
             break;
-        case 13:
+        case FieldDescriptor::TYPE_UINT32:
             os << "public uint " << property.name() << " { get; set; } " << endl;
             break;
-        case 14:
-            os << "public enum " << property.name() << " { get; set; } " << endl;
+        case FieldDescriptor::TYPE_ENUM:
+            os << "public " << property.message_type()->file()->package() << "." << property.message_type()->name() << " " << property.name() << " { get; set; }" << endl;
             break;
-        case 15:
+        case FieldDescriptor::TYPE_SFIXED32:
             os << "public sfixed32 " << property.name() << " { get; set; } " << endl;
             break;
-        case 16:
+        case FieldDescriptor::TYPE_SFIXED64:
             os << "public sfixed64 " << property.name() << " { get; set; } " << endl;
             break;
-        case 17:
+        case FieldDescriptor::TYPE_SINT32:
             os << "public sint32 " << property.name() << " { get; set; } " << endl;
             break;
-        case 18:
+        case FieldDescriptor::TYPE_SINT64:
             os << "public sint64 " << property.name() << " { get; set; } " << endl;
             break;
         default:
@@ -177,80 +152,67 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
 }
 
 void CSharpGen::reflectionMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
-    os << endl << "// Start reflection()" << indent << endl;
-    os << "public void Reflection() {" << endl;
+    os << endl << "// Start reflection()" << endl;
+    os << "public void Reflection() : base(\"" << cls.name() << "\", new IField[]{" << indent << endl;
 }
 
 void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
     os << "// Property " << property.name() << endl;
     if (property.is_repeated()){
         switch (property.type()){
-        case 1:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, double, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_DOUBLE:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, double, " << property.name() << ")," << endl;
             break;
-        case 2:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, float, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_FLOAT:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, float, " << property.name() << ")," << endl;
             break;
-        case 3:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, long, " << property.name() << ")" << endl; 
+        case FieldDescriptor::TYPE_INT64:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, long, " << property.name() << ")," << endl; 
             break;
-        case 4:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, ulong, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_UINT64:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, ulong, " << property.name() << ")," << endl;
             break;
-        case 5:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, int, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_INT32:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, int, " << property.name() << ")," << endl;
             break;
-        case 6:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, fixed64, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_FIXED64:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed64, " << property.name() << ")," << endl;
             break;
-        case 7:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, fixed32, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_FIXED32:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed32, " << property.name() << ")," << endl;
             break;
-        case 8:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, bool, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_BOOL:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bool, " << property.name() << ")," << endl;
             break;
-        case 9:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, string, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_STRING:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, string, " << property.name() << ")," << endl;
             break;
-        case 10:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, group, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_GROUP:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, group, " << property.name() << ")," << endl;
             break;
-        case 11:
-            {
-                std::string s = property.message_type()->file()->name();
-                s = s.substr(0, s.length() - 6);
-                if (property.name() == ("mainWindow")){
-                    os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, google.protobuf.any, " << property.name() << ")" << endl;
-                }
-                else if (property.name() == ("Description"))
-                {
-                    os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, google.protobuf.descriptor, " << property.name() << ")" << endl;
-                }
-                else{
-                    os << "public " << property.file()->package() << "." << s << " " << property.name() << " { get; set; } " << endl;
-                }
-            }
+        case FieldDescriptor::TYPE_MESSAGE:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", " << property.name() <<  ")," << endl;
             break;
-        case 12:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, bytes, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_BYTES:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bytes, " << property.name() << ")," << endl;
             break;
-        case 13:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, uint, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_UINT32:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, uint, " << property.name() << ")," << endl;
             break;
-        case 14:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, enum, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_ENUM:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", " << property.name() <<  ")," << endl;
             break;
-        case 15:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sfixed32, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_SFIXED32:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed32, " << property.name() << ")," << endl;
             break;
-        case 16:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sfixed64, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_SFIXED64:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed64, " << property.name() << ")," << endl;
             break;
-        case 17:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sint32, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_SINT32:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sint32, " << property.name() << ")," << endl;
             break;
-        case 18:
-            os << "public VectorPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sint64, " << property.name() << ")" << endl;
+        case FieldDescriptor::TYPE_SINT64:
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sint64, " << property.name() << ")," << endl;
             break;
         default:
             os << "Unknown type - debug" << endl;
@@ -259,72 +221,59 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
     }
     else{
         switch (property.type()){
-        case 1:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, double, x)" << endl;
+        case FieldDescriptor::TYPE_DOUBLE:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, double, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 2:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, float, x)" << endl;
+        case FieldDescriptor::TYPE_FLOAT:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, float, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 3:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, long, x)" << endl;    
+        case FieldDescriptor::TYPE_INT64:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, long, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;    
             break;
-        case 4:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, ulong, x)" << endl;
+        case FieldDescriptor::TYPE_UINT64:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, ulong, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 5:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, int, x)" << endl;
+        case FieldDescriptor::TYPE_INT32:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, int, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 6:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, fixed64, x)" << endl;
+        case FieldDescriptor::TYPE_FIXED64:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 7:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, fixed32, x)" << endl;
+        case FieldDescriptor::TYPE_FIXED32:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 8:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, bool, x)" << endl;
+        case FieldDescriptor::TYPE_BOOL:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bool, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 9:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, string, x)" << endl;
+        case FieldDescriptor::TYPE_STRING:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, string, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 10:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, group, x)" << endl;
+        case FieldDescriptor::TYPE_GROUP:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, group, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 11:
-            {
-                std::string s = property.message_type()->file()->name();
-                s = s.substr(0, s.length() - 6);
-                if (property.name() == ("mainWindow")){
-                    os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, google.protobuf.any, x)" << endl;
-                }
-                else if (property.name() == ("Description"))
-                {
-                    os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, google.protobuf.descriptor, x)" << endl;
-                }
-                else{
-                    os << "public " << property.file()->package() << "." << s << " " << property.name() << " { get; set; } " << endl;
-                }
-            }
+        case FieldDescriptor::TYPE_MESSAGE:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 12:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, bytes, x)" << endl;
+        case FieldDescriptor::TYPE_BYTES:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bytes, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 13:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, uint, x)" << endl;
+        case FieldDescriptor::TYPE_UINT32:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, uint, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 14:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, enum, x)" << endl;
+        case FieldDescriptor::TYPE_ENUM:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 15:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sfixed32, x)" << endl;
+        case FieldDescriptor::TYPE_SFIXED32:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 16:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sfixed64, x)" << endl;
+        case FieldDescriptor::TYPE_SFIXED64:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 17:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sint32, x)" << endl;
+        case FieldDescriptor::TYPE_SINT32:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sint32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
-        case 18:
-            os << "public ScalarPrimitiveField ref" << property.name() << "( " << property.name() <<", " << property.number() << ", false, sint64, x)" << endl;
+        case FieldDescriptor::TYPE_SINT64:
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sint64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         default:
             os << "Unknown type - debug" << endl;
@@ -335,7 +284,7 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
 
 void CSharpGen::reflectionMethodEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
     os << deindent << "// End reflection()" << endl;
-    os << "}" << endl;
+    os << "}){}" << endl;
 }
 
 void CSharpGen::classEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
