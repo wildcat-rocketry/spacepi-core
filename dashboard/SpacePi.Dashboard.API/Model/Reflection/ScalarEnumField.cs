@@ -14,7 +14,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public bool IsList => false;
 
-        public int Count { get; private set; } = 0;
+        public int Count => 1;
 
         public int Number { get; }
 
@@ -24,29 +24,16 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public int this[int idx] {
             get => Getter();
-            set {
-                if(idx >= Count || idx < 0) {
-                    throw new InvalidOperationException("Invalid index");
-                }
-                Setter(value);
-            }
+            set => Setter(value);
         }
 
         public readonly NotifyCollectionChangedEventArgs ChangedEvent;
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public void Append() {
-            Count++; 
-        }
+        public void Append() => throw new InvalidOperationException();
 
-        public void Remove(int idx) {
-            if (Count > 0) {
-                Count--;
-            } else {
-                throw new InvalidOperationException("No value to remove");
-            }
-        }
+        public void Remove(int idx) => throw new InvalidOperationException();
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
