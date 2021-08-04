@@ -48,7 +48,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization
             for (int i = 0; i < 10; i++) // The max size of a varint is 10
             {
                 int int_stream_return = stream.ReadByte();
-                if (int_stream_return < 1) break; // gracefully hit end of stream
+                if (int_stream_return < 1) { throw new EndOfStreamException(); }; // gracefully hit end of stream
 
                 byte cur_byte = (byte)int_stream_return;
 
