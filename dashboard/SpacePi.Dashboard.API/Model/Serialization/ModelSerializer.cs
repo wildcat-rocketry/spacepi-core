@@ -58,6 +58,12 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             }
         }
 
+        static void AppendIfList(IField field) {
+            if (field.IsList) {
+                field.Append();
+            }
+        }
+
         static void ParseClass(IClass cls, Stream stream) {
             // How do I want to deal with invalid stuff?
 
@@ -68,98 +74,69 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                 int fieldNum = fieldInfo.Item1;
 
                 IField field = cls.Fields.Where((field) => { return field.Number == fieldNum; }).SingleOrDefault();
-                if( field != null ) {
-                    if (field is ScalarEnumField enumField) {
-                        DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                            enumField[0] = (int) Varint.FromBase128(stream);
-                        });
-                    } else if (field is ScalarPrimitiveField primField) {
-                        IPrimitiveField.Types fieldType = primField.Type;
-                        switch (fieldType) {
-                            case IPrimitiveField.Types.Bool:
-                            case IPrimitiveField.Types.Int32:
-                            case IPrimitiveField.Types.Int64:
-                            case IPrimitiveField.Types.Uint32:
-                            case IPrimitiveField.Types.Uint64:
-                                DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                    primField[0] = ParseSingleVarint(fieldType, stream);
-                                });
-                                break;
-                            case IPrimitiveField.Types.Double:
-                                DiscardIfNot(stream, WireType.FIXED_64, wireType, () => {
-                                    primField[0] = new BinaryReader(stream).ReadDouble();
-                                });
-                                break;
-                            case IPrimitiveField.Types.Float:
-                                DiscardIfNot(stream, WireType.FIXED_32, wireType, () => {
-                                    primField[0] = new BinaryReader(stream).ReadSingle();
-                                });
-                                break;
-                            case IPrimitiveField.Types.String:
-                                DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
-                                    ulong length = Varint.FromBase128(stream);
-                                    StringWriter stringWriter = new();
-                                    for (ulong i = 0; i < length; i++) {
-                                        stringWriter.Write(stream.ReadByte());
-                                    }
-                                    primField[0] = stringWriter.ToString();
-                                });
-                                break;
-                        }
-                    } else if (field is ScalarClassField<ModelClass> scalarClassField) {
-                        IClass model = scalarClassField[0];
+                if (field == null) {
+                    // Discard this field
+                    DiscardWire(wireType, stream);
+                    continue;
+                }
+
+                switch (field) {
+                    case IClassField classField:
                         DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
-                            ulong length = Varint.FromBase128(stream);
-                            ParseClass(model, stream);
+                            Varint.FromBase128(stream); // Don't care about the length
+                            AppendIfList(classField);
+                            ParseClass(classField[classField.Count-1], stream);
                         });
-                    } else if (field is VectorEnumField<Enum> vectorEnum) {
-                        Action addOne = () => {
-                            vectorEnum.Append();
-                            vectorEnum[vectorEnum.Count - 1] = (int) Varint.FromBase128(stream);
+                        break;
+                    case IEnumField enumField:
+                        Action addOneEnum = () => {
+                            AppendIfList(enumField);
+                            enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream);
                         };
-                        if (wireType == WireType.LENGTH_DELIMITED) {
+                        if(wireType == WireType.LENGTH_DELIMITED) {
                             ulong length = Varint.FromBase128(stream);
                             for (ulong i = 0; i < length; i++) {
-                                addOne();
+                                addOneEnum();
                             }
                         } else {
                             DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                addOne();
+                                addOneEnum();
                             });
                         }
-                    } else if (field is VectorPrimitiveField<object> vectorPrim) {
-                        IPrimitiveField.Types fieldType = vectorPrim.Type;
+                        break;
+                    case IPrimitiveField primitiveField:
+                        IPrimitiveField.Types fieldType = primitiveField.Type;
                         switch (fieldType) {
                             case IPrimitiveField.Types.Bool:
                             case IPrimitiveField.Types.Int32:
                             case IPrimitiveField.Types.Int64:
                             case IPrimitiveField.Types.Uint32:
                             case IPrimitiveField.Types.Uint64:
-                                Action addOne = () => {
-                                    vectorPrim.Append();
-                                    vectorPrim[vectorPrim.Count - 1] = ParseSingleVarint(fieldType, stream);
+                                Action addOnePrim = () => {
+                                    AppendIfList(primitiveField);
+                                    primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream);
                                 };
-                                if (wireType == WireType.VARINT) {
+                                if(wireType == WireType.LENGTH_DELIMITED) {
                                     ulong length = Varint.FromBase128(stream);
                                     for (ulong i = 0; i < length; i++) {
-                                        addOne();
-                                    }
+                                        addOnePrim();
+                                    };
                                 } else {
                                     DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                        addOne();
+                                        addOnePrim();
                                     });
                                 }
                                 break;
                             case IPrimitiveField.Types.Double:
                                 DiscardIfNot(stream, WireType.FIXED_64, wireType, () => {
-                                    vectorPrim.Append();
-                                    vectorPrim[vectorPrim.Count - 1] = new BinaryReader(stream).ReadDouble();
+                                    AppendIfList(primitiveField);
+                                    primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadDouble();
                                 });
                                 break;
                             case IPrimitiveField.Types.Float:
                                 DiscardIfNot(stream, WireType.FIXED_32, wireType, () => {
-                                    vectorPrim.Append();
-                                    vectorPrim[vectorPrim.Count - 1] = new BinaryReader(stream).ReadSingle();
+                                    AppendIfList(primitiveField);
+                                    primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadSingle();
                                 });
                                 break;
                             case IPrimitiveField.Types.String:
@@ -169,17 +146,12 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                                     for (ulong i = 0; i < length; i++) {
                                         stringWriter.Write(stream.ReadByte());
                                     }
-                                    vectorPrim.Append();
-                                    vectorPrim[vectorPrim.Count - 1] = stringWriter.ToString();
+                                    AppendIfList(primitiveField);
+                                    primitiveField[primitiveField.Count-1] = stringWriter.ToString();
                                 });
                                 break;
-                        }
-                    } else if (field is VectorClassField<IClass> vectorClass) {
-                        DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
-                            vectorClass.Append();
-                            ParseClass(vectorClass[vectorClass.Count - 1], stream);
-                        });
-                    }
+                        };
+                        break;
                 }
             }
         }
