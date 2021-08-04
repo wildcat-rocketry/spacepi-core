@@ -60,16 +60,16 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
             os << "public List<group> " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_MESSAGE:
-            os << "public List<" << property.message_type()->file()->package() << "." << property.message_type()->name() << "> " << property.name() << " { get; set; }" << endl;
+            os << "public List<" << property.message_type()->full_name() << "> " << property.name() << " { get; set; }" << endl;
             break;
         case FieldDescriptor::TYPE_BYTES:
-            os << "public List<bytes> " << property.name() << " { get; set; } " << endl;
+            os << "public List<byte[]> " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_UINT32:
             os << "public List<uint> " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_ENUM:
-            os << "public List<" << property.message_type()->file()->package() << "." << property.message_type()->name() << "> " << property.name() << " { get; set; }" << endl;
+            os << "public List<" << property.enum_type()->full_name() << "> " << property.name() << " { get; set; }" << endl;
             break;
         case FieldDescriptor::TYPE_SFIXED32:
             os << "public List<sfixed32> " << property.name() << " { get; set; } " << endl;
@@ -121,16 +121,16 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
             os << "public group " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_MESSAGE:
-            os << "public " << property.message_type()->file()->package() << "." << property.message_type()->name() << " " << property.name() << " { get; set; }" << endl;
+            os << "public " << property.message_type()->full_name() << " " << property.name() << " { get; set; }" << endl;
             break;
         case FieldDescriptor::TYPE_BYTES:
-            os << "public bytes " << property.name() << " { get; set; } " << endl;
+            os << "public byte[] " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_UINT32:
             os << "public uint " << property.name() << " { get; set; } " << endl;
             break;
         case FieldDescriptor::TYPE_ENUM:
-            os << "public " << property.message_type()->file()->package() << "." << property.message_type()->name() << " " << property.name() << " { get; set; }" << endl;
+            os << "public " << property.enum_type()->full_name() << " " << property.name() << " { get; set; }" << endl;
             break;
         case FieldDescriptor::TYPE_SFIXED32:
             os << "public sfixed32 " << property.name() << " { get; set; } " << endl;
@@ -153,7 +153,7 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
 
 void CSharpGen::reflectionMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
     os << endl << "// Start reflection()" << endl;
-    os << "public void Reflection() : base(\"" << cls.name() << "\", new IField[]{" << indent << endl;
+    os << "public " << cls.name() << "() : base(\"" << cls.name() << "\", new IField[]{" << indent << endl;
 }
 
 void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -161,19 +161,19 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
     if (property.is_repeated()){
         switch (property.type()){
         case FieldDescriptor::TYPE_DOUBLE:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, double, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Double, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_FLOAT:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, float, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Float, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_INT64:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, long, " << property.name() << ")," << endl; 
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, " << property.name() << ")," << endl; 
             break;
         case FieldDescriptor::TYPE_UINT64:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, ulong, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint64, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_INT32:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, int, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int32, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_FIXED64:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed64, " << property.name() << ")," << endl;
@@ -182,25 +182,25 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed32, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_BOOL:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bool, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Bool, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_STRING:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, string, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.String, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_GROUP:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, group, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_MESSAGE:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", " << property.name() <<  ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->full_name() << ", " << property.name() <<  ")," << endl;
             break;
         case FieldDescriptor::TYPE_BYTES:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bytes, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Bytes, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_UINT32:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, uint, " << property.name() << ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint32, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_ENUM:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", " << property.name() <<  ")," << endl;
+            os << "new VectorPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.enum_type()->full_name() << ", " << property.name() <<  ")," << endl;
             break;
         case FieldDescriptor::TYPE_SFIXED32:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed32, " << property.name() << ")," << endl;
@@ -222,19 +222,19 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
     else{
         switch (property.type()){
         case FieldDescriptor::TYPE_DOUBLE:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, double, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Double, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_FLOAT:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, float, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Float, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_INT64:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, long, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;    
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;    
             break;
         case FieldDescriptor::TYPE_UINT64:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, ulong, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_INT32:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, int, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_FIXED64:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
@@ -243,25 +243,25 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, fixed32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_BOOL:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bool, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Bool, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_STRING:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, string, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.String, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_GROUP:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, group, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_MESSAGE:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->full_name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_BYTES:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, bytes, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Bytes, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_UINT32:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, uint, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_ENUM:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.message_type()->file()->package() << "." << property.message_type()->name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() << "\", " << property.number() << ", false, " << property.enum_type()->full_name() << ", () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_SFIXED32:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, sfixed32, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
@@ -294,7 +294,7 @@ void CSharpGen::classEnd(CodeStream &os, const google::protobuf::FileDescriptor 
 
 void CSharpGen::enumBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept {
     os << "// Begin enum " << cls.name() << endl << indent;
-    os << "public enum " << cls.name() << endl;
+    os << "public enum " << cls.name() << "{" << endl;
 }
 
 void CSharpGen::enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept {
