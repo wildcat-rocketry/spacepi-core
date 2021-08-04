@@ -6,10 +6,22 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
+    /// <summary>
+    /// A stream to generate the binding source code
+    /// </summary>
     public class BindingGeneratorStream : GeneratorStream {
+        /// <summary>
+        /// Appends the name of the property used to store the factory instance
+        /// </summary>
+        /// <param name="factory">The factory instance</param>
         public void AppendFactoryInstance(BindingFactoryInstance factory) =>
             Append($"F{factory.GeneratedClass.ClassName}");
 
+        /// <summary>
+        /// Appends the unboxing of a factory object
+        /// </summary>
+        /// <param name="factory">The factory instance</param>
+        /// <param name="obj">The object to unbox</param>
         public void AppendUnboxing(BindingFactoryInstance factory, FactoryObjectInstance obj) =>
             AppendCast(
                 () => AppendMethodCall(
@@ -22,6 +34,11 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                         obj.FactoryObject.Index)),
                 obj.FactoryObject.ObjectType);
 
+        /// <summary>
+        /// Appends the implementation of a factory instance
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
+        /// <param name="factory">The factory instance</param>
         public void AppendFactoryImpl(Context ctx, BindingFactoryInstance factory) =>
             AppendNamespace(
                 GeneratedClass.Namespace,
@@ -130,6 +147,11 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                     },
                     ctx.IBoundFactory_1.Construct(factory.BindingFactory.Symbol)));
 
+        /// <summary>
+        /// Appends the implementation of the main class
+        /// </summary>
+        /// <param name="mainClass">The main class to generate</param>
+        /// <param name="roots">The list of root nodes to generate in the main function</param>
         public void AppendMainClass(GeneratedClass mainClass, IEnumerable<BindingFactoryInstance> roots) =>
             AppendNamespace(
                 GeneratedClass.Namespace,

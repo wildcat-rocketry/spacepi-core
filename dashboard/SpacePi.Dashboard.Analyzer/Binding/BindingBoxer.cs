@@ -5,19 +5,29 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
+    /// <summary>
+    /// The boxing method declared in a factory
+    /// </summary>
     public record BindingBoxer {
-        public enum ParameterType {
-            FactoryObject,
-            ID,
-            Parameter,
-            Priority
-        }
-
+        /// <summary>
+        /// The method symbol used to box an instance
+        /// </summary>
         public IMethodSymbol Method;
+        /// <summary>
+        /// The parameters to the function
+        /// </summary>
         public Parameter[] Parameters;
+        /// <summary>
+        /// The method symbol used to unbox an instance
+        /// </summary>
         public IMethodSymbol Unboxer;
 
-        public void TryParse(INamedTypeSymbol factory, BindingArray array, Context ctx) {
+        /// <summary>
+        /// Tries to find the boxing and unboxing methods in a factory class
+        /// </summary>
+        /// <param name="factory">The factory class</param>
+        /// <param name="ctx">The compilation context</param>
+        public void TryParse(INamedTypeSymbol factory, Context ctx) {
             Method = factory.GetAllMembers()
                 .OfType<IMethodSymbol>()
                 .BeginValidation()

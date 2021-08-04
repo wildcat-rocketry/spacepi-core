@@ -5,9 +5,23 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer {
+    /// <summary>
+    /// Helper to validate properties of a symbol
+    /// </summary>
+    /// <typeparam name="TSymbol">The type of symbol</typeparam>
+    /// <typeparam name="TContext">The type of context to pass along with it</typeparam>
     public class Validator<TSymbol, TContext> where TSymbol : ISymbol {
+        /// <summary>
+        /// The symbol
+        /// </summary>
         public readonly TSymbol Symbol;
+        /// <summary>
+        /// The diagnostics to report as a result of the validator
+        /// </summary>
         public readonly List<Action<Diagnostics>> Diagnostics;
+        /// <summary>
+        /// The context object
+        /// </summary>
         public TContext Context;
 
         public bool Check() => Diagnostics.Count == 0;
@@ -111,6 +125,9 @@ namespace SpacePi.Dashboard.Analyzer {
             _(((IPropertySymbol) Symbol).SetMethod?.BeginValidation()?.IsPublic()?.Check() == true, d => d.HasPublicGetterSetter.Report(Symbol, Symbol, "setter"));
     }
 
+    /// <summary>
+    /// Extension methods to assist syntax with the validator
+    /// </summary>
     public static class ValidatorExtensions {
         // Begin Methods
         public static Validator<TSymbol, TContext> BeginValidation<TSymbol, TContext>(this TSymbol t, TContext ctx) where TSymbol : ISymbol =>

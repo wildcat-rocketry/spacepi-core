@@ -5,10 +5,25 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 
 namespace SpacePi.Dashboard.Analyzer {
+    /// <summary>
+    /// A stream to generate code for generates sources
+    /// </summary>
     public class GeneratorStream {
+        /// <summary>
+        /// The code string builder
+        /// </summary>
         private readonly StringBuilder Source = new();
+        /// <summary>
+        /// The indent to use on each new line
+        /// </summary>
         private readonly StringBuilder Indent = new();
+        /// <summary>
+        /// The number of '{'s on the current line
+        /// </summary>
         private int LineBraceCount = 0;
+        /// <summary>
+        /// If a newline should be appended given that the next line is not a '}'
+        /// </summary>
         private bool OptionalNewline = false;
 
         public void AddIndent(int tabs = 1) => Indent.Append(new string(' ', tabs * 4));

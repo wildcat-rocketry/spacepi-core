@@ -7,28 +7,80 @@ using Microsoft.CodeAnalysis;
 using SpacePi.Dashboard.Analyzer.API;
 
 namespace SpacePi.Dashboard.Analyzer.Binding {
+    /// <summary>
+    /// A binding declared on a property
+    /// </summary>
     public record Binding {
+        /// <summary>
+        /// The different types of supported bindings
+        /// </summary>
         public enum Modes {
+            /// <summary>
+            /// A binding to exactly one target
+            /// </summary>
             Single,
+            /// <summary>
+            /// A binding to a list of targets
+            /// </summary>
             List,
+            /// <summary>
+            /// A binding to a list of targets, stored in a dictionary
+            /// </summary>
             Dictionary,
+            /// <summary>
+            /// A binding to the factory instance
+            /// </summary>
             Factory
         }
 
+        /// <summary>
+        /// The type of key stored in a dictionary binding
+        /// </summary>
         public enum DictionaryKeyType {
             Int,
             String
         }
 
+        /// <summary>
+        /// The property on which the binding is applied
+        /// </summary>
         public IPropertySymbol Symbol;
+        /// <summary>
+        /// The ID of the target object
+        /// </summary>
         public string Id;
+        /// <summary>
+        /// The binding mode
+        /// </summary>
         public Modes Mode;
+        /// <summary>
+        /// The name of the property which is the key of the dictionary
+        /// </summary>
         public string DictionaryKey;
+        /// <summary>
+        /// The factory the binding is targetting
+        /// </summary>
         public BindingFactory Factory;
+        /// <summary>
+        /// A list of objects the binding is targetting
+        /// </summary>
         public FactoryObject[] Objects;
+        /// <summary>
+        /// The type of key used in the dictionary
+        /// </summary>
         public DictionaryKeyType KeyType;
+        /// <summary>
+        /// A dictionary of objects the binding is targetting
+        /// </summary>
         public IDictionaryHasher<FactoryObject> ObjectDict;
 
+        /// <summary>
+        /// Parses all declared bindings in a class
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
+        /// <param name="factory"></param>
+        /// <param name="cls"></param>
+        /// <returns></returns>
         public static IEnumerable<Binding> ParseAll(Context ctx, BindingFactory factory, INamedTypeSymbol cls) {
             Binding obj = null;
             foreach ((IPropertySymbol prop, AttributeData attr) in cls.GetAllMembers()
@@ -90,6 +142,11 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
             }
         }
 
+        /// <summary>
+        /// Finds targets for a list of bindings
+        /// </summary>
+        /// <param name="ctx">The compilation context</param>
+        /// <param name="bindings">The bindings to bind</param>
         public static void PerformBinding(Context ctx, IEnumerable<Binding> bindings) {
             foreach (Binding binding in bindings) {
                 binding.Objects = null;
