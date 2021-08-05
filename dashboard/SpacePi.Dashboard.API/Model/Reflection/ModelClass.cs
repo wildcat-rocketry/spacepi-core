@@ -8,11 +8,8 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
     public class ModelClass : IClass {
         public string Name { get; }
 
-        public IEnumerable<IField> Fields { get; }
+        public IEnumerable<IField> Fields { get; protected set; }
 
-        public ModelClass(string name, params IField[] fields) {
-            Name = name;
-            Fields = fields;
-        }
+        public ModelClass(string name) => Name = name;
     }
 }

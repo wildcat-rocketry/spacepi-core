@@ -153,7 +153,7 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
 
 void CSharpGen::reflectionMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
     os << endl << "// Start reflection()" << endl;
-    os << "public " << cls.name() << "() : base(\"" << cls.name() << "\", new IField[]{" << indent << endl;
+    os << "public " << cls.name() << "() : base(\"" << cls.name() << "\") => Fields = new IField[] {" << indent << endl;
 }
 
 void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -167,7 +167,7 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Float, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_INT64:
-            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, " << property.name() << ")," << endl; 
+            os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, " << property.name() << ")," << endl;
             break;
         case FieldDescriptor::TYPE_UINT64:
             os << "new VectorPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint64, " << property.name() << ")," << endl;
@@ -228,7 +228,7 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Float, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_INT64:
-            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;    
+            os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Int64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
             break;
         case FieldDescriptor::TYPE_UINT64:
             os << "new ScalarPrimitiveField" << "(\"" << property.name() <<"\", " << property.number() << ", false, IPrimitiveField.Types.Uint64, () => " << property.name() << ", v => " << property.name() << " = v)," << endl;
@@ -284,7 +284,7 @@ void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf:
 
 void CSharpGen::reflectionMethodEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
     os << deindent << "// End reflection()" << endl;
-    os << "}){}" << endl;
+    os << "};" << endl;
 }
 
 void CSharpGen::classEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
