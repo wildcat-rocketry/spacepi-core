@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -130,6 +131,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         /// </summary>
         /// <param name="config">The configuration to check</param>
         /// <param name="paths">The source files to be rebuilt</param>
+        [SuppressMessage("Style", "IDE0057:Use range operator", Justification = "Cannot use ranges on NETStandard 2.0")]
         private void Build(BuildConfiguration config, IEnumerable<string> paths) {
             Directory.CreateDirectory(config.OutputDir);
             if (SpawnProcess(
