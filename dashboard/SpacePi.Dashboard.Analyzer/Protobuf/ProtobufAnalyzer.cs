@@ -224,6 +224,11 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 .Where(a => a.AttributeClass.DEquals(CompileProtobufAttribute))
                 .Select(a => new BuildConfiguration(a))
                 .OrderByDescending(c => c.SourceDir.Length);
+#if PROTOBUF_DEBUG
+            foreach (BuildConfiguration config in Configs) {
+                Console.WriteLine(config);
+            }
+#endif
         }
     }
 }

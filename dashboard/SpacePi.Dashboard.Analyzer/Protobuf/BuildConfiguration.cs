@@ -43,6 +43,15 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         public void Create() => Directory.CreateDirectory(OutputDir);
 
         /// <summary>
+        /// Generates a string representation of the BuildConfiguration
+        /// </summary>
+        /// <returns>The string</returns>
+        public override string ToString() {
+            string sysFiles = string.Join(",", SystemFiles.Select(s => $"\"{s}\""));
+            return $"BuildConfiguration(\"{SourceDir}\", \"{OutputDir}\", \"{StampFile}\", [ {sysFiles} ])";
+        }
+
+        /// <summary>
         /// Creates a new configuration
         /// </summary>
         /// <param name="attr">The attribute declaring the configuration</param>
