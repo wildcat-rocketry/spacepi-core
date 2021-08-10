@@ -22,7 +22,7 @@ namespace SpacePi.Dashboard.API {
         public IPlugin Unbox((IPlugin plugin, string _1, string _2, int _3) p) => p.plugin;
         
         [BindingFactoryLoader]
-        public virtual void Load() {
+        public void Load() {
             foreach ((IPlugin plugin, string _, string _, int _) in Plugins) {
                 plugin.Load();
             }
