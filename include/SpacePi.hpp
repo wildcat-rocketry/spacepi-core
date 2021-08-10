@@ -1,3 +1,4 @@
+#include <spacepi/Concurrent.hpp>
 #include <spacepi/Container.hpp>
 #include <spacepi/Ints.hpp>
 #include <spacepi/Parameter.hpp>
