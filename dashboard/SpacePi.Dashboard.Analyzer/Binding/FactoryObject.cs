@@ -75,13 +75,5 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
             }
             return true;
         }
-
-        /// <summary>
-        /// Parses all bindings declared in this object
-        /// </summary>
-        /// <param name="ctx">The compilation context</param>
-        /// <param name="factories">All factories defined in the source</param>
-        public void ParseBindings(Context ctx, IEnumerable<BindingFactory> factories) =>
-            Bindings = factories.SelectMany(f => Binding.ParseAll(ctx, f, ObjectType)).ToArray();
     }
 }

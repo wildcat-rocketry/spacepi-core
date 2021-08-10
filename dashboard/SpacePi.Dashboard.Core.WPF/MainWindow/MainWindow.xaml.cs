@@ -12,17 +12,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SpacePi.Dashboard.API;
 
 namespace SpacePi.Dashboard.Core.WPF.MainWindow {
     public partial class MainWindow : Window {
-        public MainWindow(IEnumerable<IPlugin> plugins) {
+        public MainWindow() {
             InitializeComponent();
-            Closed += (_, _) => {
-                foreach (IPlugin plugin in plugins) {
-                    plugin.Dispose();
-                }
-            };
+            Closed += (_, _) => ((Core.MainWindow.MainWindowPlugin) DataContext).ExitApplication();
         }
     }
 }

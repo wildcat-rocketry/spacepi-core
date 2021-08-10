@@ -73,58 +73,73 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
         /// A dictionary of objects the binding is targetting
         /// </summary>
         public IDictionaryHasher<FactoryObject> ObjectDict;
+        /// <summary>
+        /// A set of parameter filters on the binding
+        /// </summary>
+        public List<(string paramName, string match)> ParameterFilters;
 
         /// <summary>
         /// Parses all declared bindings in a class
         /// </summary>
         /// <param name="ctx">The compilation context</param>
-        /// <param name="factory"></param>
-        /// <param name="cls"></param>
-        /// <returns></returns>
-        public static IEnumerable<Binding> ParseAll(Context ctx, BindingFactory factory, INamedTypeSymbol cls) {
-            Binding obj = null;
-            foreach ((IPropertySymbol prop, AttributeData attr) in cls.GetAllMembers()
+        /// <param name="factory">The binding factory</param>
+        /// <param name="obj">The object to parse bindings for</param>
+        /// <returns>A list of bindings</returns>
+        public static IEnumerable<Binding> ParseAll(Context ctx, BindingFactory factory, FactoryObject obj) {
+            Binding binding = null;
+            foreach ((IPropertySymbol prop, AttributeData attr) in obj.ObjectType.GetAllMembers()
                 .OfType<IPropertySymbol>()
                 .BeginValidation()
                 .HasAttribute(factory.BindingAttribute, a => a)
                 .WhereValid()) {
-                if (obj == null) {
-                    obj = new();
+                if (binding == null) {
+                    binding = new();
                 }
                 if (!prop.BeginValidation()
                     .HasPublicSetter<IPropertySymbol>()
                     .Require(ctx.Diagnostics)) {
                     continue;
                 }
-                obj.Symbol = prop;
-                obj.Id = attr.ConstructorArguments.Zip(attr.AttributeConstructor.Parameters, (a, b) => (a, b))
+                binding.Symbol = prop;
+                binding.Id = null;
+                binding.ParameterFilters = new();
+                foreach ((TypedConstant val, IParameterSymbol param) in attr.ConstructorArguments
+                    .Zip(attr.AttributeConstructor.Parameters, (a, b) => (a, b))) {
+                    if (param.BeginValidation().HasAttribute(ctx.BindingIDAttribute).Check()) {
+                        binding.Id = val.Value.ToString();
+                    }
+                    if (param.BeginValidation().HasAttribute(ctx.BindingMatchIDAttribute).Check()) {
+                        binding.ParameterFilters.Add((val.Value.ToString(), obj.Id));
+                    }
+                }
+                binding.Id = attr.ConstructorArguments.Zip(attr.AttributeConstructor.Parameters, (a, b) => (a, b))
                     .Where(t => t.b.BeginValidation().HasAttribute(ctx.BindingIDAttribute).Check())
                     .Select(t => t.a.Value.ToString())
                     .FirstOrDefault();
                 if (prop.Type.DEquals(factory.Symbol)) {
-                    obj.Mode = Modes.Factory;
+                    binding.Mode = Modes.Factory;
                 } else if (prop.Type.OriginalDefinition.DEquals(ctx.IDictionary_2)) {
-                    obj.Mode = Modes.Dictionary;
-                    obj.DictionaryKey = attr.ConstructorArguments.Zip(attr.AttributeConstructor.Parameters, (a, b) => (a, b))
+                    binding.Mode = Modes.Dictionary;
+                    binding.DictionaryKey = attr.ConstructorArguments.Zip(attr.AttributeConstructor.Parameters, (a, b) => (a, b))
                         .Where(t => t.b.BeginValidation().HasAttribute(ctx.BindingDictionaryKeyAttribute).Check())
                         .Select(t => t.a.Value.ToString())
                         .FirstOrDefault();
-                    if (obj.DictionaryKey == null) {
+                    if (binding.DictionaryKey == null) {
                         ctx.Diagnostics.DictionaryBindingMustHaveKey.Report(prop, prop);
                         continue;
                     }
                     bool valid = true;
-                    switch (((INamedTypeSymbol) obj.Symbol.Type).TypeArguments[0].SpecialType) {
+                    switch (((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[0].SpecialType) {
                         case SpecialType.System_Int32:
-                            obj.KeyType = DictionaryKeyType.Int;
-                            obj.ObjectDict = new DictionaryHasher<int, FactoryObject>(new PrimitiveEqualityComparers.Int());
+                            binding.KeyType = DictionaryKeyType.Int;
+                            binding.ObjectDict = new DictionaryHasher<int, FactoryObject>(new PrimitiveEqualityComparers.Int());
                             break;
                         case SpecialType.System_String:
-                            obj.KeyType = DictionaryKeyType.String;
-                            obj.ObjectDict = new DictionaryHasher<string, FactoryObject>(new PrimitiveEqualityComparers.String());
+                            binding.KeyType = DictionaryKeyType.String;
+                            binding.ObjectDict = new DictionaryHasher<string, FactoryObject>(new PrimitiveEqualityComparers.String());
                             break;
                         default:
-                            ctx.Diagnostics.UnsupportedKeyType.Report(prop, prop, ((INamedTypeSymbol) obj.Symbol.Type).TypeArguments[0].SpecialType);
+                            ctx.Diagnostics.UnsupportedKeyType.Report(prop, prop, ((INamedTypeSymbol) binding.Symbol.Type).TypeArguments[0].SpecialType);
                             valid = false;
                             break;
                     }
@@ -132,13 +147,13 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                         continue;
                     }
                 } else if (prop.Type.OriginalDefinition.DEquals(ctx.IEnumerable_1)) {
-                    obj.Mode = Modes.List;
+                    binding.Mode = Modes.List;
                 } else {
-                    obj.Mode = Modes.Single;
+                    binding.Mode = Modes.Single;
                 }
-                obj.Factory = factory;
-                yield return obj;
-                obj = null;
+                binding.Factory = factory;
+                yield return binding;
+                binding = null;
             }
         }
 
@@ -163,7 +178,10 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                 IEnumerable<FactoryObject> filter = binding.Factory.Objects
                     .Where(o => ((ITypeSymbol) o.ObjectType).BeginValidation()
                         .IsCastableTo(type)
-                        .Check());
+                        .Check() &&
+                        binding.ParameterFilters.All(f =>
+                            o.Parameters.TryGetValue(f.paramName, out TypedConstant v) &&
+                            v.Value?.ToString() == f.match));
                 if (binding.Id != null) {
                     filter = filter.Where(o => o.Id == binding.Id);
                 }
