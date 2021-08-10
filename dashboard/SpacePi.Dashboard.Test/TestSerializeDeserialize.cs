@@ -182,6 +182,24 @@ namespace SpacePi.Dashboard.Test {
             Assert.Equal((uint)0x2c, values[1]);
         }
 
+        [Fact]
+        public void DeserializeAnotherList() {
+            ObservableCollection<uint> values = new ObservableCollection<uint>();
+            TestObject test = new TestObject(
+                new ModelClass("RepeatedTest", new IField[] {
+                    new VectorPrimitiveField<uint>("values", 1, false, IPrimitiveField.Types.Uint32, values),
+                })
+            );
+
+            byte[] bytes = new byte[] { 0x0a, 0x03, 0x88, 0x01, 0x2c };
+            MemoryStream stream = new MemoryStream(bytes);
+            test.Parse(stream);
+            Assert.Equal(2, values.Count);
+            Assert.Equal((uint)0x88, values[0]);
+            Assert.Equal((uint)0x2c, values[1]);
+
+        }
+
         public class TestObject : IObject
         {
             public TestObject(ModelClass modelClass){

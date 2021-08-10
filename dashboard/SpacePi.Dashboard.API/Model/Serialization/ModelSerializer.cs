@@ -41,18 +41,19 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             }
         }
 
-        static object ParseSingleVarint(IPrimitiveField.Types type, Stream stream) {
+        static object ParseSingleVarint(IPrimitiveField.Types type, Stream stream, ulong max_len = 10) => ParseSingleVarint(type, stream, max_len, out _);
+        static object ParseSingleVarint(IPrimitiveField.Types type, Stream stream, ulong max_len, out ulong length) {
             switch (type) {
                 case IPrimitiveField.Types.Bool:
-                    return Varint.FromBase128(stream) != 0;
+                    return Varint.FromBase128(stream, max_len, out length) != 0;
                 case IPrimitiveField.Types.Int32:
-                    return (int)Varint.FromBase128Signed(stream);
+                    return (int)Varint.FromBase128Signed(stream, max_len, out length);
                 case IPrimitiveField.Types.Int64:
-                    return (long)Varint.FromBase128Signed(stream);
+                    return (long)Varint.FromBase128Signed(stream, max_len, out length);
                 case IPrimitiveField.Types.Uint32:
-                    return (uint)Varint.FromBase128(stream);
+                    return (uint)Varint.FromBase128(stream, max_len, out length);
                 case IPrimitiveField.Types.Uint64:
-                    return (ulong)Varint.FromBase128(stream);
+                    return (ulong)Varint.FromBase128(stream, max_len, out length);
                 default:
                     throw new InvalidOperationException("This function can only parse values from varints");
             }
@@ -89,18 +90,19 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                         });
                         break;
                     case IEnumField enumField:
-                        Action addOneEnum = () => {
+                        Func<ulong,ulong> addOneEnum = (max_len) => {
                             AppendIfList(enumField);
-                            enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream);
+                            enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream, max_len, out ulong length);
+                            return length;
                         };
                         if(wireType == WireType.LENGTH_DELIMITED) {
                             ulong length = Varint.FromBase128(stream);
-                            for (ulong i = 0; i < length; i++) {
-                                addOneEnum();
+                            for (ulong i = 0; i < length; ) {
+                                i += addOneEnum(length - i);
                             }
                         } else {
                             DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                addOneEnum();
+                                addOneEnum(10);
                             });
                         }
                         break;
@@ -112,18 +114,19 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                             case IPrimitiveField.Types.Int64:
                             case IPrimitiveField.Types.Uint32:
                             case IPrimitiveField.Types.Uint64:
-                                Action addOnePrim = () => {
+                                Func<ulong, ulong> addOnePrim = (max_len) => {
                                     AppendIfList(primitiveField);
-                                    primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream);
+                                    primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream, max_len, out ulong length);
+                                    return length;
                                 };
                                 if(wireType == WireType.LENGTH_DELIMITED) {
                                     ulong length = Varint.FromBase128(stream);
-                                    for (ulong i = 0; i < length; i++) {
-                                        addOnePrim();
+                                    for (ulong i = 0; i < length; ) {
+                                        i += addOnePrim(length - i);
                                     };
                                 } else {
                                     DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                        addOnePrim();
+                                        addOnePrim(10);
                                     });
                                 }
                                 break;
