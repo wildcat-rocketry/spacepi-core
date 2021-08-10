@@ -22,7 +22,7 @@ namespace spacepi {
             /**
              * \brief Initializes the SpacePi platform
              */
-            static inline void platformInit();
+            static inline void platformInit() noexcept;
 
             /**
              * \brief Prints a message to the console
@@ -30,7 +30,42 @@ namespace spacepi {
              * \param[in] msg The message to print
              * \param[in] length The length of the message to print
              */
-            static inline void printConsole(const char *msg, int length);
+            static inline void printConsole(const char *msg, int length) noexcept;
+
+            /**
+             * \brief Performs an atomic test and set operation
+             *
+             * This is the atomic equivalent to the following operation:
+             * \code{.cpp}
+             * static inline bool Platform::testAndSet(volatile int &val) {
+             *     int old = val;
+             *     val = 1;
+             *     return old != 0;
+             * }
+             * \endcode
+             *
+             * \param[in,out] val The value to test and set
+             * \return The tested value
+             *
+             * \see unset
+             */
+            static inline bool testAndSet(volatile int &val) noexcept;
+
+            /**
+             * \brief Performs an atomic clear operation
+             *
+             * This is the atomic equivalent to the following operation:
+             * \code{.cpp}
+             * static inline void Platform::unset(volatile int &val) {
+             *     val = 0;
+             * }
+             * \endcode
+             *
+             * \param[in] val The value to clear
+             *
+             * \see testAndSet
+             */
+            static inline void unset(volatile int &val) noexcept;
     };
 }
 

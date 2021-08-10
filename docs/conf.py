@@ -36,7 +36,7 @@ def spacepi_core_docs_setup():
         modified = False
         for match in tree.findall("./compounddef/templateparamlist/param"):
             eType = match.find("./type")
-            if eType.text.endswith("..."):
+            if eType.text is not None and eType.text.endswith("..."):
                 eDeclname = match.find("./declname")
                 eDefname = match.find("./defname")
                 eType.text = f"{eType.text} {eDeclname.text}"

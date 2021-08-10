@@ -1,4 +1,4 @@
 #include <spacepi/Platform.hpp>
 
-void spacepi::Platform::platformInit() {
+void spacepi::Platform::platformInit() noexcept {
 }
