@@ -6,10 +6,10 @@ using namespace spacepi::concurrent;
 
 TEST(spacepi_Concurrent_Mutex, Fast) {
     Mutex<Fast> mtx;
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
     mtx.unlock();
-    ASSERT_TRUE(mtx.tryLock());
-    ASSERT_FALSE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
+    EXPECT_FALSE(mtx.tryLock());
     mtx.unlock();
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
 }

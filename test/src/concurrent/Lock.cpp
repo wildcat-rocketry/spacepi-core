@@ -11,71 +11,71 @@ TEST(spacepi_Concurrent_Lock, Fast) {
     Mutex<Fast> mtx;
     {
         Lock<Fast> lck(mtx);
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
         lck.lock();
-        ASSERT_TRUE(lck);
-        ASSERT_TRUE(lck.tryLock());
-        ASSERT_FALSE(mtx.tryLock());
+        EXPECT_TRUE(lck);
+        EXPECT_TRUE(lck.tryLock());
+        EXPECT_FALSE(mtx.tryLock());
         lck.unlock();
-        ASSERT_FALSE(lck);
+        EXPECT_FALSE(lck);
         lck.adopt();
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
         lck.release();
-        ASSERT_FALSE(lck);
+        EXPECT_FALSE(lck);
         lck.lock();
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
     }
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
     {
         Lock<Fast> lck(mtx, TryLock);
-        ASSERT_FALSE(lck);
+        EXPECT_FALSE(lck);
     }
-    ASSERT_FALSE(mtx.tryLock());
+    EXPECT_FALSE(mtx.tryLock());
     mtx.unlock();
     {
         Lock<Fast> lck(mtx, TryLock);
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
     }
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
     {
         Lock<Fast> lck(mtx, DeferLock);
-        ASSERT_FALSE(lck);
+        EXPECT_FALSE(lck);
     }
     mtx.unlock();
     {
         Lock<Fast> lck(mtx, DeferLock);
-        ASSERT_FALSE(lck);
-        ASSERT_TRUE(lck.tryLock());
+        EXPECT_FALSE(lck);
+        EXPECT_TRUE(lck.tryLock());
     }
     {
         Lock<Fast> lck(mtx);
         lck.release();
     }
-    ASSERT_FALSE(mtx.tryLock());
+    EXPECT_FALSE(mtx.tryLock());
     {
         Lock<Fast> lck(mtx, AdoptLock);
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
     }
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
     mtx.unlock();
     {
         Lock<Fast> lck2(mtx, DeferLock);
         {
             Lock<Fast> lck(mtx);
-            ASSERT_TRUE(lck);
+            EXPECT_TRUE(lck);
             lck2 = Parameter::move<Lock<Fast>>(lck);
-            ASSERT_FALSE(lck);
+            EXPECT_FALSE(lck);
         }
-        ASSERT_FALSE(mtx.tryLock());
-        ASSERT_TRUE(lck2);
+        EXPECT_FALSE(mtx.tryLock());
+        EXPECT_TRUE(lck2);
     }
-    ASSERT_TRUE(mtx.tryLock());
+    EXPECT_TRUE(mtx.tryLock());
     mtx.unlock();
     {
         Lock<Fast> lck(mtx);
-        ASSERT_TRUE(lck);
+        EXPECT_TRUE(lck);
         Lock<Fast> lck2(Parameter::move<Lock<Fast>>(lck));
-        ASSERT_FALSE(lck);
-        ASSERT_TRUE(lck2);
+        EXPECT_FALSE(lck);
+        EXPECT_TRUE(lck2);
     }
 }
