@@ -1,0 +1,27 @@
+// This proto details one setting entry used in the GUI 
+
+syntax = "proto3";
+
+import "SettingType.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+message Setting {
+    SettingType Type = 1;
+    string Name = 2;
+    string Description = 3;
+    double Min = 4;
+    double Max = 5;
+    double Step = 6;
+    bool List = 7; // To be true if the values are a list or a single value (maybe redundant)
+    repeated string Values = 8; // Possble values of this setting
+    string Regex = 9; // Regex used to verify string values
+    bool Readonly = 10; // The setting is read only
+    bool Hidden = 11; // The setting is read only
+
+    // Actual values of this setting
+    repeated bool BoolValue = 12;
+    repeated double NumberValue = 13;
+    repeated int64 IntValue = 14;
+    repeated string StringValue = 15;
+}

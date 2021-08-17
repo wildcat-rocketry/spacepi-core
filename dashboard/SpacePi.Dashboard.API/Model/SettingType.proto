@@ -1,0 +1,14 @@
+// This proto details one setting entry used in the GUI 
+
+syntax = "proto3";
+
+package SpacePi.Dashboard.API.Model;
+
+enum SettingType {
+    STRING = 0;
+    BOOL = 1;
+    NUMBER = 2;
+    HEX = 3;
+    ENUM = 4;
+    CODE = 5; // A string that holds code
+}

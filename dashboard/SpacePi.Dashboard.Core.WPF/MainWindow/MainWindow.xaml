@@ -1,0 +1,12 @@
+﻿<Window x:Class="SpacePi.Dashboard.Core.WPF.MainWindow.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:util="clr-namespace:SpacePi.Dashboard.Core.WPF.Util"
+        xmlns:core="clr-namespace:SpacePi.Dashboard.Core.MainWindow;assembly=SpacePi.Dashboard.Core"
+        mc:Ignorable="d"
+        Title="SpacePi Dashboard" Height="450" Width="800"
+        d:DataContext="{d:DesignInstance core:MainWindowContext}">
+    <util:BindableChild Child="{Binding MainWidget}" />
+</Window>

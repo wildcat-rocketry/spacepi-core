@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <IncludePackageReferencesDuringMarkupCompilation>false</IncludePackageReferencesDuringMarkupCompilation>
+    </PropertyGroup>
+    <ItemGroup>
+        <ApplicationDefinition Remove="App.xaml" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SpacePi.Dashboard.API\SpacePi.Dashboard.API.csproj" />
+        <ProjectReference Include="..\SpacePi.Dashboard.Core\SpacePi.Dashboard.Core.csproj" />
+    </ItemGroup>
+</Project>

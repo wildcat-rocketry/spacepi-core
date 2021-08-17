@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer\SpacePi.Dashboard.Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\SpacePi.Dashboard.Analyzer.API\SpacePi.Dashboard.Analyzer.API.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Remove="Model/*.proto" />
+    </ItemGroup>
+    <ItemGroup>
+        <AdditionalFiles Include="Model/*.proto" />
+    </ItemGroup>
+</Project>

@@ -1,9 +1,0 @@
-syntax = "proto3";
-package spacepi.example;
-
-import "spacepi/messaging/MessageID.proto";
-
-message GoodbyeMessage {
-    option (spacepi.messaging.MessageID) = 0x3011;
-    string message = 1;
-}
