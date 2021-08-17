@@ -9,11 +9,9 @@ namespace SpacePi.Dashboard.API {
     [BindingFactory(typeof(SuperPluginAttribute), typeof(BindSuperPluginAttribute)), EntryPoint]
     public class SuperPluginFactory : PluginFactory {
         [Subfactory]
-        public IBoundFactory<PluginFactory> PluginFactory { get; set; }
+        public IBoundFactory<WindowMenuFactory> NextFactory { get; set; }
 
-        public override void Load() {
-            base.Load();
-            PluginFactory.Create();
-        }
+        [BindingFactoryLoader(1_000_000_000)]
+        public void LoadNext() => NextFactory.Create();
     }
 }

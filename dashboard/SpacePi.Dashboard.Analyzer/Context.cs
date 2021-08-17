@@ -60,6 +60,7 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly INamedTypeSymbol BindingFactoryLoaderAttribute;
         public readonly INamedTypeSymbol BindingFactoryUnboxerAttribute;
         public readonly INamedTypeSymbol BindingIDAttribute;
+        public readonly INamedTypeSymbol BindingMatchIDAttribute;
         public readonly INamedTypeSymbol BindingFactoryObjectAttribute;
         public readonly INamedTypeSymbol BindingParameterAttribute;
         public readonly INamedTypeSymbol BindingPriorityAttribute;
@@ -68,6 +69,7 @@ namespace SpacePi.Dashboard.Analyzer {
         public readonly INamedTypeSymbol IDictionary_2;
         public readonly INamedTypeSymbol IEnumerable_1;
         public readonly INamedTypeSymbol GenerateBindingsAttribute;
+        public readonly INamedTypeSymbol Object;
         public readonly INamedTypeSymbol PrimitiveEqualityComparers_Int;
         public readonly INamedTypeSymbol PrimitiveEqualityComparers_String;
         public readonly INamedTypeSymbol StaticDictionary_2;
@@ -90,6 +92,7 @@ namespace SpacePi.Dashboard.Analyzer {
             BindingFactoryLoaderAttribute      = GetType<BindingFactoryLoaderAttribute    >();
             BindingFactoryUnboxerAttribute     = GetType<BindingFactoryUnboxerAttribute   >();
             BindingIDAttribute                 = GetType<BindingIDAttribute               >();
+            BindingMatchIDAttribute            = GetType<BindingMatchIDAttribute          >();
             BindingFactoryObjectAttribute      = GetType<BindingFactoryObjectAttribute    >();
             BindingParameterAttribute          = GetType<BindingParameterAttribute        >();
             BindingPriorityAttribute           = GetType<BindingPriorityAttribute         >();
@@ -98,6 +101,7 @@ namespace SpacePi.Dashboard.Analyzer {
             IDictionary_2                      = GetType<IDictionary<object, object>      >();
             IEnumerable_1                      = GetType<IEnumerable<object>              >();
             GenerateBindingsAttribute          = GetType<GenerateBindingsAttribute        >();
+            Object                             = GetType<object                           >();
             PrimitiveEqualityComparers_Int     = GetType<PrimitiveEqualityComparers.Int   >();
             PrimitiveEqualityComparers_String  = GetType<PrimitiveEqualityComparers.String>();
             StaticDictionary_2                 = GetType<StaticDictionary<object, object> >();

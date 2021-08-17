@@ -9,6 +9,7 @@ using Xunit;
 using SpacePi.Dashboard.API.Model.Serialization;
 using SpacePi.Dashboard.API.Model.Reflection;
 using System.Collections.ObjectModel;
+using System.ComponentModel.Design;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
@@ -142,6 +143,61 @@ namespace SpacePi.Dashboard.Test {
             stream.Seek(0, SeekOrigin.Begin);
             VerifyStream(stream, bytes);
             stream.Close();
+        }
+
+        [Fact]
+        public void SimpleDeserializeClass() {
+            uint value = 0;
+            TestObject test = new TestObject(
+                new ModelClass("RepeatedTest", new IField[] {
+                    new ScalarClassField<ModelClass> ("data", 1, false, ()=>{
+                            return new ModelClass("DataMessage", new IField[] {
+                                new ScalarPrimitiveField("value", 1, false, IPrimitiveField.Types.Uint32, () => {return 0; }, (val) => { value = (uint)val; } )
+                            });
+                        }, (tmp)=>{ })
+                })
+            );
+
+            byte[] bytes = new byte[] { 0x0a, 0x02, 0x08, 0x2c };
+            MemoryStream stream = new MemoryStream(bytes);
+            stream.SetLength(4);
+            test.Parse(stream);
+            Assert.Equal((uint)0x2c, value);
+        }
+
+        [Fact]
+        public void SimpleDeserializeList() {
+            ObservableCollection<uint> values = new ObservableCollection<uint>();
+            TestObject test = new TestObject(
+                new ModelClass("RepeatedTest", new IField[] {
+                    new VectorPrimitiveField<uint>("values", 1, false, IPrimitiveField.Types.Uint32, values),
+                })
+            );
+
+            byte[] bytes = new byte[] { 0x0a, 0x02, 0x08, 0x2c };
+            MemoryStream stream = new MemoryStream(bytes);
+            test.Parse(stream);
+            Assert.Equal(2, values.Count);
+            Assert.Equal((uint)0x08, values[0]);
+            Assert.Equal((uint)0x2c, values[1]);
+        }
+
+        [Fact]
+        public void DeserializeAnotherList() {
+            ObservableCollection<uint> values = new ObservableCollection<uint>();
+            TestObject test = new TestObject(
+                new ModelClass("RepeatedTest", new IField[] {
+                    new VectorPrimitiveField<uint>("values", 1, false, IPrimitiveField.Types.Uint32, values),
+                })
+            );
+
+            byte[] bytes = new byte[] { 0x0a, 0x03, 0x88, 0x01, 0x2c };
+            MemoryStream stream = new MemoryStream(bytes);
+            test.Parse(stream);
+            Assert.Equal(2, values.Count);
+            Assert.Equal((uint)0x88, values[0]);
+            Assert.Equal((uint)0x2c, values[1]);
+
         }
 
         public class TestObject : IObject

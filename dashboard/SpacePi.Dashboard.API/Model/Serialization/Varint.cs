@@ -41,30 +41,35 @@ namespace SpacePi.Dashboard.API.Model.Serialization
             return;
         }
 
-        public static ulong FromBase128(Stream stream)
+        public static ulong FromBase128(Stream stream, ulong max_len = 10) => FromBase128(stream, max_len, out _);
+
+        public static ulong FromBase128(Stream stream, ulong max_len, out ulong length)
         {
             ulong newNumber = 0;
 
-            for (int i = 0; i < 10; i++) // The max size of a varint is 10
+            for (length = 0; length < max_len && length < 10; length++) // The max size of a varint is 10
             {
                 int int_stream_return = stream.ReadByte();
-                if (int_stream_return < 1) break; // gracefully hit end of stream
+                if (int_stream_return < 1) { throw new EndOfStreamException(); }; // gracefully hit end of stream
 
                 byte cur_byte = (byte)int_stream_return;
 
-                newNumber |= ((cur_byte & (ulong)0x7F) << (i * 7));
+                newNumber |= ((cur_byte & (ulong)0x7F) << ((int)length * 7));
                 if ((cur_byte & 0x80) == 0)
                 {
                     break; // That was the last one
                 }
             }
 
+            length++;
             return newNumber;
         }
 
-        public static long FromBase128Signed(Stream stream)
+        public static long FromBase128Signed(Stream stream, ulong max_len = 10) => FromBase128Signed(stream, max_len, out _);
+
+        public static long FromBase128Signed(Stream stream, ulong max_len, out ulong length)
         {
-            long num = (long)FromBase128(stream);
+            long num = (long)FromBase128(stream, max_len, out length);
             if ((num & 0x01) != 0)
             {
                 num ^= -1;

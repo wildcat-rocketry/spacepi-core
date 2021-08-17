@@ -45,7 +45,7 @@ namespace SpacePi.Dashboard.Analyzer.Binding {
                 factory.FindObjects(ctx);
             }
             foreach (FactoryObject obj in Factories.SelectMany(f => f.Objects)) {
-                obj.Bindings = Factories.SelectMany(f => Binding.ParseAll(ctx, f, obj.ObjectType)).ToArray();
+                obj.Bindings = Factories.SelectMany(f => Binding.ParseAll(ctx, f, obj)).ToArray();
             }
             Binding.PerformBinding(ctx, Factories.SelectMany(f => f.Objects).SelectMany(o => o.Bindings));
             Dictionary<ISymbol, BindingFactory> factoryLookup = Factories.ToDictionary(f => f.Symbol, f => f, SymbolEqualityComparer.Default);

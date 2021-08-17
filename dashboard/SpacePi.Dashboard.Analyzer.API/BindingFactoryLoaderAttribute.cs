@@ -10,5 +10,11 @@ namespace SpacePi.Dashboard.Analyzer.API {
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class BindingFactoryLoaderAttribute : Attribute {
+        /// <summary>
+        /// Attribute constructor
+        /// </summary>
+        /// <param name="priority">The priority in which to call the factory loader</param>
+        public BindingFactoryLoaderAttribute(int priority = 0) {
+        }
     }
 }
