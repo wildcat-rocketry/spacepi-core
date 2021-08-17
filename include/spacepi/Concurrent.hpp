@@ -1,15 +1,11 @@
-#include <spacepi/concurrent/AsyncInterrupt.hpp>
-#include <spacepi/concurrent/ConditionVariable.hpp>
-#include <spacepi/concurrent/Interrupt.hpp>
-#include <spacepi/concurrent/RWMutex.hpp>
-#include <spacepi/concurrent/Semaphore.hpp>
-#include <spacepi/concurrent/Sleep.hpp>
-#include <spacepi/concurrent/ThreadPool.hpp>
-#include <spacepi/concurrent/UniqueConditionVariableLock.hpp>
+#include <spacepi/concurrent/Lock.hpp>
+#include <spacepi/concurrent/Mutex.hpp>
+#include <spacepi/concurrent/SleepMode.hpp>
 
 namespace spacepi {
     /**
-     * \brief Namespace containing classes to assist concurrent processing
+     * \brief Namespace with classes to assist multi-threading
      */
-    namespace concurrent {}
+    namespace concurrent {
+    }
 }

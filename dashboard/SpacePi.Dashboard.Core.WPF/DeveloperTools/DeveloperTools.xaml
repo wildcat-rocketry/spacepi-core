@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="SpacePi.Dashboard.Core.WPF.DeveloperTools.DeveloperTools"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SpacePi.Dashboard.Core.WPF.DeveloperTools"
+             xmlns:model="clr-namespace:SpacePi.Dashboard.Core.DeveloperTools;assembly=SpacePi.Dashboard.Core"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <TreeView ItemsSource="{Binding}">
+            <TreeView.Resources>
+                <local:NodeInterfaceValueConverter x:Key="NodeInterfaceValueConverter" />
+            </TreeView.Resources>
+            <TreeView.ItemTemplateSelector>
+                <local:NodeInterfaceTemplateSelector>
+                    <local:NodeInterfaceTemplateSelector.ActionNodeTemplate>
+                        <DataTemplate DataType="{x:Type model:IActionNode}">
+                            <Button Click="PerformAction">
+                                <TextBlock Text="{Binding Name}" />
+                            </Button>
+                        </DataTemplate>
+                    </local:NodeInterfaceTemplateSelector.ActionNodeTemplate>
+                    <local:NodeInterfaceTemplateSelector.GroupNodeTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type model:IGroupNode}">
+                            <HierarchicalDataTemplate.ItemsSource>
+                                <MultiBinding Converter="{StaticResource NodeInterfaceValueConverter}">
+                                    <Binding Path="Actions" />
+                                    <Binding Path="Values" />
+                                    <Binding Path="SubGroups" />
+                                </MultiBinding>
+                            </HierarchicalDataTemplate.ItemsSource>
+                            <TreeViewItem Header="{Binding Name}" />
+                        </HierarchicalDataTemplate>
+                    </local:NodeInterfaceTemplateSelector.GroupNodeTemplate>
+                    <local:NodeInterfaceTemplateSelector.ValueNodeTemplate>
+                        <DataTemplate DataType="{x:Type model:IValueNode}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto" MinWidth="50" />
+                                    <ColumnDefinition Width="*" MinWidth="100" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Name}" />
+                                <TextBox Grid.Column="1" Text="{Binding Value}">
+                                    <TextBox.Style>
+                                        <Style TargetType="{x:Type TextBox}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Valid}" Value="true">
+                                                    <Setter Property="BorderBrush" Value="green" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Valid}" Value="false">
+                                                    <Setter Property="BorderBrush" Value="red" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </Grid>
+                        </DataTemplate>
+                    </local:NodeInterfaceTemplateSelector.ValueNodeTemplate>
+                </local:NodeInterfaceTemplateSelector>
+            </TreeView.ItemTemplateSelector>
+        </TreeView>
+    </Grid>
+</UserControl>

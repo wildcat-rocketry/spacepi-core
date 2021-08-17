@@ -1,0 +1,14 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "spacepi-core",
+    "version": "3.0.0",
+    "dependencies": [
+        "protobuf",
+        "gtest",
+        {
+            "name": "error.unsupported.architecture",
+            "platform": "!(((windows | mingw) & static) | linux | osx)"
+        }
+    ],
+    "supports": "((windows | mingw) & static) | linux | osx"
+}

@@ -1,0 +1,18 @@
+// The settings for how to layout different data points
+
+syntax = "proto3";
+
+import "Setting.proto";
+
+package SpacePi.Dashboard.API.Model;
+
+// Details for a single group of settings
+message SettingsGroup {
+    string GroupName = 1;
+
+    // A repeated instead of map so it can be ordered
+    repeated Setting Settings = 2; // Somehow this should be linked to 
+                                    // a group query of the ProjectSettings
+    
+    string ID = 3;
+}
