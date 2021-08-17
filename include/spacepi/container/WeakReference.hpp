@@ -5,17 +5,26 @@
 
 namespace spacepi {
     namespace container {
+        namespace detail {
+            template <typename Type>
+            class StrongReference;
+        }
+
+        template <typename Type>
+        class SharedReference;
+
         template <typename Type>
         class StrongReference;
 
         /**
-         * \brief A reference to a StrongReference that is automatically broken when the StrongReference is
-         * deconstructed
+         * \brief A reference to a SharedReference or StrongReference that is automatically broken when the
+         * SharedReference or StrongReference is deconstructed
          *
          * Critical sections using the WeakReference must be kept to a minimum since fast-mode mutexes are used
          * internally.  If longer critical sections are required, consider using SharedPtr instead.
          *
-         * \tparam Type The type of object contained in the StrongReference
+         * \tparam Type The type of object contained in the WeakReference
+         * \see SharedReference
          * \see StrongReference
          */
         template <typename Type>
@@ -27,6 +36,15 @@ namespace spacepi {
                  * \brief Constructs an empty WeakReference
                  */
                 constexpr WeakReference() noexcept : next(nullptr), prev(nullptr), val(nullptr) {
+                }
+
+                /**
+                 * \brief Constructs a WeakReference to a SharedReference
+                 *
+                 * \param[in,out] ref The SharedReference to which to point
+                 */
+                inline WeakReference(SharedReference<Type> &ref) noexcept : WeakReference() {
+                    *this = ref;
                 }
 
                 /**
@@ -62,6 +80,14 @@ namespace spacepi {
                 inline ~WeakReference() noexcept;
 
                 /**
+                 * \brief Assigns the WeakReference to a different SharedReference
+                 *
+                 * \param[in,out] ref The SharedReference to which to point
+                 * \return \c *this
+                 */
+                inline WeakReference &operator =(SharedReference<Type> &ref) noexcept;
+
+                /**
                  * \brief Assigns the WeakReference to a different StrongReference
                  *
                  * \param[in,out] ref The StrongReference to which to point
@@ -86,26 +112,28 @@ namespace spacepi {
                 inline WeakReference &operator =(WeakReference &&move) noexcept;
 
                 /**
-                 * \brief Resolve the WeakReference into a pointer from the StrongReference
+                 * \brief Resolve the WeakReference into a pointer from the SharedReference or StrongReference
                  *
                  * If this method returns non-null, unlock() must be called once the pointer is done being used.
                  *
                  * Critical sections using the WeakReference must be kept to a minimum since fast-mode mutexes are used
                  * internally.  If longer critical sections are required, consider using SharedPtr instead.
                  *
-                 * \return The StrongReference's object pointer, or \c nullptr if the reference is stale
+                 * \return The SharedReference's or StrongReference's object pointer, or \c nullptr if the reference is
+                 * stale
                  */
                 inline Type *lock() noexcept;
 
                 /**
-                 * \brief Resolve the WeakReference into a pointer from the StrongReference
+                 * \brief Resolve the WeakReference into a pointer from the SharedReference or StrongReference
                  *
                  * If this method returns non-null, unlock() must be called once the pointer is done being used.
                  *
                  * Critical sections using the WeakReference must be kept to a minimum since fast-mode mutexes are used
                  * internally.  If longer critical sections are required, consider using SharedPtr instead.
                  *
-                 * \return The StrongReference's object pointer, or \c nullptr if the reference is stale
+                 * \return The SharedReference's or StrongReference's object pointer, or \c nullptr if the reference is
+                 * stale
                  */
                 inline const Type *lock() const noexcept;
 
@@ -122,7 +150,7 @@ namespace spacepi {
 
                 WeakReference *next;
                 WeakReference **prev;
-                StrongReference<Type> *val;
+                detail::StrongReference<Type> *val;
         };
     }
 }

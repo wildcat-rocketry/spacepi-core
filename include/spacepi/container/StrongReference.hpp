@@ -10,6 +10,24 @@ namespace spacepi {
         template <typename Type>
         class WeakReference;
 
+        namespace detail {
+            template <typename Type>
+            class StrongReference {
+                friend class WeakReference<Type>;
+
+                public:
+                    constexpr StrongReference() noexcept : head(nullptr) {
+                    }
+
+                    virtual Type *lock() noexcept = 0;
+                    virtual const Type *lock() const noexcept = 0;
+                    virtual void unlock() const noexcept = 0;
+
+                protected:
+                    WeakReference<Type> *head;
+            };
+        }
+
         /**
          * \brief Contains an object which can be referenced by WeakReference's
          *
@@ -17,7 +35,7 @@ namespace spacepi {
          * \see WeakReference
          */
         template <typename Type>
-        class StrongReference final {
+        class StrongReference final : private detail::StrongReference<Type> {
             friend class WeakReference<Type>;
 
             public:
@@ -28,7 +46,7 @@ namespace spacepi {
                  * \tparam Args... The types of \c args
                  */
                 template <typename... Args>
-                constexpr StrongReference(Args &&... args) noexcept : head(nullptr) {
+                constexpr StrongReference(Args &&... args) noexcept {
                     new (obj) Type(Parameter::forward<Args>(args)...);
                 }
 
@@ -122,10 +140,23 @@ namespace spacepi {
                 }
 
             private:
+                constexpr Type *lock() noexcept {
+                    mutex.lock();
+                    return (Type *) obj;
+                }
+
+                constexpr const Type *lock() const noexcept {
+                    mutex.lock();
+                    return (const Type *) obj;
+                }
+
+                constexpr void unlock() const noexcept {
+                    mutex.unlock();
+                }
+
                 static concurrent::Mutex<concurrent::Fast> mutex;
 
                 char obj[sizeof(Type)];
-                WeakReference<Type> *head;
         };
 
         template <typename Type>

@@ -13,9 +13,9 @@ namespace spacepi {
         inline StrongReference<Type> &StrongReference<Type>::operator =(StrongReference<Type> &&move) noexcept {
             concurrent::Lock<concurrent::Fast> lock(mutex);
             *((Type *) obj) = Parameter::move<Type>(*((Type *) move.obj));
-            head = move.head;
+            this->head = move.head;
             move.head = nullptr;
-            for (WeakReference<Type> *ref = head; ref; ref = ref->next) {
+            for (WeakReference<Type> *ref = this->head; ref; ref = ref->next) {
                 ref->val = this;
             }
         }
@@ -23,7 +23,7 @@ namespace spacepi {
         template <typename Type>
         inline StrongReference<Type>::~StrongReference() noexcept {
             concurrent::Lock<concurrent::Fast> lock(mutex);
-            for (WeakReference<Type> *ref = head; ref; ref = ref->next) {
+            for (WeakReference<Type> *ref = this->head; ref; ref = ref->next) {
                 ref->prev = nullptr;
                 ref->val = nullptr;
             }
@@ -33,6 +33,15 @@ namespace spacepi {
         inline WeakReference<Type>::~WeakReference() noexcept {
             concurrent::Lock<concurrent::Fast> lock(StrongReference<Type>::mutex);
             release();
+        }
+
+        template <typename Type>
+        inline WeakReference<Type> &WeakReference<Type>::operator =(SharedReference<Type> &ref) noexcept {
+            concurrent::Lock<concurrent::Fast> lock(StrongReference<Type>::mutex);
+            release();
+            val = &ref;
+            insert();
+            return *this;
         }
 
         template <typename Type>
@@ -72,29 +81,25 @@ namespace spacepi {
 
         template <typename Type>
         inline Type *WeakReference<Type>::lock() noexcept {
-            concurrent::Lock<concurrent::Fast> lock(StrongReference<Type>::mutex);
-            Type *ret = nullptr;
             if (val) {
-                ret = (Type *) val->obj;
-                lock.release();
+                return val->lock();
             }
-            return ret;
+            return nullptr;
         }
 
         template <typename Type>
         inline const Type *WeakReference<Type>::lock() const noexcept {
-            concurrent::Lock<concurrent::Fast> lock(StrongReference<Type>::mutex);
-            const Type *ret = nullptr;
             if (val) {
-                ret = (const Type *) val->obj;
-                lock.release();
+                return val->lock();
             }
-            return ret;
+            return nullptr;
         }
 
         template <typename Type>
         inline void WeakReference<Type>::unlock() const noexcept {
-            StrongReference<Type>::mutex.unlock();
+            if (val) {
+                val->unlock();
+            }
         }
 
         template <typename Type>
