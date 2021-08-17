@@ -9,6 +9,16 @@ void testPoint(int n) {
         testValid = false;
     }
     lastTestPoint = n;
+
+  int test = 0;
+  int test2 = 0;
+  __asm__(
+    "mov %0, $a0\n" // need to use a0
+    "addi $a0, $a0, 0" 
+    : "=r" (test) 
+    : "r" (test2)
+  );
+  printf("\nBREAKPOINT: Address %d: 0x%x", n, test);
 }
 
 void functionA(void *dummy) {
@@ -36,6 +46,7 @@ void functionB(void *dummy) {
 
 void functionC(void *dummy) {
     testPoint(3);
+    AddrChecker();
     Context::contextSwitch(contexts[2], contexts[0]);
     // Store functionC in contexts[2], jump back to contexts[0] (in functionA)
 

@@ -39,8 +39,19 @@ class Context {
 
 void Context::initAndSwitch(Context &fromContext, Context &toContext, void (*func)(void *arg), void *arg) {
     // TODO
+    printf("\nBREAKPOINT: AA: fromContext: 0x%x \t toContext: 0x%x \t func: %p \t AA ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, (*func), AddrChecker());
+    AddrChecker();
+//    (toContext.returnAddress) = (*func);
+    __asm__(
+      "mov %0, $a0\n"
+      "mov $a0, %1\n"
+      : "=r" (fromContext) 
+      : "r" (toContext)
+    );
+    printf("\nBREAKPOINT: AB: fromContext: 0x%x \t toContext: 0x%x \t func: %p \t AB ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, (*func), AddrChecker());
 }
 
 void Context::contextSwitch(Context &fromContext, const Context &toContext) {
     // TODO
+    printf("\nBREAKPOINT: BA: fromContext: 0x%x \t toContext: 0x%x \t BA ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, AddrChecker());
 }
