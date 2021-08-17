@@ -1,6 +1,0 @@
-# spacepi_desktop_only()
-macro (spacepi_desktop_only)
-    if (SPACEPI_PLATFORM_ID)
-        return()
-    endif()
-endmacro()

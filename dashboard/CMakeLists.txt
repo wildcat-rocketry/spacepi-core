@@ -1,6 +1,3 @@
-include(SpacePiDesktopOnly)
-spacepi_desktop_only()
-
 include(SpacePiDashboard)
 
 file(

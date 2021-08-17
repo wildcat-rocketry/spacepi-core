@@ -5,9 +5,8 @@ set(build_compat 2.1.0)
 # Enable testing
 enable_testing()
 
-# Fix building on Windows
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+# Set C++ version
+set(CMAKE_CXX_STANDARD 20)
 
 # Ensure SPACEPI_CORE_DIR is set
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_DIR DEFINED)
@@ -50,14 +49,3 @@ if (SPACEPI_CORE_CACHE_VERSION VERSION_LESS build_compat)
 endif()
 
 include(SpacePiCompat)
-
-# Include platform code
-include(SpacePiPlatform)
-spacepi_has_platform(hasPlat)
-if (NOT hasPlat)
-    if (SPACEPI_PLATFORM_ID)
-        add_subdirectory("${CMAKE_SOURCE_DIR}/${SPACEPI_PLATFORM_ID}" "${CMAKE_BINARY_DIR}/_platform")
-    else()
-        add_subdirectory("${spacePiCore}/platform-std" "${CMAKE_BINARY_DIR}/_platform")
-    endif()
-endif()

@@ -1,25 +1,24 @@
 find_package(Protobuf REQUIRED)
 
-spacepi_module(
-    CORE MODULE NAME protoc-gen-spacepi-csharp
-    SOURCES
-        src/main.cpp
-        src/CSharpGen.cpp
-    INCLUDE include
-    LINK
-        spacepi-protoc
-        protobuf::libprotobuf
-        protobuf::libprotoc
+add_executable(protoc-gen-spacepi-csharp
+    src/main.cpp
+    src/CSharpGen.cpp
+)
+
+target_include_directories(protoc-gen-spacepi-csharp PUBLIC
+    include
+)
+
+target_link_libraries(protoc-gen-spacepi-csharp
+    spacepi-protoc
+    protobuf::libprotoc
+    protobuf::libprotobuf
 )
 
 set_target_properties(
     protoc-gen-spacepi-csharp
     PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_CURRENT_BINARY_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_CURRENT_BINARY_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL "${CMAKE_CURRENT_BINARY_DIR}"
-        RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_CURRENT_BINARY_DIR}"
 )
 foreach(config IN LISTS CMAKE_CONFIGURATION_TYPES)
     string(TOUPPER "${config}" upperConfig)

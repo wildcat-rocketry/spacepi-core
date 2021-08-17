@@ -4,6 +4,7 @@
     "version": "3.0.0",
     "dependencies": [
         "protobuf",
+        "gtest",
         {
             "name": "error.unsupported.architecture",
             "platform": "!(((windows | mingw) & static) | linux | osx)"
