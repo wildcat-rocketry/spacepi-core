@@ -59,10 +59,10 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
             {
                 std::string s = property.message_type()->file()->name();
                 s = s.substr(0, s.length() - 6);
-                if (property.name()._Equal("mainWindow")){
+                if (property.name() == "mainWindow"){
                     os << "public google.protobuf.any mainWindow { get; set; } " << endl;
                 }
-                else if (property.name()._Equal("Description"))
+                else if (property.name() == "Description")
                 {
                     os << "public google.protobuf.descriptor Description { get; set; } " << endl;
                 }
