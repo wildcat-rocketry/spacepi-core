@@ -3,6 +3,7 @@ add_executable(spacepi-test
     src/concurrent/Lock.cpp
     src/concurrent/Mutex.cpp
     src/container/Function.cpp
+    src/container/SharedReference.cpp
     src/container/Property.cpp
     src/container/StrongReference.cpp
     src/container/WeakReference.cpp
