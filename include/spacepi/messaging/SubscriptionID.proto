@@ -1,8 +1,0 @@
-syntax = "proto3";
-package spacepi.messaging.detail;
-option java_package = "com.ffaero.spacepi.messaging";
-
-message SubscriptionID {
-    uint64 messageID = 1;
-    uint64 instanceID = 2;
-}

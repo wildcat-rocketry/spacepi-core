@@ -1,13 +1,16 @@
 find_package(Protobuf REQUIRED)
 
-spacepi_module(
-    CORE LIBRARY NAME spacepi-protoc
-    SOURCES
-        src/CodeGenerator.cpp
-        src/CodeStream.cpp
-        src/CodeTemplate.cpp
-    INCLUDE include
-    LINK
-        protobuf::libprotobuf
-        protobuf::libprotoc
+add_library(spacepi-protoc STATIC
+    src/CodeGenerator.cpp
+    src/CodeStream.cpp
+    src/CodeTemplate.cpp
+)
+
+target_include_directories(spacepi-protoc PUBLIC
+    include
+)
+
+target_link_libraries(spacepi-protoc
+    protobuf::libprotoc
+    protobuf::libprotobuf
 )
