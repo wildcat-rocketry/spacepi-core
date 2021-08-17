@@ -18,7 +18,7 @@ void testPoint(int n) {
     : "=r" (test) 
     : "r" (test2)
   );
-  printf("\nBREAKPOINT: Address %d: 0x%x", n, test);
+  printf("\nBREAKPOINT: Address %d: 0x%x; aka %u", n, test, test);
 }
 
 void functionA(void *dummy) {
@@ -46,7 +46,6 @@ void functionB(void *dummy) {
 
 void functionC(void *dummy) {
     testPoint(3);
-    AddrChecker();
     Context::contextSwitch(contexts[2], contexts[0]);
     // Store functionC in contexts[2], jump back to contexts[0] (in functionA)
 
@@ -66,11 +65,11 @@ void runTest() {
     myMemset((char *) contexts, 0, sizeof(contexts));
     testValid = true;
     lastTestPoint = 0;
-    Serial.println("Beginning test...");
+    Serial.println("\n\nBeginning test...");
     functionA(nullptr);
     if (testValid) {
-        Serial.println("Test complete.");
+        Serial.println("\nTest complete.");
     } else {
-        Serial.println("Test failed!");
+        Serial.println("\nTest failed!");
     }
 }

@@ -1,10 +1,14 @@
 void setup() {
     Serial.begin(115200);
+    __asm__("NOP");
+    delay(10);
+    __asm__("NOP");
+    printf("\n\n\n");
 }
 
 void loop() {
     runTest();
-    delay(5000);
+    delay(60000);
 }
 
 int AddrChecker(){
