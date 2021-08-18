@@ -39,26 +39,21 @@ class Context {
 
 void Context::initAndSwitch(Context &fromContext, Context &toContext, void (*func)(void *arg), void *arg) {
     // TODO
-    __asm__( 
+    printf("\nBREAKPOINT: AA: fromContext: 0x%x \t toContext: 0x%x \t func: %p \t AB ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, (*func), AddrChecker());
+    __asm__ volatile( // Store current context into fromContext
       "mov %0, $a0\n"
-      : "=r" (fromContext.returnAddress) // Store current context into fromContext
+      : "=r" (fromContext.returnAddress) 
     );
-    __asm__( // Initialize toContext   
-      "mov %0, %1\n" 
-      : "=r" (toContext.returnAddress) 
-      : "r" (func) 
-    );
-    Context::contextSwitch(fromContext, toContext); // Switch to toContext
-    func(arg); // Call \c func(arg)
+    func(arg); // Call func(arg)
 }
 //12 35 64 7
 void Context::contextSwitch(Context &fromContext, const Context &toContext) {
     // TODO 
-    printf("\nBREAKPOINT: BA: fromContext: 0x%x \t toContext: 0x%x (%u) \t BA ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, toContext.returnAddress, AddrChecker());
-    __asm__(
+//    printf("\nBREAKPOINT: BA: fromContext: 0x%x \t toContext: 0x%x (%u) \t BA ADDRESS: 0x%x",fromContext.returnAddress, toContext.returnAddress, toContext.returnAddress, AddrChecker());
+    __asm__ volatile(
       "mov %0, $a0\n"
       "mov $a0, %1\n"
-      : "=r" (fromContext.returnAddress) 
+      : "=&r" (fromContext.returnAddress) 
       : "r" (toContext.returnAddress)
     );
 }

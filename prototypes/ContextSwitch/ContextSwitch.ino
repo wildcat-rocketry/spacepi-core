@@ -1,7 +1,7 @@
 void setup() {
     Serial.begin(115200);
     __asm__("NOP");
-    delay(10);
+    delay(250);
     __asm__("NOP");
     printf("\n\n\n");
 }
