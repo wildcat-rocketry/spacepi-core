@@ -2,6 +2,9 @@
 set(version 3.0.0)
 set(build_compat 2.1.0)
 
+# Make debug build
+set(CMAKE_BUILD_TYPE Debug)
+
 # Enable testing
 enable_testing()
 

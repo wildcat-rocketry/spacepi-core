@@ -2,12 +2,9 @@ find_package(GTest REQUIRED)
 add_executable(spacepi-test
     src/concurrent/Lock.cpp
     src/concurrent/Mutex.cpp
-    src/container/Box.cpp
     src/container/Function.cpp
-    src/container/SharedReference.cpp
     src/container/Property.cpp
-    src/container/StrongReference.cpp
-    src/container/WeakReference.cpp
+    src/container/SmartPtr.cpp
     src/platform/Ints.cpp
     src/platform/console.cpp
     src/platform/testAndSet.cpp
