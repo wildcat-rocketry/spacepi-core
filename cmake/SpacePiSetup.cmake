@@ -9,7 +9,7 @@ set(CMAKE_BUILD_TYPE Debug)
 enable_testing()
 
 # Set C++ version
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 14)
 
 # Ensure SPACEPI_CORE_DIR is set
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_DIR DEFINED)

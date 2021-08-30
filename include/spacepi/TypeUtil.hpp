@@ -172,12 +172,14 @@ namespace spacepi {
             /**
              * \brief Determines if \c Target is a primitive type
              */
-            static constexpr bool isPrimitive = detail::TypeUtil::IsPrimitive<NoRef>::value;
+            static constexpr bool isPrimitive() {
+                return detail::TypeUtil::IsPrimitive<NoRef>::value;
+            }
 
             /**
              * \brief The \c Target type as a lvalue reference or a primitive non-reference
              */
-            using PrimitiveOrReference = typename detail::TypeUtil::PrimitiveOrReference<NoRef, isPrimitive>::Type;
+            using PrimitiveOrReference = typename detail::TypeUtil::PrimitiveOrReference<NoRef, isPrimitive()>::Type;
     };
 }
 

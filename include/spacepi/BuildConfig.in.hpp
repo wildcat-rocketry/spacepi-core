@@ -12,7 +12,16 @@ namespace spacepi {
             /**
              * \brief The binary directory to which the core repo builds
              */
-            static constexpr const char CMAKE_CURRENT_BINARY_DIR[] = "${CMAKE_CURRENT_BINARY_DIR}";
+            static constexpr const char *CMAKE_CURRENT_BINARY_DIR() {
+                return "${CMAKE_CURRENT_BINARY_DIR}";
+            }
+
+            /**
+             * \brief The number of characters in CMAKE_CURRENT_BINARY_DIR
+             */
+            static constexpr decltype(sizeof(int)) CMAKE_CURRENT_BINARY_DIR_len() {
+                return sizeof("${CMAKE_CURRENT_BINARY_DIR}") - 1;
+            }
     };
 }
 

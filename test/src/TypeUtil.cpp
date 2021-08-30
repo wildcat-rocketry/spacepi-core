@@ -15,13 +15,13 @@ TEST(TypeUtil, NoRef) {
 }
 
 TEST(TypeUtil, isPrimitive) {
-    EXPECT_TRUE(TypeUtil<char>::isPrimitive);
-    EXPECT_TRUE(TypeUtil<int>::isPrimitive);
-    EXPECT_TRUE(TypeUtil<long double>::isPrimitive);
-    EXPECT_TRUE(TypeUtil<int &>::isPrimitive);
-    EXPECT_FALSE(TypeUtil<TypeChecker::CompositeType>::isPrimitive);
-    EXPECT_FALSE(TypeUtil<TypeChecker::CompositeType &>::isPrimitive);
-    EXPECT_TRUE(TypeUtil<TypeChecker::CompositeType *>::isPrimitive);
+    EXPECT_TRUE(TypeUtil<char>::isPrimitive());
+    EXPECT_TRUE(TypeUtil<int>::isPrimitive());
+    EXPECT_TRUE(TypeUtil<long double>::isPrimitive());
+    EXPECT_TRUE(TypeUtil<int &>::isPrimitive());
+    EXPECT_FALSE(TypeUtil<TypeChecker::CompositeType>::isPrimitive());
+    EXPECT_FALSE(TypeUtil<TypeChecker::CompositeType &>::isPrimitive());
+    EXPECT_TRUE(TypeUtil<TypeChecker::CompositeType *>::isPrimitive());
 }
 
 TEST(TypeUtil, PrimitiveOrReference) {

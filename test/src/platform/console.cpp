@@ -8,8 +8,8 @@
 using namespace spacepi;
 
 static void testPrinting() {
-    char filename[sizeof(BuildConfig::CMAKE_CURRENT_BINARY_DIR) + sizeof("/platform_console_stdout.txt")];
-    snprintf(filename, sizeof(filename), "%s/platform_console_stdout.txt", BuildConfig::CMAKE_CURRENT_BINARY_DIR);
+    char filename[BuildConfig::CMAKE_CURRENT_BINARY_DIR_len() + sizeof("/platform_console_stdout.txt")];
+    snprintf(filename, sizeof(filename), "%s/platform_console_stdout.txt", BuildConfig::CMAKE_CURRENT_BINARY_DIR());
     freopen(filename, "w+", stdout);
     const char msg[] = "Hello, world!";
     Platform::printConsole(msg, (int) strlen(msg));

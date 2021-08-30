@@ -8,6 +8,7 @@ add_executable(spacepi-test
     src/platform/Ints.cpp
     src/platform/console.cpp
     src/platform/testAndSet.cpp
+    src/test/TypeChecker.cpp
     src/Parameter.cpp
     src/TypeUtil.cpp
 )
