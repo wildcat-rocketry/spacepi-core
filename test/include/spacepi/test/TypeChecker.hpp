@@ -20,76 +20,16 @@ namespace spacepi {
                 template <typename IntType>
                 class IntCheck {
                     public:
-                        static constexpr ReferenceKind Kind = Invalid;
+                        static const ReferenceKind Kind;
                 };
 
                 template <typename CompType>
                 class CompositeCheck {
                     public:
-                        static constexpr ReferenceKind Kind = Invalid;
+                        static const ReferenceKind Kind;
                 };
 
                 TypeChecker() = delete;
-        };
-
-        template <>
-        class TypeChecker::IntCheck<int> {
-            public:
-                static constexpr ReferenceKind Kind = NonReference;
-        };
-
-        template <>
-        class TypeChecker::IntCheck<int &> {
-            public:
-                static constexpr ReferenceKind Kind = ModifiableLValue;
-        };
-
-        template <>
-        class TypeChecker::IntCheck<const int &> {
-            public:
-                static constexpr ReferenceKind Kind = ConstLValue;
-        };
-
-        template <>
-        class TypeChecker::IntCheck<int &&> {
-            public:
-                static constexpr ReferenceKind Kind = ModifiableRValue;
-        };
-
-        template <>
-        class TypeChecker::IntCheck<const int &&> {
-            public:
-                static constexpr ReferenceKind Kind = ConstRValue;
-        };
-
-        template <>
-        class TypeChecker::CompositeCheck<TypeChecker::CompositeType> {
-            public:
-                static constexpr ReferenceKind Kind = NonReference;
-        };
-
-        template <>
-        class TypeChecker::CompositeCheck<TypeChecker::CompositeType &> {
-            public:
-                static constexpr ReferenceKind Kind = ModifiableLValue;
-        };
-
-        template <>
-        class TypeChecker::CompositeCheck<const TypeChecker::CompositeType &> {
-            public:
-                static constexpr ReferenceKind Kind = ConstLValue;
-        };
-
-        template <>
-        class TypeChecker::CompositeCheck<TypeChecker::CompositeType &&> {
-            public:
-                static constexpr ReferenceKind Kind = ModifiableRValue;
-        };
-
-        template <>
-        class TypeChecker::CompositeCheck<const TypeChecker::CompositeType &&> {
-            public:
-                static constexpr ReferenceKind Kind = ConstRValue;
         };
     }
 }
