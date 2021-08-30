@@ -16,17 +16,169 @@ namespace spacepi {
         } Construct;
 
         /**
+         * \private
+         */
+        template <typename Type, AllocationType Alloc = Temporary>
+        class SmartPtr {
+        };
+
+        /**
          * \brief A pointer to an object which has its lifecycle managed, similar to a limited-functionality garbage
          * collector
          *
          * This only works for garbage collection when no cyclic trees are created.
          *
+         * The temporary SmartPtr is only suitable for references to either a statically-allocated or
+         * dynamically-allocated SmartPtr.
+         *
          * \tparam Type The type of element to manage
          * \tparam Alloc The method to use to allocate the element
          */
-        template <typename Type, AllocationType Alloc = Temporary>
-        class SmartPtr {
+        template <typename Type>
+        class SmartPtr<Type, Temporary> {
+            friend class SmartPtr<Type, Static>;
+
+            public:
+                /**
+                 * \brief Destroys this SmartPtr
+                 *
+                 * If another SmartPtr points to the same element, the element will not be destroyed.
+                 */
+                virtual ~SmartPtr() noexcept = default;
+
+                /**
+                 * \brief Removes any contained element
+                 *
+                 * If another SmartPtr points to the same element, the element will not be destroyed.
+                 *
+                 * \param[in] null \c nullptr
+                 * \return \c *this
+                 */
+                inline SmartPtr &operator =(decltype(nullptr) null) noexcept {
+                    reset();
+                    return *this;
+                }
+
+                /**
+                 * \brief Removes any contained element
+                 *
+                 * If another SmartPtr points to the same element, the element will not be destroyed.
+                 *
+                 * \param[in] null \c nullptr
+                 */
+                inline void reset(decltype(nullptr) null = nullptr) noexcept {
+                    concurrent::Lock<concurrent::Fast> lck(mutex);
+                    unsafeReset();
+                }
+
+                /**
+                 * \brief Constructs a SmartPtr with a contained element
+                 *
+                 * If another SmartPtr points to the same element, the element will not be destroyed, and this SmartPtr
+                 * will now point to a different element.
+                 *
+                 * \tparam Args... The types of arguments in the element's constructor
+                 * \param[in] tag \c Construct
+                 * \param[in] args The arguments to the element's constructor
+                 */
+                template <typename... Args>
+                inline void reset(ConstructType tag, Args &&... args) noexcept {
+                    concurrent::Lock<concurrent::Fast> lck(mutex);
+                    unsafeReset();
+                    unsafeAlloc();
+                    new (get()) Type(Parameter::forward<Args>(args)...);
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline operator Type *() noexcept {
+                    return get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline operator const Type *() const noexcept {
+                    return get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline operator Type &() noexcept {
+                    return *get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline operator const Type &() const noexcept {
+                    return *get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline Type &operator *() noexcept {
+                    return *get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline const Type &operator *() const noexcept {
+                    return *get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline Type *operator ->() noexcept {
+                    return get();
+                }
+
+                /**
+                 * \brief Gets the element contained within this SmartPtr
+                 *
+                 * \return The element
+                 */
+                inline const Type *operator ->() const noexcept {
+                    return get();
+                }
+
+                /**
+                 * \brief Determines if this SmartPtr has a contained element
+                 *
+                 * \return If it does
+                 */
+                virtual inline operator bool() const noexcept = 0;
+
+            private:
+                static concurrent::Mutex<concurrent::Fast> mutex;
+
+                virtual void unsafeReset() noexcept = 0;
+                virtual void unsafeAlloc() noexcept = 0;
+                virtual Type *get() noexcept = 0;
+                virtual const Type *get() const noexcept = 0;
         };
+
+        template <typename Type>
+        concurrent::Mutex<concurrent::Fast> SmartPtr<Type, Temporary>::mutex;
 
         /**
          * \brief A pointer to an object which has its lifecycle managed, similar to a limited-functionality garbage
@@ -41,7 +193,7 @@ namespace spacepi {
          * \tparam Alloc The method to use to allocate the element
          */
         template <typename Type>
-        class SmartPtr<Type, Static> {
+        class SmartPtr<Type, Static> : public SmartPtr<Type, Temporary> {
             public:
                 /**
                  * \brief Constructs a null SmartPtr
@@ -83,29 +235,16 @@ namespace spacepi {
                  */
                 template <typename... Args>
                 inline SmartPtr(ConstructType tag, Args &&... args) noexcept : SmartPtr() {
-                    reset(tag, Parameter::forward<Args>(args)...);
+                    SmartPtr<Type, Temporary>::reset(tag, Parameter::forward<Args>(args)...);
                 }
 
                 /**
                  * \brief Destroys this SmartPtr
                  *
-                 * If another SmartPtr points to the same element, the element is moved to that SmartPtr's buffer.
+                 * If another SmartPtr points to the same element, the element will not be destroyed.
                  */
                 inline ~SmartPtr() noexcept {
-                    reset();
-                }
-
-                /**
-                 * \brief Removes any contained element
-                 *
-                 * If another SmartPtr points to the same element, the element is moved to that SmartPtr's buffer.
-                 *
-                 * \param[in] null \c nullptr
-                 * \return \c *this
-                 */
-                inline SmartPtr &operator =(decltype(nullptr) null) noexcept {
-                    reset();
-                    return *this;
+                    SmartPtr<Type, Temporary>::reset();
                 }
 
                 /**
@@ -117,7 +256,7 @@ namespace spacepi {
                  * \return \c *this
                  */
                 inline SmartPtr &operator =(SmartPtr &copy) noexcept {
-                    concurrent::Lock<concurrent::Fast> lck(mutex);
+                    concurrent::Lock<concurrent::Fast> lck(SmartPtr<Type, Temporary>::mutex);
                     unsafeReset();
                     if (copy.state != Null) {
                         state = Member;
@@ -140,7 +279,7 @@ namespace spacepi {
                  * \return \c *this
                  */
                 inline SmartPtr &operator =(SmartPtr &&move) noexcept {
-                    concurrent::Lock<concurrent::Fast> lck(mutex);
+                    concurrent::Lock<concurrent::Fast> lck(SmartPtr<Type, Temporary>::mutex);
                     unsafeReset();
                     if (move.state != Null) {
                         next = move.next;
@@ -152,109 +291,6 @@ namespace spacepi {
                         }
                     }
                     return *this;
-                }
-
-                /**
-                 * \brief Removes any contained element
-                 *
-                 * If another SmartPtr points to the same element, the element is moved to that SmartPtr's buffer.
-                 *
-                 * \param[in] null \c nullptr
-                 */
-                inline void reset(decltype(nullptr) null = nullptr) noexcept {
-                    concurrent::Lock<concurrent::Fast> lck(mutex);
-                    unsafeReset();
-                }
-
-                /**
-                 * \brief Constructs a SmartPtr with a contained element
-                 *
-                 * If another SmartPtr points to the same element, the element is moved to that SmartPtr's buffer before
-                 * resetting this SmartPtr's buffer.
-                 *
-                 * \tparam Args... The types of arguments in the element's constructor
-                 * \param[in] tag \c Construct
-                 * \param[in] args The arguments to the element's constructor
-                 */
-                template <typename... Args>
-                inline void reset(ConstructType tag, Args &&... args) noexcept {
-                    concurrent::Lock<concurrent::Fast> lck(mutex);
-                    unsafeReset();
-                    state = Owner;
-                    obj = (Type *) buffer;
-                    new (obj) Type(Parameter::forward<Args>(args)...);
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline operator Type *() noexcept {
-                    return obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline operator const Type *() const noexcept {
-                    return obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline operator Type &() noexcept {
-                    return *obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline operator const Type &() const noexcept {
-                    return *obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline Type &operator *() noexcept {
-                    return *obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline const Type &operator *() const noexcept {
-                    return *obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline Type *operator ->() noexcept {
-                    return obj;
-                }
-
-                /**
-                 * \brief Gets the element contained within this SmartPtr
-                 *
-                 * \return The element
-                 */
-                inline const Type *operator ->() const noexcept {
-                    return obj;
                 }
 
                 /**
@@ -296,7 +332,18 @@ namespace spacepi {
                     }
                 }
 
-                static concurrent::Mutex<concurrent::Fast> mutex;
+                inline void unsafeAlloc() noexcept {
+                    state = Owner;
+                    obj = (Type *) buffer;
+                }
+
+                inline Type *get() noexcept {
+                    return obj;
+                }
+
+                inline const Type *get() const noexcept {
+                    return obj;
+                }
 
                 State state;
                 char buffer[sizeof(Type)];
@@ -305,8 +352,169 @@ namespace spacepi {
                 SmartPtr *prev;
         };
 
-        template <typename Type>
-        concurrent::Mutex<concurrent::Fast> SmartPtr<Type, Static>::mutex;
+        /**
+         * \brief A pointer to an object which has its lifecycle managed, similar to a limited-functionality garbage
+         * collector
+         *
+         * This only works for garbage collection when no cyclic trees are created.
+         *
+         * The dynamically-allocated SmartPtr allocates its element on the heap, using \c new and \c delete.
+         *
+         * \tparam Type The type of element to manage
+         * \tparam Alloc The method to use to allocate the element
+         */        template <typename Type>
+        class SmartPtr<Type, Dynamic> : public SmartPtr<Type, Temporary> {
+            public:
+                /**
+                 * \brief Constructs a null SmartPtr
+                 *
+                 * \param[in] null \c nullptr
+                 */
+                constexpr SmartPtr(decltype(nullptr) null = nullptr) noexcept {
+                }
+
+                /**
+                 * \brief Copy-constructs a SmartPtr
+                 *
+                 * This new SmartPtr will point to the same object as \c copy.
+                 *
+                 * \param[in,out] copy The source SmartPtr
+                 */
+                inline SmartPtr(SmartPtr &copy) noexcept : ptr(copy.ptr) {
+                }
+
+                /**
+                 * \brief Move-constructs a SmartPtr
+                 *
+                 * This new SmartPtr will point to the same object as \c move, and \c move will no longer point to
+                 * anything.
+                 *
+                 * \param[in,out] move The source SmartPtr
+                 */
+                inline SmartPtr(SmartPtr &&move) noexcept : ptr(Parameter::move<SmartPtr<DynamicData, Static>>(move.ptr)) {
+                }
+
+                /**
+                 * \brief Constructs a SmartPtr with a contained element
+                 *
+                 * \tparam Args... The types of arguments in the element's constructor
+                 * \param[in] tag \c Construct
+                 * \param[in] args The arguments to the element's constructor
+                 */
+                template <typename... Args>
+                inline SmartPtr(ConstructType tag, Args &&... args) noexcept {
+                    SmartPtr<Type, Temporary>::reset(tag, Parameter::forward<Args>(args)...);
+                }
+
+                /**
+                 * \brief Destroys this SmartPtr
+                 *
+                 * If another SmartPtr points to the same element, the element will not be destroyed.
+                 */
+                inline ~SmartPtr() noexcept {
+                    SmartPtr<Type, Temporary>::reset();
+                }
+
+                /**
+                 * \brief Copies a SmartPtr
+                 *
+                 * This new SmartPtr will point to the same object as \c copy.
+                 *
+                 * \param[in,out] copy The source SmartPtr
+                 * \return \c *this
+                 */
+                inline SmartPtr &operator =(SmartPtr &copy) noexcept {
+                    ptr = copy.ptr;
+                    return *this;
+                }
+
+                /**
+                 * \brief Moves a SmartPtr
+                 *
+                 * This new SmartPtr will point to the same object as \c move, and \c move will no longer point to
+                 * anything.
+                 *
+                 * \param[in,out] move The source SmartPtr
+                 * \return \c *this
+                 */
+                inline SmartPtr &operator =(SmartPtr &&move) noexcept {
+                    ptr = Parameter::move<SmartPtr<DynamicData, Static>>(move.ptr);
+                    return *this;
+                }
+
+                /**
+                 * \brief Determines if this SmartPtr has a contained element
+                 *
+                 * \return If it does
+                 */
+                inline operator bool() const noexcept {
+                    return ptr;
+                }
+
+            private:
+                class DynamicData {
+                    public:
+                        inline DynamicData() noexcept : data(new char[sizeof(Type)]) {
+                        }
+
+                        constexpr DynamicData(DynamicData &&move) noexcept : data(move.data) {
+                            move.data = nullptr;
+                        }
+
+                        inline ~DynamicData() noexcept {
+                            if (data) {
+                                delete[] data;
+                                data = nullptr;
+                            }
+                        }
+
+                        constexpr DynamicData &operator =(DynamicData &&move) noexcept {
+                            if (data) {
+                                delete[] data;
+                            }
+                            data = move.data;
+                            move.data = nullptr;
+                            return *this;
+                        }
+
+                        inline Type *get() noexcept {
+                            return (Type *) data;
+                        }
+
+                        inline const Type *get() const noexcept {
+                            return (const Type *) data;
+                        }
+
+                    private:
+                        char *data;
+                };
+
+                inline void unsafeReset() noexcept {
+                    ptr.reset();
+                }
+
+                inline void unsafeAlloc() noexcept {
+                    ptr.reset(Construct);
+                }
+
+                inline Type *get() noexcept {
+                    DynamicData *data = ptr;
+                    if (data == nullptr) {
+                        return nullptr;
+                    }
+                    return data->get();
+                }
+
+                inline const Type *get() const noexcept {
+                    const DynamicData *data = ptr;
+                    if (data == nullptr) {
+                        return nullptr;
+                    }
+                    return data->get();
+                }
+
+                SmartPtr<DynamicData, Static> ptr;
+        };
     }
 }
 
