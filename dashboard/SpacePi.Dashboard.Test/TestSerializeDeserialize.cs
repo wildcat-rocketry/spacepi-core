@@ -10,6 +10,7 @@ using SpacePi.Dashboard.API.Model.Serialization;
 using SpacePi.Dashboard.API.Model.Reflection;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
+using System.Diagnostics;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
@@ -146,6 +147,45 @@ namespace SpacePi.Dashboard.Test {
         }
 
         [Fact]
+        public void SimpleDataSerialize() {
+            SimpleData data = new SimpleData(1, 2, "hi");
+            MemoryStream stream = new MemoryStream(32);
+            data.Serialize(stream);
+            stream.Seek(0, SeekOrigin.Begin);
+            VerifyStream(stream, new byte[] { 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte)'h', (byte)'i' });
+            stream.Close();
+        }
+
+        [Fact]
+        public void SimpleDataDeserialize() {
+            MemoryStream stream = new MemoryStream(new byte[] { 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte) 'h', (byte) 'i' });
+            SimpleData data = new SimpleData();
+            data.Parse(stream);
+            Assert.Equal(new SimpleData(1, 2, "hi"), data);
+            stream.Close();
+        }
+
+        [Fact]
+        public void SimpleDataListDeserialize() {
+            MemoryStream stream = new MemoryStream(new byte[] { 0x0a, 0x08, 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte) 'h', (byte) 'i'});
+            SimpleDataList list = new();
+            list.Parse(stream);
+            Assert.Collection(list.List, new Action<SimpleData>[] { (data) => { Assert.Equal(new SimpleData(1, 2, "hi"), data); } });
+        }
+
+        [Fact]
+        public void SimpleDataListDeserializeAgain() {
+            MemoryStream stream = new MemoryStream(new byte[] { 0x0a, 0x08, 0x08, 0x04, 0x10, 0x01, 0x1a, 0x02, (byte) 'h', (byte) 'i', 0x0a, 0x09, 0x08, 0x03, 0x10, 0x02, 0x1a, 0x03, (byte) 'b', (byte) 'y', (byte) 'e' });
+            SimpleDataList list = new();
+            list.Parse(stream);
+            Assert.Collection(list.List, new Action<SimpleData>[] {
+                (data) => { Assert.Equal(new SimpleData(4, 1, "hi"), data); },
+                (data) => { Assert.Equal(new SimpleData(3, 2, "bye"), data); },
+            });
+        }
+
+
+        [Fact]
         public void SimpleDeserializeClass() {
             uint value = 0;
             TestObject test = new TestObject(
@@ -197,8 +237,9 @@ namespace SpacePi.Dashboard.Test {
             Assert.Equal(2, values.Count);
             Assert.Equal((uint)0x88, values[0]);
             Assert.Equal((uint)0x2c, values[1]);
-
         }
+
+
 
         public class TestObject : IObject
         {
@@ -207,6 +248,72 @@ namespace SpacePi.Dashboard.Test {
             }
 
             public IClass Reflection { get; private set; }
+        }
+
+        public class SimpleDataList : IObject {
+            public SimpleDataList() {
+                Reflection = new SimpleDataListReflection(this);
+            }
+
+            public IClass Reflection { get; private set; }
+
+            public List<SimpleData> List { get; set; } = new List<SimpleData>();
+        }
+
+        public class SimpleDataListReflection : IClass
+        {
+            public SimpleDataListReflection(SimpleDataList dataList) {
+                Fields = new IField[] {
+                    new VectorClassField<SimpleDataReflection>("List", 1, false, new ObservableCollection<SimpleDataReflection>(), () => {
+                        SimpleData data = new SimpleData();
+                        dataList.List.Add(data);
+                        return (SimpleDataReflection)data.Reflection;
+                    })
+                };
+            }
+
+            public string Name => "SimpleDataList";
+
+            public IEnumerable<IField> Fields { get; private set; }
+        }
+        
+        public class SimpleData : IObject
+        {
+            public SimpleData() {
+                Reflection = new SimpleDataReflection(this);
+            }
+
+            public SimpleData(uint a, uint b, string name) {
+                A = a;
+                B = b;
+                Name = name;
+                Reflection = new SimpleDataReflection(this);
+            }
+
+            public override bool Equals(object obj) {
+                return obj is SimpleData data && data.A == A && data.B == B && data.Name == Name;
+            }
+
+            public uint A { get; set; }
+            public uint B { get; set; }
+            public string Name { get; set; }
+
+            public IClass Reflection { get; private set; }
+        }
+
+        public class SimpleDataReflection : IClass
+        {
+            public SimpleDataReflection(SimpleData data) {
+                Fields = new List<IField> {
+                    new ScalarPrimitiveField("A", 1, false, IPrimitiveField.Types.Uint32, () => { return data.A; }, (a) => { data.A = (uint)a; }),
+                    new ScalarPrimitiveField("B", 2, false, IPrimitiveField.Types.Uint32, () => { return data.B; }, (b) => { data.B = (uint)b; }),
+                    new ScalarPrimitiveField("Name", 3, false, IPrimitiveField.Types.String, () => { return data.Name; }, (name) => { data.Name = (string)name; })
+                };
+            }
+
+            public string Name { get; private set; } = "SimpleData";
+
+            public IEnumerable<IField> Fields { get; private set; }
         }
     }
 }
