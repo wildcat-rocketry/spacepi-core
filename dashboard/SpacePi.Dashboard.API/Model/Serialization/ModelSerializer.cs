@@ -65,97 +65,103 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             }
         }
 
-        static void ParseClass(IClass cls, Stream stream) {
+        static void ParseClass(IClass cls, Stream stream, long allowed_length = -1) {
             // How do I want to deal with invalid stuff?
-
+            if (allowed_length < 0) {
+                allowed_length = stream.Length;
+            }
             bool done = false;
-            while (stream.Position != stream.Length && !done) {
-                Tuple<int, WireType> fieldInfo = ReadFieldInfo(stream);
-                WireType wireType = fieldInfo.Item2;
-                int fieldNum = fieldInfo.Item1;
+            try {
+                while (stream.Position != allowed_length && !done) {
+                    Tuple<int, WireType> fieldInfo = ReadFieldInfo(stream);
+                    WireType wireType = fieldInfo.Item2;
+                    int fieldNum = fieldInfo.Item1;
 
-                IField field = cls.Fields.Where((field) => { return field.Number == fieldNum; }).SingleOrDefault();
-                if (field == null) {
-                    // Discard this field
-                    DiscardWire(wireType, stream);
-                    continue;
-                }
+                    IField field = cls.Fields.Where((field) => { return field.Number == fieldNum; }).SingleOrDefault();
+                    if (field == null) {
+                        // Discard this field
+                        DiscardWire(wireType, stream);
+                        continue;
+                    }
 
-                switch (field) {
-                    case IClassField classField:
-                        DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
-                            Varint.FromBase128(stream); // Don't care about the length
-                            AppendIfList(classField);
-                            ParseClass(classField[classField.Count-1], stream);
-                        });
-                        break;
-                    case IEnumField enumField:
-                        Func<ulong,ulong> addOneEnum = (max_len) => {
-                            AppendIfList(enumField);
-                            enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream, max_len, out ulong length);
-                            return length;
-                        };
-                        if(wireType == WireType.LENGTH_DELIMITED) {
-                            ulong length = Varint.FromBase128(stream);
-                            for (ulong i = 0; i < length; ) {
-                                i += addOneEnum(length - i);
-                            }
-                        } else {
-                            DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                addOneEnum(10);
+                    switch (field) {
+                        case IClassField classField:
+                            DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
+                                ulong length = Varint.FromBase128(stream);
+                                AppendIfList(classField);
+                                ParseClass(classField[classField.Count-1], stream, stream.Position + (long)length);
                             });
-                        }
-                        break;
-                    case IPrimitiveField primitiveField:
-                        IPrimitiveField.Types fieldType = primitiveField.Type;
-                        switch (fieldType) {
-                            case IPrimitiveField.Types.Bool:
-                            case IPrimitiveField.Types.Int32:
-                            case IPrimitiveField.Types.Int64:
-                            case IPrimitiveField.Types.Uint32:
-                            case IPrimitiveField.Types.Uint64:
-                                Func<ulong, ulong> addOnePrim = (max_len) => {
-                                    AppendIfList(primitiveField);
-                                    primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream, max_len, out ulong length);
-                                    return length;
-                                };
-                                if(wireType == WireType.LENGTH_DELIMITED) {
-                                    ulong length = Varint.FromBase128(stream);
-                                    for (ulong i = 0; i < length; ) {
-                                        i += addOnePrim(length - i);
-                                    };
-                                } else {
-                                    DiscardIfNot(stream, WireType.VARINT, wireType, () => {
-                                        addOnePrim(10);
-                                    });
+                            break;
+                        case IEnumField enumField:
+                            Func<ulong,ulong> addOneEnum = (max_len) => {
+                                AppendIfList(enumField);
+                                enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream, max_len, out ulong length);
+                                return length;
+                            };
+                            if(wireType == WireType.LENGTH_DELIMITED) {
+                                ulong length = Varint.FromBase128(stream);
+                                for (ulong i = 0; i < length; ) {
+                                    i += addOneEnum(length - i);
                                 }
-                                break;
-                            case IPrimitiveField.Types.Double:
-                                DiscardIfNot(stream, WireType.FIXED_64, wireType, () => {
-                                    AppendIfList(primitiveField);
-                                    primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadDouble();
+                            } else {
+                                DiscardIfNot(stream, WireType.VARINT, wireType, () => {
+                                    addOneEnum(10);
                                 });
-                                break;
-                            case IPrimitiveField.Types.Float:
-                                DiscardIfNot(stream, WireType.FIXED_32, wireType, () => {
-                                    AppendIfList(primitiveField);
-                                    primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadSingle();
-                                });
-                                break;
-                            case IPrimitiveField.Types.String:
-                                DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
-                                    ulong length = Varint.FromBase128(stream);
-                                    StringWriter stringWriter = new();
-                                    for (ulong i = 0; i < length; i++) {
-                                        stringWriter.Write(stream.ReadByte());
+                            }
+                            break;
+                        case IPrimitiveField primitiveField:
+                            IPrimitiveField.Types fieldType = primitiveField.Type;
+                            switch (fieldType) {
+                                case IPrimitiveField.Types.Bool:
+                                case IPrimitiveField.Types.Int32:
+                                case IPrimitiveField.Types.Int64:
+                                case IPrimitiveField.Types.Uint32:
+                                case IPrimitiveField.Types.Uint64:
+                                    Func<ulong, ulong> addOnePrim = (max_len) => {
+                                        AppendIfList(primitiveField);
+                                        primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream, max_len, out ulong length);
+                                        return length;
+                                    };
+                                    if(wireType == WireType.LENGTH_DELIMITED) {
+                                        ulong length = Varint.FromBase128(stream);
+                                        for (ulong i = 0; i < length; ) {
+                                            i += addOnePrim(length - i);
+                                        };
+                                    } else {
+                                        DiscardIfNot(stream, WireType.VARINT, wireType, () => {
+                                            addOnePrim(10);
+                                        });
                                     }
-                                    AppendIfList(primitiveField);
-                                    primitiveField[primitiveField.Count-1] = stringWriter.ToString();
-                                });
-                                break;
-                        };
-                        break;
+                                    break;
+                                case IPrimitiveField.Types.Double:
+                                    DiscardIfNot(stream, WireType.FIXED_64, wireType, () => {
+                                        AppendIfList(primitiveField);
+                                        primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadDouble();
+                                    });
+                                    break;
+                                case IPrimitiveField.Types.Float:
+                                    DiscardIfNot(stream, WireType.FIXED_32, wireType, () => {
+                                        AppendIfList(primitiveField);
+                                        primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadSingle();
+                                    });
+                                    break;
+                                case IPrimitiveField.Types.String:
+                                    DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
+                                        ulong length = Varint.FromBase128(stream);
+                                        StringWriter stringWriter = new();
+                                        for (ulong i = 0; i < length; i++) {
+                                            stringWriter.Write((char)stream.ReadByte());
+                                        }
+                                        AppendIfList(primitiveField);
+                                        primitiveField[primitiveField.Count-1] = stringWriter.ToString();
+                                    });
+                                    break;
+                            };
+                            break;
+                    }
                 }
+            } catch (EndOfStreamException e) {
+
             }
         }
 
