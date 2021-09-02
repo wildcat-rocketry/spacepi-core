@@ -5,9 +5,11 @@ add_executable(spacepi-test
     src/container/Function.cpp
     src/container/Property.cpp
     src/container/SmartPtr.cpp
+    src/dtc/main.cpp
     src/platform/Ints.cpp
     src/platform/console.cpp
     src/platform/testAndSet.cpp
+    src/test/dtc/MockDiagnosticReporter.cpp
     src/test/TypeChecker.cpp
     src/Parameter.cpp
     src/TypeUtil.cpp
@@ -18,6 +20,7 @@ target_include_directories(spacepi-test PUBLIC
 target_link_libraries(spacepi-test
     spacepi-pch
     spacepi-platform
+    spacepi-libdtc
     GTest::gtest
     GTest::gtest_main
 )
