@@ -1,5 +1,3 @@
 [submodule "llvm"]
-	branch = llvmorg-13.0.0-rc2
 	path = llvm
-	shallow = true
 	url = ../../llvm/llvm-project.git
