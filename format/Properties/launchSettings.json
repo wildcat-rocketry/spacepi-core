@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "SpacePi.Format": {
+      "commandName": "Project",
+      "commandLineArgs": "--debug",
+      "workingDirectory": "D:\\github.com\\wildcat-rocketry\\spacepi-core"
+    }
+  }
+}

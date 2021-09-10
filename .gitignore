@@ -10,7 +10,7 @@
 *.csr
 
 ## Certificate
-*.der 
+*.der
 
 ## Key database file
 *.kdb
@@ -703,3 +703,5 @@ FodyWeavers.xsd
 .classpath
 .vscode/
 .DS_Store
+
+Properties/launchSettings.json

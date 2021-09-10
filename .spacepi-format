@@ -1,0 +1,28 @@
+{
+    "excludes": [
+        "/dotnet-format/",
+        "/llvm/"
+    ],
+    "excludeFiles": [
+        ".gitignore"
+    ],
+    "tools": [
+        {
+            "name": "clang",
+            "includes": [
+                "*.c",
+                "*.cpp",
+                "*.h",
+                "*.hpp"
+            ],
+            "configFile": ".clang-format"
+        },
+        {
+            "name": "dotnet",
+            "includes": [
+                "*.cs"
+            ],
+            "configFile": ".editorconfig"
+        }
+    ]
+}
