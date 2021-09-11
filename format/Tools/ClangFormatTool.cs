@@ -8,10 +8,6 @@ namespace SpacePi.Format.Tools {
     public class ClangFormatTool : IFormatTool {
         private bool disposed;
 
-        public string ConfigFileName => ".clang-format";
-
-        public IEnumerable<string> FileExtensions => new[] { "c", "cpp", "h", "hpp" };
-
         [DllImport("spacepi-clang-format-interface")]
         private static extern void NativeConstruct();
 

@@ -83,6 +83,7 @@ namespace SpacePi.Dashboard.Analyzer {
         public Context(Compilation compilation, Diagnostics diags) {
             Compilation = compilation;
             Diagnostics = diags;
+#pragma warning disable format
             Attribute                          = GetType<Attribute                        >();
             AttributeUsageAttribute            = GetType<AttributeUsageAttribute          >();
             BindingDictionaryKeyAttribute      = GetType<BindingDictionaryKeyAttribute    >();
@@ -106,6 +107,7 @@ namespace SpacePi.Dashboard.Analyzer {
             PrimitiveEqualityComparers_String  = GetType<PrimitiveEqualityComparers.String>();
             StaticDictionary_2                 = GetType<StaticDictionary<object, object> >();
             SubfactoryAttribute                = GetType<SubfactoryAttribute              >();
+#pragma warning restore format
         }
     }
 }

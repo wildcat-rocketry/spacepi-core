@@ -5,28 +5,19 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.Tools;
 
 namespace SpacePi.Format.Tools {
     public class DotnetFormatTool : IFormatTool {
         private readonly MethodInfo MainMethod;
         private bool disposed;
 
-        public string ConfigFileName => ".editorconfig";
-
-        public IEnumerable<string> FileExtensions => new[] { "cs" };
-
-        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) {
-            Task<int> task = (Task<int>) MainMethod.Invoke(null, new[] {
+        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) => 0 == (int) MainMethod.Invoke(null, new object[] { new[] {
                 Path.GetDirectoryName(formatFile),
                 "--folder",
                 "--fix-whitespace",
-                "--fix-style",
-                "--fix-analyzers",
                 "--include"
-            }.Concat(codeFiles).Concat(write ? Array.Empty<string>() : new[] { "--check" }).ToArray());
-            task.Wait();
-            return task.IsCompletedSuccessfully && task.Result == 0;
-        }
+            }.Concat(codeFiles).Concat(write ? Array.Empty<string>() : new[] { "--check" }).ToArray() });
 
         protected virtual void Dispose(bool disposing) {
             if (!disposed) {
@@ -39,6 +30,6 @@ namespace SpacePi.Format.Tools {
             GC.SuppressFinalize(this);
         }
 
-        public DotnetFormatTool() => MainMethod = Type.GetType("Microsoft.CodeAnalysis.Tools.Program").GetMethod("Main", BindingFlags.NonPublic);
+        public DotnetFormatTool() => MainMethod = typeof(FormattedFile).Assembly.EntryPoint;
     }
 }

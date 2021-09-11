@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SpacePi.Format.Filesystem;
 using SpacePi.Format.Model;
+using SpacePi.Format.Tools;
 
 namespace SpacePi.Format {
     public static class Entry {
@@ -14,7 +15,7 @@ namespace SpacePi.Format {
             RootCommand cmd = new() {
                 new Argument<string>("directory", () => ".", "The root directory to format"),
                 new Option<bool>(new[] { "--dry-run", "-n" }, "Do not write changes to files on disk"),
-                new Option<bool>("--debug", "Print debugging information about which files to format"),
+                new Option<bool>(new[] { "--debug", "-v" }, "Print debugging information about which files to format"),
             };
             cmd.Description = "spacepi-format";
             cmd.Handler = CommandHandler.Create(Run);
@@ -32,8 +33,12 @@ namespace SpacePi.Format {
                     Console.WriteLine();
                 }
             }
-            // TODO
-            return 0;
+            ToolDatabase tools = new();
+            bool success = true;
+            foreach (FormatSet job in jobs) {
+                success = tools[job.Tool.Name].Format(job.Files, job.Tool.ConfigFile, !dryRun) && success;
+            }
+            return success ? 0 : 1;
         }
     }
 }
