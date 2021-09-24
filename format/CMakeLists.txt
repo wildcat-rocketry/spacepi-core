@@ -1,3 +1,5 @@
 configure_file("SpacePi.Format.sln.in" "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format.sln")
-configure_file(../.editorconfig "${CMAKE_CURRENT_BINARY_DIR}/.editorconfig")
-configure_file(../dotnet-format/NuGet.config "${CMAKE_CURRENT_BINARY_DIR}/NuGet.config")
+configure_file("../.editorconfig" "${CMAKE_CURRENT_BINARY_DIR}/.editorconfig")
+configure_file("../dotnet-format/NuGet.config" "${CMAKE_CURRENT_BINARY_DIR}/NuGet.config")
+configure_file("SpacePi.Format.targets.in" "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format.targets.in")
+file(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format.targets" INPUT "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format.targets.in")

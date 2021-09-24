@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Text;
+
+namespace SpacePi.Format.Natives {
+    public static class Clang {
+        [DllImport("$<TARGET_FILE_NAME:SpacePi.Format.Natives>", EntryPoint = "SpacePi_Format_Natives_Clang_Construct")]
+        public static extern void Construct();
+
+        [DllImport("$<TARGET_FILE_NAME:SpacePi.Format.Natives>", EntryPoint = "SpacePi_Format_Natives_Clang_LoadStyle")]
+        public static extern IntPtr LoadStyle(string formatFile);
+
+        [DllImport("$<TARGET_FILE_NAME:SpacePi.Format.Natives>", EntryPoint = "SpacePi_Format_Natives_Clang_Format")]
+        public static extern bool Format(IntPtr style, string codeFile, bool write);
+
+        [DllImport("$<TARGET_FILE_NAME:SpacePi.Format.Natives>", EntryPoint = "SpacePi_Format_Natives_Clang_FreeStyle")]
+        public static extern void FreeStyle(IntPtr style);
+
+        [DllImport("$<TARGET_FILE_NAME:SpacePi.Format.Natives>", EntryPoint = "SpacePi_Format_Natives_Clang_Dispose")]
+        public static extern void Dispose();
+    }
+}

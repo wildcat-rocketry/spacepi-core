@@ -12,7 +12,7 @@ namespace SpacePi.Format.Tools {
         private readonly MethodInfo MainMethod;
         private bool disposed;
 
-        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) => 0 == (int) MainMethod.Invoke(null, new object[] { new[] {
+        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) => !codeFiles.Any() || 0 == (int) MainMethod.Invoke(null, new object[] { new[] {
                 Path.GetDirectoryName(formatFile),
                 "--folder",
                 "--fix-whitespace",

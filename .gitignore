@@ -777,7 +777,7 @@ FodyWeavers.xsd
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
 .Python
 [Bb]in
-[Ii]nclude
+#[Ii]nclude
 [Ll]ib
 [Ll]ib64
 [Ll]ocal

@@ -11,4 +11,8 @@
     <ItemGroup>
         <ProjectReference Include="..\dotnet-format\src\dotnet-format.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <Compile Include="$(SolutionDir)\..\llvm\tools\SpacePi.Format.Natives\Clang.cs" Link="Natives\Clang.cs" />
+    </ItemGroup>
+    <Import Project="$(SolutionDir)\SpacePi.Format.targets" />
 </Project>
