@@ -1,0 +1,28 @@
+/dts-v1/;
+
+// Line comment
+/* Block comment */
+
+/ {
+    myLabel: myNode {
+        intArrayProp = <123 456 0 1 0x123>;
+        stringProp = "Hello, world!";
+        bytesProp = [00 12 34 56];
+        phandleLabelRef = <&myLabel>;
+        nodePathString = &myLabel;
+        childNode {
+            #prop = <0>;
+        };
+    };
+    validChars {
+        validNodeNames0,._+-@123 {
+            validPropNames0,._+-#? = <0>;
+        };
+    };
+    manualPHandle {
+        phandle = <1>;
+    };
+    includeTest {
+        /include/ "smallTest.dts";
+    };
+};

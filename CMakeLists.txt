@@ -31,5 +31,6 @@ add_dependencies(spacepi-platform spacepi-pch)
 
 add_subdirectory(dashboard)
 add_subdirectory(docs)
+add_subdirectory(dtc)
 add_subdirectory(protoc)
 add_subdirectory(test)
