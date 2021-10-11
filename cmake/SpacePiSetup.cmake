@@ -51,4 +51,8 @@ if (SPACEPI_CORE_CACHE_VERSION VERSION_LESS build_compat)
     )
 endif()
 
+# Create global targets
+add_custom_target(format)
+add_custom_target(format-check)
+
 include(SpacePiCompat)

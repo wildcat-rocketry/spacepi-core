@@ -1,0 +1,52 @@
+{
+    "excludes": [
+        "/dotnet-format/",
+        "/cmake/SpacePiDashboard.cmake",
+        "/llvm/"
+    ],
+    "excludeFiles": [
+        ".gitignore"
+    ],
+    "tools": [
+        {
+            "name": "clang",
+            "includes": [
+                "*.cpp",
+                "*.hpp"
+            ],
+            "configFile": ".clang-format"
+        },
+        {
+            "name": "dotnet",
+            "includes": [
+                "*.cs"
+            ],
+            "configFile": ".editorconfig"
+        },
+        {
+            "name": "regex",
+            "includes": [
+                ".*",
+                "*.appxmanifest",
+                "*.cmake",
+                "*.cpp",
+                "*.cs",
+                "*.csproj",
+                "*.hpp",
+                "*.in",
+                "*.ino",
+                "*.json",
+                "*.md",
+                "*.props",
+                "*.proto",
+                "*.py",
+                "*.rst",
+                "*.txt",
+                "*.uxf",
+                "*.wapproj",
+                "*.xaml"
+            ],
+            "configFile": ".spacepi-format-regex"
+        }
+    ]
+}

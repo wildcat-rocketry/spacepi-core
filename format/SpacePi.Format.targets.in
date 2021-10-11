@@ -1,0 +1,8 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="NativeCompile" BeforeTargets="CoreCompile">
+        <Exec Command="&quot;${CMAKE_COMMAND}&quot; --build &quot;${CMAKE_CURRENT_BINARY_DIR}/../llvm/tools/$<TARGET_NAME_IF_EXISTS:SpacePi.Format.Natives>&quot; --target &quot;$<TARGET_NAME_IF_EXISTS:SpacePi.Format.Natives>&quot;" ConsoleToMsBuild="true" />
+    </Target>
+    <ItemGroup>
+        <None Include="$<TARGET_FILE:SpacePi.Format.Natives>" Link="$<TARGET_FILE_NAME:SpacePi.Format.Natives>" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+</Project>
