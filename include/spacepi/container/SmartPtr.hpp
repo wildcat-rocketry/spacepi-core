@@ -4,7 +4,10 @@
 #include <spacepi/concurrent/Lock.hpp>
 #include <spacepi/concurrent/Mutex.hpp>
 #include <spacepi/concurrent/SleepMode.hpp>
+#include <spacepi/container/AccessMode.hpp>
 #include <spacepi/container/AllocationType.hpp>
+#include <spacepi/container/Function.hpp>
+#include <spacepi/container/Property.hpp>
 #include <spacepi/Parameter.hpp>
 
 namespace spacepi {
@@ -168,6 +171,46 @@ namespace spacepi {
                  */
                 virtual inline operator bool() const noexcept = 0;
 
+                /**
+                 * \brief Determines if this SmartPtr is unique
+                 *
+                 * If it is unique, the contained element will be destroyed when this object is deleted or reset.
+                 */
+                const Property<bool, Read> unique;
+
+            protected:
+                /**
+                 * \private
+                 */
+                constexpr SmartPtr() noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                }
+
+                /**
+                 * \private
+                 */
+                constexpr SmartPtr(const SmartPtr &copy) noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                }
+
+                /**
+                 * \private
+                 */
+                constexpr SmartPtr(const SmartPtr &&move) noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                }
+
+                /**
+                 * \private
+                 */
+                constexpr SmartPtr &operator =(const SmartPtr &copy) noexcept {
+                    return *this;
+                }
+
+                /**
+                 * \private
+                 */
+                constexpr SmartPtr &operator =(const SmartPtr &&move) noexcept {
+                    return *this;
+                }
+
             private:
                 static concurrent::Mutex<concurrent::Fast> mutex;
 
@@ -175,6 +218,7 @@ namespace spacepi {
                 virtual void unsafeAlloc() noexcept = 0;
                 virtual Type *get() noexcept = 0;
                 virtual const Type *get() const noexcept = 0;
+                virtual bool isUnique() const noexcept = 0;
         };
 
         template <typename Type>
@@ -193,7 +237,7 @@ namespace spacepi {
          * \tparam Alloc The method to use to allocate the element
          */
         template <typename Type>
-        class SmartPtr<Type, Static> : public SmartPtr<Type, Temporary> {
+        class SmartPtr<Type, Static> : public virtual SmartPtr<Type, Temporary> {
             public:
                 /**
                  * \brief Constructs a null SmartPtr
@@ -282,10 +326,15 @@ namespace spacepi {
                     concurrent::Lock<concurrent::Fast> lck(SmartPtr<Type, Temporary>::mutex);
                     unsafeReset();
                     if (move.state != Null) {
-                        next = move.next;
-                        prev = move.prev;
-                        next->prev = this;
-                        prev->next = this;
+                        if (move.isUnique()) {
+                            next = this;
+                            prev = this;
+                        } else {
+                            next = move.next;
+                            prev = move.prev;
+                            next->prev = this;
+                            prev->next = this;
+                        }
                         if (move.state == Owner) {
                             unsafeMoveOwner(&move, this);
                         }
@@ -345,6 +394,10 @@ namespace spacepi {
                     return obj;
                 }
 
+                inline bool isUnique() const noexcept {
+                    return next == prev;
+                }
+
                 State state;
                 char buffer[sizeof(Type)];
                 Type *obj;
@@ -363,7 +416,7 @@ namespace spacepi {
          * \tparam Type The type of element to manage
          * \tparam Alloc The method to use to allocate the element
          */        template <typename Type>
-        class SmartPtr<Type, Dynamic> : public SmartPtr<Type, Temporary> {
+        class SmartPtr<Type, Dynamic> : public virtual SmartPtr<Type, Temporary> {
             public:
                 /**
                  * \brief Constructs a null SmartPtr
@@ -511,6 +564,10 @@ namespace spacepi {
                         return nullptr;
                     }
                     return data->get();
+                }
+
+                inline bool isUnique() const noexcept {
+                    return !ptr || ptr.unique;
                 }
 
                 SmartPtr<DynamicData, Static> ptr;
