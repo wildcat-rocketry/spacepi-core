@@ -10,7 +10,7 @@ namespace SpacePi.Format.Tools {
         };
 
         private readonly Dictionary<string, IFormatTool> ToolInstances = new();
-        private bool disposed;
+        private bool Disposed;
 
         public IFormatTool this[string name] {
             get {
@@ -27,13 +27,13 @@ namespace SpacePi.Format.Tools {
         }
 
         protected virtual void Dispose(bool disposing) {
-            if (!disposed) {
+            if (!Disposed) {
                 if (disposing) {
                     foreach (IFormatTool tool in ToolInstances.Values) {
                         tool.Dispose();
                     }
                 }
-                disposed = true;
+                Disposed = true;
             }
         }
 

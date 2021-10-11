@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis.Tools;
 namespace SpacePi.Format.Tools {
     public class DotnetFormatTool : IFormatTool {
         private readonly MethodInfo MainMethod;
-        private bool disposed;
 
         public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) => !codeFiles.Any() || 0 == (int) MainMethod.Invoke(null, new object[] { new[] {
                 Path.GetDirectoryName(formatFile),
@@ -20,9 +19,6 @@ namespace SpacePi.Format.Tools {
             }.Concat(codeFiles).Concat(write ? Array.Empty<string>() : new[] { "--check" }).ToArray() });
 
         protected virtual void Dispose(bool disposing) {
-            if (!disposed) {
-                disposed = true;
-            }
         }
 
         public void Dispose() {

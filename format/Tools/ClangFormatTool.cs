@@ -6,7 +6,7 @@ using SpacePi.Format.Natives;
 
 namespace SpacePi.Format.Tools {
     public class ClangFormatTool : IFormatTool {
-        private bool disposed;
+        private bool Disposed;
 
         public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) {
             IntPtr style = Clang.LoadStyle(formatFile);
@@ -18,9 +18,9 @@ namespace SpacePi.Format.Tools {
         }
 
         protected virtual void Dispose(bool disposing) {
-            if (!disposed) {
+            if (!Disposed) {
                 Clang.Dispose();
-                disposed = true;
+                Disposed = true;
             }
         }
 
