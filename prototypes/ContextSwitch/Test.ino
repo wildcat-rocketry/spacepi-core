@@ -9,6 +9,16 @@ void testPoint(int n) {
         testValid = false;
     }
     lastTestPoint = n;
+
+  int test = 0;
+  int test2 = 0;
+  __asm__(
+    "mov %0, $a0\n" // need to use a0
+    "addi $a0, $a0, 0" 
+    : "=r" (test) 
+    : "r" (test2)
+  );
+  printf("\nBREAKPOINT: Address %d: 0x%x; aka %u", n, test, test);
 }
 
 void functionA(void *dummy) {
@@ -55,11 +65,11 @@ void runTest() {
     myMemset((char *) contexts, 0, sizeof(contexts));
     testValid = true;
     lastTestPoint = 0;
-    Serial.println("Beginning test...");
+    Serial.println("\n\nBeginning test...");
     functionA(nullptr);
     if (testValid) {
-        Serial.println("Test complete.");
+        Serial.println("\nTest complete.");
     } else {
-        Serial.println("Test failed!");
+        Serial.println("\nTest failed!");
     }
 }

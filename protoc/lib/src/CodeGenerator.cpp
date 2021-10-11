@@ -66,18 +66,18 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
                     const FieldDescriptor &property = *cls.field(i);
                     (*it)->property(os, file, cls, property);
                 }
-                (*it)->serializeMethodBeg(os, file, cls);
+                (*it)->reflectionMethodBeg(os, file, cls);
                 for (int i = 0; i < cls.field_count(); ++i) {
                     const FieldDescriptor &property = *cls.field(i);
-                    (*it)->serializeMethodProperty(os, file, cls, property);
+                    (*it)->reflectionMethodProperty(os, file, cls, property);
                 }
-                (*it)->serializeMethodEnd(os, file, cls);
-                (*it)->parseMethodBeg(os, file, cls);
-                for (int i = 0; i < cls.field_count(); ++i) {
-                    const FieldDescriptor &property = *cls.field(i);
-                    (*it)->parseMethodProperty(os, file, cls, property);
-                }
-                (*it)->parseMethodEnd(os, file, cls);
+                (*it)->reflectionMethodEnd(os, file, cls);
+                // (*it)->parseMethodBeg(os, file, cls);
+                // for (int i = 0; i < cls.field_count(); ++i) {
+                //     const FieldDescriptor &property = *cls.field(i);
+                //     (*it)->parseMethodProperty(os, file, cls, property);
+                // }
+                // (*it)->parseMethodEnd(os, file, cls);
                 (*it)->classEnd(os, file, cls);
                 stack.top().first.pop();
                 --depth;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,9 +44,19 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         public void Create() => Directory.CreateDirectory(OutputDir);
 
         /// <summary>
+        /// Generates a string representation of the BuildConfiguration
+        /// </summary>
+        /// <returns>The string</returns>
+        public override string ToString() {
+            string sysFiles = string.Join(",", SystemFiles.Select(s => $"\"{s}\""));
+            return $"BuildConfiguration(\"{SourceDir}\", \"{OutputDir}\", \"{StampFile}\", [ {sysFiles} ])";
+        }
+
+        /// <summary>
         /// Creates a new configuration
         /// </summary>
         /// <param name="attr">The attribute declaring the configuration</param>
+        [SuppressMessage("Style", "IDE0057:Use range operator", Justification = "Cannot use ranges on NETStandard 2.0")]
         public BuildConfiguration(AttributeData attr) {
             SourceDir = Path.GetDirectoryName(attr.ApplicationSyntaxReference.SyntaxTree.FilePath);
             OutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Analyzer)}/{nameof(Protobuf)}/{SourceDir.Substring(BuildConfig.CMAKE_SOURCE_DIR.Length + 1)}";
