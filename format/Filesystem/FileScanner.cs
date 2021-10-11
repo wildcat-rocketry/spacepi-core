@@ -72,7 +72,7 @@ namespace SpacePi.Format.Filesystem {
                     matcher.AddIncludePatterns(tool.Includes);
                     yield return new() {
                         Tool = tool,
-                        Files = matcher.Execute(root).Files.Select(f => Path.GetFullPath(f.Path.Substring(DirectoryNode.RootDirectory.Length + 1), root.AbsolutePath)).ToList()
+                        Files = matcher.Execute(root).Files.Select(f => Path.GetFullPath(f.Path.Substring(DirectoryNode.RootDirectory.Length + 1), root.AbsolutePath)).Where(f => File.Exists(f)).ToList()
                     };
                 }
             }
