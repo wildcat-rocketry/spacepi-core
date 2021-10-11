@@ -11,9 +11,7 @@
         {
             "name": "clang",
             "includes": [
-                "*.c",
                 "*.cpp",
-                "*.h",
                 "*.hpp"
             ],
             "configFile": ".clang-format"
