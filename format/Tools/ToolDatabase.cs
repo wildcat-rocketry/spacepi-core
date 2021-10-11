@@ -6,7 +6,8 @@ namespace SpacePi.Format.Tools {
     public class ToolDatabase : IDisposable {
         private static readonly Dictionary<string, Func<IFormatTool>> Tools = new() {
             { "clang", () => new ClangFormatTool() },
-            { "dotnet", () => new DotnetFormatTool() }
+            { "dotnet", () => new DotnetFormatTool() },
+            { "regex", () => new RegexTool()}
         };
 
         private readonly Dictionary<string, IFormatTool> ToolInstances = new();

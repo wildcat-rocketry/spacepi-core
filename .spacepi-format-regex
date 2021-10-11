@@ -1,0 +1,8 @@
+// Convert all line endings to LF
+/\r+\n/\n/
+
+// Convert tabs to 4 spaces
+/\t/    /
+
+// Remove trailing spaces
+/(?m)\s+($)/\n/
