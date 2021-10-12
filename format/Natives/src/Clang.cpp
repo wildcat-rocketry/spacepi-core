@@ -96,6 +96,7 @@ bool SpacePi_Format_Natives_Clang_Format(void *_style, const char *codeFile, boo
             errs() << "error overwriting changed files\n";
             return false;
         }
+        outs() << "Formatted code file '" << codeFile << "'.\n";
     } else if (!repl.empty()) {
         SourceMgr sources;
         const char *buf = (*codeStream)->getBufferStart();

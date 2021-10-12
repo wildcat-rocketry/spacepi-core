@@ -2,9 +2,9 @@ AccessModifierOffset:                           0
 AlignAfterOpenBracket:                          Align
 AlignArrayOfStructures:                         Right
 AlignConsecutiveMacros:                         AcrossEmptyLinesAndComments
-AlignConsecutiveAssignments:                    AcrossEmptyLinesAndComments
+AlignConsecutiveAssignments:                    None
 AlignConsecutiveBitFields:                      AcrossEmptyLinesAndComments
-AlignConsecutiveDeclarations:                   Consecutive
+AlignConsecutiveDeclarations:                   None
 AlignEscapedNewlines:                           Left
 AlignOperands:                                  Align
 AlignTrailingComments:                          true
@@ -47,22 +47,38 @@ EmptyLineBeforeAccessModifier:                  LogicalBlock
 FixNamespaceComments:                           false
 IncludeBlocks:                                  Regroup
 IncludeCategories:
-  - Regex:                                      '/'
+  - Regex:                                      '^<google/'
     Priority:                                   0
     SortPriority:                               2
-    CaseSensitive:                              true
-  - Regex:                                      '^["<]spacepi/'
+    CaseSensitive:                              false
+  - Regex:                                      '^<gtest/'
     Priority:                                   0
     SortPriority:                               3
-    CaseSensitive:                              true
+    CaseSensitive:                              false
+  - Regex:                                      '^<llvm/'
+    Priority:                                   0
+    SortPriority:                               4
+    CaseSensitive:                              false
+  - Regex:                                      '^<clang/'
+    Priority:                                   0
+    SortPriority:                               5
+    CaseSensitive:                              false
+  - Regex:                                      '^["<]spacepi/'
+    Priority:                                   0
+    SortPriority:                               6
+    CaseSensitive:                              false
+  - Regex:                                      '^["<]spacepi/test/'
+    Priority:                                   0
+    SortPriority:                               7
+    CaseSensitive:                              false
   - Regex:                                      '^<'
     Priority:                                   0
     SortPriority:                               1
-    CaseSensitive:                              true
+    CaseSensitive:                              false
   - Regex:                                      '^"'
     Priority:                                   0
-    SortPriority:                               4
-    CaseSensitive:                              true
+    SortPriority:                               8
+    CaseSensitive:                              false
 IncludeIsMainRegex:                             '(Test)?$'
 IncludeIsMainSourceRegex:                       'Impl\.hpp$'
 IndentAccessModifiers:                          true

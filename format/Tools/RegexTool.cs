@@ -23,6 +23,7 @@ namespace SpacePi.Format.Tools {
                 string contents = regexes.Aggregate(orig, (str, r) => r.Item1.Replace(str, r.Item2));
                 if (orig != contents) {
                     if (write) {
+                        Console.WriteLine($"Applied regex rules to code file '{file}'.");
                         File.WriteAllText(file, contents);
                     } else {
                         Console.Error.WriteLine($"Regex rule changes content of file {file}");

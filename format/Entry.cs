@@ -22,7 +22,7 @@ namespace SpacePi.Format {
             return cmd.InvokeAsync(args);
         }
 
-        public static async Task<int> Run(string directory, bool dryRun, bool debug) {
+        public static async Task<int> Run(string directory, bool dryRun, bool debug) => await Task.Run(() => {
             List<FormatSet> jobs = FileScanner.FindFiles(directory).ToList();
             if (debug) {
                 foreach (FormatSet job in jobs) {
@@ -39,6 +39,6 @@ namespace SpacePi.Format {
                 success = tools[job.Tool.Name].Format(job.Files, job.Tool.ConfigFile, !dryRun) && success;
             }
             return success ? 0 : 1;
-        }
+        });
     }
 }
