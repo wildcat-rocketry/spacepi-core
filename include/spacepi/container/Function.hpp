@@ -26,7 +26,8 @@ namespace spacepi {
                 /**
                  * \brief Constructs a null Function
                  */
-                constexpr Function() noexcept : type(TNull) {
+                constexpr Function() noexcept
+                    : type(TNull) {
                 }
 
                 /**
@@ -34,7 +35,8 @@ namespace spacepi {
                  *
                  * \param[in] null \c nullptr
                  */
-                constexpr Function(decltype(nullptr) null) noexcept : type(TNull) {
+                constexpr Function(decltype(nullptr) null) noexcept
+                    : type(TNull) {
                 }
 
                 /**
@@ -42,7 +44,8 @@ namespace spacepi {
                  *
                  * \param[in] func The function pointer
                  */
-                constexpr Function(Return (*func)(Args...)) noexcept : type(TFunction), data(func) {
+                constexpr Function(Return (*func)(Args...)) noexcept
+                    : type(TFunction), data(func) {
                 }
 
                 /**
@@ -52,7 +55,8 @@ namespace spacepi {
                  * \tparam Functoid The type of functoid
                  */
                 template <typename Functoid>
-                constexpr Function(Functoid &functoid) noexcept : type(TFunctoid), data(functoid) {
+                constexpr Function(Functoid &functoid) noexcept
+                    : type(TFunctoid), data(functoid) {
                 }
 
                 /**
@@ -62,7 +66,8 @@ namespace spacepi {
                  * \tparam Functoid The type of functoid
                  */
                 template <typename Functoid>
-                constexpr Function(const Functoid &constFunctoid) noexcept : type(TConstFunctoid), data(constFunctoid) {
+                constexpr Function(const Functoid &constFunctoid) noexcept
+                    : type(TConstFunctoid), data(constFunctoid) {
                 }
 
                 /**
@@ -97,7 +102,7 @@ namespace spacepi {
                  * \param[in] null \c nullptr
                  * \return \c *this
                  */
-                constexpr Function<Return(Args...)> &operator =(decltype(nullptr) null) noexcept {
+                constexpr Function<Return(Args...)> &operator=(decltype(nullptr) null) noexcept {
                     return *new (this) Function<Return(Args...)>();
                 }
 
@@ -107,7 +112,7 @@ namespace spacepi {
                  * \param[in] func The function pointer
                  * \return \c *this
                  */
-                constexpr Function<Return(Args...)> &operator =(Return (*func)(Args...)) noexcept {
+                constexpr Function<Return(Args...)> &operator=(Return (*func)(Args...)) noexcept {
                     return *new (this) Function<Return(Args...)>(func);
                 }
 
@@ -118,7 +123,7 @@ namespace spacepi {
                  * \return \c *this
                  */
                 template <typename Functoid>
-                constexpr Function<Return(Args...)> &operator =(Functoid &functoid) noexcept {
+                constexpr Function<Return(Args...)> &operator=(Functoid &functoid) noexcept {
                     return *new (this) Function<Return(Args...)>(functoid);
                 }
 
@@ -129,7 +134,7 @@ namespace spacepi {
                  * \return \c *this
                  */
                 template <typename Functoid>
-                constexpr Function<Return(Args...)> &operator =(const Functoid &constFunctoid) noexcept {
+                constexpr Function<Return(Args...)> &operator=(const Functoid &constFunctoid) noexcept {
                     return *new (this) Function<Return(Args...)>(constFunctoid);
                 }
 
@@ -139,7 +144,7 @@ namespace spacepi {
                  * \param[in] args The function arguments
                  * \return The function return value
                  */
-                constexpr Return operator ()(Args... args) {
+                constexpr Return operator()(Args... args) {
                     return data(type, Parameter::forward<Args>(args)...);
                 }
 
@@ -149,7 +154,7 @@ namespace spacepi {
                  * \param[in] args The function arguments
                  * \return The function return value
                  */
-                constexpr Return operator ()(Args... args) const {
+                constexpr Return operator()(Args... args) const {
                     return data(type, Parameter::forward<Args>(args)...);
                 }
 
@@ -163,7 +168,8 @@ namespace spacepi {
                 }
 
             private:
-                enum FuncType {
+                enum FuncType
+                {
                     TNull,
                     TFunction,
                     TFunctoid,
@@ -175,10 +181,11 @@ namespace spacepi {
                 class FunctoidData {
                     public:
                         template <typename Functoid>
-                        constexpr FunctoidData(Functoid &functoid) noexcept : functoid(&functoid), wrapper(&wrapperImpl<Functoid>) {
+                        constexpr FunctoidData(Functoid &functoid) noexcept
+                            : functoid(&functoid), wrapper(&wrapperImpl<Functoid>) {
                         }
 
-                        constexpr Return operator ()(Args... args) {
+                        constexpr Return operator()(Args... args) {
                             return wrapper(functoid, Parameter::forward<Args>(args)...);
                         }
 
@@ -195,10 +202,11 @@ namespace spacepi {
                 class ConstFunctoidData {
                     public:
                         template <typename Functoid>
-                        constexpr ConstFunctoidData(const Functoid &functoid) noexcept : functoid(&functoid), wrapper(&wrapperImpl<Functoid>) {
+                        constexpr ConstFunctoidData(const Functoid &functoid) noexcept
+                            : functoid(&functoid), wrapper(&wrapperImpl<Functoid>) {
                         }
 
-                        constexpr Return operator ()(Args... args) const {
+                        constexpr Return operator()(Args... args) const {
                             return wrapper(functoid, Parameter::forward<Args>(args)...);
                         }
 
@@ -219,10 +227,11 @@ namespace spacepi {
                 class ClassFunctionData {
                     public:
                         template <typename Class, Return (Class::*Func)(Args...)>
-                        constexpr ClassFunctionData(Class *cls, ClassFunctionTag<Class, Func> tag) noexcept : cls(cls), wrapper(&wrapperImpl<Class, Func>) {
+                        constexpr ClassFunctionData(Class *cls, ClassFunctionTag<Class, Func> tag) noexcept
+                            : cls(cls), wrapper(&wrapperImpl<Class, Func>) {
                         }
 
-                        constexpr Return operator ()(Args... args) {
+                        constexpr Return operator()(Args... args) {
                             return wrapper(cls, Parameter::forward<Args>(args)...);
                         }
 
@@ -243,10 +252,11 @@ namespace spacepi {
                 class ConstClassFunctionData {
                     public:
                         template <typename Class, Return (Class::*Func)(Args...) const>
-                        constexpr ConstClassFunctionData(const Class *cls, ConstClassFunctionTag<Class, Func> tag) noexcept : cls(cls), wrapper(&wrapperImpl<Class, Func>) {
+                        constexpr ConstClassFunctionData(const Class *cls, ConstClassFunctionTag<Class, Func> tag) noexcept
+                            : cls(cls), wrapper(&wrapperImpl<Class, Func>) {
                         }
 
-                        constexpr Return operator ()(Args... args) const {
+                        constexpr Return operator()(Args... args) const {
                             return wrapper(cls, Parameter::forward<Args>(args)...);
                         }
 
@@ -265,26 +275,31 @@ namespace spacepi {
                         constexpr Data() noexcept {
                         }
 
-                        constexpr Data(Return (*function)(Args...)) noexcept : function(function) {
+                        constexpr Data(Return (*function)(Args...)) noexcept
+                            : function(function) {
                         }
 
                         template <typename Functoid>
-                        constexpr Data(Functoid &functoid) noexcept : functoid(functoid) {
+                        constexpr Data(Functoid &functoid) noexcept
+                            : functoid(functoid) {
                         }
 
                         template <typename Functoid>
-                        constexpr Data(const Functoid &constFunctoid) noexcept : constFunctoid(constFunctoid) {
+                        constexpr Data(const Functoid &constFunctoid) noexcept
+                            : constFunctoid(constFunctoid) {
                         }
 
                         template <typename Class, Return (Class::*Func)(Args...)>
-                        constexpr Data(Class *cls, ClassFunctionTag<Class, Func> tag) noexcept : classFunction(cls, tag) {
+                        constexpr Data(Class *cls, ClassFunctionTag<Class, Func> tag) noexcept
+                            : classFunction(cls, tag) {
                         }
 
                         template <typename Class, Return (Class::*Func)(Args...) const>
-                        constexpr Data(const Class *cls, ConstClassFunctionTag<Class, Func> tag) noexcept : constClassFunction(cls, tag) {
+                        constexpr Data(const Class *cls, ConstClassFunctionTag<Class, Func> tag) noexcept
+                            : constClassFunction(cls, tag) {
                         }
 
-                        constexpr Return operator ()(FuncType type, Args... args) {
+                        constexpr Return operator()(FuncType type, Args... args) {
                             switch (type) {
                                 case TFunction:
                                     return function(Parameter::forward<Args>(args)...);
@@ -300,7 +315,7 @@ namespace spacepi {
                             throw 0;
                         }
 
-                        constexpr Return operator ()(FuncType type, Args... args) const {
+                        constexpr Return operator()(FuncType type, Args... args) const {
                             switch (type) {
                                 case TFunction:
                                     return function(Parameter::forward<Args>(args)...);
@@ -321,11 +336,13 @@ namespace spacepi {
                 };
 
                 template <typename Class, Return (Class::*Func)(Args...)>
-                constexpr Function(Class *cls, ClassFunctionTag<Class, Func> tag) : type(TClassFunction), data(cls, tag) {
+                constexpr Function(Class *cls, ClassFunctionTag<Class, Func> tag)
+                    : type(TClassFunction), data(cls, tag) {
                 }
 
                 template <typename Class, Return (Class::*Func)(Args...) const>
-                constexpr Function(const Class *cls, ConstClassFunctionTag<Class, Func> tag) : type(TConstClassFunction), data(cls, tag) {
+                constexpr Function(const Class *cls, ConstClassFunctionTag<Class, Func> tag)
+                    : type(TConstClassFunction), data(cls, tag) {
                 }
 
                 FuncType type;

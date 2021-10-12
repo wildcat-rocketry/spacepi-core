@@ -1,5 +1,5 @@
-#include <spacepi/Platform.hpp>
 #include <stdint.h>
+#include <spacepi/Platform.hpp>
 
 class spacepi::Platform::Ints {
     public:

@@ -7,20 +7,20 @@
 extern "C" {
 #endif
 
-SPACEPI_CORE_FORMAT_NATIVES_API
-void SpacePi_Format_Natives_Clang_Construct();
+    SPACEPI_CORE_FORMAT_NATIVES_API
+    void SpacePi_Format_Natives_Clang_Construct();
 
-SPACEPI_CORE_FORMAT_NATIVES_API
-void *SpacePi_Format_Natives_Clang_LoadStyle(const char *formatFile);
+    SPACEPI_CORE_FORMAT_NATIVES_API
+    void *SpacePi_Format_Natives_Clang_LoadStyle(const char *formatFile);
 
-SPACEPI_CORE_FORMAT_NATIVES_API
-bool SpacePi_Format_Natives_Clang_Format(void *style, const char *codeFile, bool write);
+    SPACEPI_CORE_FORMAT_NATIVES_API
+    bool SpacePi_Format_Natives_Clang_Format(void *style, const char *codeFile, bool write);
 
-SPACEPI_CORE_FORMAT_NATIVES_API
-void SpacePi_Format_Natives_Clang_FreeStyle(void *style);
+    SPACEPI_CORE_FORMAT_NATIVES_API
+    void SpacePi_Format_Natives_Clang_FreeStyle(void *style);
 
-SPACEPI_CORE_FORMAT_NATIVES_API
-void SpacePi_Format_Natives_Clang_Dispose();
+    SPACEPI_CORE_FORMAT_NATIVES_API
+    void SpacePi_Format_Natives_Clang_Dispose();
 
 #ifdef __cplusplus
 }

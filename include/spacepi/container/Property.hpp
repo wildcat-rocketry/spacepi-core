@@ -32,11 +32,12 @@ namespace spacepi {
                  * \tparam Getter The type of getter function
                  */
                 template <typename Getter>
-                constexpr Property(Getter &&getter) noexcept : getter(Parameter::forward<Getter &&>(getter)) {
+                constexpr Property(Getter &&getter) noexcept
+                    : getter(Parameter::forward<Getter &&>(getter)) {
                 }
 
                 Property(Property &) = delete;
-                Property &operator =(Property &) = delete;
+                Property &operator=(Property &) = delete;
 
                 /**
                  * \brief Gets the value of the property
@@ -61,7 +62,7 @@ namespace spacepi {
                  *
                  * \return The property value
                  */
-                constexpr typename TypeUtil<Type>::NoRef *operator ->() noexcept {
+                constexpr typename TypeUtil<Type>::NoRef *operator->() noexcept {
                     return &getter();
                 }
 
@@ -70,7 +71,7 @@ namespace spacepi {
                  *
                  * \return The property value
                  */
-                constexpr const typename TypeUtil<Type>::NoRef *operator ->() const noexcept {
+                constexpr const typename TypeUtil<Type>::NoRef *operator->() const noexcept {
                     return &getter();
                 }
 
@@ -93,11 +94,12 @@ namespace spacepi {
                  * \tparam Setter The type of setter function
                  */
                 template <typename Setter>
-                constexpr Property(Setter &&setter) noexcept : setter(Parameter::forward<Setter &&>(setter)) {
+                constexpr Property(Setter &&setter) noexcept
+                    : setter(Parameter::forward<Setter &&>(setter)) {
                 }
 
                 Property(Property &) = delete;
-                Property &operator =(Property &) = delete;
+                Property &operator=(Property &) = delete;
 
                 /**
                  * \brief Sets the value of the property
@@ -105,7 +107,7 @@ namespace spacepi {
                  * \param[in] val The property value
                  * \return \c val
                  */
-                constexpr const typename TypeUtil<Type>::PrimitiveOrReference operator =(const typename TypeUtil<Type>::PrimitiveOrReference val) noexcept {
+                constexpr const typename TypeUtil<Type>::PrimitiveOrReference operator=(const typename TypeUtil<Type>::PrimitiveOrReference val) noexcept {
                     setter(val);
                     return val;
                 }
@@ -131,7 +133,8 @@ namespace spacepi {
                  * \tparam Setter The type of setter function
                  */
                 template <typename Getter, typename Setter>
-                constexpr Property(Getter &&getter, Setter &&setter) noexcept : Property<Type, Read>(Parameter::forward<Getter &&>(getter)), Property<Type, Write>(Parameter::forward<Setter &&>(setter)) {
+                constexpr Property(Getter &&getter, Setter &&setter) noexcept
+                    : Property<Type, Read>(Parameter::forward<Getter &&>(getter)), Property<Type, Write>(Parameter::forward<Setter &&>(setter)) {
                 }
 
                 /**
@@ -140,8 +143,8 @@ namespace spacepi {
                  * \param[in] val The property value
                  * \return \c val
                  */
-                constexpr const typename TypeUtil<Type>::PrimitiveOrReference operator =(const typename TypeUtil<Type>::PrimitiveOrReference val) noexcept {
-                    return Property<Type, Write>::operator =(val);
+                constexpr const typename TypeUtil<Type>::PrimitiveOrReference operator=(const typename TypeUtil<Type>::PrimitiveOrReference val) noexcept {
+                    return Property<Type, Write>::operator=(val);
                 }
         };
     }

@@ -39,7 +39,7 @@ namespace spacepi {
          */
         template <typename Type>
         class SmartPtr<Type, Temporary> {
-            friend class SmartPtr<Type, Static>;
+                friend class SmartPtr<Type, Static>;
 
             public:
                 /**
@@ -57,7 +57,7 @@ namespace spacepi {
                  * \param[in] null \c nullptr
                  * \return \c *this
                  */
-                inline SmartPtr &operator =(decltype(nullptr) null) noexcept {
+                inline SmartPtr &operator=(decltype(nullptr) null) noexcept {
                     reset();
                     return *this;
                 }
@@ -85,7 +85,7 @@ namespace spacepi {
                  * \param[in] args The arguments to the element's constructor
                  */
                 template <typename... Args>
-                inline void reset(ConstructType tag, Args &&... args) noexcept {
+                inline void reset(ConstructType tag, Args &&...args) noexcept {
                     concurrent::Lock<concurrent::Fast> lck(mutex);
                     unsafeReset();
                     unsafeAlloc();
@@ -133,7 +133,7 @@ namespace spacepi {
                  *
                  * \return The element
                  */
-                inline Type &operator *() noexcept {
+                inline Type &operator*() noexcept {
                     return *get();
                 }
 
@@ -142,7 +142,7 @@ namespace spacepi {
                  *
                  * \return The element
                  */
-                inline const Type &operator *() const noexcept {
+                inline const Type &operator*() const noexcept {
                     return *get();
                 }
 
@@ -151,7 +151,7 @@ namespace spacepi {
                  *
                  * \return The element
                  */
-                inline Type *operator ->() noexcept {
+                inline Type *operator->() noexcept {
                     return get();
                 }
 
@@ -160,7 +160,7 @@ namespace spacepi {
                  *
                  * \return The element
                  */
-                inline const Type *operator ->() const noexcept {
+                inline const Type *operator->() const noexcept {
                     return get();
                 }
 
@@ -182,32 +182,35 @@ namespace spacepi {
                 /**
                  * \private
                  */
-                constexpr SmartPtr() noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                constexpr SmartPtr() noexcept
+                    : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
                 }
 
                 /**
                  * \private
                  */
-                constexpr SmartPtr(const SmartPtr &copy) noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                constexpr SmartPtr(const SmartPtr &copy) noexcept
+                    : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
                 }
 
                 /**
                  * \private
                  */
-                constexpr SmartPtr(const SmartPtr &&move) noexcept : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
+                constexpr SmartPtr(const SmartPtr &&move) noexcept
+                    : unique(Function<bool()>::create<SmartPtr, &SmartPtr::isUnique>(this)) {
                 }
 
                 /**
                  * \private
                  */
-                constexpr SmartPtr &operator =(const SmartPtr &copy) noexcept {
+                constexpr SmartPtr &operator=(const SmartPtr &copy) noexcept {
                     return *this;
                 }
 
                 /**
                  * \private
                  */
-                constexpr SmartPtr &operator =(const SmartPtr &&move) noexcept {
+                constexpr SmartPtr &operator=(const SmartPtr &&move) noexcept {
                     return *this;
                 }
 
@@ -244,7 +247,8 @@ namespace spacepi {
                  *
                  * \param[in] null \c nullptr
                  */
-                constexpr SmartPtr(decltype(nullptr) null = nullptr) noexcept : state(Null), obj(nullptr), next(this), prev(this) {
+                constexpr SmartPtr(decltype(nullptr) null = nullptr) noexcept
+                    : state(Null), obj(nullptr), next(this), prev(this) {
                 }
 
                 /**
@@ -254,7 +258,8 @@ namespace spacepi {
                  *
                  * \param[in,out] copy The source SmartPtr
                  */
-                inline SmartPtr(SmartPtr &copy) noexcept : SmartPtr() {
+                inline SmartPtr(SmartPtr &copy) noexcept
+                    : SmartPtr() {
                     *this = copy;
                 }
 
@@ -266,7 +271,8 @@ namespace spacepi {
                  *
                  * \param[in,out] move The source SmartPtr
                  */
-                inline SmartPtr(SmartPtr &&move) noexcept : SmartPtr() {
+                inline SmartPtr(SmartPtr &&move) noexcept
+                    : SmartPtr() {
                     *this = Parameter::move<SmartPtr>(move);
                 }
 
@@ -278,7 +284,8 @@ namespace spacepi {
                  * \param[in] args The arguments to the element's constructor
                  */
                 template <typename... Args>
-                inline SmartPtr(ConstructType tag, Args &&... args) noexcept : SmartPtr() {
+                inline SmartPtr(ConstructType tag, Args &&...args) noexcept
+                    : SmartPtr() {
                     SmartPtr<Type, Temporary>::reset(tag, Parameter::forward<Args>(args)...);
                 }
 
@@ -299,7 +306,7 @@ namespace spacepi {
                  * \param[in,out] copy The source SmartPtr
                  * \return \c *this
                  */
-                inline SmartPtr &operator =(SmartPtr &copy) noexcept {
+                inline SmartPtr &operator=(SmartPtr &copy) noexcept {
                     concurrent::Lock<concurrent::Fast> lck(SmartPtr<Type, Temporary>::mutex);
                     unsafeReset();
                     if (copy.state != Null) {
@@ -322,7 +329,7 @@ namespace spacepi {
                  * \param[in,out] move The source SmartPtr
                  * \return \c *this
                  */
-                inline SmartPtr &operator =(SmartPtr &&move) noexcept {
+                inline SmartPtr &operator=(SmartPtr &&move) noexcept {
                     concurrent::Lock<concurrent::Fast> lck(SmartPtr<Type, Temporary>::mutex);
                     unsafeReset();
                     if (move.state != Null) {
@@ -352,7 +359,8 @@ namespace spacepi {
                 }
 
             private:
-                enum State {
+                enum State
+                {
                     Null,
                     Owner,
                     Member
@@ -415,7 +423,8 @@ namespace spacepi {
          *
          * \tparam Type The type of element to manage
          * \tparam Alloc The method to use to allocate the element
-         */        template <typename Type>
+         */
+        template <typename Type>
         class SmartPtr<Type, Dynamic> : public virtual SmartPtr<Type, Temporary> {
             public:
                 /**
@@ -433,7 +442,8 @@ namespace spacepi {
                  *
                  * \param[in,out] copy The source SmartPtr
                  */
-                inline SmartPtr(SmartPtr &copy) noexcept : ptr(copy.ptr) {
+                inline SmartPtr(SmartPtr &copy) noexcept
+                    : ptr(copy.ptr) {
                 }
 
                 /**
@@ -444,7 +454,8 @@ namespace spacepi {
                  *
                  * \param[in,out] move The source SmartPtr
                  */
-                inline SmartPtr(SmartPtr &&move) noexcept : ptr(Parameter::move<SmartPtr<DynamicData, Static>>(move.ptr)) {
+                inline SmartPtr(SmartPtr &&move) noexcept
+                    : ptr(Parameter::move<SmartPtr<DynamicData, Static>>(move.ptr)) {
                 }
 
                 /**
@@ -455,7 +466,7 @@ namespace spacepi {
                  * \param[in] args The arguments to the element's constructor
                  */
                 template <typename... Args>
-                inline SmartPtr(ConstructType tag, Args &&... args) noexcept {
+                inline SmartPtr(ConstructType tag, Args &&...args) noexcept {
                     SmartPtr<Type, Temporary>::reset(tag, Parameter::forward<Args>(args)...);
                 }
 
@@ -476,7 +487,7 @@ namespace spacepi {
                  * \param[in,out] copy The source SmartPtr
                  * \return \c *this
                  */
-                inline SmartPtr &operator =(SmartPtr &copy) noexcept {
+                inline SmartPtr &operator=(SmartPtr &copy) noexcept {
                     ptr = copy.ptr;
                     return *this;
                 }
@@ -490,7 +501,7 @@ namespace spacepi {
                  * \param[in,out] move The source SmartPtr
                  * \return \c *this
                  */
-                inline SmartPtr &operator =(SmartPtr &&move) noexcept {
+                inline SmartPtr &operator=(SmartPtr &&move) noexcept {
                     ptr = Parameter::move<SmartPtr<DynamicData, Static>>(move.ptr);
                     return *this;
                 }
@@ -507,10 +518,12 @@ namespace spacepi {
             private:
                 class DynamicData {
                     public:
-                        inline DynamicData() noexcept : data(new char[sizeof(Type)]) {
+                        inline DynamicData() noexcept
+                            : data(new char[sizeof(Type)]) {
                         }
 
-                        constexpr DynamicData(DynamicData &&move) noexcept : data(move.data) {
+                        constexpr DynamicData(DynamicData &&move) noexcept
+                            : data(move.data) {
                             move.data = nullptr;
                         }
 
@@ -521,7 +534,7 @@ namespace spacepi {
                             }
                         }
 
-                        constexpr DynamicData &operator =(DynamicData &&move) noexcept {
+                        constexpr DynamicData &operator=(DynamicData &&move) noexcept {
                             if (data) {
                                 delete[] data;
                             }

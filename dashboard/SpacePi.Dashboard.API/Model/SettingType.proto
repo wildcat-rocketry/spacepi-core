@@ -1,4 +1,4 @@
-// This proto details one setting entry used in the GUI 
+// This proto details one setting entry used in the GUI
 
 syntax = "proto3";
 

@@ -1,8 +1,8 @@
 #ifndef SPACEPI_CORE_CONCURRENT_MUTEX_HPP
 #define SPACEPI_CORE_CONCURRENT_MUTEX_HPP
 
-#include <spacepi/Platform.hpp>
 #include <spacepi/concurrent/SleepMode.hpp>
+#include <spacepi/Platform.hpp>
 
 namespace spacepi {
     namespace concurrent {
@@ -27,11 +27,12 @@ namespace spacepi {
                 /**
                  * \brief Constructs a Mutex
                  */
-                constexpr Mutex() noexcept : val(0) {
+                constexpr Mutex() noexcept
+                    : val(0) {
                 }
 
                 Mutex(Mutex &) = delete;
-                Mutex &operator =(Mutex &) = delete;
+                Mutex &operator=(Mutex &) = delete;
 
                 /**
                  * \brief Attempts to lock the Mutex without blocking
@@ -48,7 +49,8 @@ namespace spacepi {
                  * This method will block without sleeping until the Mutex can be locked
                  */
                 inline void lock() noexcept {
-                    while (!tryLock());
+                    while (!tryLock())
+                        ;
                 }
 
                 /**

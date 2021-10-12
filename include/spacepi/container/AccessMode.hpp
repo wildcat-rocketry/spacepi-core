@@ -6,7 +6,8 @@ namespace spacepi {
         /**
          * \brief Enumerations of access modes for a Property
          */
-        enum AccessMode {
+        enum AccessMode
+        {
             /**
              * \brief The Property can be read from
              */

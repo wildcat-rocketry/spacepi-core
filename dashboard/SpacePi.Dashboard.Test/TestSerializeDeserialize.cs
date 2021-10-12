@@ -1,36 +1,30 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using Xunit;
-
-using SpacePi.Dashboard.API.Model.Serialization;
-using SpacePi.Dashboard.API.Model.Reflection;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Design;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SpacePi.Dashboard.API.Model.Reflection;
+using SpacePi.Dashboard.API.Model.Serialization;
+using Xunit;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
-        private static IEnumerable<T> RepeatList<T>(IEnumerable<T> to_repeat, int count)
-        {
-            for(int i = 0; i < count; i++)
-            {
-                foreach (T val in to_repeat)
-                {
+        private static IEnumerable<T> RepeatList<T>(IEnumerable<T> to_repeat, int count) {
+            for (int i = 0; i < count; i++) {
+                foreach (T val in to_repeat) {
                     yield return val;
                 }
             }
         }
 
-        private static void VerifyStream(Stream stream, IEnumerable<byte> bytes)
-        {
+        private static void VerifyStream(Stream stream, IEnumerable<byte> bytes) {
             Assert.Equal(bytes.Count(), stream.Length);
 
-            foreach (byte b in bytes)
-            {
+            foreach (byte b in bytes) {
                 Assert.Equal(b, stream.ReadByte());
             }
         }
@@ -50,19 +44,17 @@ namespace SpacePi.Dashboard.Test {
         }
 
         [Fact]
-        public void SimpleVarintDecode()
-        {
+        public void SimpleVarintDecode() {
             MemoryStream memStream = new MemoryStream(1);
             memStream.WriteByte(0b00000001);
             memStream.Seek(0, SeekOrigin.Begin);
-            Assert.Equal(1, (long)Varint.FromBase128(memStream));
+            Assert.Equal(1, (long) Varint.FromBase128(memStream));
         }
 
         [Theory]
         [InlineData(new byte[] { 0b00000001 }, 1)]
         [InlineData(new byte[] { 0b10101100, 0b00000010 }, 300)]
-        public void UnsignedVarintDecode(byte[] bytes, ulong num)
-        {
+        public void UnsignedVarintDecode(byte[] bytes, ulong num) {
             MemoryStream memStream = new MemoryStream(10);
             memStream.Write(bytes, 0, bytes.Length);
             memStream.Seek(0, SeekOrigin.Begin);
@@ -70,8 +62,7 @@ namespace SpacePi.Dashboard.Test {
         }
 
         [Fact]
-        public void NegativeVarintDecode()
-        {
+        public void NegativeVarintDecode() {
             MemoryStream memStream = new MemoryStream(10);
             memStream.WriteByte(0b00000001);
             memStream.Seek(0, SeekOrigin.Begin);
@@ -84,16 +75,14 @@ namespace SpacePi.Dashboard.Test {
         [InlineData(69)]
         [InlineData(-69)]
         [InlineData(-6942069)]
-        public void NegativeVarint(long testVal)
-        {
+        public void NegativeVarint(long testVal) {
             MemoryStream memStream = new MemoryStream(12);
             Varint.ToBase128(testVal, memStream);
             memStream.Seek(0, SeekOrigin.Begin);
             Assert.Equal(testVal, Varint.FromBase128Signed(memStream));
         }
 
-        public static IEnumerable<object[]> GetObjectSerializeData()
-        {
+        public static IEnumerable<object[]> GetObjectSerializeData() {
             yield return new object[] {
                 new TestObject(
                     new ModelClass("Test1", new IField[] {
@@ -132,8 +121,7 @@ namespace SpacePi.Dashboard.Test {
 
         [Theory]
         [MemberData(nameof(GetObjectSerializeData))]
-        public void SimpleObjectSerialize(TestObject testObject, IEnumerable<byte> bytes)
-        {
+        public void SimpleObjectSerialize(TestObject testObject, IEnumerable<byte> bytes) {
             /* Representation of:
              *     message Test1 {
              *         int32 a = 1; // Value of 150
@@ -152,7 +140,7 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream stream = new MemoryStream(32);
             data.Serialize(stream);
             stream.Seek(0, SeekOrigin.Begin);
-            VerifyStream(stream, new byte[] { 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte)'h', (byte)'i' });
+            VerifyStream(stream, new byte[] { 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte) 'h', (byte) 'i' });
             stream.Close();
         }
 
@@ -167,7 +155,7 @@ namespace SpacePi.Dashboard.Test {
 
         [Fact]
         public void SimpleDataListDeserialize() {
-            MemoryStream stream = new MemoryStream(new byte[] { 0x0a, 0x08, 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte) 'h', (byte) 'i'});
+            MemoryStream stream = new MemoryStream(new byte[] { 0x0a, 0x08, 0x08, 0x01, 0x10, 0x02, 0x1a, 0x02, (byte) 'h', (byte) 'i' });
             SimpleDataList list = new();
             list.Parse(stream);
             Assert.Collection(list.List, new Action<SimpleData>[] { (data) => { Assert.Equal(new SimpleData(1, 2, "hi"), data); } });
@@ -183,7 +171,6 @@ namespace SpacePi.Dashboard.Test {
                 (data) => { Assert.Equal(new SimpleData(3, 2, "bye"), data); },
             });
         }
-
 
         [Fact]
         public void SimpleDeserializeClass() {
@@ -202,7 +189,7 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream stream = new MemoryStream(bytes);
             stream.SetLength(4);
             test.Parse(stream);
-            Assert.Equal((uint)0x2c, value);
+            Assert.Equal((uint) 0x2c, value);
         }
 
         [Fact]
@@ -218,8 +205,8 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream stream = new MemoryStream(bytes);
             test.Parse(stream);
             Assert.Equal(2, values.Count);
-            Assert.Equal((uint)0x08, values[0]);
-            Assert.Equal((uint)0x2c, values[1]);
+            Assert.Equal((uint) 0x08, values[0]);
+            Assert.Equal((uint) 0x2c, values[1]);
         }
 
         [Fact]
@@ -235,15 +222,12 @@ namespace SpacePi.Dashboard.Test {
             MemoryStream stream = new MemoryStream(bytes);
             test.Parse(stream);
             Assert.Equal(2, values.Count);
-            Assert.Equal((uint)0x88, values[0]);
-            Assert.Equal((uint)0x2c, values[1]);
+            Assert.Equal((uint) 0x88, values[0]);
+            Assert.Equal((uint) 0x2c, values[1]);
         }
 
-
-
-        public class TestObject : IObject
-        {
-            public TestObject(ModelClass modelClass){
+        public class TestObject : IObject {
+            public TestObject(ModelClass modelClass) {
                 Reflection = modelClass;
             }
 
@@ -260,8 +244,7 @@ namespace SpacePi.Dashboard.Test {
             public List<SimpleData> List { get; set; } = new List<SimpleData>();
         }
 
-        public class SimpleDataListReflection : IClass
-        {
+        public class SimpleDataListReflection : IClass {
             public SimpleDataListReflection(SimpleDataList dataList) {
                 Fields = new IField[] {
                     new VectorClassField<SimpleDataReflection>("List", 1, false, new ObservableCollection<SimpleDataReflection>(), () => {
@@ -276,9 +259,8 @@ namespace SpacePi.Dashboard.Test {
 
             public IEnumerable<IField> Fields { get; private set; }
         }
-        
-        public class SimpleData : IObject
-        {
+
+        public class SimpleData : IObject {
             public SimpleData() {
                 Reflection = new SimpleDataReflection(this);
             }
@@ -301,8 +283,7 @@ namespace SpacePi.Dashboard.Test {
             public IClass Reflection { get; private set; }
         }
 
-        public class SimpleDataReflection : IClass
-        {
+        public class SimpleDataReflection : IClass {
             public SimpleDataReflection(SimpleData data) {
                 Fields = new List<IField> {
                     new ScalarPrimitiveField("A", 1, false, IPrimitiveField.Types.Uint32, () => { return data.A; }, (a) => { data.A = (uint)a; }),

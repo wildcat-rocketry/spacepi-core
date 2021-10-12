@@ -29,7 +29,8 @@ TEST(spacepi_Platform, testAndSet) {
 
 static void threadFunc(int *lock, int *accum, int idx) {
     for (int i = 0; i < numIters; ++i) {
-        while (Platform::testAndSet(*lock));
+        while (Platform::testAndSet(*lock))
+            ;
         int val = *accum + 1;
         this_thread::sleep_for(microseconds((idx ^ val) % 10));
         *accum = val;

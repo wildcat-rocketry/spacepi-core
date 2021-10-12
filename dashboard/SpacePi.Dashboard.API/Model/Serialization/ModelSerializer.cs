@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -32,8 +32,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
             return new Tuple<int, WireType>((int) (num >> 3), (WireType) (num & 0x7));
         }
 
-
-        static void DiscardIfNot(Stream stream, WireType wireType, WireType actual, Action func){
+        static void DiscardIfNot(Stream stream, WireType wireType, WireType actual, Action func) {
             if (wireType == actual) {
                 func();
             } else {
@@ -47,13 +46,13 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                 case IPrimitiveField.Types.Bool:
                     return Varint.FromBase128(stream, max_len, out length) != 0;
                 case IPrimitiveField.Types.Int32:
-                    return (int)Varint.FromBase128Signed(stream, max_len, out length);
+                    return (int) Varint.FromBase128Signed(stream, max_len, out length);
                 case IPrimitiveField.Types.Int64:
-                    return (long)Varint.FromBase128Signed(stream, max_len, out length);
+                    return (long) Varint.FromBase128Signed(stream, max_len, out length);
                 case IPrimitiveField.Types.Uint32:
-                    return (uint)Varint.FromBase128(stream, max_len, out length);
+                    return (uint) Varint.FromBase128(stream, max_len, out length);
                 case IPrimitiveField.Types.Uint64:
-                    return (ulong)Varint.FromBase128(stream, max_len, out length);
+                    return (ulong) Varint.FromBase128(stream, max_len, out length);
                 default:
                     throw new InvalidOperationException("This function can only parse values from varints");
             }
@@ -89,18 +88,18 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                             DiscardIfNot(stream, WireType.LENGTH_DELIMITED, wireType, () => {
                                 ulong length = Varint.FromBase128(stream);
                                 AppendIfList(classField);
-                                ParseClass(classField[classField.Count-1], stream, stream.Position + (long)length);
+                                ParseClass(classField[classField.Count - 1], stream, stream.Position + (long) length);
                             });
                             break;
                         case IEnumField enumField:
-                            Func<ulong,ulong> addOneEnum = (max_len) => {
+                            Func<ulong, ulong> addOneEnum = (max_len) => {
                                 AppendIfList(enumField);
                                 enumField[enumField.Count - 1] = (int) Varint.FromBase128(stream, max_len, out ulong length);
                                 return length;
                             };
-                            if(wireType == WireType.LENGTH_DELIMITED) {
+                            if (wireType == WireType.LENGTH_DELIMITED) {
                                 ulong length = Varint.FromBase128(stream);
-                                for (ulong i = 0; i < length; ) {
+                                for (ulong i = 0; i < length;) {
                                     i += addOneEnum(length - i);
                                 }
                             } else {
@@ -119,12 +118,12 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                                 case IPrimitiveField.Types.Uint64:
                                     Func<ulong, ulong> addOnePrim = (max_len) => {
                                         AppendIfList(primitiveField);
-                                        primitiveField[primitiveField.Count-1] = ParseSingleVarint(fieldType, stream, max_len, out ulong length);
+                                        primitiveField[primitiveField.Count - 1] = ParseSingleVarint(fieldType, stream, max_len, out ulong length);
                                         return length;
                                     };
-                                    if(wireType == WireType.LENGTH_DELIMITED) {
+                                    if (wireType == WireType.LENGTH_DELIMITED) {
                                         ulong length = Varint.FromBase128(stream);
-                                        for (ulong i = 0; i < length; ) {
+                                        for (ulong i = 0; i < length;) {
                                             i += addOnePrim(length - i);
                                         };
                                     } else {
@@ -136,13 +135,13 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                                 case IPrimitiveField.Types.Double:
                                     DiscardIfNot(stream, WireType.FIXED_64, wireType, () => {
                                         AppendIfList(primitiveField);
-                                        primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadDouble();
+                                        primitiveField[primitiveField.Count - 1] = new BinaryReader(stream).ReadDouble();
                                     });
                                     break;
                                 case IPrimitiveField.Types.Float:
                                     DiscardIfNot(stream, WireType.FIXED_32, wireType, () => {
                                         AppendIfList(primitiveField);
-                                        primitiveField[primitiveField.Count-1] = new BinaryReader(stream).ReadSingle();
+                                        primitiveField[primitiveField.Count - 1] = new BinaryReader(stream).ReadSingle();
                                     });
                                     break;
                                 case IPrimitiveField.Types.String:
@@ -150,10 +149,10 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                                         ulong length = Varint.FromBase128(stream);
                                         StringWriter stringWriter = new();
                                         for (ulong i = 0; i < length; i++) {
-                                            stringWriter.Write((char)stream.ReadByte());
+                                            stringWriter.Write((char) stream.ReadByte());
                                         }
                                         AppendIfList(primitiveField);
-                                        primitiveField[primitiveField.Count-1] = stringWriter.ToString();
+                                        primitiveField[primitiveField.Count - 1] = stringWriter.ToString();
                                     });
                                     break;
                             };
@@ -175,7 +174,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                     break;
                 case WireType.LENGTH_DELIMITED:
                     ulong length = Varint.FromBase128(stream);
-                    stream.Seek((long)length, SeekOrigin.Current);
+                    stream.Seek((long) length, SeekOrigin.Current);
                     break;
                 case WireType.FIXED_32:
                     stream.Seek(4, SeekOrigin.Current);
@@ -190,78 +189,72 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
         /// </summary>
         /// <param name="cls"></param>
         /// <param name="stream"></param>
-        static void SerializeClass(IClass cls, Stream stream)
-        {
+        static void SerializeClass(IClass cls, Stream stream) {
             SerializeClass(cls, new WritingProtoStream(stream));
         }
 
-        private static void SerializeClass(IClass cls, ProtoStream protostream)
-        {
+        private static void SerializeClass(IClass cls, ProtoStream protostream) {
             foreach (IField field in cls.Fields) {
-                if (field.IsTransient) continue;
+                if (field.IsTransient)
+                    continue;
 
                 // Treat all lists as un-packed
-                for (int i = 0; i < field.Count; i++)
-                {
-                    if (field is IEnumField enumField)
-                    {
+                for (int i = 0; i < field.Count; i++) {
+                    if (field is IEnumField enumField) {
                         protostream.WriteFieldInfo(enumField.Number, WireType.VARINT);
                         Varint.ToBase128(enumField[i], protostream);
-                    } else if (field is IPrimitiveField primitiveField)
-                    {
-                        switch (primitiveField.Type)
-                        {
+                    } else if (field is IPrimitiveField primitiveField) {
+                        switch (primitiveField.Type) {
                             case IPrimitiveField.Types.Bool:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.VARINT);
-                                protostream.WriteVarint(((bool)primitiveField[i])? (ulong)1: (ulong)0);
+                                protostream.WriteVarint(((bool) primitiveField[i]) ? (ulong) 1 : (ulong) 0);
                                 break;
                             case IPrimitiveField.Types.Int32:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.VARINT);
-                                protostream.WriteSignedVarint((int)primitiveField[i]);
+                                protostream.WriteSignedVarint((int) primitiveField[i]);
                                 break;
                             case IPrimitiveField.Types.Int64:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.VARINT);
-                                protostream.WriteSignedVarint((long)primitiveField[i]);
+                                protostream.WriteSignedVarint((long) primitiveField[i]);
                                 break;
                             case IPrimitiveField.Types.Uint32:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.VARINT);
-                                protostream.WriteVarint((ulong)(uint)primitiveField[i]);
+                                protostream.WriteVarint((ulong) (uint) primitiveField[i]);
                                 break;
                             case IPrimitiveField.Types.Uint64:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.VARINT);
-                                protostream.WriteVarint((ulong)primitiveField[i]);
+                                protostream.WriteVarint((ulong) primitiveField[i]);
                                 break;
                             case IPrimitiveField.Types.Double:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.FIXED_64);
-                                byte[] doubleBytes = BitConverter.GetBytes((double)primitiveField[i]);
+                                byte[] doubleBytes = BitConverter.GetBytes((double) primitiveField[i]);
                                 protostream.Write(doubleBytes, 0, 8);
                                 break;
                             case IPrimitiveField.Types.Float:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.FIXED_32);
-                                byte[] floatBytes = BitConverter.GetBytes((float)primitiveField[i]);
+                                byte[] floatBytes = BitConverter.GetBytes((float) primitiveField[i]);
                                 protostream.Write(floatBytes, 0, 4);
                                 break;
                             case IPrimitiveField.Types.Bytes:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.LENGTH_DELIMITED);
-                                byte[] bytes = (byte[])(primitiveField[i]);
-                                protostream.WriteVarint((ulong)bytes.Length);
+                                byte[] bytes = (byte[]) (primitiveField[i]);
+                                protostream.WriteVarint((ulong) bytes.Length);
                                 protostream.Write(bytes, 0, bytes.Length);
                                 break;
                             case IPrimitiveField.Types.String:
                                 protostream.WriteFieldInfo(primitiveField.Number, WireType.LENGTH_DELIMITED);
-                                byte[] stringBytes = Encoding.UTF8.GetBytes((string)primitiveField[i]);
-                                protostream.WriteVarint((ulong)stringBytes.Length);
+                                byte[] stringBytes = Encoding.UTF8.GetBytes((string) primitiveField[i]);
+                                protostream.WriteVarint((ulong) stringBytes.Length);
                                 protostream.Write(stringBytes, 0, stringBytes.Length);
                                 break;
                             case IPrimitiveField.Types.External:
                                 throw new NotSupportedException("External type must always be transient");
                         }
-                    } else if (field is IClassField classField)
-                    {
+                    } else if (field is IClassField classField) {
                         using CountingProtoStream counting = new();
                         SerializeClass(classField[i], counting);
                         protostream.WriteFieldInfo(classField.Number, WireType.LENGTH_DELIMITED);
-                        protostream.WriteVarint((ulong)counting.Length);
+                        protostream.WriteVarint((ulong) counting.Length);
                         SerializeClass(classField[i], protostream);
                     }
                 }

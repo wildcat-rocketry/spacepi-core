@@ -10,7 +10,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         public override string Name => "Value";
 
         protected override bool TryParse(string str) {
-            if (IPrimitiveField.TryParsers[(int)Field.Type](str, out object val)) {
+            if (IPrimitiveField.TryParsers[(int) Field.Type](str, out object val)) {
                 Field[Index] = val;
                 return true;
             }

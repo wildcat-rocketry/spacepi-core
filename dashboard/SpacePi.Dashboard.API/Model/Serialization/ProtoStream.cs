@@ -1,19 +1,17 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API.Model.Serialization
-{
-    public abstract class ProtoStream : Stream
-    {
+namespace SpacePi.Dashboard.API.Model.Serialization {
+    public abstract class ProtoStream : Stream {
         public abstract override bool CanRead { get; }
 
         public abstract override bool CanSeek { get; }
 
-        public abstract override bool CanWrite { get; } 
+        public abstract override bool CanWrite { get; }
 
         public abstract override long Length { get; }
 
@@ -34,5 +32,5 @@ namespace SpacePi.Dashboard.API.Model.Serialization
         public abstract override void SetLength(long value);
 
         public abstract override void Write(byte[] buffer, int offset, int count);
-     }
+    }
 }

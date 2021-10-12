@@ -5,7 +5,8 @@ namespace spacepi {
     namespace test {
         class TypeChecker {
             public:
-                enum ReferenceKind {
+                enum ReferenceKind
+                {
                     Invalid,
                     NonReference,
                     ModifiableLValue,

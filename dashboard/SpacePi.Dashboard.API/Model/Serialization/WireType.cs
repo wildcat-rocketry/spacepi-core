@@ -4,10 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API.Model.Serialization
-{
-    public enum WireType
-    {
+namespace SpacePi.Dashboard.API.Model.Serialization {
+    public enum WireType {
         VARINT = 0,
         FIXED_64 = 1,
         LENGTH_DELIMITED = 2,

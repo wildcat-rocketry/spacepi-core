@@ -6,7 +6,8 @@ namespace spacepi {
         /**
          * \brief Type of algorithms used to sleep while waiting for synchronization
          */
-        enum SleepMode {
+        enum SleepMode
+        {
             /**
              * \brief Critical sections are small, so never sleep
              */

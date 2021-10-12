@@ -22,8 +22,8 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         public ScalarEnumNode(IEnumField field, int index = 0) : base(field, index, "Reload Value") {
             Ordinal = new(field, index);
-            Named   = new(field, index);
-            Values  = new IValueNode[] {
+            Named = new(field, index);
+            Values = new IValueNode[] {
                 Ordinal,
                 Named
             };

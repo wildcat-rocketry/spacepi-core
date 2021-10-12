@@ -1,10 +1,10 @@
 [submodule "llvm"]
-	ignore = dirty
-	path = llvm
-	shallow = true
-	url = ../llvm.git
+    ignore = dirty
+    path = llvm
+    shallow = true
+    url = ../llvm.git
 [submodule "dotnet-format"]
-	ignore = dirty
-	path = dotnet-format
-	shallow = true
-	url = ../dotnet-format.git
+    ignore = dirty
+    path = dotnet-format
+    shallow = true
+    url = ../dotnet-format.git

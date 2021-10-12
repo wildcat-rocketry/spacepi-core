@@ -37,7 +37,8 @@ namespace spacepi {
                  *
                  * \param[in] mtx The Mutex to lock
                  */
-                inline Lock(Mutex<Mode> &mtx) noexcept : mtx(&mtx), have(true) {
+                inline Lock(Mutex<Mode> &mtx) noexcept
+                    : mtx(&mtx), have(true) {
                     mtx.lock();
                 }
 
@@ -47,7 +48,8 @@ namespace spacepi {
                  * \param[in] mtx The Mutex to lock
                  * \param[in] tag \c TryLock
                  */
-                inline Lock(Mutex<Mode> &mtx, const TryLockType &tag) noexcept : mtx(&mtx), have(mtx.tryLock()) {
+                inline Lock(Mutex<Mode> &mtx, const TryLockType &tag) noexcept
+                    : mtx(&mtx), have(mtx.tryLock()) {
                 }
 
                 /**
@@ -56,7 +58,8 @@ namespace spacepi {
                  * \param[in] mtx The Mutex to lock
                  * \param[in] tag \c DeferLock
                  */
-                constexpr Lock(Mutex<Mode> &mtx, const DeferLockType &tag) noexcept : mtx(&mtx), have(false) {
+                constexpr Lock(Mutex<Mode> &mtx, const DeferLockType &tag) noexcept
+                    : mtx(&mtx), have(false) {
                 }
 
                 /**
@@ -65,7 +68,8 @@ namespace spacepi {
                  * \param[in] mtx The Mutex to lock
                  * \param[in] tag \c AdoptLock
                  */
-                constexpr Lock(Mutex<Mode> &mtx, const AdoptLockType &tag) noexcept : mtx(&mtx), have(true) {
+                constexpr Lock(Mutex<Mode> &mtx, const AdoptLockType &tag) noexcept
+                    : mtx(&mtx), have(true) {
                 }
 
                 /**
@@ -73,7 +77,8 @@ namespace spacepi {
                  *
                  * \param[in] move The old Lock
                  */
-                constexpr Lock(Lock &&move) noexcept : mtx(move.mtx), have(move.have) {
+                constexpr Lock(Lock &&move) noexcept
+                    : mtx(move.mtx), have(move.have) {
                     move.release();
                 }
 
@@ -83,7 +88,7 @@ namespace spacepi {
                  * \param[in] move The old Lock
                  * \return \c *this
                  */
-                constexpr Lock &operator =(Lock &&move) noexcept {
+                constexpr Lock &operator=(Lock &&move) noexcept {
                     unlock();
                     mtx = move.mtx;
                     have = move.have;

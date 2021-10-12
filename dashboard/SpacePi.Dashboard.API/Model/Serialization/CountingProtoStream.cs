@@ -1,16 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SpacePi.Dashboard.API.Model.Serialization
-{
-    public class CountingProtoStream : ProtoStream
-    {
-        public CountingProtoStream()
-        {
+namespace SpacePi.Dashboard.API.Model.Serialization {
+    public class CountingProtoStream : ProtoStream {
+        public CountingProtoStream() {
         }
 
         public override bool CanRead => false;
@@ -22,49 +19,41 @@ namespace SpacePi.Dashboard.API.Model.Serialization
         private long _length;
         public override long Length => _length;
 
-        public override void WriteFieldInfo(int number, WireType type)
-        {
-            Position += Varint.Base128Length((ulong)((number << 3) | (int)type));
+        public override void WriteFieldInfo(int number, WireType type) {
+            Position += Varint.Base128Length((ulong) ((number << 3) | (int) type));
         }
 
-        public override void WriteVarint(ulong number)
-        {
+        public override void WriteVarint(ulong number) {
             Position += Varint.Base128Length(number);
         }
 
-        public override void WriteSignedVarint(long number)
-        {
+        public override void WriteSignedVarint(long number) {
             Position += Varint.Base128Length(number);
         }
 
         private long _position = 1;
-        public override long Position
-        {
+        public override long Position {
             get => _position;
             set {
-                if (value <= 0) return;
+                if (value <= 0)
+                    return;
 
-                if(value > _length + 1)
-                {
+                if (value > _length + 1) {
                     _length = value - 1;
                 }
                 _position = value;
             }
         }
 
-        public override void Flush()
-        {
+        public override void Flush() {
         }
 
-        public override int Read(byte[] buffer, int offset, int count)
-        {
+        public override int Read(byte[] buffer, int offset, int count) {
             return 0;
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            switch (origin)
-            {
+        public override long Seek(long offset, SeekOrigin origin) {
+            switch (origin) {
                 case SeekOrigin.Begin:
                     Position = offset;
                     break;
@@ -79,17 +68,14 @@ namespace SpacePi.Dashboard.API.Model.Serialization
             return Position;
         }
 
-        public override void SetLength(long value)
-        {
+        public override void SetLength(long value) {
             _length = value;
-            if(Position > value)
-            {
+            if (Position > value) {
                 Position = value;
             }
         }
 
-        public override void Write(byte[] buffer, int offset, int count)
-        {
+        public override void Write(byte[] buffer, int offset, int count) {
             Position += count;
         }
     }

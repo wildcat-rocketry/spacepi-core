@@ -160,7 +160,6 @@ Adding New Documentation Pages
 
    .. code-block:: cmake
 
-
        # ...
 
                add_custom_command(

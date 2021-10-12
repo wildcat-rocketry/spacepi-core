@@ -34,15 +34,18 @@ int main(int argc, char **argv) noexcept {
         memcpy(out.data(), prefix, sizeof(prefix) - 1);
         int width = 0;
         static const char *alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-        for (vector<uint8_t>::const_iterator it = raw.begin(); it != raw.end(); ) {
+        for (vector<uint8_t>::const_iterator it = raw.begin(); it != raw.end();) {
             uint32_t word = 0;
-            if (it != raw.end()) word |= 0x01000000 | (*it++ << 16);
-            if (it != raw.end()) word |= 0x02000000 | (*it++ <<  8);
-            if (it != raw.end()) word |= 0x04000000 | (*it++ <<  0);
+            if (it != raw.end())
+                word |= 0x01000000 | (*it++ << 16);
+            if (it != raw.end())
+                word |= 0x02000000 | (*it++ << 8);
+            if (it != raw.end())
+                word |= 0x04000000 | (*it++ << 0);
             out.push_back(word & 0x01000000 ? alphabet[(word >> 18) & 0x3F] : '=');
             out.push_back(word & 0x03000000 ? alphabet[(word >> 12) & 0x3F] : '=');
-            out.push_back(word & 0x06000000 ? alphabet[(word >>  6) & 0x3F] : '=');
-            out.push_back(word & 0x04000000 ? alphabet[(word >>  0) & 0x3F] : '=');
+            out.push_back(word & 0x06000000 ? alphabet[(word >> 6) & 0x3F] : '=');
+            out.push_back(word & 0x04000000 ? alphabet[(word >> 0) & 0x3F] : '=');
             if (++width == 20) {
                 width = 0;
                 out.push_back('\n');

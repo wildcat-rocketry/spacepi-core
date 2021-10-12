@@ -35,8 +35,8 @@ TEST(container_Property, read) {
     EXPECT_EQ(cpy->B, 2);
     int obj = 42;
     Property<int, Read> prop([&obj]() -> int { return obj; });
-    EXPECT_EQ(TypeChecker::IntCheck<decltype(*prop.operator ->())>::Kind, TypeChecker::ModifiableLValue);
-    EXPECT_EQ(TypeChecker::IntCheck<decltype(*((const Property<int, Read> &) prop).operator ->())>::Kind, TypeChecker::ConstLValue);
+    EXPECT_EQ(TypeChecker::IntCheck<decltype(*prop.operator->())>::Kind, TypeChecker::ModifiableLValue);
+    EXPECT_EQ(TypeChecker::IntCheck<decltype(*((const Property<int, Read> &) prop).operator->())>::Kind, TypeChecker::ConstLValue);
 }
 
 TEST(container_Property, write) {

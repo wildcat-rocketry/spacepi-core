@@ -24,9 +24,9 @@ namespace SpacePi.Format.Filesystem {
         public static readonly string RootDirectory = "__root__";
 
         public override string Name { get; }
-        
+
         public override string FullName { get; }
-        
+
         public new DirectoryNode ParentDirectory { get; }
         protected override DirectoryInfoBase _ParentDirectory => ParentDirectory;
 

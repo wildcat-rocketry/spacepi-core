@@ -1,5 +1,5 @@
-#include <spacepi/Platform.hpp>
 #include <mutex>
+#include <spacepi/Platform.hpp>
 
 namespace spacepi {
     namespace platform {

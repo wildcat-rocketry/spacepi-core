@@ -6,7 +6,8 @@ namespace spacepi {
         /**
          * \brief Enumerations of methods which can be used to allocate container elements
          */
-        enum AllocationType {
+        enum AllocationType
+        {
             /**
              * \brief All elements are statically allocated on the stack
              */

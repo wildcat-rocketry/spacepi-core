@@ -10,15 +10,14 @@ void testPoint(int n) {
     }
     lastTestPoint = n;
 
-  int test = 0;
-  int test2 = 0;
-  __asm__(
-    "mov %0, $a0\n" // need to use a0
-    "addi $a0, $a0, 0" 
-    : "=r" (test) 
-    : "r" (test2)
-  );
-  printf("\nBREAKPOINT: Address %d: 0x%x; aka %u", n, test, test);
+    int test = 0;
+    int test2 = 0;
+    __asm__(
+        "mov %0, $a0\n" // need to use a0
+        "addi $a0, $a0, 0"
+        : "=r"(test)
+        : "r"(test2));
+    printf("\nBREAKPOINT: Address %d: 0x%x; aka %u", n, test, test);
 }
 
 void functionA(void *dummy) {
@@ -55,10 +54,10 @@ void functionC(void *dummy) {
 }
 
 void myMemset(char *buf, char c, int n) {
-  // Using actual memset() makes the IDE complain
-  for (int i = 0; i < n; ++i) {
-    buf[i] = c;
-  }
+    // Using actual memset() makes the IDE complain
+    for (int i = 0; i < n; ++i) {
+        buf[i] = c;
+    }
 }
 
 void runTest() {

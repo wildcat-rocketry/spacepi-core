@@ -20,7 +20,7 @@ namespace SpacePi.Dashboard.API {
 
         [BindingFactoryUnboxer]
         public IPlugin Unbox((IPlugin plugin, string _1, string _2, int _3) p) => p.plugin;
-        
+
         [BindingFactoryLoader]
         public void Load() {
             foreach ((IPlugin plugin, string _, string _, int _) in Plugins) {

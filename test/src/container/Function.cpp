@@ -5,14 +5,15 @@ using namespace spacepi::container;
 
 class MultiplyFunctoid {
     public:
-        constexpr MultiplyFunctoid(int factor) noexcept : factor(factor) {
+        constexpr MultiplyFunctoid(int factor) noexcept
+            : factor(factor) {
         }
 
-        constexpr int operator ()(int factor) noexcept {
+        constexpr int operator()(int factor) noexcept {
             return factor * this->factor;
         }
 
-        constexpr int operator ()(int factor) const noexcept {
+        constexpr int operator()(int factor) const noexcept {
             return -factor * this->factor;
         }
 

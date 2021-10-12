@@ -7,15 +7,18 @@ using namespace std;
 using namespace google::protobuf;
 using namespace spacepi::protoc;
 
-HPPGen::HPPGen() noexcept : CodeTemplate(".hpp") {
+HPPGen::HPPGen() noexcept
+    : CodeTemplate(".hpp") {
 }
 
 void HPPGen::fileBeg(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept {
-    os << "// Start file " << file.name() << endl << indent;
+    os << "// Start file " << file.name() << endl
+       << indent;
 }
 
 void HPPGen::classBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
-    os << "// Start class " << cls.name() << endl << indent;
+    os << "// Start class " << cls.name() << endl
+       << indent;
 }
 
 void HPPGen::property(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -23,7 +26,8 @@ void HPPGen::property(CodeStream &os, const google::protobuf::FileDescriptor &fi
 }
 
 void HPPGen::serializeMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
-    os << endl << "// Start serialize()" << indent << endl;
+    os << endl
+       << "// Start serialize()" << indent << endl;
 }
 
 void HPPGen::serializeMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -35,7 +39,8 @@ void HPPGen::serializeMethodEnd(CodeStream &os, const google::protobuf::FileDesc
 }
 
 void HPPGen::parseMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
-    os << endl << "// Start parse()" << indent << endl;
+    os << endl
+       << "// Start parse()" << indent << endl;
 }
 
 void HPPGen::parseMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
@@ -51,7 +56,8 @@ void HPPGen::classEnd(CodeStream &os, const google::protobuf::FileDescriptor &fi
 }
 
 void HPPGen::enumBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept {
-    os << "// Begin enum " << cls.name() << endl << indent;
+    os << "// Begin enum " << cls.name() << endl
+       << indent;
 }
 
 void HPPGen::enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept {

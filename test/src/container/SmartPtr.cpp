@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <spacepi/container/AllocationType.hpp>
 #include <spacepi/container/SmartPtr.hpp>
-#include <spacepi/test/ElementType.hpp>
 #include <spacepi/Parameter.hpp>
+#include <spacepi/test/ElementType.hpp>
 
 using namespace spacepi;
 using namespace spacepi::container;

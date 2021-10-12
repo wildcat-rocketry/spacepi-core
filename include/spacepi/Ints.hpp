@@ -53,11 +53,11 @@ namespace spacepi {
     class i64 {
     };
 #else
-    using u8  = spacepi::Platform::Ints::u8;
+    using u8 = spacepi::Platform::Ints::u8;
     using u16 = spacepi::Platform::Ints::u16;
     using u32 = spacepi::Platform::Ints::u32;
     using u64 = spacepi::Platform::Ints::u64;
-    using i8  = spacepi::Platform::Ints::i8;
+    using i8 = spacepi::Platform::Ints::i8;
     using i16 = spacepi::Platform::Ints::i16;
     using i32 = spacepi::Platform::Ints::i32;
     using i64 = spacepi::Platform::Ints::i64;
