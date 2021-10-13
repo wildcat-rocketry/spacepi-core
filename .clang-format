@@ -47,29 +47,37 @@ EmptyLineBeforeAccessModifier:                  LogicalBlock
 FixNamespaceComments:                           false
 IncludeBlocks:                                  Regroup
 IncludeCategories:
-  - Regex:                                      '^<google/'
+  - Regex:                                      '^<boost/'
     Priority:                                   0
     SortPriority:                               2
     CaseSensitive:                              false
-  - Regex:                                      '^<gtest/'
+  - Regex:                                      '^<google/'
     Priority:                                   0
     SortPriority:                               3
     CaseSensitive:                              false
-  - Regex:                                      '^<llvm/'
+  - Regex:                                      '^<gflags/'
     Priority:                                   0
     SortPriority:                               4
     CaseSensitive:                              false
-  - Regex:                                      '^<clang/'
+  - Regex:                                      '^<gtest/'
     Priority:                                   0
     SortPriority:                               5
     CaseSensitive:                              false
-  - Regex:                                      '^["<]spacepi/'
+  - Regex:                                      '^<llvm/'
     Priority:                                   0
     SortPriority:                               6
     CaseSensitive:                              false
-  - Regex:                                      '^["<]spacepi/test/'
+  - Regex:                                      '^<clang/'
     Priority:                                   0
     SortPriority:                               7
+    CaseSensitive:                              false
+  - Regex:                                      '^["<]spacepi/'
+    Priority:                                   0
+    SortPriority:                               8
+    CaseSensitive:                              false
+  - Regex:                                      '^["<]spacepi/test/'
+    Priority:                                   0
+    SortPriority:                               9
     CaseSensitive:                              false
   - Regex:                                      '^<'
     Priority:                                   0
@@ -77,7 +85,7 @@ IncludeCategories:
     CaseSensitive:                              false
   - Regex:                                      '^"'
     Priority:                                   0
-    SortPriority:                               8
+    SortPriority:                               10
     CaseSensitive:                              false
 IncludeIsMainRegex:                             '(Test)?$'
 IncludeIsMainSourceRegex:                       'Impl\.hpp$'
