@@ -1,16 +1,3 @@
-# Current version information
-set(version 3.0.0)
-set(build_compat 2.1.0)
-
-# Make debug build
-set(CMAKE_BUILD_TYPE Debug)
-
-# Enable testing
-enable_testing()
-
-# Set C++ version
-set(CMAKE_CXX_STANDARD 14)
-
 # Ensure SPACEPI_CORE_DIR is set
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_DIR DEFINED)
 if (NOT hasProp)
@@ -25,6 +12,23 @@ list(FIND CMAKE_MODULE_PATH "${spacePiCore}/cmake" res)
 if (res LESS 0)
     list(APPEND CMAKE_MODULE_PATH "${spacePiCore}/cmake")
 endif()
+
+# Ignore multiple inclusions
+include(SpacePiOnce)
+spacepi_once(SpacePiSetup)
+
+# Current version information
+set(version 3.0.0)
+set(build_compat 2.1.0)
+
+# Make debug build
+set(CMAKE_BUILD_TYPE Debug)
+
+# Enable testing
+enable_testing()
+
+# Set C++ version
+set(CMAKE_CXX_STANDARD 14)
 
 # Check version support
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_VERSION DEFINED)

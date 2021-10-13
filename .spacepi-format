@@ -1,8 +1,8 @@
 {
     "excludes": [
-        "/dotnet-format/",
-        "/cmake/SpacePiDashboard.cmake",
-        "/llvm/",
+        "dotnet-format/",
+        "cmake/SpacePiDashboard.cmake",
+        "llvm/",
         "*.sln.in"
     ],
     "excludeFiles": [
