@@ -1,6 +1,8 @@
 #ifndef SPACEPI_CORE_PROTOC_CSHARPGEN_HPP
 #define SPACEPI_CORE_PROTOC_CSHARPGEN_HPP
 
+#include <string>
+#include <unordered_map>
 #include <google/protobuf/descriptor.pb.h>
 #include <spacepi/protoc/CodeTemplate.hpp>
 
@@ -21,6 +23,31 @@ namespace spacepi {
                 void enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept;
                 void enumEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept;
                 void fileEnd(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept;
+
+            private:
+                enum DataType
+                {
+                    Class,
+                    Enum,
+                    Primitive
+                };
+
+                class TypeInfo {
+                    public:
+                        std::string cSharpType;
+                        std::string primValue;
+                        DataType dataType;
+
+                        TypeInfo(const std::string &cSharpType, const std::string &primValue, DataType dataType);
+                };
+
+                static std::unordered_map<google::protobuf::FieldDescriptor::Type, TypeInfo> typeMap;
+
+                // void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
+                // string   getReflectionPropertyDataMid  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept;
+                string getFullPropertyData(int structureType, string propertyType, string propertyName, int propertyNumber) const noexcept;
+                string getPropertyType(int propertyType) const noexcept;
+                // void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
         };
     }
 }
