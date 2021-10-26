@@ -1,3 +1,5 @@
+find_package(gflags REQUIRED)
+
 add_library(spacepi-libdtc
     src/diagnostics/Diagnostic.cpp
     src/diagnostics/DiagnosticReporter.cpp
@@ -27,6 +29,10 @@ add_library(spacepi-libdtc
 
 target_include_directories(spacepi-libdtc PUBLIC
     include
+)
+
+target_link_libraries(spacepi-libdtc
+    gflags
 )
 
 add_executable(spacepi-dtc
