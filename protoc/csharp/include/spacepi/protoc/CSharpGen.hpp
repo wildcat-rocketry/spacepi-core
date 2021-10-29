@@ -25,7 +25,7 @@ namespace spacepi {
                 void fileEnd(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept;
 
             private:
-                enum DataType
+                enum class DataType
                 {
                     Class,
                     Enum,
@@ -39,14 +39,15 @@ namespace spacepi {
                         DataType dataType;
 
                         TypeInfo(const std::string &cSharpType, const std::string &primValue, DataType dataType);
+                        TypeInfo(); // makepair needs this constructor
                 };
 
                 static std::unordered_map<google::protobuf::FieldDescriptor::Type, TypeInfo> typeMap;
 
                 // void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
                 // string   getReflectionPropertyDataMid  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept;
-                string getFullPropertyData(int structureType, string propertyType, string propertyName, int propertyNumber) const noexcept;
-                string getPropertyType(int propertyType) const noexcept;
+                std::string getFullPropertyData(int structureType, std::string propertyType, std::string propertyName, int propertyNumber, const google::protobuf::Descriptor *message_type) const noexcept;
+                std::string getPropertyType(int propertyType) const noexcept;
                 // void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
         };
     }

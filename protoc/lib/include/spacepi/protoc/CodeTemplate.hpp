@@ -28,7 +28,7 @@ namespace spacepi {
             private:
 
                 //virtual void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept = 0;
-                virtual std::string getFullPropertyData (int structureType, string propertyType, string propertyName, int propertyNumber) const noexcept = 0; 
+                virtual std::string getFullPropertyData (int structureType, std::string propertyType, std::string propertyName, int propertyNumber, const google::protobuf::Descriptor *message_type) const noexcept = 0; 
                 //virtual void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept = 0;
                 std::string extension;
         };
