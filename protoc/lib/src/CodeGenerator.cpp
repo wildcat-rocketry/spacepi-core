@@ -44,6 +44,14 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
                         (*it)->enumValue(os, file, cls, value);
                     }
                     (*it)->enumEnd(os, file, cls);
+
+                    (*it)->enumReflectionBeg(os, file, cls);
+                    for (int j = 0; j < cls.value_count(); ++j) {
+                        const EnumValueDescriptor &value = *cls.value(j);
+                        (*it)->enumReflectionValue(os, file, cls, value);
+                    }
+                    (*it)->enumReflectionEnd(os, file, cls);
+
                     stack.top().second.pop();
                 }
                 if (stack.top().first.empty()) {

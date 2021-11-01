@@ -60,11 +60,12 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
             CollectionChanged?.Invoke(this, e);
         }
 
-        public VectorEnumField(string name, int number, bool transient, ObservableCollection<EnumType> list, Func<EnumType, int> toOrdinal, Func<int, EnumType> fromOrdinal) {
+        public VectorEnumField(string name, int number, bool transient, ObservableCollection<EnumType> list, Func<EnumType, int> toOrdinal, Func<int, EnumType> fromOrdinal, IEnum type) {
             Name = name;
             Number = number;
             IsTransient = transient;
             List = new ForgivingList<EnumType>(list);
+            Type = type;
             ToOrdinal = toOrdinal;
             FromOrdinal = fromOrdinal;
             list.CollectionChanged += Changed;

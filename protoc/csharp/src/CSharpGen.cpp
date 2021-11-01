@@ -53,9 +53,9 @@ void CSharpGen::classBeg(CodeStream &os, const google::protobuf::FileDescriptor 
 
 void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
     if (property.is_repeated()) {
-        os << getFullPropertyData(1, property) << endl;
+        getFullPropertyData(os, 1, property);
     } else {
-        os << getFullPropertyData(0, property) << endl;
+        getFullPropertyData(os, 0, property);
     }
 }
 
@@ -67,9 +67,9 @@ void CSharpGen::reflectionMethodBeg(CodeStream &os, const google::protobuf::File
 
 void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
     if (property.is_repeated()) {
-        os << getFullPropertyData(3, property) << endl;
+        getFullPropertyData(os, 3, property);
     } else {
-        os << getFullPropertyData(2, property) << endl;
+        getFullPropertyData(os, 2, property);
     }
 	os << endl;
 }
@@ -85,23 +85,35 @@ void CSharpGen::classEnd(CodeStream &os, const google::protobuf::FileDescriptor 
 }
 
 void CSharpGen::enumBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept {
-    os << "// Begin enum " << cls.name() << endl
-       << indent;
-    os << "public enum " << cls.name() << "{" << endl;
+    os << "public enum " << cls.name() << "{" << endl << indent;
 }
 
 void CSharpGen::enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept {
-    os << "// Enum value " << cls.name() << endl;
-    os << value.name() << " ," << endl;
+    os << value.name() << " = " << value.number() << ", " << endl;
 }
 
 void CSharpGen::enumEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept {
-    os << "// End enum" << endl;
     os << deindent << "}" << endl;
 }
 
 void CSharpGen::fileEnd(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept {
     os << "// End file" << endl;
+    os << deindent << "}" << endl;
+}
+
+void CSharpGen::enumReflectionBeg(CodeStream& os, const google::protobuf::FileDescriptor& file, const google::protobuf::EnumDescriptor& cls) const noexcept {
+    os << "public class " << cls.name() << "__Reflection : ModelEnum {" << endl;
+    os << indent;
+    os << "public " << cls.name() << "__Reflection() : base(\"" << cls.name() << "\"" << endl << indent;
+}
+
+void CSharpGen::enumReflectionValue(CodeStream& os, const google::protobuf::FileDescriptor& file, const google::protobuf::EnumDescriptor& cls, const google::protobuf::EnumValueDescriptor& value) const noexcept {
+    os << ", (" << value.number() << ",\"" << value.name() << "\")" << endl;
+}
+
+void CSharpGen::enumReflectionEnd(CodeStream& os, const google::protobuf::FileDescriptor& file, const google::protobuf::EnumDescriptor& cls) const noexcept {
+    os << deindent;
+    os << ") { }" << endl;
     os << deindent << "}" << endl;
 }
 
@@ -113,7 +125,7 @@ CSharpGen::TypeInfo::TypeInfo()
     : cSharpType(""), primValue(""), dataType(DataType::Primitive) {
 }
 
-string CSharpGen::getFullPropertyData(int structureType, const google::protobuf::FieldDescriptor &property) const noexcept {
+void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const google::protobuf::FieldDescriptor &property) const noexcept {
     // I could have made an enum here for this, but I'm just gonna put the convention for this here for now
     // structureType == 0 is just a normal property
     // structureType == 1 is a normal repeatable property
@@ -140,30 +152,46 @@ string CSharpGen::getFullPropertyData(int structureType, const google::protobuf:
 
     switch (structureType) {
         case 0:
-            return "public " + propertyType + " " + propertyName + " { get; set; } ";
+            os << "public " + propertyType + " " + propertyName + " { get; set; } " << endl;
+            if (property.type() == FieldDescriptor::TYPE_ENUM) {
+                os << "private readonly " << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
+            }
+            break;
         case 1:
-            return "public ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new();";
+            os << "public ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new();" << endl;
+            if (property.type() == FieldDescriptor::TYPE_ENUM) {
+                os << "private readonly " << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
+            }
+            break;
         case 2:
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
-                    return "new ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }),";
+                    os << "new ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+                    break;
                 case FieldDescriptor::TYPE_ENUM:
-                    return "#warning Enum reflection not implemented";
+                    os << "new ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+                    break;
                 default:
-					return "new ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), ";
+					os << "new ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+                    break;
             }
+            break;
         case 3:
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
 				case FieldDescriptor::TYPE_GROUP:
-                    return "new VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + ", () => { return new " + propertyType + "(); }),";
+                    os << "new VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + ", () => { return new " + propertyType + "(); })," << endl;
+                    break;
                 case FieldDescriptor::TYPE_ENUM:
-                    return "#warning Enum reflection not implemented";
+                    os << "new VectorEnumField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + ", (e) => { return (int)e; }, (i) => { return (" + propertyType + ")i; }, " + propertyName + "__ReflectionObject )," << endl;
+                    break;
                 default:
-					return "new VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", " + propertyName + "),";
+					os << "new VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", " + propertyName + ")," << endl;
+                    break;
             }
+            break;
         default:
-            return "#error Protobuf compiler encountered unknown structureType " + structureType;
+            os << "#error Protobuf compiler encountered unknown structureType " << structureType << endl;
     }
 }
