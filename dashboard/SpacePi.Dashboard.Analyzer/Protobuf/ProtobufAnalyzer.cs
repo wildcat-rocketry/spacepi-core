@@ -151,7 +151,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             Directory.CreateDirectory(config.OutputDir);
             if (SpawnProcess(
                 BuildConfig.Protobuf_PROTOC_EXECUTABLE,
-                $"-I \"{config.SourceDir}\" \"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => f.Substring(config.SourceDir.Length + 1)).Concat(config.SystemFiles).Select(f => $" \"{f.Replace('\\', '/')}\""))}",
+                $"{string.Join("", config.IncludeDirs.Concat(new[] { config.SourceDir }).Select(d => $"-I \"{d}\" "))}\"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => f.Substring(config.SourceDir.Length + 1)).Concat(config.SystemFiles).Select(f => $" \"{f.Replace('\\', '/')}\""))}",
                 Path.GetDirectoryName(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE),
                 paths,
                 Context.Diagnostics.ProtocBuildStatus,

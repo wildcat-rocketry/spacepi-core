@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "transient.proto";
+import "spacepi/protoc/transient.proto";
 
 import "google/protobuf/descriptor.proto";
 import "google/protobuf/struct.proto";
@@ -9,5 +9,5 @@ package SpacePi.Dashboard.API.Model;
 
 message DataField {
     google.protobuf.FieldDescriptorProto Description = 1;
-    map<uint64, google.protobuf.Value> Instances = 2 [(transient)=true];
+    map<uint64, google.protobuf.Value> Instances = 2 [(spacepi.protoc.transient)=true];
 }

@@ -4,14 +4,14 @@
 syntax = "proto3";
 
 import "SettingsPage.proto";
-import "transient.proto";
+import "spacepi/protoc/transient.proto";
 import "Widget.proto";
 import "Message.proto";
 
 package SpacePi.Dashboard.API.Model;
 
 message DashboardModel {
-    repeated SettingsPage GlobalSettings = 1 [(transient)=true];
+    repeated SettingsPage GlobalSettings = 1 [(spacepi.protoc.transient)=true];
     Widget Base = 2;
     repeated SettingsPage ProjectSettings = 3;
     map<uint64, Message> Messages = 4;

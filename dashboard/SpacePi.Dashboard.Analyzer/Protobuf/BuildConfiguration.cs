@@ -25,6 +25,10 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         /// </summary>
         public readonly string StampFile;
         /// <summary>
+        /// A list of extra system include search paths
+        /// </summary>
+        public readonly string[] IncludeDirs;
+        /// <summary>
         /// A list of system files to include in the compilation
         /// </summary>
         public readonly string[] SystemFiles;
@@ -61,7 +65,8 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             SourceDir = Path.GetDirectoryName(attr.ApplicationSyntaxReference.SyntaxTree.FilePath);
             OutputDir = $"{BuildConfig.CMAKE_BINARY_DIR}/_dashboard/{nameof(SpacePi)}.{nameof(Dashboard)}.{nameof(Analyzer)}/{nameof(Protobuf)}/{SourceDir.Substring(BuildConfig.CMAKE_SOURCE_DIR.Length + 1)}";
             StampFile = $"{OutputDir}/.stamp";
-            SystemFiles = attr.ConstructorArguments.FirstOrDefault().Values.Select(s => s.Value.ToString()).ToArray();
+            IncludeDirs = attr.ConstructorArguments[0].Values.Select(s => s.Value.ToString()).ToArray();
+            SystemFiles = attr.ConstructorArguments[1].Values.Select(s => s.Value.ToString()).ToArray();
         }
     }
 }

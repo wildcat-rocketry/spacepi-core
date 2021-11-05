@@ -13,8 +13,9 @@ namespace SpacePi.Dashboard.Analyzer.API {
         /// <summary>
         /// Attribute constructor
         /// </summary>
+        /// <param name="includeDirs">A list of extra system include search paths</param>
         /// <param name="systemFiles">A list of system files to include in the compilation</param>
-        public CompileProtobufAttribute(params string[] systemFiles) {
+        public CompileProtobufAttribute(string[] includeDirs, string[] systemFiles) {
         }
     }
 }
