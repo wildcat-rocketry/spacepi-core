@@ -5,6 +5,8 @@
 #include <spacepi/protoc/CodeTemplate.hpp>
 #include <spacepi/protoc/CSharpGen.hpp>
 
+#include <spacepi/protoc/transient.pb.h>
+
 using namespace std;
 using namespace google::protobuf;
 using namespace spacepi::protoc;
@@ -56,6 +58,15 @@ void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor 
         getFullPropertyData(os, 1, property);
     } else {
         getFullPropertyData(os, 0, property);
+    }
+
+    for (int i = 0; i < property.options().uninterpreted_option_size(); i++) {
+        UninterpretedOption uo = property.options().uninterpreted_option(i);
+        os << "/*  UninterpretedOption: ";
+        for (int j = 0; j < uo.name_size(); i++) {
+            os << uo.name(j).name_part() << ".";
+        }
+        os << "  */" << endl;
     }
 }
 
@@ -150,6 +161,8 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
             break;
     }
 
+    string trans = (property.options().GetExtension(transient))? "true": "false";
+
     switch (structureType) {
         case 0:
             os << "public " + propertyType + " " + propertyName + " { get; set; } " << endl;
@@ -167,13 +180,13 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
-                    os << "new ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+                    os << "new ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
                     break;
                 case FieldDescriptor::TYPE_ENUM:
-                    os << "new ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+                    os << "new ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
                     break;
                 default:
-					os << "new ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
+					os << "new ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
                     break;
             }
             break;
@@ -181,13 +194,13 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
 				case FieldDescriptor::TYPE_GROUP:
-                    os << "new VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + ", () => { return new " + propertyType + "(); })," << endl;
+                    os << "new VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", () => { return new " + propertyType + "(); }), " << endl;
                     break;
                 case FieldDescriptor::TYPE_ENUM:
-                    os << "new VectorEnumField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, " + propertyName + ", (e) => { return (int)e; }, (i) => { return (" + propertyType + ")i; }, " + propertyName + "__ReflectionObject )," << endl;
+                    os << "new VectorEnumField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", (e) => { return (int)e; }, (i) => { return (" + propertyType + ")i; }, " + propertyName + "__ReflectionObject ), " << endl;
                     break;
                 default:
-					os << "new VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", false, IPrimitiveField.Types." + primType + ", " + propertyName + ")," << endl;
+					os << "new VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", IPrimitiveField.Types." + primType + ", " + propertyName + "), " << endl;
                     break;
             }
             break;
