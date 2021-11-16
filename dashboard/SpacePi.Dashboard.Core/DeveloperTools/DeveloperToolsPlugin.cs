@@ -13,7 +13,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
         public IClass Reflection => this;
 
         public TestClass(string name, params IField[] fields) : base(name) {
-            Fields = Fields;
+            Fields = fields;
         }
     }
 
