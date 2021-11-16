@@ -13,6 +13,12 @@ using Xunit;
 
 namespace SpacePi.Dashboard.Test {
     public class TestSerializeDeserialize {
+        private class TestModelClass : ModelClass {
+            public TestModelClass(string Name, IEnumerable<IField> fields) : base(Name) {
+                Fields = fields;
+            }
+        }
+
         private static IEnumerable<T> RepeatList<T>(IEnumerable<T> to_repeat, int count) {
             for (int i = 0; i < count; i++) {
                 foreach (T val in to_repeat) {
@@ -85,7 +91,7 @@ namespace SpacePi.Dashboard.Test {
         public static IEnumerable<object[]> GetObjectSerializeData() {
             yield return new object[] {
                 new TestObject(
-                    new ModelClass("Test1", new IField[] {
+                    new TestModelClass("Test1", new List<IField>{
                         new ScalarPrimitiveField("a", 1, false, IPrimitiveField.Types.Uint32, ()=>{ return (uint)150; }, (tmp)=>{ })
                     })
                 ),
@@ -93,9 +99,9 @@ namespace SpacePi.Dashboard.Test {
             };
             yield return new object[] {
                 new TestObject(
-                    new ModelClass("Test1", new IField[] {
+                    new TestModelClass("Test1", new IField[] {
                         new ScalarClassField<ModelClass> ("name", 1, false, ()=>{
-                                return new ModelClass("NameMessage", new IField[] {
+                                return new TestModelClass("NameMessage", new IField[] {
                                     new ScalarPrimitiveField("length", 1, false, IPrimitiveField.Types.Uint32, ()=>{ return (uint)1; }, (tmp)=>{ })
                                 });
                             }, (tmp)=>{ })
@@ -106,9 +112,9 @@ namespace SpacePi.Dashboard.Test {
 
             yield return new object[] {
                 new TestObject(
-                    new ModelClass("RepeatedTest", new IField[] {
+                    new TestModelClass("RepeatedTest", new IField[] {
                         new ScalarClassField<ModelClass> ("data", 1, false, ()=>{
-                                return new ModelClass("DataMessage", new IField[] {
+                                return new TestModelClass("DataMessage", new IField[] {
                                     new VectorPrimitiveField<uint>("data", 1, false, IPrimitiveField.Types.Uint32, new ObservableCollection<uint>(Enumerable.Repeat((uint)1, 100)))
                                 });
                             }, (tmp)=>{ })
@@ -176,9 +182,9 @@ namespace SpacePi.Dashboard.Test {
         public void SimpleDeserializeClass() {
             uint value = 0;
             TestObject test = new TestObject(
-                new ModelClass("RepeatedTest", new IField[] {
+                new TestModelClass("RepeatedTest", new IField[] {
                     new ScalarClassField<ModelClass> ("data", 1, false, ()=>{
-                            return new ModelClass("DataMessage", new IField[] {
+                            return new TestModelClass("DataMessage", new IField[] {
                                 new ScalarPrimitiveField("value", 1, false, IPrimitiveField.Types.Uint32, () => {return 0; }, (val) => { value = (uint)val; } )
                             });
                         }, (tmp)=>{ })
@@ -196,7 +202,7 @@ namespace SpacePi.Dashboard.Test {
         public void SimpleDeserializeList() {
             ObservableCollection<uint> values = new ObservableCollection<uint>();
             TestObject test = new TestObject(
-                new ModelClass("RepeatedTest", new IField[] {
+                new TestModelClass("RepeatedTest", new IField[] {
                     new VectorPrimitiveField<uint>("values", 1, false, IPrimitiveField.Types.Uint32, values),
                 })
             );
@@ -213,7 +219,7 @@ namespace SpacePi.Dashboard.Test {
         public void DeserializeAnotherList() {
             ObservableCollection<uint> values = new ObservableCollection<uint>();
             TestObject test = new TestObject(
-                new ModelClass("RepeatedTest", new IField[] {
+                new TestModelClass("RepeatedTest", new IField[] {
                     new VectorPrimitiveField<uint>("values", 1, false, IPrimitiveField.Types.Uint32, values),
                 })
             );

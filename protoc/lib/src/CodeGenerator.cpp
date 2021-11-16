@@ -80,12 +80,6 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
                     (*it)->reflectionMethodProperty(os, file, cls, property);
                 }
                 (*it)->reflectionMethodEnd(os, file, cls);
-                // (*it)->getRelfectionPropertyDataBeg(os, file, cls);
-                // for (int i = 0; i < cls.field_count(); ++i) {
-                //     const FieldDescriptor &property = *cls.field(i);
-                //     (*it)->getReflectionPropertyDataMid(os, file, cls, property);
-                // }
-                // (*it)->getReflectionPropertyDataEnd(os, file, cls);
                 (*it)->classEnd(os, file, cls);
                 stack.top().first.pop();
                 --depth;

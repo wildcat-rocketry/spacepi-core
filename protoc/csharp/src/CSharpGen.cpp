@@ -55,9 +55,9 @@ void CSharpGen::classBeg(CodeStream &os, const google::protobuf::FileDescriptor 
 
 void CSharpGen::property(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
     if (property.is_repeated()) {
-        getFullPropertyData(os, 1, property);
+        getFullPropertyData(os, StructureType::Vector, property);
     } else {
-        getFullPropertyData(os, 0, property);
+        getFullPropertyData(os, StructureType::Scalar, property);
     }
 
     for (int i = 0; i < property.options().uninterpreted_option_size(); i++) {
@@ -78,9 +78,9 @@ void CSharpGen::reflectionMethodBeg(CodeStream &os, const google::protobuf::File
 
 void CSharpGen::reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept {
     if (property.is_repeated()) {
-        getFullPropertyData(os, 3, property);
+        getFullPropertyData(os, StructureType::VectorReflection, property);
     } else {
-        getFullPropertyData(os, 2, property);
+        getFullPropertyData(os, StructureType::ScalarReflection, property);
     }
 	os << endl;
 }
@@ -136,12 +136,7 @@ CSharpGen::TypeInfo::TypeInfo()
     : cSharpType(""), primValue(""), dataType(DataType::Primitive) {
 }
 
-void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const google::protobuf::FieldDescriptor &property) const noexcept {
-    // I could have made an enum here for this, but I'm just gonna put the convention for this here for now
-    // structureType == 0 is just a normal property
-    // structureType == 1 is a normal repeatable property
-    // structureType == 2 is a reflected Scalar
-    // structureType == 3 is a reflected Vector
+void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const google::protobuf::FieldDescriptor &property) const noexcept {
     string propertyType = "";
     string primType = "";
     string propertyName = property.name();
@@ -163,20 +158,20 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
 
     string trans = (property.options().GetExtension(transient))? "true": "false";
 
-    switch (structureType) {
-        case 0:
-            os << "public " + propertyType + " " + propertyName + " { get; set; } " << endl;
+    switch (type) {
+		case StructureType::Scalar:
+            os << "public " << overrideKeyword(propertyName) << propertyType << " " << propertyName << " { get; set; } " << endl;
             if (property.type() == FieldDescriptor::TYPE_ENUM) {
-                os << "private readonly " << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
+                os << "private readonly " << overrideKeyword(propertyName) << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
             }
             break;
-        case 1:
-            os << "public ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new();" << endl;
+        case StructureType::Vector:
+            os << "public " << overrideKeyword(propertyName) << "ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new(); " << endl;
             if (property.type() == FieldDescriptor::TYPE_ENUM) {
-                os << "private readonly " << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
+                os << "private readonly " << overrideKeyword(propertyName) << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
             }
             break;
-        case 2:
+        case StructureType::ScalarReflection:
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
@@ -190,7 +185,7 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
                     break;
             }
             break;
-        case 3:
+        case StructureType::VectorReflection:
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
 				case FieldDescriptor::TYPE_GROUP:
@@ -205,6 +200,14 @@ void CSharpGen::getFullPropertyData(CodeStream &os, int structureType, const goo
             }
             break;
         default:
-            os << "#error Protobuf compiler encountered unknown structureType " << structureType << endl;
+            std::cerr << "Protobuf compiler encountered unknown structureType " << int(type) << endl;
     }
+}
+
+std::string CSharpGen::overrideKeyword(std::string propertyName) const noexcept {
+    if (propertyName == "Name"
+        || propertyName == "Fields")
+        return "new ";
+    else
+        return "";
 }

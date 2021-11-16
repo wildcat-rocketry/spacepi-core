@@ -35,6 +35,14 @@ namespace spacepi {
                     Primitive
                 };
 
+                enum class StructureType
+                {
+                    Scalar,
+                    Vector,
+                    ScalarReflection,
+                    VectorReflection
+                };
+
                 class TypeInfo {
                     public:
                         std::string cSharpType;
@@ -47,11 +55,9 @@ namespace spacepi {
 
                 static std::unordered_map<google::protobuf::FieldDescriptor::Type, TypeInfo> typeMap;
 
-                // void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
-                // string   getReflectionPropertyDataMid  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept;
-                void getFullPropertyData(CodeStream &os, int structureType, const google::protobuf::FieldDescriptor &property) const noexcept;
+                void getFullPropertyData(CodeStream &os, StructureType type, const google::protobuf::FieldDescriptor &property) const noexcept;
                 std::string getPropertyType(int propertyType) const noexcept;
-                // void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
+                std::string overrideKeyword(std::string propertyName) const noexcept;
         };
     }
 }
