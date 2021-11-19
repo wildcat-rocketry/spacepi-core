@@ -104,7 +104,7 @@ namespace SpacePi.Dashboard.Test {
                                 return new TestModelClass("NameMessage", new IField[] {
                                     new ScalarPrimitiveField("length", 1, false, IPrimitiveField.Types.Uint32, ()=>{ return (uint)1; }, (tmp)=>{ })
                                 });
-                            }, (tmp)=>{ })
+                            })
                     })
                 ),
                 new byte[] { 0x0a, 0x02, 0x08, 0x01 }
@@ -117,7 +117,7 @@ namespace SpacePi.Dashboard.Test {
                                 return new TestModelClass("DataMessage", new IField[] {
                                     new VectorPrimitiveField<uint>("data", 1, false, IPrimitiveField.Types.Uint32, new ObservableCollection<uint>(Enumerable.Repeat((uint)1, 100)))
                                 });
-                            }, (tmp)=>{ })
+                            })
                     })
                 ),
                 Enumerable.Concat(new byte[] { 0x0a, 0b11001000, 0b00000001}, RepeatList(new byte[] { 0x08, 0x01 }, 100))
@@ -187,7 +187,7 @@ namespace SpacePi.Dashboard.Test {
                             return new TestModelClass("DataMessage", new IField[] {
                                 new ScalarPrimitiveField("value", 1, false, IPrimitiveField.Types.Uint32, () => {return 0; }, (val) => { value = (uint)val; } )
                             });
-                        }, (tmp)=>{ })
+                        })
                 })
             );
 

@@ -15,7 +15,7 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
 
         [BindPlugin]
         public ModelPlugin Model {
-            set => Root = new ScalarClassNode(new ScalarClassField<DashboardModel>("Dashboard Model", 0, false, () => value.Model, _ => throw new NotSupportedException()));
+            set => Root = new ScalarClassNode(new ScalarClassField<DashboardModel>("Dashboard Model", 0, false, () => value.Model));
         }
     }
 }

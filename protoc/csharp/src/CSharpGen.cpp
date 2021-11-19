@@ -143,7 +143,15 @@ void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const go
 
     switch (type) {
 		case StructureType::Scalar:
-            os << "public " << overrideKeyword(propertyName) << propertyType << " " << propertyName << " { get; set; } " << endl;
+            switch(property.type()) {
+				case FieldDescriptor::TYPE_MESSAGE:
+                case FieldDescriptor::TYPE_GROUP:
+					os << "public " << overrideKeyword(propertyName) << propertyType << " " << propertyName << " { get; } = new();" << endl;
+                    break;
+                default:
+					os << "public " << overrideKeyword(propertyName) << propertyType << " " << propertyName << " { get; set; }" << endl;
+                    break;
+            }
             if (property.type() == FieldDescriptor::TYPE_ENUM) {
                 os << "private readonly " << overrideKeyword(propertyName) << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
             }
@@ -158,7 +166,7 @@ void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const go
             switch (property.type()) {
 				case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", () => { return " + propertyName + "; }), " << endl;
                     break;
                 case FieldDescriptor::TYPE_ENUM:
                     os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
