@@ -18,7 +18,7 @@ namespace SpacePi.Format {
                 new Option<bool>(new[] { "--debug", "-v" }, "Print debugging information about which files to format"),
             };
             cmd.Description = "spacepi-format";
-            cmd.Handler = CommandHandler.Create(Run);
+            cmd.Handler = CommandHandler.Create<string, bool, bool>(Run);
             return cmd.InvokeAsync(args);
         }
 
