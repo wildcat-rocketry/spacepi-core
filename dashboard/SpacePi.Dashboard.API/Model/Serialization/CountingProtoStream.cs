@@ -35,8 +35,9 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
         public override long Position {
             get => _position;
             set {
-                if (value <= 0)
+                if (value <= 0) {
                     return;
+                }
 
                 if (value > _length + 1) {
                     _length = value - 1;
