@@ -22,7 +22,7 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public IClass this[int idx] {
             get => Getter();
-            set => Setter((Type) value);
+            set => throw new NotSupportedException();
         }
 
         public readonly NotifyCollectionChangedEventArgs ChangedEvent;
@@ -35,12 +35,11 @@ namespace SpacePi.Dashboard.API.Model.Reflection {
 
         public void Changed() => CollectionChanged?.Invoke(this, ChangedEvent);
 
-        public ScalarClassField(string name, int number, bool transient, Func<Type> getter, Action<Type> setter) {
+        public ScalarClassField(string name, int number, bool transient, Func<Type> getter) {
             Name = name;
             Number = number;
             IsTransient = transient;
             Getter = getter;
-            Setter = setter;
             ChangedEvent = new(NotifyCollectionChangedAction.Replace, this, this, 0);
         }
     }

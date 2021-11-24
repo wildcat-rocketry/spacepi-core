@@ -44,6 +44,14 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
                         (*it)->enumValue(os, file, cls, value);
                     }
                     (*it)->enumEnd(os, file, cls);
+
+                    (*it)->enumReflectionBeg(os, file, cls);
+                    for (int j = 0; j < cls.value_count(); ++j) {
+                        const EnumValueDescriptor &value = *cls.value(j);
+                        (*it)->enumReflectionValue(os, file, cls, value);
+                    }
+                    (*it)->enumReflectionEnd(os, file, cls);
+
                     stack.top().second.pop();
                 }
                 if (stack.top().first.empty()) {
@@ -72,12 +80,6 @@ bool CodeGenerator::Generate(const FileDescriptor *_file, const string &paramete
                     (*it)->reflectionMethodProperty(os, file, cls, property);
                 }
                 (*it)->reflectionMethodEnd(os, file, cls);
-                // (*it)->getRelfectionPropertyDataBeg(os, file, cls);
-                // for (int i = 0; i < cls.field_count(); ++i) {
-                //     const FieldDescriptor &property = *cls.field(i);
-                //     (*it)->getReflectionPropertyDataMid(os, file, cls, property);
-                // }
-                // (*it)->getReflectionPropertyDataEnd(os, file, cls);
                 (*it)->classEnd(os, file, cls);
                 stack.top().first.pop();
                 --depth;

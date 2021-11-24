@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
@@ -17,6 +17,17 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
     /// The logic to compile protobuf code
     /// </summary>
     public class ProtobufAnalyzer {
+        /// <summary>
+        /// A list of regular expressions to use for parsing file names and line numbers out of the diagnostic logs
+        /// </summary>
+        private static readonly Regex[] DiagnosticFileRegexes = new Regex[] {
+            new("^([A-Z]:\\\\[^(]+)\\(([0-9]+),([0-9]+)\\): "),
+            new("^([A-Z]:\\\\[^(]+)\\(([0-9]+)\\): "),
+            new("^([A-Z]:\\\\[^ ]+) : "),
+            new("^([^.]+\\.proto):([0-9]+):([0-9]+): "),
+            new("^([^.]+\\.proto):([0-9]+): "),
+            new("^([^.]+\\.proto): ")
+        };
         /// <summary>
         /// The compilation context
         /// </summary>
@@ -33,26 +44,29 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         /// <param name="line">The line of output to parse</param>
         /// <param name="files">A list of possible source files which could have diagnostics reported</param>
         private void ParseDiagnostic(Diagnostics.Type diag, string line, IEnumerable<string> files) {
-            string[] parts = line.Split(new[] { ':' }, 2);
-            string file = files.FirstOrDefault(f => f.EndsWith(parts[0]));
+#if PROTOBUF_DEBUG
+            Console.WriteLine(line);
+#endif
             Location loc = null;
-            if (file != null && parts.Length == 2) {
-                int colNo = 1;
-                line = parts[1];
-                parts = parts[1].Split(new[] { ':' }, 2);
-                if (int.TryParse(parts[0], out int lineNo) && parts.Length == 2) {
-                    line = parts[1];
-                    parts = parts[1].Split(new[] { ':' }, 2);
-                    if (int.TryParse(parts[0], out colNo) && parts.Length == 2) {
-                        line = parts[1];
-                    } else {
-                        colNo = 1;
+            foreach (Regex regex in DiagnosticFileRegexes) {
+                Match match = regex.Match(line);
+                if (match.Success) {
+                    string file = files.FirstOrDefault(f => f.EndsWith(match.Groups[1].Value));
+                    switch (match.Groups.Count) {
+                        case 2:
+                            loc = Location.Create(file, new(), new());
+                            break;
+                        case 3: {
+                            LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, 0);
+                            loc = Location.Create(file, new(), new(pos, pos));
+                        } break;
+                        case 4: {
+                            LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, int.Parse(match.Groups[3].Value) - 1);
+                            loc = Location.Create(file, new(), new(pos, pos));
+                        } break;
                     }
-                } else {
-                    lineNo = 1;
+                    break;
                 }
-                LinePosition pos = new(lineNo - 1, colNo - 1);
-                loc = Location.Create(file, new TextSpan(), new LinePositionSpan(pos, pos));
             }
             diag.Report(loc, line);
         }
@@ -92,7 +106,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             stdout.Wait();
             stderr.Wait();
             foreach (string line in stdout.Result.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0)) {
-                ParseDiagnostic(stdoutDiag, line, files);
+                ParseDiagnostic(line.ToLower().Contains("error") ? stderrDiag : stdoutDiag, line, files);
             }
             foreach (string line in stderr.Result.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0)) {
                 ParseDiagnostic(stderrDiag, line, files);
@@ -103,7 +117,8 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
         /// <summary>
         /// Builds the protoc plugin with CMake
         /// </summary>
-        private void BuildPlugin() => SpawnProcess(
+        /// <returns>If the build was successful</returns>
+        private bool BuildPlugin() => SpawnProcess(
             BuildConfig.CMAKE_COMMAND,
             $"--build \"{BuildConfig.CMAKE_BINARY_DIR}\" --target {BuildConfig.protoc_gen_spacepi_csharp.TARGET_NAME_IF_EXISTS}",
             null,
@@ -136,7 +151,7 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
             Directory.CreateDirectory(config.OutputDir);
             if (SpawnProcess(
                 BuildConfig.Protobuf_PROTOC_EXECUTABLE,
-                $"-I \"{config.SourceDir}\" \"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => f.Substring(config.SourceDir.Length + 1)).Concat(config.SystemFiles).Select(f => $" \"{f.Replace('\\', '/')}\""))}",
+                $"{string.Join("", config.IncludeDirs.Concat(new[] { config.SourceDir }).Select(d => $"-I \"{d}\" "))}\"--spacepi-csharp_out={config.OutputDir}\"{string.Join("", paths.Select(f => f.Substring(config.SourceDir.Length + 1)).Concat(config.SystemFiles).Select(f => $" \"{f.Replace('\\', '/')}\""))}",
                 Path.GetDirectoryName(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE),
                 paths,
                 Context.Diagnostics.ProtocBuildStatus,
@@ -168,7 +183,9 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 if (NeedsRebuild(config.Key, config.Value)) {
                     if (!hasBuiltPlugin) {
                         hasBuiltPlugin = true;
-                        BuildPlugin();
+                        if (!BuildPlugin()) {
+                            break;
+                        }
                     }
                     if (!File.Exists(BuildConfig.protoc_gen_spacepi_csharp.TARGET_FILE)) {
                         break;

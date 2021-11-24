@@ -23,13 +23,12 @@ namespace spacepi {
                 virtual void enumBeg                (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept = 0;
                 virtual void enumValue              (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept = 0;
                 virtual void enumEnd                (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept = 0;
+                virtual void enumReflectionBeg      (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept = 0;
+                virtual void enumReflectionValue    (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept = 0;
+                virtual void enumReflectionEnd      (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept = 0;
                 virtual void fileEnd                (CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept = 0;
 
             private:
-
-                //virtual void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept = 0;
-                virtual std::string getFullPropertyData (int structureType, string propertyType, string propertyName, int propertyNumber) const noexcept = 0; 
-                //virtual void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept = 0;
                 std::string extension;
         };
     }

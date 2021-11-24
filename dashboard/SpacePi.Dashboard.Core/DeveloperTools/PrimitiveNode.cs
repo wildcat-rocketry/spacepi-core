@@ -17,7 +17,13 @@ namespace SpacePi.Dashboard.Core.DeveloperTools {
             return false;
         }
 
-        protected override string ValueToString() => IPrimitiveField.ToStringers[(int) Field.Type](Field[Index]);
+        protected override string ValueToString() {
+            object val = Field[Index];
+            if (val == null) {
+                return "";
+            }
+            return IPrimitiveField.ToStringers[(int) Field.Type](val);
+        }
 
         public PrimitiveNode(IPrimitiveField field, int index = 0) : base(field, index) {
         }

@@ -3,7 +3,7 @@
 
 syntax = "proto2";
 
-package SpacePi.Dashboard.API.Model;
+package spacepi.protoc;
 
 import "google/protobuf/descriptor.proto";
 

@@ -18,6 +18,9 @@ namespace spacepi {
                 void reflectionMethodBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
                 void reflectionMethodProperty(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept;
                 void reflectionMethodEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
+                void enumReflectionBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept;
+                void enumReflectionValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept;
+                void enumReflectionEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept;
                 void classEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
                 void enumBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept;
                 void enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept;
@@ -25,11 +28,19 @@ namespace spacepi {
                 void fileEnd(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept;
 
             private:
-                enum DataType
+                enum class DataType
                 {
                     Class,
                     Enum,
                     Primitive
+                };
+
+                enum class StructureType
+                {
+                    Scalar,
+                    Vector,
+                    ScalarReflection,
+                    VectorReflection
                 };
 
                 class TypeInfo {
@@ -39,15 +50,14 @@ namespace spacepi {
                         DataType dataType;
 
                         TypeInfo(const std::string &cSharpType, const std::string &primValue, DataType dataType);
+                        TypeInfo(); // makepair needs this constructor
                 };
 
                 static std::unordered_map<google::protobuf::FieldDescriptor::Type, TypeInfo> typeMap;
 
-                // void   getRelfectionPropertyDataBeg  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
-                // string   getReflectionPropertyDataMid  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls, const google::protobuf::FieldDescriptor &property) const noexcept;
-                string getFullPropertyData(int structureType, string propertyType, string propertyName, int propertyNumber) const noexcept;
-                string getPropertyType(int propertyType) const noexcept;
-                // void   getReflectionPropertyDataEnd  (CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept;
+                void getFullPropertyData(CodeStream &os, StructureType type, const google::protobuf::FieldDescriptor &property) const noexcept;
+                std::string getPropertyType(int propertyType) const noexcept;
+                std::string overrideKeyword(std::string propertyName) const noexcept;
         };
     }
 }
