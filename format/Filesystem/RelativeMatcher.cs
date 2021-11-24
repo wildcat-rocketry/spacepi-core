@@ -11,7 +11,7 @@ namespace SpacePi.Format.Filesystem {
             } else if (pattern.StartsWith("**")) {
                 return base.AddInclude($"{DirectoryNode.RootDirectory}/{pattern}");
             } else {
-                return base.AddInclude($"{DirectoryNode.RootDirectory}/**/{pattern}");
+                return base.AddInclude($"**/{pattern}");
             }
         }
     }
