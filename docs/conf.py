@@ -11,7 +11,7 @@ author                     = "Wildcat Rocketry Club"
 breathe_default_project    = "spacepi"
 breathe_projects           = { "spacepi": spacepi_core_docs_builddir / "xml" }
 extensions                 = [ "breathe" ]
-master_doc                 = "rst/index"
+master_doc                 = "index"
 project                    = "SpacePi Core"
 release                    = "3.0"
 source_suffix              = ".rst"
@@ -24,7 +24,7 @@ def spacepi_core_docs_setup():
     reClassFuncPtr = re.compile(r"^([^(]+)\(([^*):]+)::\*\)\s*\(([^)]*)\)((?:\s+const)?)\s*$")
 
     def generateClass(refid: str, name: str) -> str:
-        rst = open(builddir / "rst" / f"{refid}.rst", "w")
+        rst = open(builddir / f"{refid}.rst", "w")
         rst.write(f"""
 {name}
 {'=' * len(name)}
@@ -65,7 +65,7 @@ def spacepi_core_docs_setup():
         innerclasses = tree.findall("./compounddef/innerclass[@prot='public']")
         if len(innernamespaces) == 0 and len(innerclasses) == 0:
             return ""
-        rst = open(builddir / "rst" / f"{refid}.rst", "w")
+        rst = open(builddir / f"{refid}.rst", "w")
         name = f"""namespace {tree.find("./compounddef/compoundname").text}"""
         rst.write(f"""
 {name}
@@ -84,7 +84,6 @@ def spacepi_core_docs_setup():
         rst.close()
         return refid
 
-    (builddir / "rst").mkdir(parents=True, exist_ok=True)
     doxyfile = open(builddir / "Doxyfile", "w")
     doxyfile.write(f"""
 @INCLUDE         = "{srcroot / "docs" / "Doxyfile.in"}"
@@ -94,18 +93,18 @@ INPUT            = "{srcroot / "include"}"
 """[1:])
     doxyfile.close()
     subprocess.run([doxygen, builddir / "Doxyfile"])
-    for old in (builddir / "rst").glob("*.rst"):
+    for old in builddir.glob("*.rst"):
         os.remove(old)
     generateNamespace("namespacespacepi")
-    index = open(builddir / "rst" / "index.rst", "w")
+    index = open(builddir / "index.rst", "w")
     index.write("""
 SpacePi Core Documentation
 ==========================
 
 .. toctree::
 """[1:])
-    for staticdoc in (srcroot / "docs").glob("*.rst"):
-        shutil.copy(staticdoc, builddir / "rst" / staticdoc.name)
+    for staticdoc in (srcroot / "docs" / "static").glob("*.rst"):
+        shutil.copy(staticdoc, builddir / staticdoc.name)
         index.write(f"""
     {os.path.splitext(staticdoc.name)[0]}
 """[1:])
