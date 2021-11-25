@@ -35,7 +35,7 @@ namespace SpacePi.Format.Tools {
 </Project>");
             string proj = Path.Combine(path, ".spacepi-format.csproj");
             File.WriteAllText(proj, csproj.ToString());
-            int r = (int) MainMethod.Invoke(null, new object[] { new[] { "-v", "diag", "style", "--no-restore" }.Concat(write ? Array.Empty<string>() : new[] { "--verify-no-changes" }).ToArray()});
+            int r = (int) MainMethod.Invoke(null, new object[] { new[] { "-v", "diag", "style", "--no-restore", proj }.Concat(write ? Array.Empty<string>() : new[] { "--verify-no-changes" }).ToArray()});
             File.Delete(proj);
             return r == 0;
         }
