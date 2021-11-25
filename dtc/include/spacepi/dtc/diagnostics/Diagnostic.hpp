@@ -16,8 +16,7 @@ namespace spacepi {
                     /**
                      * \brief The severity of the Diagnostic
                      */
-                    enum Severity
-                    {
+                    enum Severity {
                         /**
                          * \brief The Diagnostic is provided for informational purposes only
                          */

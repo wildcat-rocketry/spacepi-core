@@ -5,8 +5,7 @@ namespace spacepi {
     namespace test {
         class ElementType {
             public:
-                enum ConstructorType
-                {
+                enum ConstructorType {
                     Default,
                     Init,
                     Tagged,

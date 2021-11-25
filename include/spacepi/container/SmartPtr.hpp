@@ -359,8 +359,7 @@ namespace spacepi {
                 }
 
             private:
-                enum State
-                {
+                enum State {
                     Null,
                     Owner,
                     Member

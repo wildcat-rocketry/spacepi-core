@@ -28,15 +28,13 @@ namespace spacepi {
                 void fileEnd(CodeStream &os, const google::protobuf::FileDescriptor &file) const noexcept;
 
             private:
-                enum class DataType
-                {
+                enum class DataType {
                     Class,
                     Enum,
                     Primitive
                 };
 
-                enum class StructureType
-                {
+                enum class StructureType {
                     Scalar,
                     Vector,
                     ScalarReflection,

@@ -17,8 +17,7 @@ namespace spacepi {
                     /**
                      * \brief The type of Lexeme
                      */
-                    enum Type
-                    {
+                    enum Type {
                         /**
                          * \brief The tag describing the current version
                          *
