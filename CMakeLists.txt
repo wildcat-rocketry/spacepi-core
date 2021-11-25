@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 cmake_policy(SET CMP0063 NEW)
+cmake_policy(SET CMP0075 NEW)
 cmake_policy(SET CMP0091 NEW)
 project(spacepi-core)
 include(cmake/SpacePiSetup.cmake)
