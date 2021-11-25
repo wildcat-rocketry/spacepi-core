@@ -12,14 +12,14 @@ add_custom_target(format-build
 )
 
 add_custom_target(format-impl
-    COMMAND ${DotNet} "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format/bin/netcoreapp2.1/SpacePi.Format.dll"
+    COMMAND ${DotNet} "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format/bin/net6.0/SpacePi.Format.dll"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     DEPENDS format-build
 )
 add_dependencies(format format-impl)
 
 add_custom_target(format-check-impl
-    COMMAND ${DotNet} "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format/bin/netcoreapp2.1/SpacePi.Format.dll" -n
+    COMMAND ${DotNet} "${CMAKE_CURRENT_BINARY_DIR}/SpacePi.Format/bin/net6.0/SpacePi.Format.dll" -n
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     DEPENDS format-build
 )

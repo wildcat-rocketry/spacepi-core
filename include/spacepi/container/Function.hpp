@@ -168,8 +168,7 @@ namespace spacepi {
                 }
 
             private:
-                enum FuncType
-                {
+                enum FuncType {
                     TNull,
                     TFunction,
                     TFunctoid,

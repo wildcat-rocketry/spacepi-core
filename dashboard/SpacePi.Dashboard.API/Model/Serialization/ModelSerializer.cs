@@ -21,7 +21,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
         /// <param name="obj">The object to serialize</param>
         /// <param name="stream">The space to serialize into</param>
         public static void Serialize(this IObject obj, Stream stream) {
-            var cls = obj.Reflection;
+            IClass cls = obj.Reflection;
             SerializeClass(cls, stream);
         }
 
@@ -159,7 +159,7 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
                             break;
                     }
                 }
-            } catch (EndOfStreamException e) {
+            } catch (EndOfStreamException) {
 
             }
         }
@@ -195,8 +195,9 @@ namespace SpacePi.Dashboard.API.Model.Serialization {
 
         private static void SerializeClass(IClass cls, ProtoStream protostream) {
             foreach (IField field in cls.Fields) {
-                if (field.IsTransient)
+                if (field.IsTransient) {
                     continue;
+                }
 
                 // Treat all lists as un-packed
                 for (int i = 0; i < field.Count; i++) {

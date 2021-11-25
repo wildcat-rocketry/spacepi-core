@@ -18,10 +18,11 @@ namespace SpacePi.Format.Filesystem {
             while (nodes.Count > 0) {
                 DirectoryNode node = nodes.Pop();
                 node.Format = node.ParentDirectory?.Format;
+                List<string> subdirs = new();
                 foreach (string path in Directory.EnumerateFileSystemEntries(node.AbsolutePath)) {
                     string name = Path.GetFileName(path);
                     if (Directory.Exists(path)) {
-                        node.Subdirectories.Add(name, new DirectoryNode(node, name));
+                        subdirs.Add(name);
                     } else {
                         node.Files.Add(name, new FileNode(node, name));
                         if (name == FormatFileName) {
@@ -36,6 +37,9 @@ namespace SpacePi.Format.Filesystem {
                             roots.Add(root);
                         }
                     }
+                }
+                foreach (string subdir in subdirs) {
+                    node.Subdirectories.Add(subdir, new DirectoryNode(node, subdir));
                 }
                 if (node.Format != null) {
                     List<string> excluded = new();

@@ -88,8 +88,6 @@ bool SpacePi_Format_Natives_Clang_Format(void *_style, const char *codeFile, boo
         DiagnosticsEngine diags(IntrusiveRefCntPtr<DiagnosticIDs>(new DiagnosticIDs()), new DiagnosticOptions());
         SourceManager sources(diags, files);
         fs->addFileNoOwn(codeFile, 0, **codeStream);
-        Optional<FileEntryRef> file = files.getOptionalFileRef(codeFile);
-        FileID fid = sources.createFileID(*file, SourceLocation(), SrcMgr::C_User);
         Rewriter rewriter(sources, LangOptions());
         applyAllReplacements(repl, rewriter);
         if (rewriter.overwriteChangedFiles()) {

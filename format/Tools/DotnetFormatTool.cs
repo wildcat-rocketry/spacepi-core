@@ -11,12 +11,34 @@ namespace SpacePi.Format.Tools {
     public class DotnetFormatTool : IFormatTool {
         private readonly MethodInfo MainMethod;
 
-        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) => !codeFiles.Any() || 0 == (int) MainMethod.Invoke(null, new object[] { new[] {
-                Path.GetDirectoryName(formatFile),
-                "--folder",
-                "--fix-whitespace",
-                "--include"
-            }.Concat(codeFiles).Concat(write ? Array.Empty<string>() : new[] { "--check" }).ToArray() });
+        public bool Format(IEnumerable<string> codeFiles, string formatFile, bool write) {
+            if (!codeFiles.Any()) {
+                return true;
+            }
+            string path = Path.GetDirectoryName(codeFiles.First());
+            StringBuilder csproj = new StringBuilder();
+            csproj.AppendLine(
+@"<Project Sdk=""Microsoft.NET.Sdk"">
+    <PropertyGroup>
+        <EnableDefaultItems>false</EnableDefaultItems>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>");
+            foreach (string file in codeFiles.Skip(1)) {
+                while (!file.StartsWith(path)) {
+                    path = Path.GetDirectoryName(path);
+                }
+                csproj.AppendLine($@"        <Compile Include=""{file}"" />");
+            }
+            csproj.AppendLine(
+@"    </ItemGroup>
+</Project>");
+            string proj = Path.Combine(path, ".spacepi-format.csproj");
+            File.WriteAllText(proj, csproj.ToString());
+            int r = (int) MainMethod.Invoke(null, new object[] { new[] { "-v", "diag", "style", "--no-restore" }.Concat(write ? Array.Empty<string>() : new[] { "--verify-no-changes" }).ToArray()});
+            File.Delete(proj);
+            return r == 0;
+        }
 
         protected virtual void Dispose(bool disposing) {
         }
