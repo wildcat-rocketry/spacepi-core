@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import pathlib
+import re
 import shutil
 import subprocess
 import xml.etree.ElementTree
@@ -20,6 +21,7 @@ def spacepi_core_docs_setup():
     builddir = spacepi_core_docs_builddir
     doxygen = os.environ.get("DOXYGEN_EXE", "doxygen")
     srcroot = pathlib.Path("..").resolve()
+    reClassFuncPtr = re.compile(r"^([^(]+)\(([^*):]+)::\*\)\s*\(([^)]*)\)((?:\s+const)?)\s*$")
 
     def generateClass(refid: str, name: str) -> str:
         rst = open(builddir / "rst" / f"{refid}.rst", "w")
@@ -34,15 +36,25 @@ def spacepi_core_docs_setup():
         rst.close()
         tree = xml.etree.ElementTree.parse(builddir / "xml" / f"{refid}.xml")
         modified = False
-        for match in tree.findall("./compounddef/templateparamlist/param"):
+        for match in tree.findall(".//templateparamlist/param"):
             eType = match.find("./type")
-            if eType.text is not None and eType.text.endswith("..."):
-                eDeclname = match.find("./declname")
-                eDefname = match.find("./defname")
-                eType.text = f"{eType.text} {eDeclname.text}"
-                match.remove(eDeclname)
-                match.remove(eDefname)
-                modified = True
+            if eType.text is not None:
+                if eType.text.endswith("..."):
+                    eDeclname = match.find("./declname")
+                    eDefname = match.find("./defname")
+                    eType.text = f"{eType.text} {eDeclname.text}"
+                    match.remove(eDeclname)
+                    match.remove(eDefname)
+                    modified = True
+                else:
+                    m = reClassFuncPtr.match(eType.text)
+                    if m is not None:
+                        eDeclname = match.find("./declname")
+                        eDefname = match.find("./defname")
+                        eType.text = f"{m.group(1)}(*{eDeclname.text})({m.group(3)})"
+                        match.remove(eDeclname)
+                        match.remove(eDefname)
+                        modified = True
         if modified:
             tree.write(builddir / "xml" / f"{refid}.xml")
         return refid
