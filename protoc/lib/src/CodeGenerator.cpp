@@ -4,8 +4,8 @@
 #include <queue>
 #include <stack>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/descriptor.h>
 #include <spacepi/protoc/CodeGenerator.hpp>
@@ -16,7 +16,8 @@ using namespace google::protobuf;
 using namespace google::protobuf::io;
 using namespace spacepi::protoc;
 
-CodeGenerator::CodeGenerator(const initializer_list<const CodeTemplate *> &templates) noexcept : templates(templates) {
+CodeGenerator::CodeGenerator(const initializer_list<const CodeTemplate *> &templates) noexcept
+    : templates(templates) {
 }
 
 bool CodeGenerator::Generate(const FileDescriptor *_file, const string &parameter, compiler::GeneratorContext *ctx, string *error) const noexcept {
