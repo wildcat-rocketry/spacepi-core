@@ -15,3 +15,11 @@ add_subdirectory(SpacePi.Dashboard.Core)
 add_subdirectory(SpacePi.Dashboard.Core.WPF)
 add_subdirectory(SpacePi.Dashboard.Test)
 add_subdirectory(SpacePi.Dashboard.UWP)
+
+find_package(DotNet REQUIRED)
+
+add_custom_target(dashboard-build
+    COMMAND ${DotNet} build "SpacePi Dashboard.sln"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/_dashboard"
+)
+add_dependencies(dashboard dashboard-build)
