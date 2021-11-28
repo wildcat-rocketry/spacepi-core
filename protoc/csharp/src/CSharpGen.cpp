@@ -42,7 +42,7 @@ void CSharpGen::fileBeg(CodeStream &os, const google::protobuf::FileDescriptor &
 }
 
 void CSharpGen::classBeg(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::Descriptor &cls) const noexcept {
-    os << "public class " << cls.name() << " : SpacePi.Dashboard.API.Model.Reflection.ModelClass, SpacePi.Dashboard.API.Model.Reflection.IObject { " << endl
+    os << "public class " << cls.name() << " : SpacePi.Dashboard.API.Model.Reflection.ModelClass, SpacePi.Dashboard.API.Model.Reflection.IObject {" << endl
        << indent;
     os << "public SpacePi.Dashboard.API.Model.Reflection.IClass Reflection => this;" << endl;
 }
@@ -84,7 +84,7 @@ void CSharpGen::enumBeg(CodeStream &os, const google::protobuf::FileDescriptor &
 }
 
 void CSharpGen::enumValue(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls, const google::protobuf::EnumValueDescriptor &value) const noexcept {
-    os << value.name() << " = " << value.number() << ", " << endl;
+    os << value.name() << " = " << value.number() << "," << endl;
 }
 
 void CSharpGen::enumEnd(CodeStream &os, const google::protobuf::FileDescriptor &file, const google::protobuf::EnumDescriptor &cls) const noexcept {
@@ -158,7 +158,7 @@ void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const go
             }
             break;
         case StructureType::Vector:
-            os << "public " << overrideKeyword(propertyName) << "System.Collections.ObjectModel.ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new(); " << endl;
+            os << "public " << overrideKeyword(propertyName) << "System.Collections.ObjectModel.ObservableCollection<" + propertyType + "> " + propertyName + " { get; private set; } = new();" << endl;
             if (property.type() == FieldDescriptor::TYPE_ENUM) {
                 os << "private readonly " << overrideKeyword(propertyName) << propertyType << "__Reflection " << propertyName << "__ReflectionObject = new();" << endl;
             }
@@ -167,13 +167,13 @@ void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const go
             switch (property.type()) {
                 case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", () => { return " + propertyName + "; }), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", () => { return " + propertyName + "; })," << endl;
                     break;
                 case FieldDescriptor::TYPE_ENUM:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarEnumField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + "__ReflectionObject, () => { return (int)" + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
                     break;
                 default:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", SpacePi.Dashboard.API.Model.Reflection.IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; }), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.ScalarPrimitiveField(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", SpacePi.Dashboard.API.Model.Reflection.IPrimitiveField.Types." + primType + ", () => { return " + propertyName + "; }, (v) => { " + propertyName + " = (" + propertyType + ")v; })," << endl;
                     break;
             }
             break;
@@ -181,13 +181,13 @@ void CSharpGen::getFullPropertyData(CodeStream &os, StructureType type, const go
             switch (property.type()) {
                 case FieldDescriptor::TYPE_MESSAGE:
                 case FieldDescriptor::TYPE_GROUP:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", () => { return new " + propertyType + "(); }), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorClassField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", () => { return new " + propertyType + "(); })," << endl;
                     break;
                 case FieldDescriptor::TYPE_ENUM:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorEnumField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", (e) => { return (int)e; }, (i) => { return (" + propertyType + ")i; }, " + propertyName + "__ReflectionObject ), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorEnumField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", " + propertyName + ", (e) => { return (int)e; }, (i) => { return (" + propertyType + ")i; }, " + propertyName + "__ReflectionObject )," << endl;
                     break;
                 default:
-                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", SpacePi.Dashboard.API.Model.Reflection.IPrimitiveField.Types." + primType + ", " + propertyName + "), " << endl;
+                    os << "new SpacePi.Dashboard.API.Model.Reflection.VectorPrimitiveField<" + propertyType + ">(\"" + propertyName + "\", " + propertyNumber + ", " + trans + ", SpacePi.Dashboard.API.Model.Reflection.IPrimitiveField.Types." + primType + ", " + propertyName + ")," << endl;
                     break;
             }
             break;
