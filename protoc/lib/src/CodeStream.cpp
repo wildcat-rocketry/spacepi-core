@@ -17,7 +17,8 @@ array<char, 81> CodeStream::indentBuf;
 Indenter protoc::indent(1, 1);
 Indenter protoc::deindent(1, -1);
 
-CodeStream::CodeStream() noexcept : ostream(&buf), indentChars(0), emptyLine(true) {
+CodeStream::CodeStream() noexcept
+    : ostream(&buf), indentChars(0), emptyLine(true) {
     static bool init = true;
     if (init) {
         init = false;
@@ -25,11 +26,12 @@ CodeStream::CodeStream() noexcept : ostream(&buf), indentChars(0), emptyLine(tru
     }
 }
 
-CodeStream::CodeStream(const CodeStream &copy) noexcept : ostream(&buf), indentChars(copy.indentChars), emptyLine(copy.emptyLine) {
+CodeStream::CodeStream(const CodeStream &copy) noexcept
+    : ostream(&buf), indentChars(copy.indentChars), emptyLine(copy.emptyLine) {
     buf.str(copy.buf.str());
 }
 
-CodeStream &CodeStream::operator =(const CodeStream &copy) noexcept {
+CodeStream &CodeStream::operator=(const CodeStream &copy) noexcept {
     buf.str(copy.buf.str());
     indentChars = copy.indentChars;
     emptyLine = copy.emptyLine;
@@ -48,19 +50,19 @@ CodeStream &CodeStream::deindent(int tabs) noexcept {
     return indent(-tabs);
 }
 
-CodeStream &CodeStream::operator <<(ostream &(*pf)(ostream &)) noexcept {
+CodeStream &CodeStream::operator<<(ostream &(*pf)(ostream &) ) noexcept {
     ostringstream ss;
     ss.flags(flags);
     return process((ostringstream &) (ss << pf));
 }
 
-CodeStream &CodeStream::operator <<(ios &(*pf)(ios &)) noexcept {
+CodeStream &CodeStream::operator<<(ios &(*pf)(ios &) ) noexcept {
     ostringstream ss;
     ss.flags(flags);
     return process((ostringstream &) (ss << pf));
 }
 
-CodeStream &CodeStream::operator <<(ios_base &(*pf)(ios_base &)) noexcept {
+CodeStream &CodeStream::operator<<(ios_base &(*pf)(ios_base &) ) noexcept {
     ostringstream ss;
     ss.flags(flags);
     return process((ostringstream &) (ss << pf));
@@ -75,12 +77,15 @@ CodeStream &CodeStream::process(const ostringstream &ss) noexcept {
     size_t start = 0;
     while (start < str.size()) {
         size_t lineStart = start;
-        size_t lineEnd = str.find_first_of('\n');
+        size_t lineEnd = str.find_first_of('\n', start);
         if (lineEnd == string::npos) {
             lineEnd = str.size() + 1;
             start = str.size();
         } else {
             start = lineEnd + 1;
+            if (lineEnd > 0 && str[lineEnd - 1] == '\r') {
+                --lineEnd;
+            }
         }
         if (lineStart < lineEnd) {
             int indentChars = this->indentChars;
@@ -101,17 +106,18 @@ CodeStream &CodeStream::process(const ostringstream &ss) noexcept {
     return *this;
 }
 
-Indenter::Indenter(int tabs, int sign) noexcept : tabs(tabs), sign(sign) {
+Indenter::Indenter(int tabs, int sign) noexcept
+    : tabs(tabs), sign(sign) {
 }
 
-CodeStream &Indenter::operator ()(CodeStream &os) const noexcept {
+CodeStream &Indenter::operator()(CodeStream &os) const noexcept {
     return os.indent(tabs * sign);
 }
 
-Indenter Indenter::operator ()(int tabs) const noexcept {
+Indenter Indenter::operator()(int tabs) const noexcept {
     return Indenter(tabs, sign);
 }
 
-CodeStream &protoc::operator <<(CodeStream &os, const Indenter &indenter) noexcept {
+CodeStream &protoc::operator<<(CodeStream &os, const Indenter &indenter) noexcept {
     return indenter(os);
 }

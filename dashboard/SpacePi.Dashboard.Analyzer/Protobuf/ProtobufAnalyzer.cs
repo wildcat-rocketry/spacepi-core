@@ -52,18 +52,20 @@ namespace SpacePi.Dashboard.Analyzer.Protobuf {
                 Match match = regex.Match(line);
                 if (match.Success) {
                     string file = files.FirstOrDefault(f => f.EndsWith(match.Groups[1].Value));
-                    switch (match.Groups.Count) {
-                        case 2:
-                            loc = Location.Create(file, new(), new());
-                            break;
-                        case 3: {
-                            LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, 0);
-                            loc = Location.Create(file, new(), new(pos, pos));
-                        } break;
-                        case 4: {
-                            LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, int.Parse(match.Groups[3].Value) - 1);
-                            loc = Location.Create(file, new(), new(pos, pos));
-                        } break;
+                    if (file != null) {
+                        switch (match.Groups.Count) {
+                            case 2:
+                                loc = Location.Create(file, new(), new());
+                                break;
+                            case 3: {
+                                LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, 0);
+                                loc = Location.Create(file, new(), new(pos, pos));
+                            } break;
+                            case 4: {
+                                LinePosition pos = new(int.Parse(match.Groups[2].Value) - 1, int.Parse(match.Groups[3].Value) - 1);
+                                loc = Location.Create(file, new(), new(pos, pos));
+                            } break;
+                        }
                     }
                     break;
                 }

@@ -14,21 +14,21 @@ namespace spacepi {
             public:
                 CodeStream() noexcept;
                 CodeStream(const CodeStream &copy) noexcept;
-                CodeStream &operator =(const CodeStream &copy) noexcept;
+                CodeStream &operator=(const CodeStream &copy) noexcept;
 
                 CodeStream &indent(int tabs = 1) noexcept;
                 CodeStream &deindent(int tabs = 1) noexcept;
 
                 template <typename Type>
-                CodeStream &operator <<(Type val) noexcept {
+                CodeStream &operator<<(Type val) noexcept {
                     std::ostringstream ss;
                     ss.flags(flags);
                     return process((std::ostringstream &) (ss << val));
                 }
 
-                CodeStream &operator <<(std::ostream &(*pf)(std::ostream &)) noexcept;
-                CodeStream &operator <<(std::ios &(*pf)(std::ios &)) noexcept;
-                CodeStream &operator <<(std::ios_base &(*pf)(std::ios_base &)) noexcept;
+                CodeStream &operator<<(std::ostream &(*pf)(std::ostream &) ) noexcept;
+                CodeStream &operator<<(std::ios &(*pf)(std::ios &) ) noexcept;
+                CodeStream &operator<<(std::ios_base &(*pf)(std::ios_base &) ) noexcept;
 
                 std::string str() const noexcept;
 
@@ -47,8 +47,8 @@ namespace spacepi {
                 public:
                     Indenter(int tabs, int sign) noexcept;
 
-                    CodeStream &operator ()(CodeStream &os) const noexcept;
-                    Indenter operator ()(int tabs = 1) const noexcept;
+                    CodeStream &operator()(CodeStream &os) const noexcept;
+                    Indenter operator()(int tabs = 1) const noexcept;
 
                 private:
                     int tabs;
@@ -56,7 +56,7 @@ namespace spacepi {
             };
         }
 
-        CodeStream &operator <<(CodeStream &os, const detail::Indenter &indenter) noexcept;
+        CodeStream &operator<<(CodeStream &os, const detail::Indenter &indenter) noexcept;
 
         extern detail::Indenter indent;
         extern detail::Indenter deindent;

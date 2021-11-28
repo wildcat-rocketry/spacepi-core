@@ -12,12 +12,12 @@ namespace spacepi {
     namespace protoc {
         class CodeGenerator : public google::protobuf::compiler::CodeGenerator {
             public:
-                CodeGenerator(const std::initializer_list<const CodeTemplate *> &templates) noexcept;
+                CodeGenerator(const std::initializer_list<CodeTemplate *> &templates) noexcept;
 
                 bool Generate(const google::protobuf::FileDescriptor *file, const std::string &parameter, google::protobuf::compiler::GeneratorContext *ctx, std::string *error) const noexcept;
 
             private:
-                std::vector<const CodeTemplate *> templates;
+                std::vector<CodeTemplate *> templates;
         };
     }
 }
