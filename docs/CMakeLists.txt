@@ -1,12 +1,3 @@
-set(files
-    architecture.rst
-    core-contrib.rst
-    getting-started.rst
-    networking.rst
-    submodules.rst
-    troubleshooting.rst
-)
-
 find_package(Doxygen)
 find_package(Python3 COMPONENTS Interpreter)
 find_package(Pip3)
@@ -21,10 +12,15 @@ if (TARGET Doxygen::doxygen AND TARGET Doxygen::dot AND TARGET Python3::Interpre
         COMMAND ${CMAKE_COMMAND}
         ARGS -E touch "${CMAKE_CURRENT_BINARY_DIR}/sphinx.stamp"
         DEPENDS
+            static/architecture.rst
+            static/core-contrib.rst
+            static/getting-started.rst
+            static/networking.rst
+            static/submodules.rst
+            static/troubleshooting.rst
             conf.py
             Doxyfile.in
             requirements.txt
-            ${files}
             spacepi-pch
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         COMMENT "Generating SpacePi Sphinx documentation"
