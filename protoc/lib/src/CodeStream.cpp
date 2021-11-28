@@ -77,12 +77,15 @@ CodeStream &CodeStream::process(const ostringstream &ss) noexcept {
     size_t start = 0;
     while (start < str.size()) {
         size_t lineStart = start;
-        size_t lineEnd = str.find_first_of('\n');
+        size_t lineEnd = str.find_first_of('\n', start);
         if (lineEnd == string::npos) {
             lineEnd = str.size() + 1;
             start = str.size();
         } else {
             start = lineEnd + 1;
+            if (lineEnd > 0 && str[lineEnd - 1] == '\r') {
+                --lineEnd;
+            }
         }
         if (lineStart < lineEnd) {
             int indentChars = this->indentChars;
