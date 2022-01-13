@@ -13,7 +13,7 @@ using namespace spacepi::dtc::diagnostics;
 
 bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noexcept {
     // TODO
-	const vector<string> lines;
+	vector<string> lines;
 	const shared_ptr<SourceFile> inFile(new SourceFile(filename, lines));
 	//int currPos[] = {1, 1};
 	int lineNo = 1;
@@ -24,17 +24,24 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 	
 	ifstream str(filename, ifstream::in);
 	
+	// Next line is for debugging.
+	cout << "Did something...?" << endl;
+	
 	try {
 		while (true) {
-			char s[255];
-			str.getline(s, 255);
+			string s;
+			getline(str, s);
 			lines.push_back(s);
+			// Next line is for debugging.
+			cout << "Read line" << endl;
 		}
 	}
 	catch (ios_base::failure&) {
 		char s[255];
 		str.getline(s, 255, EOF);
 		lines.push_back(s);
+		// Next line is for debugging.
+		cout << "Read final line" << endl;
 	}
 	
 	enum tokenStates {NORMAL, COMMENT_BEGIN_WAIT, LINE_COMMENT, BLOCK_COMMENT, COMMENT_END_WAIT, STRING, INVALID,
@@ -64,6 +71,8 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 						if (!alreadyASpace) {  // I will only do the following if temp is the first space (or whatever) I've seen since the last solid block that isn't already tokenized.
 							// Not adding one to (colNo - tokenBegin) because I don't want the current character to be included. tokenBegin on the left gets one subtracted because it is one-indexed.
 							tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(tokenBegin - 1, colNo - tokenBegin));
+							// Next line is for debugging.
+							cout << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin) << " - at line " << lineNo << endl;
 						}
 						if (temp == '\0') {
 							tokenBegin = 1;
@@ -75,7 +84,9 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 						}
 					}
 					else if (singleTokens.find(temp) != string::npos) {
-						tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), temp);
+						tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), it->substr(colNo - 1, 1));
+						// Next line is for debugging.
+						cout << "Created token - " << it->substr(colNo - 1, 1) << " - at line " << lineNo << endl;
 						alreadyASpace = false;
 					}
 					
@@ -107,6 +118,8 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					if (temp == '\"') {
 						tokenState = NORMAL;
 						tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(tokenBegin - 1, colNo - tokenBegin + 1));
+						// Next line is for debugging.
+						cout << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin + 1) << " - at line " << lineNo << endl;
 					}
 					break;
 				
