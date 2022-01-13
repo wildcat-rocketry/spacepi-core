@@ -1,6 +1,7 @@
 #include <exception>
 #include <iostream>
 #include <stdlib.h>
+#include <string.h>
 #include <string>
 #include <vector>
 #include <gflags/gflags.h>
