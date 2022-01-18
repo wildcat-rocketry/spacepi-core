@@ -21,13 +21,14 @@ namespace spacepi {
                      */
                     class ReportStream : public std::ostringstream {
                         public:
-                            ReportStream(DiagnosticReporter *reporter, Diagnostic::Severity severity, const SourceLocation &location) noexcept;
+                            ReportStream(DiagnosticReporter *reporter, Diagnostic::Source source, Diagnostic::Severity severity, const SourceLocation &location) noexcept;
                             ReportStream(const ReportStream &copy) noexcept;
                             ReportStream &operator=(const ReportStream &copy) noexcept;
                             ~ReportStream();
 
                         private:
                             DiagnosticReporter *reporter;
+                            Diagnostic::Source source;
                             Diagnostic::Severity severity;
                             SourceLocation location;
                     };
@@ -45,28 +46,40 @@ namespace spacepi {
                     virtual void report(const Diagnostic &diag) noexcept = 0;
 
                     /**
-                     * \brief Reports an informational Diagnostic
+                     * \brief Reports an debugging Diagnostic
                      *
+                     * \param[in] source The source of the Diagnostic
                      * \param[in] location The SourceLocation which contains the problem
                      * \return A stream to write the message to
                      */
-                    ReportStream info(const SourceLocation &location = SourceLocation()) noexcept;
+                    ReportStream debug(Diagnostic::Source source, const SourceLocation &location = SourceLocation()) noexcept;
+
+                    /**
+                     * \brief Reports an informational Diagnostic
+                     *
+                     * \param[in] source The source of the Diagnostic
+                     * \param[in] location The SourceLocation which contains the problem
+                     * \return A stream to write the message to
+                     */
+                    ReportStream info(Diagnostic::Source source, const SourceLocation &location = SourceLocation()) noexcept;
 
                     /**
                      * \brief Reports a warning Diagnostic
                      *
+                     * \param[in] source The source of the Diagnostic
                      * \param[in] location The SourceLocation which contains the problem
                      * \return A stream to write the message to
                      */
-                    ReportStream warn(const SourceLocation &location = SourceLocation()) noexcept;
+                    ReportStream warn(Diagnostic::Source source, const SourceLocation &location = SourceLocation()) noexcept;
 
                     /**
                      * \brief Reports an error Diagnostic
                      *
+                     * \param[in] source The source of the Diagnostic
                      * \param[in] location The SourceLocation which contains the problem
                      * \return A stream to write the message to
                      */
-                    ReportStream error(const SourceLocation &location = SourceLocation()) noexcept;
+                    ReportStream error(Diagnostic::Source source, const SourceLocation &location = SourceLocation()) noexcept;
 
                     /**
                      * \brief The instance of the DiagnosticReporter layer

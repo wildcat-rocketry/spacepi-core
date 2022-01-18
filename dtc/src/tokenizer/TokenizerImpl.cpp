@@ -1,15 +1,19 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include <iostream>
 #include <spacepi/dtc/tokenizer/Token.hpp>
 #include <spacepi/dtc/tokenizer/Tokenizer.hpp>
 #include <spacepi/dtc/tokenizer/TokenizerImpl.hpp>
+#include <spacepi/dtc/diagnostics/Diagnostic.hpp>
+#include <spacepi/dtc/diagnostics/DiagnosticReporter.hpp>
 #include <spacepi/dtc/diagnostics/SourceFile.hpp>
 
 using namespace std;
 using namespace spacepi::dtc::tokenizer;
 using namespace spacepi::dtc::diagnostics;
+
+#define DEBUG DiagnosticReporter::instance->debug(Diagnostic::Tokenizer)
+#define WARN DiagnosticReporter::instance->warn(Diagnostic::Tokenizer)
 
 bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noexcept {
     // TODO
@@ -21,19 +25,19 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 	char temp;
 	int tokenBegin;
 	bool alreadyASpace;
-	
+
 	ifstream str(filename, ifstream::in);
-	
+
 	// Next line is for debugging.
-	cout << "Did something...?" << endl;
-	
+	DEBUG << "Did something...?";
+
 	try {
 		while (true) {
 			string s;
 			getline(str, s);
 			lines.push_back(s);
 			// Next line is for debugging.
-			cout << "Read line" << endl;
+			DEBUG << "Read line";
 		}
 	}
 	catch (ios_base::failure&) {
@@ -41,14 +45,12 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 		str.getline(s, 255, EOF);
 		lines.push_back(s);
 		// Next line is for debugging.
-		cout << "Read final line" << endl;
+		DEBUG << "Read final line";
 	}
-	
+
 	enum tokenStates {NORMAL, COMMENT_BEGIN_WAIT, LINE_COMMENT, BLOCK_COMMENT, COMMENT_END_WAIT, STRING, INVALID,
 						IGNORE, SINGLE} tokenState = NORMAL;
-						
-	// DiagnosticReporter.instance.warn(sourceLocation)  // Replace every instance of "cout" with this after testing.
-	
+
 	string invalid("!$%'()*\\^`|~");
 	string singleTokens(":;<>[]{}");
 	//bool isString = false;
@@ -65,14 +67,14 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 						alreadyASpace = true;
 					}
 					else if (invalid.find(temp) != string::npos || temp > '~')
-						cout << "Warning: skipped invalid character \'" << temp << "\' at line " << lineNo << endl;
+						WARN << "skipped invalid character \'" << temp << "\' at line " << lineNo;
 					else if (temp <= ' ') {
 						//tokenState = IGNORE;
 						if (!alreadyASpace) {  // I will only do the following if temp is the first space (or whatever) I've seen since the last solid block that isn't already tokenized.
 							// Not adding one to (colNo - tokenBegin) because I don't want the current character to be included. tokenBegin on the left gets one subtracted because it is one-indexed.
 							tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(tokenBegin - 1, colNo - tokenBegin));
 							// Next line is for debugging.
-							cout << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin) << " - at line " << lineNo << endl;
+							DEBUG << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin) << " - at line " << lineNo;
 						}
 						if (temp == '\0') {
 							tokenBegin = 1;
@@ -86,17 +88,17 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					else if (singleTokens.find(temp) != string::npos) {
 						tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), it->substr(colNo - 1, 1));
 						// Next line is for debugging.
-						cout << "Created token - " << it->substr(colNo - 1, 1) << " - at line " << lineNo << endl;
+						DEBUG << "Created token - " << it->substr(colNo - 1, 1) << " - at line " << lineNo;
 						alreadyASpace = false;
 					}
-					
+
 					break;
 				case COMMENT_BEGIN_WAIT:
 					if (temp == '/') tokenState = LINE_COMMENT;
 					else if (temp == '*') tokenState = BLOCK_COMMENT;
 					else {
 						tokenState = NORMAL;
-						cout << "Warning: skipped invalid singular character \'/\' at line " << lineNo << endl;
+						WARN << "skipped invalid singular character \'/\' at line " << lineNo;
 					}
 					break;
 				case LINE_COMMENT:
@@ -119,12 +121,12 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 						tokenState = NORMAL;
 						tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(tokenBegin - 1, colNo - tokenBegin + 1));
 						// Next line is for debugging.
-						cout << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin + 1) << " - at line " << lineNo << endl;
+						DEBUG << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin + 1) << " - at line " << lineNo;
 					}
 					break;
-				
+
 				/*   // Uhh whoops, this will always discard the character following the invalid one, whether I want it to or not.
-				
+
 				case (INVALID):
 					if (invalid.find(temp) == string::npos && temp <= '~') tokenState = NORMAL;
 					else {
@@ -132,15 +134,15 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 						continue;
 					}
 					break;
-				
-				
+
+
 				// So will this.
-				
+
 				case IGNORE:
 					if (temp > ' ') tokenState = NORMAL;
 					break;
 				*/
-				
+
 				/*  // This just won't work.
 				case SINGLE:
 					tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), string(temp));
@@ -149,7 +151,7 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 			}
 			colNo++;
 		} while (temp != '\0');
-		
+
 		lineNo++;
 		// State actions.
 		/*
@@ -163,7 +165,7 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 			case BLOCK_COMMENT:
 				break;
 			case STRING:
-				
+
 		}
 		*/
 		colNo++;

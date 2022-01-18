@@ -19,6 +19,10 @@ namespace spacepi {
                     enum Severity
                     {
                         /**
+                         * \brief The Diagnostic is provided for internal debugging of the DTC
+                         */
+                        Debug,
+                        /**
                          * \brief The Diagnostic is provided for informational purposes only
                          */
                         Info,
@@ -33,13 +37,53 @@ namespace spacepi {
                     };
 
                     /**
+                     * \brief The source of the Diagnostic
+                     */
+                    enum Source
+                    {
+                        /**
+                         * \brief The diagnostics layer
+                         */
+                        Diagnostics,
+                        /**
+                         * \brief The emitter layer
+                         */
+                        Emitter,
+                        /**
+                         * \brief The includer layer
+                         */
+                        Includer,
+                        /**
+                         * \brief The lexer layer
+                         */
+                        Lexer,
+                        /**
+                         * \brief The main layer
+                         */
+                        Main,
+                        /**
+                         * \brief The parser layer
+                         */
+                        Parser,
+                        /**
+                         * \brief The tokenizer layer
+                         */
+                        Tokenizer,
+                        /**
+                         * \brief The validator layer
+                         */
+                        Validator
+                    };
+
+                    /**
                      * \brief Constructs a Diagnostic
                      *
+                     * \param[in] source The source layer of the Diagnostic
                      * \param[in] severity The severity of the Diagnostic
                      * \param[in] message A descriptive message about the problem
                      * \param[in] location The SourceLocation which contains the problem
                      */
-                    Diagnostic(Severity severity, const std::string &message, const SourceLocation &location = SourceLocation()) noexcept;
+                    Diagnostic(Source source, Severity severity, const std::string &message, const SourceLocation &location = SourceLocation()) noexcept;
 
                     /**
                      * \brief Checks for equality
@@ -56,6 +100,13 @@ namespace spacepi {
                      * \return The equality result
                      */
                     bool operator!=(const Diagnostic &other) const noexcept;
+
+                    /**
+                     * \brief Gets the source of the Diagnostic
+                     *
+                     * \return The source
+                     */
+                    Source getSource() const noexcept;
 
                     /**
                      * \brief Gets the severity of the Diagnostic
@@ -79,10 +130,20 @@ namespace spacepi {
                     const SourceLocation &getLocation() const noexcept;
 
                 private:
+                    Source source;
                     Severity severity;
                     std::string message;
                     SourceLocation location;
             };
+
+            /**
+             * \brief Prints a Source to a formatted stream for debugging
+             *
+             * \param[in] os The stream to which to print
+             * \param[in] obj The object to print
+             * \return \c os
+             */
+            std::ostream &operator<<(std::ostream &os, Diagnostic::Source obj) noexcept;
 
             /**
              * \brief Prints a Severity to a formatted stream for debugging
