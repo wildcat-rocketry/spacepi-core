@@ -41,5 +41,11 @@ int SourceLocation::getColumnEnd() const noexcept {
 }
 
 ostream &diagnostics::operator<<(ostream &os, const SourceLocation &obj) noexcept {
-    return os << "SourceLocation(" << *obj.getFile() << ", " << obj.getLineNumber() << ", " << obj.getColumnStart() << ", " << obj.getColumnEnd() << ")";
+    os << "SourceLocation(";
+    if (obj.getFile()) {
+        os << *obj.getFile();
+    } else {
+        os << "nullptr";
+    }
+    return os << ", " << obj.getLineNumber() << ", " << obj.getColumnStart() << ", " << obj.getColumnEnd() << ")";
 }

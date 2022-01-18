@@ -64,7 +64,7 @@ int MainImpl::run(int argc, const char **argv) noexcept {
             return EXIT_FAILURE;
         }
         vector<string> includeDirs;
-        vector<char> includeDirTokVector(FLAGS_include_dirs.begin(), FLAGS_include_dirs.end());
+        vector<char> includeDirTokVector(FLAGS_include_dirs.begin(), FLAGS_include_dirs.end() + 1);
         char *tok = strtok(includeDirTokVector.data(), ";");
         while (tok) {
             includeDirs.emplace_back(tok);
