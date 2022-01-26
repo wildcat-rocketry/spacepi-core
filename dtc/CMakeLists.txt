@@ -6,8 +6,11 @@ add_library(spacepi-libdtc
     src/diagnostics/DiagnosticReporterImpl.cpp
     src/diagnostics/SourceFile.cpp
     src/diagnostics/SourceLocation.cpp
+    src/emitter/DTBFile.cpp
+    src/emitter/DTBHeader.cpp
     src/emitter/Emitter.cpp
     src/emitter/EmitterImpl.cpp
+    src/emitter/LabelMapping.cpp
     src/includer/Includer.cpp
     src/includer/IncluderImpl.cpp
     src/lexer/Lexeme.cpp

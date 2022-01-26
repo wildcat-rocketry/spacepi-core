@@ -1,0 +1,37 @@
+/dts-v1/;
+
+// Line comment
+/* Block comment */
+
+/ {
+    #address-cells = <1>;
+    #size-cells = <1>;
+
+    memory@0 {
+        reg = <0x4000 0x4000>;
+    };
+
+    soc {
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        ranges;
+
+        uart0: uart@f10 {
+            comatible = "standard-uart";
+            addr = &uart0;
+            handle = <&uart0>;
+            reg = <0x0f10 0x10>;
+        };
+    };
+
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+
+        display_reserved: framebuffer@78000000 {
+            reg = <0x10 0x10>;
+        };
+    };
+};

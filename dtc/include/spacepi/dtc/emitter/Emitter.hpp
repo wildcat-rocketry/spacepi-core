@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+
 #include <spacepi/dtc/parser/SyntaxTree.hpp>
 
 namespace spacepi {
@@ -27,7 +28,7 @@ namespace spacepi {
                      * \param[in] filename The path to the file to write
                      * \return If it was successful
                      */
-                    virtual bool emit(const parser::SyntaxTree &tree, const std::string &filename) noexcept = 0;
+                    virtual bool emit(const parser::SyntaxTree &tree, const std::string &filename) const noexcept = 0;
 
                     /**
                      * \brief The instance of the Emitter layer
