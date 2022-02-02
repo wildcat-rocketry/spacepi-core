@@ -118,6 +118,13 @@ namespace spacepi {
                      */
                     uint32_t getPhandle() const noexcept;
 
+                    /**
+                     * \brief Merge another node into this one
+                     *
+                     * \param[in] other The node to merge
+                     */
+                    void mergeTree(const SyntaxTree &other) noexcept;
+
                 private:
                     diagnostics::SourceLocation location;
                     std::string name;

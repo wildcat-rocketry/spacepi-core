@@ -85,6 +85,13 @@ const string &SyntaxTree::getLabel() const noexcept {
 }
 
 void SyntaxTree::addChild(const SyntaxTree &node) noexcept {
+    for(int i = 0; i < children.size(); i++) {
+        if(children[i].getName() == node.getName()) {
+            children[i] = node;
+            return;
+        }
+    }
+
     children.push_back(node);
 }
 
@@ -96,6 +103,13 @@ void SyntaxTree::addProperty(const SyntaxProperty &prop) noexcept {
     if (prop.getName() == "phandle") {
         properties[0] = prop;
     } else {
+        for(int i = 0; i < properties.size(); i++) {
+            if (properties[i].getName() == prop.getName()) {
+                properties[i] = prop;
+                return;
+            }
+        }
+
         properties.push_back(prop);
     }
 }
@@ -113,7 +127,7 @@ const vector<string> &SyntaxTree::getIncludes() const noexcept {
 }
 
 void SyntaxTree::setPhandle(uint32_t phandle) noexcept {
-    properties[0] = SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), 0) });
+    properties[0] = SyntaxProperty(SourceLocation(), "phandle", vector<SyntaxCell> { phandle });
 }
 
 uint32_t SyntaxTree::getPhandle() const noexcept {
@@ -122,4 +136,13 @@ uint32_t SyntaxTree::getPhandle() const noexcept {
 
 ostream &parser::operator<<(ostream &os, const SyntaxTree &obj) noexcept {
     return os << "SyntaxTree(" << obj.getLocation() << ", \"" << obj.getName() << "\", \"" << obj.getLabel() << "\")";
+}
+
+void SyntaxTree::mergeTree(const SyntaxTree &other) noexcept {
+    for (auto &child : other.getChildren()) {
+        addChild(child);
+    }
+    for (const SyntaxProperty &prop : other.getProperties()) {
+        addProperty(prop);
+    }
 }

@@ -16,10 +16,6 @@ shared_ptr<Includer> Includer::instance(new IncluderImpl());
 SyntaxTree Includer::process(const string &filename, const vector<string> &includeDirs) noexcept {
     SyntaxTree tree(SourceLocation(), "");
     tree.addInclude(filename);
-    SyntaxTree old(SourceLocation(), "");
-    do {
-        old = tree;
-        tree = process(tree, includeDirs);
-    } while (tree != old);
+    process(tree, includeDirs);
     return tree;
 }
