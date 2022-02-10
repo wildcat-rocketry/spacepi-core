@@ -13,7 +13,23 @@ using namespace spacepi::dtc::diagnostics;
 using namespace spacepi::dtc::parser;
 
 SyntaxTree::SyntaxTree(const SourceLocation &location, const string &name, const string &label) noexcept
-    : location(location), name(name), label(label), properties { SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), 0) }) } {
+    : location(location), name(name), label(label), properties { SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), -1) }) } {
+}
+
+SyntaxTree::SyntaxTree(const SyntaxTree &other) noexcept {
+    location = SourceLocation(other.getLocation());
+    name = string(other.getName());
+    label = string(other.getLabel());
+    for(auto prop : other.getProperties()) {
+        properties.push_back(SyntaxProperty(prop));
+    }
+    for(auto child : other.getChildren()) {
+        children.push_back(SyntaxTree(child));
+    }
+    for(auto include : other.getIncludes()) {
+        includes.push_back(string(include));
+    }
+    setPhandle(other.getPhandle());
 }
 
 bool SyntaxTree::operator==(const SyntaxTree &other) const noexcept {
@@ -127,7 +143,7 @@ const vector<string> &SyntaxTree::getIncludes() const noexcept {
 }
 
 void SyntaxTree::setPhandle(uint32_t phandle) noexcept {
-    properties[0] = SyntaxProperty(SourceLocation(), "phandle", vector<SyntaxCell> { phandle });
+    properties[0] = SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), phandle) });
 }
 
 uint32_t SyntaxTree::getPhandle() const noexcept {
@@ -143,6 +159,10 @@ void SyntaxTree::mergeTree(const SyntaxTree &other) noexcept {
         addChild(child);
     }
     for (const SyntaxProperty &prop : other.getProperties()) {
-        addProperty(prop);
+        if(prop.getName() == "phandle" && prop.getCells()[0].getValue() == -1) {
+            // Don't propogate invalid phandle
+        } else {
+            addProperty(prop);
+        }
     }
 }

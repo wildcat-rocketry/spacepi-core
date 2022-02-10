@@ -24,6 +24,7 @@ namespace spacepi {
                      * \param[in] label The label for the node
                      */
                     SyntaxTree(const diagnostics::SourceLocation &location, const std::string &name, const std::string &label = "") noexcept;
+                    SyntaxTree(const SyntaxTree &other) noexcept;
 
                     /**
                      * \brief Checks for equality
