@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 #include <gflags/gflags.h>
+#include <spacepi/dtc/diagnostics/Diagnostic.hpp>
+#include <spacepi/dtc/diagnostics/DiagnosticReporter.hpp>
 #include <spacepi/dtc/emitter/Emitter.hpp>
 #include <spacepi/dtc/includer/Includer.hpp>
 #include <spacepi/dtc/main/Main.hpp>
@@ -14,6 +16,7 @@
 
 using namespace std;
 using namespace google;
+using namespace spacepi::dtc::diagnostics;
 using namespace spacepi::dtc::emitter;
 using namespace spacepi::dtc::includer;
 using namespace spacepi::dtc::main;
@@ -39,25 +42,21 @@ int MainImpl::run(int argc, const char **argv) noexcept {
         ParseCommandLineFlags(&argc, &argvmp, true);
         switch (argc) {
             case 0:
-#define STRING(x) #x
-#define THIS_LINE STRING(__LINE__)
-                cerr << "Internal error in " __FILE__ ":" THIS_LINE << endl;
-#undef THIS_LINE
-#undef STRING
+                DiagnosticReporter::instance->report(Diagnostic(Diagnostic::Source::Main, Diagnostic::Severity::Error, "Internal error: no arguments"));
                 return EXIT_FAILURE;
             case 1:
                 break;
             default:
-                cerr << "ERROR: unknown command line flag '" << argvmp[1] << "'" << endl;
+                DiagnosticReporter::instance->report(Diagnostic(Diagnostic::Source::Main, Diagnostic::Severity::Error, "unknown command line flag '" + string(argvmp[1]) + "'"));
                 return EXIT_FAILURE;
         }
         bool fail = false;
         if (FLAGS_source_file.empty()) {
-            cerr << "ERROR: missing command-line flag -source_file" << endl;
+            DiagnosticReporter::instance->report(Diagnostic(Diagnostic::Source::Main, Diagnostic::Severity::Error, "missing command-line flag -source_file"));
             fail = true;
         }
         if (FLAGS_output_file.empty()) {
-            cerr << "ERROR: missing command-line flag -output_file" << endl;
+            DiagnosticReporter::instance->report(Diagnostic(Diagnostic::Source::Main, Diagnostic::Severity::Error, "missing command-line flag -output_file"));
             fail = true;
         }
         if (fail) {
