@@ -5,13 +5,19 @@ add_executable(spacepi-test
     src/container/Function.cpp
     src/container/Property.cpp
     src/container/SmartPtr.cpp
+    src/dtc/includer.cpp
     src/dtc/main.cpp
-    src/platform/Ints.cpp
+    src/Parameter.cpp
     src/platform/console.cpp
+    src/platform/Ints.cpp
     src/platform/testAndSet.cpp
     src/test/dtc/MockDiagnosticReporter.cpp
+    src/test/dtc/MockIncludeFinder.cpp
+    src/test/dtc/MockParser.cpp
+    src/test/dtc/StubLexer.cpp
+    src/test/dtc/StubTokenizer.cpp
+    src/test/dtc/SyntaxTreeBuilder.cpp
     src/test/TypeChecker.cpp
-    src/Parameter.cpp
     src/TypeUtil.cpp
 )
 target_include_directories(spacepi-test PUBLIC

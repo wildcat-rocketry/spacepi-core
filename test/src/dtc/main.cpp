@@ -12,11 +12,11 @@ using namespace spacepi::test::dtc;
 TEST(dtc_main, argumentParsing) {
     vector<const char *> args;
     args.push_back("spacepi-dtc");
-    args.push_back("--crash");
+    args.push_back("crash");
     MockDiagnosticReporter diags;
     Main::instance->run(2, args.data());
     EXPECT_EQ(diags.getDiagnostics().size(), 1);
     if (diags.getDiagnostics().size() >= 1) {
-        EXPECT_EQ(diags.getDiagnostics()[0], Diagnostic(Diagnostic::Error, "Unknown option '--crash'"));
+        EXPECT_EQ(diags.getDiagnostics()[0], Diagnostic(Diagnostic::Main, Diagnostic::Error, "unknown command line flag 'crash'"));
     }
 }
