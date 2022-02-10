@@ -11,6 +11,8 @@ add_library(spacepi-libdtc
     src/emitter/Emitter.cpp
     src/emitter/EmitterImpl.cpp
     src/emitter/LabelMapping.cpp
+    src/includer/IncludeFinder.cpp
+    src/includer/IncludeFinderImpl.cpp
     src/includer/Includer.cpp
     src/includer/IncluderImpl.cpp
     src/lexer/Lexeme.cpp
