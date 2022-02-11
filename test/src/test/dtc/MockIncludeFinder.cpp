@@ -16,6 +16,6 @@ MockIncludeFinder::~MockIncludeFinder() noexcept
     IncludeFinder::instance = old;
 }
 
-const string &MockIncludeFinder::Impl::locate(const string &filename, const vector<string> &includeDirs) const noexcept {
+string MockIncludeFinder::Impl::locate(const string &filename, const vector<string> &includeDirs) const noexcept {
     return filename;
 }

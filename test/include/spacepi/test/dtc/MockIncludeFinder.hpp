@@ -17,7 +17,7 @@ namespace spacepi {
                 private:
                     class Impl : public spacepi::dtc::includer::IncludeFinder {
                         public:
-                            const std::string &locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept;
+                            std::string locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept;
                     };
 
                     std::shared_ptr<spacepi::dtc::includer::IncludeFinder> old;
