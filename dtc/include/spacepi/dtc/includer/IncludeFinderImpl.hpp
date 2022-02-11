@@ -23,7 +23,7 @@ namespace spacepi {
                      * \param[in] includeDirs The directories in which source files may reside
                      * \return The full path to the file
                      */
-                    const std::string &locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept;
+                    std::string locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept;
             };
         }
     }

@@ -27,7 +27,7 @@ namespace spacepi {
                      * \param[in] includeDirs The directories in which source files may reside
                      * \return The full path to the file
                      */
-                    virtual const std::string &locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept = 0;
+                    virtual std::string locate(const std::string &filename, const std::vector<std::string> &includeDirs) const noexcept = 0;
 
                     /**
                      * \brief The instance of the IncludeFileFinder
