@@ -26,7 +26,7 @@ namespace spacepi {
                     void write(const std::vector<uint32_t> &data) noexcept;
                     void write(const std::vector<uint64_t> &data) noexcept;
 
-                    long position() noexcept;
+                    std::streampos position() noexcept;
                     void seek(long pos) noexcept;
 
                     void close() noexcept;

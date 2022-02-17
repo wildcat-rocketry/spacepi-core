@@ -28,7 +28,7 @@ uint32_t LabelMapping::add_label(const string &label) noexcept {
 
 void LabelMapping::write_labels(DTBFile &file) const noexcept {
     uint32_t count;
-    uint32_t pos = 0;
+    size_t pos = 0;
     for(count = labels.size(); count > 0; count--) {
         for(auto const& x : labels) {
             if (x.second == pos) {

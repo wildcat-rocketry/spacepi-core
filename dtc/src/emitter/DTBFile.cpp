@@ -55,7 +55,7 @@ void DTBFile::write(const std::vector<uint64_t> &data) noexcept {
     }
 }
 
-long DTBFile::position() noexcept {
+std::streampos DTBFile::position() noexcept {
     return stream.tellp();
 }
 

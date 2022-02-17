@@ -32,11 +32,11 @@ bool EmitterImpl::emit(const SyntaxTree &tree, const string &filename) const noe
     header.set_struct_pos(pos);
     write_node(file, labels, tree, tree);
     file.write(FDT_END);
-    header.set_struct_size(file.position() - pos);
+    header.set_struct_size((uint32_t)file.position() - pos);
     pos = file.position();
     header.set_strings_pos(pos);
     labels.write_labels(file);
-    header.set_strings_size(file.position() - pos);
+    header.set_strings_size((uint32_t)file.position() - pos);
 
     // Rewrite header now that we have the data
     file.seek(0);

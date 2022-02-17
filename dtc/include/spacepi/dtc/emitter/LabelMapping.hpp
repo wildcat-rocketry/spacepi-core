@@ -40,7 +40,7 @@ namespace spacepi {
 
                 private:
                     std::unordered_map<std::string, uint32_t> labels;
-                    uint32_t strings_pos = 0;
+                    std::size_t strings_pos = 0;
             };
         }
     }

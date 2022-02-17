@@ -101,7 +101,7 @@ const string &SyntaxTree::getLabel() const noexcept {
 }
 
 void SyntaxTree::addChild(const SyntaxTree &node) noexcept {
-    for(int i = 0; i < children.size(); i++) {
+    for(size_t i = 0; i < children.size(); i++) {
         if(children[i].getName() == node.getName()) {
             children[i] = node;
             return;
@@ -119,7 +119,7 @@ void SyntaxTree::addProperty(const SyntaxProperty &prop) noexcept {
     if (prop.getName() == "phandle") {
         properties[0] = prop;
     } else {
-        for(int i = 0; i < properties.size(); i++) {
+        for(size_t i = 0; i < properties.size(); i++) {
             if (properties[i].getName() == prop.getName()) {
                 properties[i] = prop;
                 return;
@@ -159,7 +159,7 @@ void SyntaxTree::mergeTree(const SyntaxTree &other) noexcept {
         addChild(child);
     }
     for (const SyntaxProperty &prop : other.getProperties()) {
-        if(prop.getName() == "phandle" && prop.getCells()[0].getValue() == -1) {
+        if(prop.getName() == "phandle" && (int32_t)prop.getCells()[0].getValue() == -1) {
             // Don't propogate invalid phandle
         } else {
             addProperty(prop);

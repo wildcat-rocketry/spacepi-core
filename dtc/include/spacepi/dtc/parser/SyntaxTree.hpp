@@ -27,6 +27,14 @@ namespace spacepi {
                     SyntaxTree(const SyntaxTree &other) noexcept;
 
                     /**
+                     * \brief Makes copy of synax tree
+                     * 
+                     * \param[in] other The SyntaxTree to copy
+                     * \return A copy of the SyntaxTree
+                     */
+                    SyntaxTree &operator=(const SyntaxTree &other) = default;
+
+                    /**
                      * \brief Checks for equality
                      *
                      * \param[in] other The other object
