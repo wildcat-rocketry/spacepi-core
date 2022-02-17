@@ -18,7 +18,7 @@ namespace spacepi {
                     /**
                      * \brief Constructs a LabelMapping
                      */
-                    DTBHeader(uint version, uint last_comp) noexcept: version(version), last_comp_version(last_comp) {};
+                    DTBHeader(uint32_t version, uint32_t last_comp) noexcept: version(version), last_comp_version(last_comp) {};
                     DTBHeader() noexcept: version(17), last_comp_version(16) {};
 
                     void set_totalsize(uint32_t totalsize) noexcept;
