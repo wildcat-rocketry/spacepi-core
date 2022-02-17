@@ -47,3 +47,9 @@ add_executable(spacepi-dtc
 target_link_libraries(spacepi-dtc
     spacepi-libdtc
 )
+
+if(MSVC)
+  target_compile_options(spacepi-libdtc PRIVATE /W4 /WX)
+else()
+  target_compile_options(spacepi-libdtc PRIVATE -Wall -Wextra -Wpedantic -Wconversion)
+endif()

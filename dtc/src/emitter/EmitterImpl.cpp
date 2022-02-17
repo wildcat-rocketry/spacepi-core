@@ -24,16 +24,16 @@ bool EmitterImpl::emit(const SyntaxTree &tree, const string &filename) const noe
     header.write_header(file);
 
     // Write memory reservation block. Currently the array terminator of two zeros since it's unused.
-    header.set_memory_reservations_pos(file.position());
+    header.set_memory_reservations_pos((uint32_t)file.position());
     file.write((uint64_t)0);
     file.write((uint64_t)0);
 
-    pos = file.position();
+    pos = (uint32_t)file.position();
     header.set_struct_pos(pos);
     write_node(file, labels, tree, tree);
     file.write(FDT_END);
     header.set_struct_size((uint32_t)file.position() - pos);
-    pos = file.position();
+    pos = (uint32_t)file.position();
     header.set_strings_pos(pos);
     labels.write_labels(file);
     header.set_strings_size((uint32_t)file.position() - pos);
