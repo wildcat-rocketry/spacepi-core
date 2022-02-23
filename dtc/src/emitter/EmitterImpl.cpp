@@ -111,9 +111,12 @@ pair<string, const SyntaxTree &> EmitterImpl::find_label(const SyntaxTree &tree,
         return pair<string, const SyntaxTree &>(addr, tree);
     }
 
-    for (const SyntaxTree &child: tree.getChildren()) {
-        return find_label(child, label, addr + "/" + child.getName());
-    }
+	for (const SyntaxTree &child: tree.getChildren()) {
+		auto found = find_label(child, label, addr + "/" + child.getName());
+        if (found.first != "") {
+            return found;
+        }
+	}
 
-    return pair<string, const SyntaxTree &>("", tree);
+	return pair<string, const SyntaxTree &>("", tree);
 }

@@ -13,7 +13,7 @@ using namespace spacepi::dtc::diagnostics;
 using namespace spacepi::dtc::parser;
 
 SyntaxTree::SyntaxTree(const SourceLocation &location, const string &name, const string &label) noexcept
-    : location(location), name(name), label(label), properties { SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), -1) }) } {
+    : location(location), name(name), label(label), properties { SyntaxProperty(SourceLocation(), "phandle", { SyntaxCell(SourceLocation(), (uint32_t)UINT32_MAX) }) } {
 }
 
 SyntaxTree::SyntaxTree(const SyntaxTree &other) noexcept {

@@ -4,8 +4,8 @@
 using namespace std;
 using namespace spacepi::dtc::emitter;
 
-void DTBHeader::set_totalsize(uint32_t totalsize) noexcept {
-    totalsize = totalsize;
+void DTBHeader::set_totalsize(uint32_t size) noexcept {
+    totalsize = size;
 }
 
 void DTBHeader::set_struct_pos(uint32_t struct_pos) noexcept {

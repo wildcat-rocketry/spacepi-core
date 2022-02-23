@@ -15,9 +15,11 @@ DiagnosticReporter::ReportStream::ReportStream(DiagnosticReporter *reporter, Dia
 }
 
 DiagnosticReporter::ReportStream::ReportStream(const ReportStream &copy) noexcept {
+    (void)copy; // Let it think a copy is being made when it's just empty
 }
 
 DiagnosticReporter::ReportStream &DiagnosticReporter::ReportStream::operator=(const DiagnosticReporter::ReportStream &copy) noexcept {
+    (void)copy; // Don't need to use the copy
     return *this;
 }
 
