@@ -54,7 +54,7 @@ bool SyntaxProperty::operator==(const SyntaxProperty &other) const noexcept {
 }
 
 bool SyntaxProperty::operator!=(const SyntaxProperty &other) const noexcept {
-    if (location != other.location || name != other.name || label != other.name) {
+    if (location != other.location || name != other.name || label != other.label) {
         return true;
     }
     vector<SyntaxCell>::const_iterator it1 = cells.begin();
