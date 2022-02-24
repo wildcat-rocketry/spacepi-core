@@ -41,6 +41,7 @@ static const char *sources[] = {
     "lexer",
     "main",
     "parser",
+    "phandler",
     "tokenizer",
     "validator"
 };

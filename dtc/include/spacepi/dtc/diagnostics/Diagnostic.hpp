@@ -66,6 +66,10 @@ namespace spacepi {
                          */
                         Parser,
                         /**
+                         * \brief The phandler layer
+                         */
+                        PHandler,
+                        /**
                          * \brief The tokenizer layer
                          */
                         Tokenizer,
