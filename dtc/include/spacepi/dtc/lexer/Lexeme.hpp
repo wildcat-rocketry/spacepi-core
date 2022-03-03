@@ -124,7 +124,7 @@ namespace spacepi {
                         /**
                          * \brief The name of a node
                          *
-                         * Matches: \c [a-zA-Z,._+-][a-zA-Z0-9,._+-]{0,30}(@[0-9]{1,8})?
+                         * Matches: \c [a-zA-Z,._+-][a-zA-Z0-9,._+-]{0,30}(@[0-9]{1,8})? 
                          *
                          * After:
                          * \li \c Semicolon
@@ -136,7 +136,7 @@ namespace spacepi {
                          */
                         NodeName,
                         /**
-                         * \brief The name of a property
+                         * \brief The name of a propertyd
                          *
                          * Matches: \c [#?a-zA-Z,._+-][#?a-zA-Z0-9,._+-]{0,30}
                          *
