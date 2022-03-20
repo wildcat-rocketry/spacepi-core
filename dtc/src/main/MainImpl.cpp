@@ -10,6 +10,7 @@
 #include <spacepi/dtc/main/Main.hpp>
 #include <spacepi/dtc/main/MainImpl.hpp>
 #include <spacepi/dtc/parser/SyntaxTree.hpp>
+#include <spacepi/dtc/phandler/PHandler.hpp>
 #include <spacepi/dtc/validator/Validator.hpp>
 
 using namespace std;
@@ -18,6 +19,7 @@ using namespace spacepi::dtc::emitter;
 using namespace spacepi::dtc::includer;
 using namespace spacepi::dtc::main;
 using namespace spacepi::dtc::parser;
+using namespace spacepi::dtc::phandler;
 using namespace spacepi::dtc::validator;
 
 DEFINE_string(source_file, "", "The .dts source file to compile");
@@ -79,6 +81,7 @@ int MainImpl::run(int argc, const char **argv) noexcept {
                 return EXIT_FAILURE;
             }
         }
+        PHandler::instance->assign(main);
         if (!Emitter::instance->emit(main, FLAGS_output_file)) {
             cerr << "Failed to write device tree blob." << endl;
             return EXIT_FAILURE;

@@ -28,7 +28,7 @@ set(CMAKE_BUILD_TYPE Debug)
 enable_testing()
 
 # Set C++ version
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Check version support
 get_property(hasProp GLOBAL PROPERTY SPACEPI_CORE_VERSION DEFINED)

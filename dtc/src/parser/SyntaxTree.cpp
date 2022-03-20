@@ -88,6 +88,10 @@ void SyntaxTree::addChild(const SyntaxTree &node) noexcept {
     children.push_back(node);
 }
 
+vector<SyntaxTree> &SyntaxTree::getChildren() noexcept {
+    return children;
+}
+
 const vector<SyntaxTree> &SyntaxTree::getChildren() const noexcept {
     return children;
 }

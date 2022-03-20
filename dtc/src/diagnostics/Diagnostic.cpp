@@ -49,6 +49,8 @@ ostream &diagnostics::operator<<(ostream &os, Diagnostic::Source source) noexcep
             return os << "Main";
         case Diagnostic::Parser:
             return os << "Parser";
+        case Diagnostic::PHandler:
+            return os << "PHandler";
         case Diagnostic::Tokenizer:
             return os << "Tokenizer";
         case Diagnostic::Validator:

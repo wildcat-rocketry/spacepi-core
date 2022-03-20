@@ -74,6 +74,13 @@ namespace spacepi {
                      *
                      * \return The nodes
                      */
+                    std::vector<SyntaxTree> &getChildren() noexcept;
+
+                    /**
+                     * \brief Gets the children nodes
+                     *
+                     * \return The nodes
+                     */
                     const std::vector<SyntaxTree> &getChildren() const noexcept;
 
                     /**

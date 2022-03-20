@@ -14,6 +14,7 @@ using namespace spacepi::dtc::diagnostics;
 
 #define DEBUG DiagnosticReporter::instance->debug(Diagnostic::Tokenizer)
 #define WARN DiagnosticReporter::instance->warn(Diagnostic::Tokenizer)
+#define WARN_AT(loc) DiagnosticReporter::instance->warn(Diagnostic::Tokenizer, loc)
 
 bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noexcept {
     // TODO
@@ -107,11 +108,7 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					else if (temp == '*') tokenState = BLOCK_COMMENT;
 					else if (temp <= ' ') {
 						tokenState = NORMAL;
-						WARN << "skipped invalid singular character \'/\' at line " << lineNo;
-						tokenBegin = colNo + 1;
-					}
-					else {
-
+						WARN_AT(SourceLocation(inFile, lineNo, colNo, colNo)) << "skipped invalid singular character \'/\'";
 					}
 					break;*/
 				case LINE_COMMENT:

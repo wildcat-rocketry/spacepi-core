@@ -20,6 +20,8 @@ add_library(spacepi-libdtc
     src/parser/SyntaxCell.cpp
     src/parser/SyntaxProperty.cpp
     src/parser/SyntaxTree.cpp
+    src/phandler/PHandler.cpp
+    src/phandler/PHandlerImpl.cpp
     src/tokenizer/Token.cpp
     src/tokenizer/Tokenizer.cpp
     src/tokenizer/TokenizerImpl.cpp
