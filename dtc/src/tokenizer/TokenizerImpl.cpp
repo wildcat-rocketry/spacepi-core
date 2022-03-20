@@ -19,17 +19,18 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
     // TODO
 	vector<string> lines;
 	const shared_ptr<SourceFile> inFile(new SourceFile(filename, lines));
-	//int currPos[] = {1, 1};
 	int lineNo = 1;
 	int colNo = 1;
 	char temp;
-	int tokenBegin;
-	bool alreadyASpace;
+	int tokenBegin = 1;
+	bool alreadyASpace = false;
+	bool waitingForComment = false;
 
 	ifstream str(filename, ifstream::in);
+	str.exceptions(ifstream::failbit | ifstream::badbit);
 
 	// Next line is for debugging.
-	DEBUG << "Did something...?";
+	// DEBUG << "Did something...?";
 
 	try {
 		while (true) {
@@ -40,10 +41,11 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 			DEBUG << "Read line";
 		}
 	}
-	catch (ios_base::failure&) {
-		char s[255];
-		str.getline(s, 255, EOF);
-		lines.push_back(s);
+	catch (ifstream::failure e) {
+		//char s[255];
+		//str.getline(s, 255, 0x03);
+		//lines.push_back(s);
+
 		// Next line is for debugging.
 		DEBUG << "Read final line";
 	}
@@ -53,15 +55,18 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 
 	string invalid("!$%'()*\\^`|~");
 	string singleTokens(":;<>[]{}");
-	//bool isString = false;
 	for (auto it = begin(lines); it != end(lines); it++) {
 		colNo = 1;
 		do {
 			temp = (*it)[colNo - 1];  // B'cuz strings are zero-indexed.
 			switch (tokenState) {
 				case NORMAL:
-					if (temp == '/') tokenState = COMMENT_BEGIN_WAIT;
-					else if (temp == '\"') {
+					if (temp == '/' && waitingForComment == false) waitingForComment = true;
+					else if (temp == '/' && waitingForComment == true) tokenState = LINE_COMMENT;
+					else if (temp == '*' && waitingForComment == true) tokenState = BLOCK_COMMENT;
+					else waitingForComment = false;
+
+					if (temp == '\"') {
 						tokenState = STRING;
 						tokenBegin = colNo;
 						alreadyASpace = true;
@@ -69,38 +74,46 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					else if (invalid.find(temp) != string::npos || temp > '~')
 						WARN << "skipped invalid character \'" << temp << "\' at line " << lineNo;
 					else if (temp <= ' ') {
-						//tokenState = IGNORE;
+						if (temp == '\0') {
+							tokenBegin = 1;
+						}
+						else {
+							tokenBegin = colNo + 1;
+						}
 						if (!alreadyASpace) {  // I will only do the following if temp is the first space (or whatever) I've seen since the last solid block that isn't already tokenized.
 							// Not adding one to (colNo - tokenBegin) because I don't want the current character to be included. tokenBegin on the left gets one subtracted because it is one-indexed.
 							tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(tokenBegin - 1, colNo - tokenBegin));
 							// Next line is for debugging.
 							DEBUG << "Created token - " << it->substr(tokenBegin - 1, colNo - tokenBegin) << " - at line " << lineNo;
-						}
-						if (temp == '\0') {
-							tokenBegin = 1;
-							alreadyASpace = true;
-						}
-						else {
-							tokenBegin = colNo + 1;
 							alreadyASpace = true;
 						}
 					}
 					else if (singleTokens.find(temp) != string::npos) {
+						int tokenLen = colNo - tokenBegin;
+						if (tokenLen >= 2) { // Do not disregard the previous token if coming across a single-character token.
+							tokens.emplace_back(SourceLocation(inFile, lineNo, tokenBegin, colNo), it->substr(colNo - 1, tokenLen));
+							DEBUG << "Created token - " << it->substr(tokenBegin  - 1, tokenLen) << " - at line " << lineNo;
+
+						}
 						tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), it->substr(colNo - 1, 1));
-						// Next line is for debugging.
 						DEBUG << "Created token - " << it->substr(colNo - 1, 1) << " - at line " << lineNo;
 						alreadyASpace = false;
+						tokenBegin = colNo + 1;
 					}
 
 					break;
-				case COMMENT_BEGIN_WAIT:
+				/*case COMMENT_BEGIN_WAIT:
 					if (temp == '/') tokenState = LINE_COMMENT;
 					else if (temp == '*') tokenState = BLOCK_COMMENT;
-					else {
+					else if (temp <= ' ') {
 						tokenState = NORMAL;
 						WARN << "skipped invalid singular character \'/\' at line " << lineNo;
+						tokenBegin = colNo + 1;
 					}
-					break;
+					else {
+
+					}
+					break;*/
 				case LINE_COMMENT:
 					if (temp == '\0') {
 						tokenState = NORMAL;
@@ -114,6 +127,9 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					if (temp == '/') {
 						tokenState = NORMAL;
 						tokenBegin = colNo + 1;
+					}
+					else {
+						tokenState = BLOCK_COMMENT;
 					}
 					break;
 				case STRING:
@@ -142,16 +158,10 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 					if (temp > ' ') tokenState = NORMAL;
 					break;
 				*/
-
-				/*  // This just won't work.
-				case SINGLE:
-					tokens.emplace_back(SourceLocation(inFile, lineNo, colNo, colNo), string(temp));
-					break;
-				*/
 			}
 			colNo++;
 		} while (temp != '\0');
-
+		colNo = 1;
 		lineNo++;
 		// State actions.
 		/*
@@ -168,11 +178,6 @@ bool TokenizerImpl::readFile(const string &filename, vector<Token> &tokens) noex
 
 		}
 		*/
-		colNo++;
-		if (temp == '\0') {
-			colNo = 1;
-			lineNo++;
-		}
 	}
     return true;
 }
